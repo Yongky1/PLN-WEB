@@ -39,4 +39,45 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
+
+    // ----------------------------------------------------
+    // The Interactive Power Line (Scroll storytelling)
+    // ----------------------------------------------------
+    const timelineContainer = document.getElementById('timeline-container');
+    const timelineProgress = document.getElementById('timeline-progress');
+    const nodes = document.querySelectorAll('.timeline-node');
+
+    if (timelineContainer && timelineProgress) {
+        window.addEventListener('scroll', () => {
+            const rect = timelineContainer.getBoundingClientRect();
+            // Start filling when the top of container passes middle of the viewport
+            const triggerPoint = window.innerHeight * 0.6;
+            
+            if (rect.top < triggerPoint) {
+                // Calculate percentage of timeline scrolled
+                const totalScrollable = rect.height;
+                const scrolledAmount = triggerPoint - rect.top;
+                let percentage = (scrolledAmount / totalScrollable) * 100;
+                
+                // Clamp between 0 and 100
+                percentage = Math.max(0, Math.min(percentage, 100));
+                timelineProgress.style.height = `${percentage}%`;
+
+                // Highlight nodes as the line hits them
+                nodes.forEach(node => {
+                    const nodeTopRelativeToContainer = node.offsetTop;
+                    const fillHeightPixels = (percentage / 100) * totalScrollable;
+                    
+                    if (fillHeightPixels >= nodeTopRelativeToContainer) {
+                        node.classList.add('active');
+                    } else {
+                        node.classList.remove('active');
+                    }
+                });
+            } else {
+                timelineProgress.style.height = '0%';
+                nodes.forEach(node => node.classList.remove('active'));
+            }
+        }, { passive: true });
+    }
 });
