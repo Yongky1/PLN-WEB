@@ -1,124 +1,132 @@
 <!DOCTYPE html>
 <html lang="id" class="scroll-smooth">
-
 <head>
     <%- include('partials/head') %>
 </head>
+<body class="bg-brand-light dark:bg-brand-dark text-gray-900 dark:text-white transition-colors duration-700 font-sans antialiased overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark">
 
-<body
-    class="bg-brand-light dark:bg-brand-dark text-gray-900 dark:text-white transition-colors duration-700 font-sans antialiased overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark">
-
-    <%- include('partials/navbar') %>
-
-        <main class="pt-32 pb-24 px-6 bg-brand-light dark:bg-[#030914] transition-colors duration-700 min-h-screen">
-            <div class="max-w-7xl mx-auto">
-
-                <div class="mb-10 text-center reveal-on-scroll">
-                    <span
-                        class="inline-block py-1 px-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-brand-blue dark:text-brand-accent text-[10px] font-semibold tracking-widest uppercase mb-3 border border-blue-200 dark:border-blue-800">
-                        Peralatan Lapangan
-                    </span>
-                    <h1 class="text-4xl md:text-6xl font-display font-bold mb-3 tracking-tight">
-                        Tools & <span
-                            class="bg-gradient-text bg-gradient-to-r from-brand-pln to-brand-yellow">Alat
-                            K3</span>
-                    </h1>
-                    <p
-                        class="text-sm md:text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto font-medium leading-relaxed">
-                        Katalog lengkap peralatan keselamatan kerja dan alat teknis yang digunakan teknisi lapangan PLN
-                        dalam setiap pekerjaan konstruksi dan pemeliharaan jaringan.
-                    </p>
-                </div>
-
-                <div class="flex flex-wrap gap-3 mb-10 justify-center">
-                    <button data-filter="all"
-                        class="filter-btn px-6 py-2 rounded-full text-xs font-semibold shadow-sm border transition-all border-brand-accent bg-brand-accent/10 text-brand-blue dark:text-brand-accent">
-                        Semua
-                    </button>
-                    <button data-filter="k3"
-                        class="filter-btn px-6 py-2 rounded-full text-xs font-semibold shadow-sm border transition-all border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-brand-accent hover:text-brand-blue dark:hover:text-brand-accent">
-                        Alat K3
-                    </button>
-                    <button data-filter="teknis"
-                        class="filter-btn px-6 py-2 rounded-full text-xs font-semibold shadow-sm border transition-all border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-brand-accent hover:text-brand-blue dark:hover:text-brand-accent">
-                        Alat Teknis
-                    </button>
-                    <button data-filter="pengukuran"
-                        class="filter-btn px-6 py-2 rounded-full text-xs font-semibold shadow-sm border transition-all border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-brand-accent hover:text-brand-blue dark:hover:text-brand-accent">
-                        Pengukuran
-                    </button>
-                </div>
-
-                <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <!-- Grid items will be rendered by tools.js to avoid EJS linter conflicts -->
-                </div>
-
+    <nav class="fixed w-full z-50 glass-nav transition-colors duration-500 text-gray-900 dark:text-white">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+            <div class="font-display font-bold text-xl tracking-tight">
+                PLN<span class="text-brand-accent dark:text-brand-accent">Pusdiklat</span>
             </div>
-        </main>
-
-        <div id="modal-overlay" class="fixed inset-0 z-[100] hidden items-center justify-center p-6"
-            style="background: rgba(0,0,0,0.8); backdrop-filter: blur(12px);">
-            <div class="relative bg-white dark:bg-[#030914] rounded-[2rem] shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100 dark:border-white/10 opacity-0 transform scale-95 transition-all duration-300"
-                id="modal-container">
-                <div id="modal-header" class="w-full h-48 flex items-center justify-center relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 opacity-40 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-white/30 via-transparent to-transparent">
-                    </div>
-                    <span id="modal-icon" class="text-8xl relative z-10"
-                        style="filter: drop-shadow(0 10px 20px rgba(0,0,0,0.5));"></span>
-                </div>
-                <div class="p-8">
-                    <div class="flex items-start justify-between mb-4">
-                        <div>
-                            <span id="modal-category-label"
-                                class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-brand-light dark:bg-white/5 border border-black/5 dark:border-white/10 text-brand-blue dark:text-brand-accent mb-3 inline-block"></span>
-                            <h2 id="modal-name"
-                                class="text-3xl font-display font-bold text-gray-900 dark:text-white leading-tight tracking-tight">
-                            </h2>
-                        </div>
-                        <button id="modal-close"
-                            class="p-2.5 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition text-gray-500 dark:text-gray-400 flex-shrink-0">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <p id="modal-desc"
-                        class="text-sm text-gray-500 dark:text-gray-400 leading-relaxed mb-6 font-medium"></p>
-                    <div class="grid grid-cols-2 gap-4 mb-6">
-                        <div
-                            class="rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#081729] p-4">
-                            <p
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">
-                                Standar</p>
-                            <p id="modal-standard" class="text-sm font-bold text-brand-blue dark:text-cyan-400"></p>
-                        </div>
-                        <div
-                            class="rounded-2xl border border-gray-100 dark:border-white/10 bg-white dark:bg-[#081729] p-4">
-                            <p
-                                class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-1.5">
-                                Status Penggunaan</p>
-                            <p id="modal-status" class="text-sm font-bold text-red-400"></p>
-                        </div>
-                    </div>
-                    <p
-                        class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-4 pl-1">
-                        Prosedur Penggunaan</p>
-                    <ol id="modal-procedure" class="flex flex-col gap-3"></ol>
-                </div>
+            <div class="flex items-center gap-4">
+                <span class="hidden md:inline-block text-sm text-gray-500 dark:text-gray-400">Tools & Alat K3</span>
+                <button id="theme-toggle" class="p-2 rounded-full bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/>
+                    </svg>
+                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                        <path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/>
+                    </svg>
+                </button>
             </div>
         </div>
+    </nav>
 
-        <%- include('partials/footer') %>
+    <main class="pt-32 pb-24 px-6 bg-brand-light dark:bg-brand-dark transition-colors duration-700 min-h-screen">
+        <div class="max-w-7xl mx-auto">
 
-        <div id="app-data" data-tools="<%= JSON.stringify(toolsData) %>" style="display: none;"></div>
-        <script>
-            // Mengambil data JSON dengan aman dari atribut HTML untuk menghindari "red error" dari code formatter VSCode (Prettier)
-            var __TOOLS_DATA__ = JSON.parse(document.getElementById('app-data').getAttribute('data-tools'));
-        </script>
-        <script src="/js/main.js"></script>
-        <script src="/js/tools.js"></script>
+            <div class="mb-10 text-left">
+                <span class="inline-block py-1 px-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-brand-blue dark:text-brand-accent text-[10px] font-semibold tracking-widest uppercase mb-3 border border-blue-200 dark:border-blue-800">
+                    Peralatan Lapangan
+                </span>
+                <h1 class="text-3xl md:text-4xl font-display font-bold mb-3">
+                    Tools & <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-brand-accent dark:from-blue-400 dark:to-brand-accent">Alat K3</span>
+                </h1>
+                <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
+                    Katalog lengkap peralatan keselamatan kerja dan alat teknis yang digunakan teknisi lapangan PLN dalam setiap pekerjaan konstruksi dan pemeliharaan jaringan.
+                </p>
+            </div>
+
+            <div class="flex flex-wrap gap-3 mb-8">
+                <button data-filter="all" class="filter-btn px-4 py-1.5 rounded-full text-xs font-semibold border transition-all border-brand-accent bg-brand-accent/10 text-brand-blue dark:text-brand-accent">
+                    Semua
+                </button>
+                <button data-filter="k3" class="filter-btn px-4 py-1.5 rounded-full text-xs font-semibold border transition-all border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-brand-accent hover:text-brand-blue dark:hover:text-brand-accent">
+                    Alat K3
+                </button>
+                <button data-filter="teknis" class="filter-btn px-4 py-1.5 rounded-full text-xs font-semibold border transition-all border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-brand-accent hover:text-brand-blue dark:hover:text-brand-accent">
+                    Alat Teknis
+                </button>
+                <button data-filter="pengukuran" class="filter-btn px-4 py-1.5 rounded-full text-xs font-semibold border transition-all border-gray-200 dark:border-white/10 text-gray-500 dark:text-gray-400 hover:border-brand-accent hover:text-brand-blue dark:hover:text-brand-accent">
+                    Pengukuran
+                </button>
+            </div>
+
+            <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                <% toolsData.forEach(tool => { %>
+                <div class="tool-card group relative rounded-2xl overflow-hidden bg-white dark:bg-[#0d2238] shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-white/5 hover:-translate-y-1 flex flex-col cursor-pointer"
+                     data-category="<%= tool.category %>"
+                     data-id="<%= tool.id %>">
+
+                    <div class="w-full h-36 relative overflow-hidden flex items-center justify-center" style="background: <%= tool.bgGradient %>;">
+                        <div class="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-accent via-transparent to-transparent group-hover:scale-150 transition-transform duration-700"></div>
+                        <span class="relative z-10 text-5xl select-none" style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));"><%= tool.icon %></span>
+                        <div class="absolute top-3 right-3">
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full <%- tool.category === 'k3' ? 'bg-red-500/20 text-red-400 dark:text-red-300' : tool.category === 'teknis' ? 'bg-blue-500/20 text-blue-600 dark:text-blue-300' : 'bg-purple-500/20 text-purple-600 dark:text-purple-300' %>">
+                                <%= tool.categoryLabel %>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="p-5 flex flex-col flex-grow">
+                        <h3 class="text-base font-bold mb-1.5 text-gray-900 dark:text-white group-hover:text-brand-blue dark:group-hover:text-brand-accent transition-colors leading-tight">
+                            <%= tool.name %>
+                        </h3>
+                        <p class="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 flex-grow">
+                            <%= tool.description %>
+                        </p>
+                        <div class="mt-auto border-t border-gray-100 dark:border-gray-800/60 pt-3 flex flex-col gap-1.5">
+                            <p class="text-xs text-gray-600 dark:text-gray-300 font-medium">Standar : <span class="text-brand-blue dark:text-brand-accent"><%= tool.standard %></span></p>
+                            <p class="text-xs font-medium">Status : <span class="<%- tool.status === 'Wajib' ? 'text-red-500 dark:text-red-400' : 'text-green-600 dark:text-green-400' %>"><%= tool.status %></span></p>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            </div>
+
+        </div>
+    </main>
+
+    <div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-6" style="background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);">
+        <div class="relative bg-white dark:bg-[#0d2238] rounded-3xl shadow-2xl max-w-lg w-full overflow-hidden border border-gray-100 dark:border-white/10">
+            <div id="modal-header" class="w-full h-40 flex items-center justify-center relative overflow-hidden">
+                <div class="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-accent via-transparent to-transparent"></div>
+                <span id="modal-icon" class="text-7xl relative z-10" style="filter: drop-shadow(0 6px 16px rgba(0,0,0,0.35));"></span>
+            </div>
+            <div class="p-7">
+                <div class="flex items-start justify-between mb-3">
+                    <div>
+                        <span id="modal-category-label" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-brand-accent/10 text-brand-blue dark:text-brand-accent mb-2 inline-block"></span>
+                        <h2 id="modal-name" class="text-2xl font-display font-bold text-gray-900 dark:text-white leading-tight"></h2>
+                    </div>
+                    <button id="modal-close" class="p-2 rounded-full bg-gray-100 dark:bg-white/5 hover:bg-gray-200 dark:hover:bg-white/10 transition text-gray-500 dark:text-gray-400 flex-shrink-0 mt-1">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                    </button>
+                </div>
+                <p id="modal-desc" class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed mb-5"></p>
+                <div class="grid grid-cols-2 gap-3 mb-5">
+                    <div class="rounded-xl bg-gray-50 dark:bg-white/5 p-3">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Standar</p>
+                        <p id="modal-standard" class="text-sm font-bold text-brand-blue dark:text-brand-accent"></p>
+                    </div>
+                    <div class="rounded-xl bg-gray-50 dark:bg-white/5 p-3">
+                        <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-1">Status</p>
+                        <p id="modal-status" class="text-sm font-bold"></p>
+                    </div>
+                </div>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-gray-400 dark:text-gray-500 mb-3">Prosedur Penggunaan</p>
+                <ol id="modal-procedure" class="flex flex-col gap-2.5"></ol>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var __TOOLS_DATA__ = <%- JSON.stringify(toolsData) %>;
+    </script>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/tools.js"></script>
 </body>
-
 </html>
