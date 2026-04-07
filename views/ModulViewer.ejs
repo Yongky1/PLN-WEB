@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <%- include('partials/head') %>
+    <!-- Tambahkan library model-viewer khusus untuk halaman ini -->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+</head>
+<body class="bg-brand-light dark:bg-brand-dark text-gray-900 dark:text-white transition-colors duration-700 font-sans antialiased overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark">
+
+    <%- include('partials/navbar') %>
+
+    <main class="pt-32 pb-24 px-6 bg-brand-light dark:bg-brand-dark transition-colors duration-700 min-h-screen">
+        <div class="max-w-7xl mx-auto flex flex-col">
+            
+            <!-- Header/Breadcrumb area -->
+            <div class="mb-6 flex items-center justify-between">
+                <div>
+                    <a href="/ModulKonstruksi" class="inline-flex items-center text-sm text-gray-500 hover:text-brand-blue dark:text-gray-400 dark:hover:text-brand-accent transition-colors mb-2">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Kembali ke Daftar Modul
+                    </a>
+                    <h1 class="text-2xl md:text-3xl font-display font-bold">
+                        <%= module.title %> 
+                    </h1>
+                </div>
+                <div class="hidden sm:block text-right">
+                    <span class="inline-block py-1 px-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-brand-blue dark:text-brand-accent text-[10px] font-semibold tracking-widest uppercase border border-blue-200 dark:border-blue-800">
+                        Interactive 3D View
+                    </span>
+                </div>
+            </div>
+
+            <!-- 3D Viewer Container -->
+            <div id="viewer-container" class="relative w-full rounded-3xl overflow-hidden bg-white/50 dark:bg-[#111928] border border-gray-200 dark:border-white/10 shadow-lg flex items-center justify-center group mb-6 transition-all duration-500" style="height: 75vh; min-height: 500px;">
+                <!-- Fallback / Background Pattern -->
+                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-accent via-transparent to-transparent pointer-events-none"></div>
+                
+                <!-- Hint Text (Hilang saat interaksi) -->
+                <div id="hint-text" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-black/60 backdrop-blur-md text-white text-xs px-4 py-2 rounded-full pointer-events-none z-10 opacity-70 group-hover:opacity-100 transition-opacity flex items-center gap-2">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                    <span>Geser untuk memutar | Scroll untuk zoom</span>
+                </div>
+
+                <!-- Web Component Model Viewer -->
+                <model-viewer 
+                    id="main-model-viewer"
+                    src="/models/<%= module.id %>.glb" 
+                    camera-controls 
+                    auto-rotate
+                    rotation-per-second="30deg"
+                    interaction-prompt="none"
+                    shadow-intensity="1.5"
+                    environment-image="neutral"
+                    exposure="1"
+                    class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+                    
+                    <!-- Loading state custom -->
+                    <div slot="poster" id="poster-container" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 transition-all duration-500">
+                        <div id="loading-spinner" class="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-accent mb-4"></div>
+                        <span id="loading-text" class="text-sm font-medium">Memuat Model 3D...</span>
+                    </div>
+                </model-viewer>
+            </div>
+
+            <!-- Detail Info Module under viewer -->
+            <div class="md:mt-6 bg-white dark:bg-[#0d2238] rounded-2xl p-5 border border-gray-100 dark:border-white/5 shadow-sm flex-shrink-0">
+                <h3 class="text-lg font-bold mb-2 text-gray-900 dark:text-white">Deskripsi Modul</h3>
+                <p class="text-sm text-gray-600 dark:text-gray-400"><%= module.description %></p>
+                <div class="flex gap-4 mt-4 pt-4 border-t border-gray-100 dark:border-gray-800">
+                    <div class="text-sm"><span class="text-gray-400">Material Utama:</span> <span class="font-bold text-brand-blue dark:text-brand-accent"><%= module.materialCount %></span></div>
+                    <div class="text-sm"><span class="text-gray-400">Peralatan:</span> <span class="font-bold text-brand-blue dark:text-brand-accent"><%= module.equipmentCount %></span></div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <!-- Scripts -->
+    <script src="/js/main.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const modelViewer = document.getElementById('main-model-viewer');
+            const spinner = document.getElementById('loading-spinner');
+            const loadingText = document.getElementById('loading-text');
+            const posterContainer = document.getElementById('poster-container');
+            const hintText = document.getElementById('hint-text');
+
+            if (modelViewer) {
+                modelViewer.addEventListener('error', () => {
+                    // Hentikan loading spinner
+                    if (spinner) spinner.style.display = 'none';
+                    // Sembunyikan hint text
+                    if (hintText) hintText.style.display = 'none';
+                    // Ubah teks loading menjadi informasi elegan
+                    if (loadingText) loadingText.textContent = 'Objek 3D Tidak Tersedia';
+                    
+                    // Tambahkan efek blur (glassmorphism) pada background sebagai penanda error
+                    if (posterContainer) {
+                        posterContainer.classList.add('backdrop-blur-md', 'bg-white/40', 'dark:bg-black/40');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
