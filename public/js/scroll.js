@@ -41,43 +41,72 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ----------------------------------------------------
-    // The Interactive Power Line (Scroll storytelling)
+    // Video Scale-on-Scroll Logic (Antigravity Reference)
     // ----------------------------------------------------
-    const timelineContainer = document.getElementById('timeline-container');
-    const timelineProgress = document.getElementById('timeline-progress');
-    const nodes = document.querySelectorAll('.timeline-node');
+    const spotlightSection = document.getElementById('spotlight-section');
+    const videoWrapper = document.getElementById('video-wrapper');
+    const mainNav = document.getElementById('main-nav');
 
-    if (timelineContainer && timelineProgress) {
+    if (spotlightSection && videoWrapper) {
         window.addEventListener('scroll', () => {
-            const rect = timelineContainer.getBoundingClientRect();
-            // Start filling when the top of container passes middle of the viewport
-            const triggerPoint = window.innerHeight * 0.6;
+            const rect = spotlightSection.getBoundingClientRect();
             
-            if (rect.top < triggerPoint) {
-                // Calculate percentage of timeline scrolled
-                const totalScrollable = rect.height;
-                const scrolledAmount = triggerPoint - rect.top;
-                let percentage = (scrolledAmount / totalScrollable) * 100;
+            if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
+                // Section is currently scrolling/pinned via CSS sticky
+                const scrollDistance = -rect.top;
+                const maxScroll = rect.height - window.innerHeight;
+                let progress = scrollDistance / maxScroll; // 0 to 1
                 
-                // Clamp between 0 and 100
-                percentage = Math.max(0, Math.min(percentage, 100));
-                timelineProgress.style.height = `${percentage}%`;
-
-                // Highlight nodes as the line hits them
-                nodes.forEach(node => {
-                    const nodeTopRelativeToContainer = node.offsetTop;
-                    const fillHeightPixels = (percentage / 100) * totalScrollable;
-                    
-                    if (fillHeightPixels >= nodeTopRelativeToContainer) {
-                        node.classList.add('active');
+                // Scale from 0.2 to 1.0
+                let scaleProgress = progress / 0.6;
+                scaleProgress = Math.min(1, Math.max(0, scaleProgress)); // clamp 0-1
+                
+                // Hide navbar for full immersion
+                if (mainNav) {
+                    if (progress > 0.05 && progress < 0.95) {
+                        mainNav.style.transform = 'translateY(-100%)';
+                        mainNav.style.opacity = '0';
                     } else {
-                        node.classList.remove('active');
+                        mainNav.style.transform = 'translateY(0)';
+                        mainNav.style.opacity = '1';
                     }
-                });
-            } else {
-                timelineProgress.style.height = '0%';
-                nodes.forEach(node => node.classList.remove('active'));
+                }
+
+                // Easing out equation for smoother feel
+                const easeOutQuad = scaleProgress * (2 - scaleProgress);
+                
+                let currentScale = 0.2 + (easeOutQuad * 0.8);
+                
+                // Shrink back down slightly as user passes it
+                if (progress > 0.8) {
+                    let shrinkProgress = (progress - 0.8) / 0.2; // 0 to 1
+                    shrinkProgress = Math.min(1, Math.max(0, shrinkProgress));
+                    
+                    const shrinkEase = shrinkProgress * shrinkProgress; // ease in
+                    currentScale = 1.0 - (shrinkEase * 0.3); 
+                    videoWrapper.style.transform = `scale(${currentScale}) translateY(-${shrinkEase * 100}px)`;
+                } else {
+                    videoWrapper.style.transform = `scale(${currentScale})`;
+                }
+
+            } else if (rect.top > 0) {
+                // Above the section
+                videoWrapper.style.transform = `scale(0.2)`;
+                if (mainNav) {
+                    mainNav.style.transform = 'translateY(0)';
+                    mainNav.style.opacity = '1';
+                }
+            } else if (rect.bottom < window.innerHeight) {
+                // Below the section
+                videoWrapper.style.transform = `scale(0.7) translateY(-100px)`;
+                if (mainNav) {
+                    mainNav.style.transform = 'translateY(0)';
+                    mainNav.style.opacity = '1';
+                }
             }
         }, { passive: true });
+        
+        // Initial call to set correct transform on load
+        window.dispatchEvent(new Event('scroll'));
     }
 });

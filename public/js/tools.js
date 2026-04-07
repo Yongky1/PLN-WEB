@@ -6,8 +6,8 @@ function renderTools() {
     if (!toolsGrid) return;
     
     toolsGrid.innerHTML = toolsData.map(tool => {
-        const categoryClass = tool.category === 'k3' ? 'bg-red-500/20 text-red-200' : 
-                             (tool.category === 'teknis' ? 'bg-blue-500/20 text-blue-200' : 'bg-purple-500/20 text-purple-200');
+        const categoryClass = tool.category === 'k3' ? 'bg-brand-pln text-white dark:bg-brand-pln/20 dark:text-brand-accent' : 
+                             (tool.category === 'teknis' ? 'bg-brand-yellow text-gray-900 dark:bg-brand-yellow/20 dark:text-brand-yellow' : 'bg-brand-blue text-white dark:bg-brand-blue/30 dark:text-blue-300');
                              
         const statusClass = tool.status === 'Wajib' ? 'text-red-500 dark:text-red-400' : 'text-emerald-600 dark:text-emerald-400';
 

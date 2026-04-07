@@ -8,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const lightIcon = document.getElementById('theme-toggle-light-icon');
 
     // Change the icons inside the button based on previous settings
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+    if (localStorage.getItem('theme') === 'dark') {
         lightIcon.classList.remove('hidden');
     } else {
         darkIcon.classList.remove('hidden');
