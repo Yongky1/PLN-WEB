@@ -280,6 +280,20 @@ app.get('/ModulKonstruksi', (req, res) => {
     });
 });
 
+app.get('/ModulKonstruksi/:id', (req, res) => {
+    const moduleId = req.params.id;
+    const moduleItem = modulesData.find(m => m.id === moduleId);
+    
+    if (!moduleItem) {
+        return res.redirect('/ModulKonstruksi');
+    }
+
+    res.render('ModulViewer', {
+        title: `${moduleItem.title} - PLN Pusdiklat 3D`,
+        module: moduleItem
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`===============================================`);
     console.log(`🚀 PLN Pusdiklat Concept running on http://localhost:${PORT}`);
