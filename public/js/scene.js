@@ -22,9 +22,10 @@ const camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerH
 camera.position.set(0, 100, 200);
 camera.lookAt(0, 15, 0);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
 renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); 
+// Membatasi pixel ratio maksimum 1.5 untuk mencegah lag di laptop lama dengan layar Retina/4K
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5)); 
 renderer.outputEncoding = THREE.sRGBEncoding;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.0;
@@ -36,8 +37,9 @@ container.appendChild(renderer.domElement);
 const renderScene = new THREE.RenderPass(scene, camera);
 
 const bloomPass = new THREE.UnrealBloomPass(
-    new THREE.Vector2(window.innerWidth, window.innerHeight),
-    1.5, // strength
+    // Mengurangi resolusi render bloom hingga 50% untuk efisiensi ekstrim tanpa merusak estetika parah
+    new THREE.Vector2(window.innerWidth / 2, window.innerHeight / 2),
+    1.2, // strength
     0.4, // radius
     0.85 // threshold
 );

@@ -48,7 +48,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const mainNav = document.getElementById('main-nav');
 
     if (spotlightSection && videoWrapper) {
-        window.addEventListener('scroll', () => {
+        let isTicking = false;
+
+        const updateScroll = () => {
             const rect = spotlightSection.getBoundingClientRect();
             
             if (rect.top <= 0 && rect.bottom >= window.innerHeight) {
@@ -58,8 +60,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 let progress = scrollDistance / maxScroll; // 0 to 1
                 
                 // Scale from 0.2 to 1.0
-                let scaleProgress = progress / 0.6;
-                scaleProgress = Math.min(1, Math.max(0, scaleProgress)); // clamp 0-1
+                let scaleProgress = Math.min(1, Math.max(0, progress / 0.6));
                 
                 // Hide navbar for full immersion
                 if (mainNav) {
@@ -74,14 +75,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 // Easing out equation for smoother feel
                 const easeOutQuad = scaleProgress * (2 - scaleProgress);
-                
                 let currentScale = 0.2 + (easeOutQuad * 0.8);
                 
                 // Shrink back down slightly as user passes it
                 if (progress > 0.8) {
-                    let shrinkProgress = (progress - 0.8) / 0.2; // 0 to 1
-                    shrinkProgress = Math.min(1, Math.max(0, shrinkProgress));
-                    
+                    let shrinkProgress = Math.min(1, Math.max(0, (progress - 0.8) / 0.2));
                     const shrinkEase = shrinkProgress * shrinkProgress; // ease in
                     currentScale = 1.0 - (shrinkEase * 0.3); 
                     videoWrapper.style.transform = `scale(${currentScale}) translateY(-${shrinkEase * 100}px)`;
@@ -103,6 +101,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     mainNav.style.transform = 'translateY(0)';
                     mainNav.style.opacity = '1';
                 }
+            }
+            
+            isTicking = false;
+        };
+
+        window.addEventListener('scroll', () => {
+            if (!isTicking) {
+                window.requestAnimationFrame(updateScroll);
+                isTicking = true;
             }
         }, { passive: true });
         
