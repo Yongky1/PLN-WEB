@@ -49,15 +49,82 @@ composer.addPass(renderScene);
 composer.addPass(bloomPass);
 
 // ==========================================
-// LIGHTING
+// LIGHTING & CELESTIAL BODIES (SUN / MOON)
 // ==========================================
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+const directionalLight = new THREE.DirectionalLight(0xffffff, 0.6);
 directionalLight.position.set(50, 100, 50);
 directionalLight.castShadow = true;
 scene.add(directionalLight);
+
+// =======================
+// SUN MESH (Spiky Sun)
+// =======================
+const sunMesh = new THREE.Group(); // We use a group globally but keep the original variable name for logic
+const sunCoreGeo = new THREE.SphereGeometry(22, 32, 32);
+const sunMat = new THREE.MeshBasicMaterial({ color: 0xffeebb, fog: false });
+const sunCore = new THREE.Mesh(sunCoreGeo, sunMat);
+sunMesh.add(sunCore);
+
+// Tambahkan duri-duri (Rays/Spikes)
+const spikeCount = 14;
+const spikeGeo = new THREE.ConeGeometry(3, 16, 8);
+for(let i=0; i<spikeCount; i++) {
+    const angle = (i / spikeCount) * Math.PI * 2;
+    const spike = new THREE.Mesh(spikeGeo, sunMat);
+    spike.position.x = Math.cos(angle) * 26;
+    spike.position.y = Math.sin(angle) * 26;
+    spike.rotation.z = angle - Math.PI/2;
+    sunMesh.add(spike);
+}
+scene.add(sunMesh);
+
+// =======================
+// MOON MESH (Crescent Moon / Bulan Sabit)
+// =======================
+// Algoritma: Dua lingkaran berukuran sama (R=20), lingkaran dalam digeser 10 unit ke kanan.
+// Sabit = area di lingkaran luar tapi BUKAN di lingkaran dalam (sisi kiri).
+const moonR = 20;
+const moonOffset = 10; // Geser lingkaran pemotong ke kanan
+
+// Hitung titik potong kedua lingkaran
+const ix = moonOffset / 2; // = 5
+const iy = Math.sqrt(moonR * moonR - ix * ix); // ≈ 19.36
+
+// Sudut pada lingkaran luar (pusat 0,0)
+const outerAngleTop = Math.atan2(iy, ix);
+const outerAngleBot = Math.atan2(-iy, ix);
+
+// Sudut pada lingkaran dalam (pusat moonOffset,0)
+const innerAngleTop = Math.atan2(iy, ix - moonOffset);
+const innerAngleBot = Math.atan2(-iy, ix - moonOffset);
+
+const moonShape = new THREE.Shape();
+// Mulai dari titik potong atas
+moonShape.moveTo(ix, iy);
+// Busur LUAR: dari atas ke bawah, melewati sisi KIRI (clockwise = true)
+moonShape.absarc(0, 0, moonR, outerAngleTop, outerAngleBot, true);
+// Busur DALAM: dari bawah kembali ke atas, melewati sisi KANAN (counter-clockwise = false)
+moonShape.absarc(moonOffset, 0, moonR, innerAngleBot, innerAngleTop, false);
+
+const extrudeSettings = { depth: 5, bevelEnabled: true, bevelSegments: 3, steps: 1, bevelSize: 1, bevelThickness: 1 };
+const moonGeo = new THREE.ExtrudeGeometry(moonShape, extrudeSettings);
+
+// Pusatkan geometri dan putar diagonal agar terlihat natural
+moonGeo.center();
+moonGeo.rotateZ(-Math.PI / 6);
+
+const moonMat = new THREE.MeshStandardMaterial({ 
+    color: 0xcccccc, 
+    emissive: 0xeeeeee, 
+    emissiveIntensity: 0.9, 
+    roughness: 0.5,
+    fog: false 
+});
+const moonMesh = new THREE.Mesh(moonGeo, moonMat);
+scene.add(moonMesh);
 
 // ==========================================
 // MATERIALS (Realistic / Premium)
@@ -442,12 +509,17 @@ createTraffic();
 // DAY / NIGHT TRANSITION LOGIC
 // ==========================================
 const colors = {
-    daySky: new THREE.Color(0xdbeafe),
+    // Realistic Sky Blue instead of glaring white
+    daySky: new THREE.Color(0x87CEEB),
     nightSky: new THREE.Color(0x050b14), 
-    dayAmbient: new THREE.Color(0xffffff),
+    
+    // Warmer & softer lighting for daytime to prevent wash-out
+    dayAmbient: new THREE.Color(0xfff8ee),
     nightAmbient: new THREE.Color(0x112244),
-    dayDir: new THREE.Color(0xfff0dd),
-    nightDir: new THREE.Color(0x334466)
+    
+    // Gentle golden hour / realistic sun color
+    dayDir: new THREE.Color(0xfff0c2),
+    nightDir: new THREE.Color(0x223355)
 };
 
 if(isNightMode) {
@@ -473,10 +545,26 @@ function updateLightingAndMaterials() {
 
     // Lights
     ambientLight.color.copy(colors.dayAmbient).lerp(colors.nightAmbient, transitionProgress);
-    ambientLight.intensity = 0.9 - (transitionProgress * 0.6); // Slightly brighter ambient daytime for real aesthetic
+    ambientLight.intensity = 0.6 - (transitionProgress * 0.3); // Softer ambient
     
     directionalLight.color.copy(colors.dayDir).lerp(colors.nightDir, transitionProgress);
-    directionalLight.intensity = 1.0 - (transitionProgress * 0.6);
+    directionalLight.intensity = 0.8 - (transitionProgress * 0.5); // Softer directional to avoid white-out
+
+    // Orbiting Sun & Moon Math (ELEVATOR STYLE)
+    // Berada di koordinat tetap di atas layar belakang agar SELALU TERLIHAT jelas
+    // Posisi X diubah ke kanan (X = 90) agar tidak tertutup teks di sebelah kiri.
+    const celestialX = 90;
+    const celestialZ = -150; 
+    
+    // Y tertinggi adalah 65 (terlihat di langit). Y terendah adalah -30 (tersembunyi di bawah tanah).
+    // Sun turun saat progress bergerak dari 0 ke 1.
+    const sunY = 65 - (transitionProgress * 150);
+    sunMesh.position.set(celestialX, sunY, celestialZ);
+    directionalLight.position.copy(sunMesh.position);
+    
+    // Moon naik saat progress bergerak dari 0 ke 1.
+    const moonY = -85 + (transitionProgress * 150);
+    moonMesh.position.set(celestialX, moonY, celestialZ);
 
     // Emissive intensities
     windowMaterials.forEach(m => { m.emissiveIntensity = transitionProgress * 3.0; });
@@ -529,6 +617,9 @@ function animate() {
     camera.position.z = 210 + Math.cos(time * 0.05) * 20;
     camera.position.y = 80 + Math.sin(time * 0.08) * 5; // Slightly lower camera to appreciate rooflines
     camera.lookAt(0, 15, -15); // Look slightly behind center to focus on building
+
+    // Celestial Bodies Rotations
+    sunMesh.rotation.z -= 0.002; // Sun slowly spins natively continuously
 
     animateTraffic();
     updateLightingAndMaterials();

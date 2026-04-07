@@ -1,30 +1,107 @@
 /* public/css/custom.css */
 
-/* Hide scrollbar for clean look */
-::-webkit-scrollbar {
-    width: 8px;
+/* ========================================= */
+/* SCROLLBAR                                 */
+/* ========================================= */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 3px; }
+.dark ::-webkit-scrollbar-thumb { background: rgba(75, 85, 99, 0.4); }
+
+/* ========================================= */
+/* HERO SPLIT-TEXT ANIMATION                 */
+/* ========================================= */
+.split-word { 
+    margin-right: 0.3em;
+    padding-bottom: 0.25em; /* Beri ruang agar huruf g/p/y ke bawah tidak terpotong */
+    margin-bottom: -0.25em;
+    vertical-align: bottom;
 }
-::-webkit-scrollbar-track {
-    background: transparent;
+.split-inner {
+    transform: translateY(110%);
+    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
-::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.5);
-    border-radius: 4px;
-}
-.dark ::-webkit-scrollbar-thumb {
-    background: rgba(75, 85, 99, 0.5);
+.split-inner.active {
+    transform: translateY(0);
 }
 
-/* Animations that are reusable */
+/* Animated gradient shimmer on text */
+@keyframes gradient-shift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+.animate-gradient-shift {
+    animation: gradient-shift 4s ease infinite;
+}
+
+/* ========================================= */
+/* SCROLL INDICATOR DOT                      */
+/* ========================================= */
+@keyframes scroll-dot {
+    0% { transform: translateY(0); opacity: 1; }
+    100% { transform: translateY(16px); opacity: 0; }
+}
+.animate-scroll-dot {
+    animation: scroll-dot 1.5s ease-in-out infinite;
+}
+
+.scroll-indicator {
+    opacity: 1;
+    transition: opacity 0.5s;
+}
+
+/* ========================================= */
+/* MARQUEE BANDS                             */
+/* ========================================= */
+@keyframes marquee-left {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+}
+@keyframes marquee-right {
+    0% { transform: translateX(-50%); }
+    100% { transform: translateX(0); }
+}
+.animate-marquee-left {
+    animation: marquee-left 30s linear infinite;
+}
+.animate-marquee-right {
+    animation: marquee-right 35s linear infinite;
+}
+
+/* ========================================= */
+/* GSAP REVEAL (Initial hidden state)        */
+/* ========================================= */
+.gsap-reveal {
+    opacity: 0;
+    transform: translateY(60px);
+}
+
+/* ========================================= */
+/* STAT ITEMS                                */
+/* ========================================= */
+.stat-item {
+    opacity: 0;
+    transform: translateY(40px);
+}
+
+/* ========================================= */
+/* 3D TILT CARDS                             */
+/* ========================================= */
+.tilt-card {
+    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+    transition: transform 0.4s ease-out, box-shadow 0.5s ease;
+}
+
+/* ========================================= */
+/* BLOB ANIMATION                            */
+/* ========================================= */
 .animate-blob {
     animation: blob 7s infinite;
 }
-.animation-delay-2000 {
-    animation-delay: 2s;
-}
-.animation-delay-4000 {
-    animation-delay: 4s;
-}
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
+
 @keyframes blob {
     0% { transform: translate(0px, 0px) scale(1); }
     33% { transform: translate(30px, -50px) scale(1.1); }
@@ -32,158 +109,29 @@
     100% { transform: translate(0px, 0px) scale(1); }
 }
 
-/* Scroll reveal utilities */
-.reveal-item {
-    opacity: 0;
-    transform: translateY(30px);
-    transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-}
-.reveal-item.active {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-.delay-100 { transition-delay: 100ms; }
-.delay-200 { transition-delay: 200ms; }
-.delay-300 { transition-delay: 300ms; }
-
-.reveal-on-scroll {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 1s ease-out, transform 1s ease-out;
-}
-.reveal-on-scroll.is-visible {
-    opacity: 1;
-    transform: translateY(0);
-}
-
-/* Antigravity Bento Sub-System */
-.bento-grid {
-    display: grid;
-    gap: 1.5rem;
-    grid-template-columns: 1fr;
-}
-@media (min-width: 768px) {
-    .bento-grid {
-        grid-template-columns: repeat(3, 1fr);
-        grid-auto-rows: minmax(300px, auto);
-    }
-}
-
-.bento-card {
-    position: relative;
-    border-radius: 1.5rem;
-    background: rgba(0, 0, 0, 0.05);
-    backdrop-filter: blur(8px);
-}
-.dark .bento-card {
-    background: rgba(255, 255, 255, 0.02);
-}
-
-/* Internal Glow Border */
-.bento-card::before {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: 1.5rem;
-    padding: 1.5px; /* border thickness */
-    background: radial-gradient(
-        800px circle at var(--mouse-x, 0) var(--mouse-y, 0), 
-        rgba(0, 229, 255, 0.5),
-        transparent 40%
-    );
-    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    -webkit-mask-composite: xor;
-    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-    mask-composite: exclude;
-    z-index: 10;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-out;
-}
-.bento-card:hover::before {
-    opacity: 1;
-}
-
-/* The card content container */
-.bento-card-inner {
-    position: absolute;
-    inset: 1.5px;
-    background: rgba(255, 255, 255, 0.6);
-    border-radius: calc(1.5rem - 1.5px);
-    z-index: 2;
-    padding: 2.5rem;
-    display: flex;
-    flex-direction: column;
-    transition: background 0.3s;
-}
-.dark .bento-card-inner {
-    background: rgba(5, 16, 30, 0.6);
-}
-.bento-card:hover .bento-card-inner {
-    background: rgba(255, 255, 255, 0.8);
-}
-.dark .bento-card:hover .bento-card-inner {
-    background: rgba(10, 25, 45, 0.8);
-}
-
-/* Optional soft inner spotlight highlight */
-.bento-card::after {
-    content: "";
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    border-radius: 1.5rem;
-    background: radial-gradient(
-        600px circle at var(--mouse-x, 0) var(--mouse-y, 0), 
-        rgba(0, 229, 255, 0.05),
-        transparent 40%
-    );
-    z-index: 3;
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.5s ease-out;
-}
-.dark .bento-card::after {
-    background: radial-gradient(
-        600px circle at var(--mouse-x, 0) var(--mouse-y, 0), 
-        rgba(0, 229, 255, 0.1),
-        transparent 40%
-    );
-}
-.bento-card:hover::after {
-    opacity: 1;
-}
-
-/* Gradient Text Base */
+/* ========================================= */
+/* GRADIENT TEXT                             */
+/* ========================================= */
 .bg-gradient-text {
     background-clip: text;
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
+/* ========================================= */
+/* CTA SHIMMER                               */
+/* ========================================= */
 @keyframes shimmer {
     100% { transform: translateX(100%); }
 }
 
-/* ------------------------------------- */
-/* Interactive Power Line & Marquee CSS  */
-/* ------------------------------------- */
-
-/* Timeline & Marquee components removed */
-
-/* Abstract Organics (Floating Globs) */
-.organic-orb {
-    position: absolute;
-    border-radius: 50%;
-    background: radial-gradient(circle, var(--orb-color) 0%, transparent 60%);
-    filter: blur(60px);
-    animation: drift 20s infinite alternate ease-in-out;
-    opacity: 0.5;
-    z-index: 0;
-    pointer-events: none;
+/* ========================================= */
+/* GLASS NAV                                 */
+/* ========================================= */
+.glass-nav {
+    backdrop-filter: blur(16px) saturate(180%);
+    background: rgba(255, 255, 255, 0.7);
 }
-@keyframes drift {
-    0% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(30px, 40px) scale(1.2); }
-    100% { transform: translate(-20px, -30px) scale(0.9); }
+.dark .glass-nav {
+    background: rgba(5, 10, 20, 0.7);
 }
