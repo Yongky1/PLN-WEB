@@ -10,6 +10,41 @@ app.set('views', path.join(__dirname, 'views'));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
 
+const modulesData = [
+    {
+        id: "tiang-listrik",
+        title: "Konstruksi Tiang Listrik",
+        description: "Pelajari prosedur perakitan dan pendirian Tiang Listrik dengan visualisasi 3D interaktif yang detail.",
+        materialCount: 15,
+        equipmentCount: 5,
+        image: "" // Tempat untuk gambar, contoh: '/img/modul-1.png'
+    },
+    {
+        id: "gardu-distribusi",
+        title: "Gardu Distribusi",
+        description: "Eksplorasi komponen penyusun Gardu Distribusi beserta prosedur instalasi standar PLN.",
+        materialCount: 24,
+        equipmentCount: 8,
+        image: ""
+    },
+    {
+        id: "kwh-meter",
+        title: "Instalasi kWh Meter",
+        description: "Simulasi pemasangan sambungan rumah dan kWh meter prabayar untuk pelanggan.",
+        materialCount: 7,
+        equipmentCount: 3,
+        image: ""
+    },
+     {
+        id: "kabel-konektor",
+        title: "Penarikan Kabel (SUTR)",
+        description: "Latihan prosedur penarikan kabel Saluran Udara Tegangan Rendah dan pemasangan konektor.",
+        materialCount: 10,
+        equipmentCount: 6,
+        image: ""
+    }
+];
+
 const toolsData = [
     {
         id: 'helm-safety',
@@ -235,6 +270,13 @@ app.get('/tools', (req, res) => {
     res.render('tools', {
         title: 'Tools & Alat K3 — PLN Pusdiklat',
         toolsData,
+    });
+});
+
+app.get('/ModulKonstruksi', (req, res) => {
+    res.render('ModulKonstruksi', {
+        title: 'Modul Pembelajaran — PLN Pusdiklat',
+        modulesData
     });
 });
 

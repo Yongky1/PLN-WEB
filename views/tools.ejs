@@ -60,7 +60,7 @@
                      data-category="<%= tool.category %>"
                      data-id="<%= tool.id %>">
 
-                    <div class="w-full h-36 relative overflow-hidden flex items-center justify-center" style="background: <%= tool.bgGradient %>;">
+                    <div class="w-full h-36 relative overflow-hidden flex items-center justify-center" <%- 'style="background: ' + tool.bgGradient + ';"' %>>
                         <div class="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-accent via-transparent to-transparent group-hover:scale-150 transition-transform duration-700"></div>
                         <span class="relative z-10 text-5xl select-none" style="filter: drop-shadow(0 4px 12px rgba(0,0,0,0.35));"><%= tool.icon %></span>
                         <div class="absolute top-3 right-3">
@@ -122,8 +122,11 @@
         </div>
     </div>
 
+    <script id="toolsData" type="application/json">
+        <%- JSON.stringify(toolsData) %>
+    </script>
     <script>
-        var __TOOLS_DATA__ = <%- JSON.stringify(toolsData) %>;
+        var __TOOLS_DATA__ = JSON.parse(document.getElementById('toolsData').textContent);
     </script>
 
     <script src="/js/main.js"></script>
