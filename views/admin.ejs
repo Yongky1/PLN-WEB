@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Admin — PLN Pusdiklat</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/output.css">
+    <link rel="stylesheet" href="/css/custom.css">
+    <script>
+        if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+    <style>
+        body { overflow: hidden; }
+
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 500;
+            color: rgba(255,255,255,0.55);
+            cursor: pointer;
+            transition: background 0.15s ease, color 0.15s ease;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            font-family: inherit;
+        }
+        .sidebar-link:hover {
+            background: rgba(255,255,255,0.07);
+            color: rgba(255,255,255,0.9);
+        }
+        .sidebar-link.active {
+            background: rgba(0,229,255,0.1);
+            color: #00E5FF;
+        }
+        .sidebar-link.active .link-icon {
+            color: #00E5FF;
+        }
+        .link-icon {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .page-section { display: none; }
+        .page-section.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+        .stat-card {
+            background: rgba(255,255,255,0.04);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 16px;
+            padding: 20px 22px;
+            transition: border-color 0.2s ease, background 0.2s ease;
+        }
+        .stat-card:hover {
+            border-color: rgba(0,229,255,0.3);
+            background: rgba(0,229,255,0.04);
+        }
+
+        .table-row {
+            display: grid;
+            align-items: center;
+            padding: 12px 16px;
+            border-radius: 10px;
+            transition: background 0.15s ease;
+            font-size: 13px;
+        }
+        .table-row:hover { background: rgba(255,255,255,0.04); }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        .badge-green  { background: rgba(0,200,100,0.12); color: #00C864; }
+        .badge-yellow { background: rgba(255,193,7,0.12);  color: #FFC107; }
+        .badge-red    { background: rgba(239,68,68,0.12);  color: #EF4444; }
+        .badge-blue   { background: rgba(0,229,255,0.12);  color: #00E5FF; }
+
+        .content-scroll { overflow-y: auto; flex: 1; }
+
+        .progress-bar-bg {
+            background: rgba(255,255,255,0.08);
+            border-radius: 999px;
+            height: 6px;
+            overflow: hidden;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #0052cc, #00E5FF);
+        }
+
+        .activity-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body class="bg-brand-dark text-white font-sans antialiased" style="display:flex; height:100vh;">
+
+    <!-- SIDEBAR -->
+    <aside style="width:240px; flex-shrink:0; background:#071525; border-right:1px solid rgba(255,255,255,0.07); display:flex; flex-direction:column; overflow:hidden;">
+
+        <div style="padding:20px 20px 16px; border-bottom:1px solid rgba(255,255,255,0.07); flex-shrink:0;">
+            <div style="font-family:'Outfit',sans-serif; font-weight:800; font-size:18px; letter-spacing:-0.5px;">
+                PLN<span style="color:#00E5FF;">Pusdiklat</span>
+            </div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Panel Administrator</div>
+        </div>
+
+        <nav style="flex:1; overflow-y:auto; padding:14px 12px; display:flex; flex-direction:column; gap:4px;">
+            <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:rgba(255,255,255,0.25); padding:8px 14px 6px;">Menu Utama</div>
+
+            <button class="sidebar-link active" data-page="overview">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+                Overview
+            </button>
+            <button class="sidebar-link" data-page="users">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Manajemen User
+            </button>
+            <button class="sidebar-link" data-page="modules">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                Modul Konten
+            </button>
+            <button class="sidebar-link" data-page="reports">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Laporan
+            </button>
+
+            <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:rgba(255,255,255,0.25); padding:16px 14px 6px;">Kelola Konten</div>
+
+            <button class="sidebar-link" data-page="add-konstruksi">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                Tambah Konstruksi
+            </button>
+            <button class="sidebar-link" data-page="add-material">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                Tambah Material
+            </button>
+            <button class="sidebar-link" data-page="add-tools">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Tambah Tools
+            </button>
+
+            <div style="font-size:10px; font-weight:600; text-transform:uppercase; letter-spacing:1.2px; color:rgba(255,255,255,0.25); padding:16px 14px 6px;">Pengaturan</div>
+
+            <button class="sidebar-link" data-page="settings">
+                <svg class="link-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Pengaturan
+            </button>
+        </nav>
+
+        <div style="padding:14px 12px; border-top:1px solid rgba(255,255,255,0.07); flex-shrink:0;">
+            <div style="display:flex; align-items:center; gap:10px; padding:10px 12px; background:rgba(255,255,255,0.04); border-radius:10px; border:1px solid rgba(255,255,255,0.07);">
+                <div style="width:32px; height:32px; border-radius:50%; background:linear-gradient(135deg,#003F88,#00E5FF); display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:700; flex-shrink:0;">A</div>
+                <div style="min-width:0;">
+                    <div style="font-size:13px; font-weight:600; color:#fff;">Admin PLN</div>
+                    <div style="font-size:11px; color:rgba(255,255,255,0.35); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">admin@pln.co.id</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <div style="flex:1; display:flex; flex-direction:column; overflow:hidden; min-width:0;">
+
+        <!-- TOPBAR -->
+        <header style="height:64px; flex-shrink:0; border-bottom:1px solid rgba(255,255,255,0.07); background:#05101E; display:flex; align-items:center; padding:0 28px; gap:16px;">
+            <div>
+                <h1 id="page-title" style="font-size:17px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif;">Overview</h1>
+                <p id="page-subtitle" style="font-size:12px; color:rgba(255,255,255,0.35); margin-top:1px;">Selamat datang di panel administrator</p>
+            </div>
+            <div style="margin-left:auto; display:flex; align-items:center; gap:10px;">
+                <button id="theme-toggle" style="padding:8px; border-radius:50%; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.7); cursor:pointer; transition:background 0.15s ease; display:flex; align-items:center; justify-content:center;">
+                    <svg id="theme-toggle-light-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a1 1 0 011 1v1a1 1 0 11-2 0V3a1 1 0 011-1zm4 8a4 4 0 11-8 0 4 4 0 018 0zm-.464 4.95l.707.707a1 1 0 001.414-1.414l-.707-.707a1 1 0 00-1.414 1.414zm2.12-10.607a1 1 0 010 1.414l-.706.707a1 1 0 11-1.414-1.414l.707-.707a1 1 0 011.414 0zM17 11a1 1 0 100-2h-1a1 1 0 100 2h1zm-7 4a1 1 0 011 1v1a1 1 0 11-2 0v-1a1 1 0 011-1zM5.05 6.464A1 1 0 106.465 5.05l-.708-.707a1 1 0 00-1.414 1.414l.707.707zm1.414 8.486l-.707.707a1 1 0 01-1.414-1.414l.707-.707a1 1 0 011.414 1.414zM4 11a1 1 0 100-2H3a1 1 0 000 2h1z"/></svg>
+                    <svg id="theme-toggle-dark-icon" class="hidden w-5 h-5" fill="currentColor" viewBox="0 0 20 20"><path d="M17.293 13.293A8 8 0 016.707 2.707a8.001 8.001 0 1010.586 10.586z"/></svg>
+                </button>
+                <div style="width:1px; height:20px; background:rgba(255,255,255,0.1);"></div>
+                <div style="font-size:12px; color:rgba(255,255,255,0.4);" id="current-date"></div>
+            </div>
+        </header>
+
+        <!-- PAGES -->
+        <div style="flex:1; overflow:hidden; background:#05101E; display:flex; flex-direction:column;">
+
+            <!-- PAGE: OVERVIEW -->
+            <div id="page-overview" class="page-section active">
+                <div class="content-scroll" style="padding:28px;">
+
+                    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:28px;">
+                        <div class="stat-card">
+                            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+                                <div style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Total Pengguna</div>
+                                <div style="width:34px; height:34px; border-radius:10px; background:rgba(0,229,255,0.1); display:flex; align-items:center; justify-content:center;">
+                                    <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                </div>
+                            </div>
+                            <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">248</div>
+                            <div style="font-size:11px; color:#00C864; margin-top:6px; display:flex; align-items:center; gap:4px;">
+                                <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                +12 bulan ini
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+                                <div style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Modul Aktif</div>
+                                <div style="width:34px; height:34px; border-radius:10px; background:rgba(99,102,241,0.12); display:flex; align-items:center; justify-content:center;">
+                                    <svg style="width:16px;height:16px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                                </div>
+                            </div>
+                            <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">14</div>
+                            <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:6px;">3 dalam pengembangan</div>
+                        </div>
+                        <div class="stat-card">
+                            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+                                <div style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Sesi Hari Ini</div>
+                                <div style="width:34px; height:34px; border-radius:10px; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center;">
+                                    <svg style="width:16px;height:16px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">73</div>
+                            <div style="font-size:11px; color:#00C864; margin-top:6px; display:flex; align-items:center; gap:4px;">
+                                <svg style="width:12px;height:12px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+                                +8% dari kemarin
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+                                <div style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Penyelesaian Modul</div>
+                                <div style="width:34px; height:34px; border-radius:10px; background:rgba(16,185,129,0.1); display:flex; align-items:center; justify-content:center;">
+                                    <svg style="width:16px;height:16px;color:#10B981;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                </div>
+                            </div>
+                            <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">68<span style="font-size:16px; font-weight:500; color:rgba(255,255,255,0.4);">%</span></div>
+                            <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:6px;">Rata-rata semua peserta</div>
+                        </div>
+                    </div>
+
+                    <div style="display:grid; grid-template-columns:1fr 340px; gap:20px; margin-bottom:24px;">
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:22px;">
+                            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+                                <h3 style="font-size:14px; font-weight:600; color:#fff;">Aktivitas Terbaru</h3>
+                                <span style="font-size:11px; color:rgba(255,255,255,0.35);">Hari ini</span>
+                            </div>
+                            <div style="display:flex; flex-direction:column; gap:0;">
+                                <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <div class="activity-dot" style="background:#00E5FF;"></div>
+                                    <div style="flex:1; min-width:0;">
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Budi Santoso menyelesaikan Modul Konstruksi Tiang</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">08:42 WIB</div>
+                                    </div>
+                                    <span class="badge badge-green">Selesai</span>
+                                </div>
+                                <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <div class="activity-dot" style="background:#818CF8;"></div>
+                                    <div style="flex:1; min-width:0;">
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Modul Gardu Portal diperbarui oleh admin</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">09:15 WIB</div>
+                                    </div>
+                                    <span class="badge badge-blue">Update</span>
+                                </div>
+                                <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <div class="activity-dot" style="background:#F59E0B;"></div>
+                                    <div style="flex:1; min-width:0;">
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">3 pengguna baru mendaftar dari Unit Jawa Timur</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">10:02 WIB</div>
+                                    </div>
+                                    <span class="badge badge-yellow">Baru</span>
+                                </div>
+                                <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                                    <div class="activity-dot" style="background:#10B981;"></div>
+                                    <div style="flex:1; min-width:0;">
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Siti Rahayu mencapai 100% pada Modul Alat K3</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">11:30 WIB</div>
+                                    </div>
+                                    <span class="badge badge-green">Selesai</span>
+                                </div>
+                                <div style="display:flex; gap:14px; padding:12px 0;">
+                                    <div class="activity-dot" style="background:#EF4444;"></div>
+                                    <div style="flex:1; min-width:0;">
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Server maintenance dijadwalkan pukul 23:00 WIB</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">13:00 WIB</div>
+                                    </div>
+                                    <span class="badge badge-red">Notif</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:22px;">
+                            <h3 style="font-size:14px; font-weight:600; color:#fff; margin-bottom:18px;">Progress Modul</h3>
+                            <div style="display:flex; flex-direction:column; gap:16px;">
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                        <span style="font-size:12px; color:rgba(255,255,255,0.6);">Konstruksi Tiang</span>
+                                        <span style="font-size:12px; font-weight:600; color:#00E5FF;">82%</span>
+                                    </div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:82%;"></div></div>
+                                </div>
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                        <span style="font-size:12px; color:rgba(255,255,255,0.6);">Gardu Distribusi</span>
+                                        <span style="font-size:12px; font-weight:600; color:#00E5FF;">65%</span>
+                                    </div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:65%;"></div></div>
+                                </div>
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                        <span style="font-size:12px; color:rgba(255,255,255,0.6);">Alat K3</span>
+                                        <span style="font-size:12px; font-weight:600; color:#00E5FF;">91%</span>
+                                    </div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:91%;"></div></div>
+                                </div>
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                        <span style="font-size:12px; color:rgba(255,255,255,0.6);">Material Jaringan</span>
+                                        <span style="font-size:12px; font-weight:600; color:#00E5FF;">48%</span>
+                                    </div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:48%;"></div></div>
+                                </div>
+                                <div>
+                                    <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                        <span style="font-size:12px; color:rgba(255,255,255,0.6);">Tower SUTT</span>
+                                        <span style="font-size:12px; font-weight:600; color:#00E5FF;">33%</span>
+                                    </div>
+                                    <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:33%;"></div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: USERS -->
+            <div id="page-users" class="page-section">
+                <div class="content-scroll" style="padding:28px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+                        <input type="text" placeholder="🔍  Cari pengguna..." style="padding:9px 16px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; width:280px;">
+                        <button style="padding:9px 18px; border-radius:10px; background:#00E5FF; color:#05101E; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:inherit;">+ Tambah User</button>
+                    </div>
+
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; overflow:hidden;">
+                        <div style="display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 80px; padding:10px 16px; border-bottom:1px solid rgba(255,255,255,0.07);">
+                            <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.3);">Nama</span>
+                            <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.3);">Unit</span>
+                            <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.3);">Modul</span>
+                            <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.3);">Status</span>
+                            <span style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.3);">Aksi</span>
+                        </div>
+                        <% const users = [
+                            { name:'Budi Santoso',    email:'budi.s@pln.co.id',   unit:'UP3 Jakarta Utara', modul:'8/14', status:'Aktif' },
+                            { name:'Siti Rahayu',    email:'siti.r@pln.co.id',   unit:'UP3 Surabaya',      modul:'14/14', status:'Aktif' },
+                            { name:'Ahmad Fauzi',    email:'ahmad.f@pln.co.id',  unit:'UP3 Bandung',       modul:'5/14', status:'Aktif' },
+                            { name:'Dewi Lestari',   email:'dewi.l@pln.co.id',   unit:'UP3 Medan',         modul:'11/14', status:'Aktif' },
+                            { name:'Rizki Pratama',  email:'rizki.p@pln.co.id',  unit:'UP3 Makassar',      modul:'3/14', status:'Nonaktif' },
+                            { name:'Nur Hidayah',    email:'nur.h@pln.co.id',    unit:'UP3 Semarang',      modul:'9/14', status:'Aktif' },
+                            { name:'Eko Wahyudi',    email:'eko.w@pln.co.id',    unit:'UP3 Yogyakarta',    modul:'7/14', status:'Aktif' },
+                            { name:'Maya Kusuma',    email:'maya.k@pln.co.id',   unit:'UP3 Palembang',     modul:'12/14', status:'Aktif' },
+                        ]; %>
+                        <% users.forEach(u => { %>
+                        <div class="table-row" style="grid-template-columns:2fr 1.5fr 1fr 1fr 80px;">
+                            <div>
+                                <div style="font-size:13px; font-weight:500; color:#fff;"><%= u.name %></div>
+                                <div style="font-size:11px; color:rgba(255,255,255,0.35);"><%= u.email %></div>
+                            </div>
+                            <div style="font-size:13px; color:rgba(255,255,255,0.6);"><%= u.unit %></div>
+                            <div style="font-size:13px; color:rgba(255,255,255,0.6);"><%= u.modul %></div>
+                            <span class="badge <%= u.status === 'Aktif' ? 'badge-green' : 'badge-red' %>"><%= u.status %></span>
+                            <button style="font-size:11px; color:rgba(255,255,255,0.4); border:none; background:none; cursor:pointer; font-family:inherit; padding:4px 8px; border-radius:6px; transition:background 0.15s;" onmouseenter="this.style.background='rgba(255,255,255,0.08)';this.style.color='#fff'" onmouseleave="this.style.background='none';this.style.color='rgba(255,255,255,0.4)'">Detail</button>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: MODULES -->
+            <div id="page-modules" class="page-section">
+                <div class="content-scroll" style="padding:28px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+                        <h3 style="font-size:15px; font-weight:600; color:#fff;">Daftar Modul Konten</h3>
+                        <button style="padding:9px 18px; border-radius:10px; background:#00E5FF; color:#05101E; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:inherit;">+ Tambah Modul</button>
+                    </div>
+                    <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px;">
+                        <% const modules = [
+                            { name:'Konstruksi Tiang Listrik', cat:'Konstruksi', items:15, status:'Aktif',        updated:'2 Jan 2025' },
+                            { name:'Gardu Distribusi',         cat:'Konstruksi', items:24, status:'Aktif',        updated:'5 Jan 2025' },
+                            { name:'Alat K3 Lapangan',         cat:'Tools',      items:12, status:'Aktif',        updated:'8 Jan 2025' },
+                            { name:'Material Jaringan',        cat:'Material',   items:3,  status:'Aktif',        updated:'10 Jan 2025' },
+                            { name:'Tower SUTT 150kV',         cat:'Konstruksi', items:5,  status:'Draft',        updated:'12 Jan 2025' },
+                            { name:'Instalasi kWh Meter',      cat:'Teknis',     items:7,  status:'Draft',        updated:'14 Jan 2025' },
+                            { name:'Penarikan Kabel SUTR',     cat:'Teknis',     items:10, status:'Aktif',        updated:'15 Jan 2025' },
+                            { name:'Anchor Block & Expandable',cat:'Material',   items:2,  status:'Pengembangan', updated:'16 Jan 2025' },
+                        ]; %>
+                        <% modules.forEach(m => { %>
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:18px 20px; display:flex; align-items:center; gap:16px; transition:border-color 0.15s ease;" onmouseenter="this.style.borderColor='rgba(0,229,255,0.25)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.07)'">
+                            <div style="width:40px; height:40px; border-radius:10px; background:rgba(0,229,255,0.08); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                <svg style="width:18px;height:18px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            </div>
+                            <div style="flex:1; min-width:0;">
+                                <div style="font-size:13px; font-weight:600; color:#fff; margin-bottom:3px;"><%= m.name %></div>
+                                <div style="font-size:11px; color:rgba(255,255,255,0.35);"><%= m.cat %> · <%= m.items %> item · Diperbarui <%= m.updated %></div>
+                            </div>
+                            <span class="badge <%= m.status === 'Aktif' ? 'badge-green' : m.status === 'Draft' ? 'badge-yellow' : 'badge-blue' %>"><%= m.status %></span>
+                        </div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: TAMBAH KONSTRUKSI -->
+            <div id="page-add-konstruksi" class="page-section">
+                <div class="content-scroll" style="padding:28px;">
+                    <div style="max-width:720px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                            <div>
+                                <h3 style="font-size:16px; font-weight:700; color:#fff;">Tambah Konstruksi Baru</h3>
+                                <p style="font-size:12px; color:rgba(255,255,255,0.35); margin-top:3px;">Isi form di bawah untuk menambahkan modul konstruksi baru</p>
+                            </div>
+                            <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(0,229,255,0.1); color:#00E5FF; border:1px solid rgba(0,229,255,0.25);">Konstruksi</span>
+                        </div>
+
+                        <div id="konstruksi-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:16px;">
+                                <div style="width:36px; height:36px; border-radius:10px; background:rgba(0,229,255,0.08); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:600; color:#fff;">Konstruksi Tiang Listrik</div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">15 komponen · Aktif</div>
+                                </div>
+                                <span style="font-size:11px; padding:3px 10px; border-radius:999px; background:rgba(0,200,100,0.12); color:#00C864; font-weight:600;">Aktif</span>
+                                <button onclick="deleteRow(this)" style="padding:6px 12px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#EF4444; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit;">Hapus</button>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:16px;">
+                                <div style="width:36px; height:36px; border-radius:10px; background:rgba(0,229,255,0.08); display:flex; align-items:center; justify-content:center; flex-shrink:0;">
+                                    <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg>
+                                </div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:600; color:#fff;">Gardu Portal</div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">6 komponen · Aktif</div>
+                                </div>
+                                <span style="font-size:11px; padding:3px 10px; border-radius:999px; background:rgba(0,200,100,0.12); color:#00C864; font-weight:600;">Aktif</span>
+                                <button onclick="deleteRow(this)" style="padding:6px 12px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#EF4444; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit;">Hapus</button>
+                            </div>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px;">
+                            <h4 style="font-size:13px; font-weight:600; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                                <svg style="width:15px;height:15px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Tambah Konstruksi Baru
+                            </h4>
+                            <div style="display:flex; flex-direction:column; gap:14px;">
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Nama Konstruksi *</label>
+                                    <input id="konstruksi-name" type="text" placeholder="Contoh: Tower SUTT 150kV" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Deskripsi</label>
+                                    <textarea id="konstruksi-desc" placeholder="Deskripsikan konstruksi ini..." rows="3" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; resize:vertical; box-sizing:border-box;"></textarea>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Jumlah Komponen</label>
+                                        <input id="konstruksi-count" type="number" placeholder="0" min="0" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Status</label>
+                                        <select id="konstruksi-status" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:#0d1f35; color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                            <option value="Aktif">Aktif</option>
+                                            <option value="Draft">Draft</option>
+                                            <option value="Pengembangan">Pengembangan</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Upload File Model 3D (.glb)</label>
+                                    <div style="border:2px dashed rgba(255,255,255,0.12); border-radius:10px; padding:24px; text-align:center; cursor:pointer; transition:border-color 0.2s;" onmouseenter="this.style.borderColor='rgba(0,229,255,0.4)'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.12)'">
+                                        <svg style="width:24px;height:24px;color:rgba(255,255,255,0.25);margin:0 auto 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                                        <p style="font-size:12px; color:rgba(255,255,255,0.35);">Klik untuk upload atau drag & drop</p>
+                                        <p style="font-size:11px; color:rgba(255,255,255,0.2); margin-top:4px;">Format: .glb, .gltf (maks. 50MB)</p>
+                                        <input type="file" accept=".glb,.gltf" style="display:none;">
+                                    </div>
+                                </div>
+                                <div style="display:flex; gap:10px; padding-top:4px;">
+                                    <button onclick="addKonstruksi()" style="padding:10px 24px; border-radius:10px; background:#00E5FF; color:#05101E; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:inherit;">Simpan Konstruksi</button>
+                                    <button onclick="resetForm('konstruksi')" style="padding:10px 18px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-size:13px; font-weight:500; cursor:pointer; font-family:inherit;">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: TAMBAH MATERIAL -->
+            <div id="page-add-material" class="page-section">
+                <div class="content-scroll" style="padding:28px;">
+                    <div style="max-width:720px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                            <div>
+                                <h3 style="font-size:16px; font-weight:700; color:#fff;">Tambah Material Baru</h3>
+                                <p style="font-size:12px; color:rgba(255,255,255,0.35); margin-top:3px;">Isi form di bawah untuk menambahkan material ke katalog</p>
+                            </div>
+                            <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(99,102,241,0.12); color:#818CF8; border:1px solid rgba(99,102,241,0.3);">Material</span>
+                        </div>
+
+                        <div id="material-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:16px;">
+                                <div style="font-size:24px; flex-shrink:0;">🔩</div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:600; color:#fff;">Baut M20 HDG</div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">BT-M20-HDG · Pengencang</div>
+                                </div>
+                                <span style="font-size:11px; padding:3px 10px; border-radius:999px; background:rgba(0,200,100,0.12); color:#00C864; font-weight:600;">Aktif</span>
+                                <button onclick="deleteRow(this)" style="padding:6px 12px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#EF4444; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit;">Hapus</button>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:16px;">
+                                <div style="font-size:24px; flex-shrink:0;">⭕</div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:600; color:#fff;">Ring Per (Spring Washer)</div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">WS-M20-SPR · Pengencang</div>
+                                </div>
+                                <span style="font-size:11px; padding:3px 10px; border-radius:999px; background:rgba(0,200,100,0.12); color:#00C864; font-weight:600;">Aktif</span>
+                                <button onclick="deleteRow(this)" style="padding:6px 12px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#EF4444; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit;">Hapus</button>
+                            </div>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px;">
+                            <h4 style="font-size:13px; font-weight:600; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                                <svg style="width:15px;height:15px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Tambah Material Baru
+                            </h4>
+                            <div style="display:flex; flex-direction:column; gap:14px;">
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Nama Material *</label>
+                                        <input id="material-name" type="text" placeholder="Contoh: Insulator Pin 20kV" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Kode Material *</label>
+                                        <input id="material-code" type="text" placeholder="Contoh: INS-PIN-20kV" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Kategori</label>
+                                        <select id="material-category" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:#0d1f35; color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                            <option>Pengencang</option>
+                                            <option>Insulasi</option>
+                                            <option>Kabel</option>
+                                            <option>Penyangga</option>
+                                            <option>Lainnya</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Ikon (Emoji)</label>
+                                        <input id="material-icon" type="text" placeholder="🔩" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:20px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Deskripsi Singkat</label>
+                                    <input id="material-shortdesc" type="text" placeholder="Deskripsi singkat yang tampil di kartu..." style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Deskripsi Lengkap</label>
+                                    <textarea id="material-desc" placeholder="Penjelasan lengkap material, fungsi, dan cara penggunaannya..." rows="3" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; resize:vertical; box-sizing:border-box;"></textarea>
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Spesifikasi Teknis</label>
+                                    <div id="spec-rows" style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+                                        <div style="display:grid; grid-template-columns:1fr 1fr 32px; gap:8px; align-items:center;">
+                                            <input type="text" placeholder="Nama spek (Diameter)" style="padding:9px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:12px; font-family:inherit; outline:none;">
+                                            <input type="text" placeholder="Nilai (M20)" style="padding:9px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:12px; font-family:inherit; outline:none;">
+                                            <button onclick="removeSpecRow(this)" style="width:32px; height:32px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); color:#EF4444; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; flex-shrink:0;">×</button>
+                                        </div>
+                                    </div>
+                                    <button onclick="addSpecRow()" style="font-size:12px; color:rgba(255,255,255,0.4); border:none; background:none; cursor:pointer; padding:4px 0; font-family:inherit; display:flex; align-items:center; gap:6px;">
+                                        <span style="font-size:16px; color:#00E5FF;">+</span> Tambah Spesifikasi
+                                    </button>
+                                </div>
+                                <div style="display:flex; gap:10px; padding-top:4px;">
+                                    <button onclick="addMaterial()" style="padding:10px 24px; border-radius:10px; background:#00E5FF; color:#05101E; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:inherit;">Simpan Material</button>
+                                    <button onclick="resetForm('material')" style="padding:10px 18px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-size:13px; font-weight:500; cursor:pointer; font-family:inherit;">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: TAMBAH TOOLS -->
+            <div id="page-add-tools" class="page-section">
+                <div class="content-scroll" style="padding:28px;">
+                    <div style="max-width:720px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+                            <div>
+                                <h3 style="font-size:16px; font-weight:700; color:#fff;">Tambah Tools & Alat K3</h3>
+                                <p style="font-size:12px; color:rgba(255,255,255,0.35); margin-top:3px;">Isi form di bawah untuk menambahkan alat baru ke katalog</p>
+                            </div>
+                            <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(245,158,11,0.1); color:#F59E0B; border:1px solid rgba(245,158,11,0.25);">Tools</span>
+                        </div>
+
+                        <div id="tools-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:16px;">
+                                <div style="font-size:24px; flex-shrink:0;">⛑️</div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:600; color:#fff;">Helm Safety</div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Alat K3 · SNI 8400:2017 · Wajib</div>
+                                </div>
+                                <span style="font-size:11px; padding:3px 10px; border-radius:999px; background:rgba(239,68,68,0.1); color:#EF4444; font-weight:600;">K3</span>
+                                <button onclick="deleteRow(this)" style="padding:6px 12px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#EF4444; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit;">Hapus</button>
+                            </div>
+                            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:14px; padding:16px 20px; display:flex; align-items:center; gap:16px;">
+                                <div style="font-size:24px; flex-shrink:0;">🪜</div>
+                                <div style="flex:1;">
+                                    <div style="font-size:13px; font-weight:600; color:#fff;">Tangga Fiberglass</div>
+                                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Alat Teknis · SPLN D3.013 · Wajib</div>
+                                </div>
+                                <span style="font-size:11px; padding:3px 10px; border-radius:999px; background:rgba(0,229,255,0.1); color:#00E5FF; font-weight:600;">Teknis</span>
+                                <button onclick="deleteRow(this)" style="padding:6px 12px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); color:#EF4444; font-size:11px; font-weight:600; cursor:pointer; font-family:inherit;">Hapus</button>
+                            </div>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:24px;">
+                            <h4 style="font-size:13px; font-weight:600; color:#fff; margin-bottom:18px; display:flex; align-items:center; gap:8px;">
+                                <svg style="width:15px;height:15px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                Tambah Alat Baru
+                            </h4>
+                            <div style="display:flex; flex-direction:column; gap:14px;">
+                                <div style="display:grid; grid-template-columns:1fr 80px; gap:14px;">
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Nama Alat *</label>
+                                        <input id="tools-name" type="text" placeholder="Contoh: Kunci Torsi" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Ikon</label>
+                                        <input id="tools-icon" type="text" placeholder="🔧" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:20px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                    </div>
+                                </div>
+                                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Kategori</label>
+                                        <select id="tools-category" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:#0d1f35; color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                            <option value="k3">Alat K3</option>
+                                            <option value="teknis">Alat Teknis</option>
+                                            <option value="pengukuran">Pengukuran</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Standar</label>
+                                        <input id="tools-standard" type="text" placeholder="SNI / IEC / ISO" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                    </div>
+                                    <div>
+                                        <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Status</label>
+                                        <select id="tools-status" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:#0d1f35; color:#fff; font-size:13px; font-family:inherit; outline:none; box-sizing:border-box;">
+                                            <option>Wajib</option>
+                                            <option>Situasional</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Deskripsi</label>
+                                    <textarea id="tools-desc" placeholder="Jelaskan fungsi alat dan cara penggunaannya..." rows="3" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none; resize:vertical; box-sizing:border-box;"></textarea>
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Prosedur Penggunaan</label>
+                                    <div id="procedure-rows" style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+                                        <div style="display:grid; grid-template-columns:24px 1fr 32px; gap:8px; align-items:center;">
+                                            <span style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.3); text-align:center;">1</span>
+                                            <input type="text" placeholder="Langkah prosedur..." style="padding:9px 12px; border-radius:8px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:12px; font-family:inherit; outline:none;">
+                                            <button onclick="removeProcRow(this)" style="width:32px; height:32px; border-radius:8px; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.2); color:#EF4444; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;">×</button>
+                                        </div>
+                                    </div>
+                                    <button onclick="addProcRow()" style="font-size:12px; color:rgba(255,255,255,0.4); border:none; background:none; cursor:pointer; padding:4px 0; font-family:inherit; display:flex; align-items:center; gap:6px;">
+                                        <span style="font-size:16px; color:#F59E0B;">+</span> Tambah Langkah
+                                    </button>
+                                </div>
+                                <div style="display:flex; gap:10px; padding-top:4px;">
+                                    <button onclick="addTools()" style="padding:10px 24px; border-radius:10px; background:#00E5FF; color:#05101E; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:inherit;">Simpan Alat</button>
+                                    <button onclick="resetForm('tools')" style="padding:10px 18px; border-radius:10px; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.6); font-size:13px; font-weight:500; cursor:pointer; font-family:inherit;">Reset</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: REPORTS -->
+            <div id="page-reports" class="page-section">
+                <div class="content-scroll" style="padding:28px;">
+                    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;">
+                        <div class="stat-card" style="text-align:center;">
+                            <div style="font-size:36px; font-weight:700; color:#00E5FF; font-family:'Outfit',sans-serif;">1,842</div>
+                            <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:6px;">Total Sesi Bulan Ini</div>
+                        </div>
+                        <div class="stat-card" style="text-align:center;">
+                            <div style="font-size:36px; font-weight:700; color:#10B981; font-family:'Outfit',sans-serif;">68%</div>
+                            <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:6px;">Rata-rata Penyelesaian</div>
+                        </div>
+                        <div class="stat-card" style="text-align:center;">
+                            <div style="font-size:36px; font-weight:700; color:#F59E0B; font-family:'Outfit',sans-serif;">24m</div>
+                            <div style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:6px;">Rata-rata Durasi Sesi</div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:22px;">
+                        <h3 style="font-size:14px; font-weight:600; color:#fff; margin-bottom:18px;">Penyelesaian per Modul</h3>
+                        <div style="display:flex; flex-direction:column; gap:14px;">
+                            <% const reports = [
+                                { name:'Alat K3 Lapangan',         pct:91, users:198 },
+                                { name:'Konstruksi Tiang Listrik',  pct:82, users:174 },
+                                { name:'Gardu Distribusi',          pct:65, users:138 },
+                                { name:'Material Jaringan',         pct:48, users:102 },
+                                { name:'Tower SUTT 150kV',          pct:33, users: 70 },
+                                { name:'Instalasi kWh Meter',       pct:27, users: 57 },
+                            ]; %>
+                            <% reports.forEach(r => { %>
+                            <div style="display:grid; grid-template-columns:1fr 48px 100px 80px; align-items:center; gap:14px;">
+                                <span style="font-size:13px; color:rgba(255,255,255,0.75);"><%= r.name %></span>
+                                <span style="font-size:13px; font-weight:600; color:#00E5FF; text-align:right;"><%= r.pct %>%</span>
+                                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:<%= r.pct %>%;"></div></div>
+                                <span style="font-size:11px; color:rgba(255,255,255,0.35); text-align:right;"><%= r.users %> peserta</span>
+                            </div>
+                            <% }); %>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PAGE: SETTINGS -->
+            <div id="page-settings" class="page-section">
+                <div class="content-scroll" style="padding:28px;">
+                    <div style="max-width:560px; display:flex; flex-direction:column; gap:16px;">
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:22px;">
+                            <h3 style="font-size:14px; font-weight:600; color:#fff; margin-bottom:18px;">Profil Administrator</h3>
+                            <div style="display:flex; flex-direction:column; gap:14px;">
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Nama Lengkap</label>
+                                    <input type="text" value="Admin PLN" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none;">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Email</label>
+                                    <input type="email" value="admin@pln.co.id" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none;">
+                                </div>
+                                <div>
+                                    <label style="font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:0.8px; color:rgba(255,255,255,0.35); display:block; margin-bottom:6px;">Unit</label>
+                                    <input type="text" value="PLN Pusdiklat Pusat" style="width:100%; padding:10px 14px; border-radius:10px; border:1px solid rgba(255,255,255,0.1); background:rgba(255,255,255,0.05); color:#fff; font-size:13px; font-family:inherit; outline:none;">
+                                </div>
+                                <button style="align-self:flex-start; padding:9px 22px; border-radius:10px; background:#00E5FF; color:#05101E; font-size:13px; font-weight:700; border:none; cursor:pointer; font-family:inherit;">Simpan Perubahan</button>
+                            </div>
+                        </div>
+
+                        <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.07); border-radius:16px; padding:22px;">
+                            <h3 style="font-size:14px; font-weight:600; color:#fff; margin-bottom:18px;">Preferensi Sistem</h3>
+                            <div style="display:flex; flex-direction:column; gap:16px;">
+                                <div style="display:flex; align-items:center; justify-content:space-between;">
+                                    <div>
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.8); font-weight:500;">Notifikasi Email</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Terima notifikasi aktivitas via email</div>
+                                    </div>
+                                    <div id="toggle-notif" onclick="toggleSwitch(this)" style="width:42px; height:24px; border-radius:999px; background:#00E5FF; cursor:pointer; position:relative; transition:background 0.2s ease; flex-shrink:0;">
+                                        <div style="position:absolute; top:3px; left:20px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left 0.2s ease;"></div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between;">
+                                    <div>
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.8); font-weight:500;">Log Aktivitas</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Simpan riwayat aktivitas pengguna</div>
+                                    </div>
+                                    <div id="toggle-log" onclick="toggleSwitch(this)" style="width:42px; height:24px; border-radius:999px; background:#00E5FF; cursor:pointer; position:relative; transition:background 0.2s ease; flex-shrink:0;">
+                                        <div style="position:absolute; top:3px; left:20px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left 0.2s ease;"></div>
+                                    </div>
+                                </div>
+                                <div style="display:flex; align-items:center; justify-content:space-between;">
+                                    <div>
+                                        <div style="font-size:13px; color:rgba(255,255,255,0.8); font-weight:500;">Mode Maintenance</div>
+                                        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Nonaktifkan akses pengguna sementara</div>
+                                    </div>
+                                    <div id="toggle-maint" onclick="toggleSwitch(this)" style="width:42px; height:24px; border-radius:999px; background:rgba(255,255,255,0.12); cursor:pointer; position:relative; transition:background 0.2s ease; flex-shrink:0;">
+                                        <div style="position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left 0.2s ease;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/admin.js"></script>
+</body>
+</html>

@@ -369,3 +369,10 @@ app.listen(PORT, () => {
     console.log(`🚀 PLN Pusdiklat Concept running on http://localhost:${PORT}`);
     console.log(`===============================================`);
 });
+
+
+app.get('/admin', (req, res) => {
+    res.render('admin', {
+        title: 'Dashboard Admin — PLN Pusdiklat',
+    });
+});
