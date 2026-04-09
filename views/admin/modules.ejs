@@ -1,0 +1,27 @@
+<!-- views/admin/modules.ejs -->
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+    <h3 style="font-size:15px; font-weight:600; color:#fff; margin:0;">Daftar Modul Konten</h3>
+    <button class="btn-primary">+ Tambah Modul</button>
+</div>
+<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px;">
+    <% const modules = [
+        { name:'Konstruksi Tiang Listrik',  cat:'Konstruksi', items:15, status:'Aktif',        updated:'2 Jan 2025' },
+        { name:'Gardu Distribusi',          cat:'Konstruksi', items:24, status:'Aktif',        updated:'5 Jan 2025' },
+        { name:'Alat K3 Lapangan',          cat:'Tools',      items:12, status:'Aktif',        updated:'8 Jan 2025' },
+        { name:'Material Jaringan',         cat:'Material',   items:3,  status:'Aktif',        updated:'10 Jan 2025' },
+        { name:'Tower SUTT 150kV',          cat:'Konstruksi', items:5,  status:'Draft',        updated:'12 Jan 2025' },
+        { name:'Instalasi kWh Meter',       cat:'Teknis',     items:7,  status:'Draft',        updated:'14 Jan 2025' },
+        { name:'Penarikan Kabel SUTR',      cat:'Teknis',     items:10, status:'Aktif',        updated:'15 Jan 2025' },
+        { name:'Anchor Block & Expandable', cat:'Material',   items:2,  status:'Pengembangan', updated:'16 Jan 2025' },
+    ]; %>
+    <% modules.forEach(m => { %>
+    <div class="item-row">
+        <div class="item-icon"><svg style="width:18px;height:18px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
+        <div style="flex:1; min-width:0;">
+            <div style="font-size:13px; font-weight:600; color:#fff; margin-bottom:3px;"><%= m.name %></div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.35);"><%= m.cat %> · <%= m.items %> item · Diperbarui <%= m.updated %></div>
+        </div>
+        <span class="badge <%= m.status==='Aktif' ? 'badge-green' : m.status==='Draft' ? 'badge-yellow' : 'badge-blue' %>"><%= m.status %></span>
+    </div>
+    <% }); %>
+</div>

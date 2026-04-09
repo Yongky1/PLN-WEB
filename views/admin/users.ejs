@@ -1,0 +1,32 @@
+<!-- views/admin/users.ejs -->
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+    <input type="text" placeholder="🔍  Cari pengguna..." class="admin-input" style="width:280px;">
+    <button class="btn-primary">+ Tambah User</button>
+</div>
+
+<div class="admin-card" style="padding:0; overflow:hidden;">
+    <div class="table-header" style="grid-template-columns:2fr 1.5fr 1fr 1fr 80px;">
+        <span>Nama</span><span>Unit</span><span>Modul</span><span>Status</span><span>Aksi</span>
+    </div>
+    <% const users = [
+        { name:'Budi Santoso',   email:'budi.s@pln.co.id',   unit:'UP3 Jakarta Utara', modul:'8/14',  status:'Aktif' },
+        { name:'Siti Rahayu',   email:'siti.r@pln.co.id',   unit:'UP3 Surabaya',      modul:'14/14', status:'Aktif' },
+        { name:'Ahmad Fauzi',   email:'ahmad.f@pln.co.id',  unit:'UP3 Bandung',       modul:'5/14',  status:'Aktif' },
+        { name:'Dewi Lestari',  email:'dewi.l@pln.co.id',   unit:'UP3 Medan',         modul:'11/14', status:'Aktif' },
+        { name:'Rizki Pratama', email:'rizki.p@pln.co.id',  unit:'UP3 Makassar',      modul:'3/14',  status:'Nonaktif' },
+        { name:'Nur Hidayah',   email:'nur.h@pln.co.id',    unit:'UP3 Semarang',      modul:'9/14',  status:'Aktif' },
+        { name:'Eko Wahyudi',   email:'eko.w@pln.co.id',    unit:'UP3 Yogyakarta',    modul:'7/14',  status:'Aktif' },
+        { name:'Maya Kusuma',   email:'maya.k@pln.co.id',   unit:'UP3 Palembang',     modul:'12/14', status:'Aktif' },
+    ]; %>
+    <% users.forEach(u => { %>
+    <div class="table-row" style="grid-template-columns:2fr 1.5fr 1fr 1fr 80px; margin:0 8px; border-radius:8px;">
+        <div><div style="font-size:13px; font-weight:500; color:#fff;"><%= u.name %></div><div style="font-size:11px; color:rgba(255,255,255,0.35);"><%= u.email %></div></div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.6);"><%= u.unit %></div>
+        <div style="font-size:13px; color:rgba(255,255,255,0.6);"><%= u.modul %></div>
+        <span class="badge <%= u.status === 'Aktif' ? 'badge-green' : 'badge-red' %>"><%= u.status %></span>
+        <button style="font-size:11px; color:rgba(255,255,255,0.4); border:none; background:none; cursor:pointer; font-family:inherit; padding:4px 8px; border-radius:6px;"
+                onmouseenter="this.style.background='rgba(255,255,255,0.08)';this.style.color='#fff'"
+                onmouseleave="this.style.background='none';this.style.color='rgba(255,255,255,0.4)'">Detail</button>
+    </div>
+    <% }); %>
+</div>

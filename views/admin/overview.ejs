@@ -1,0 +1,177 @@
+<!-- ==========================================
+     views/admin/overview.ejs
+     ========================================== -->
+
+<!-- Greeting Banner -->
+<div style="background:linear-gradient(135deg,rgba(0,63,136,0.45),rgba(0,229,255,0.08)); border:1px solid rgba(0,229,255,0.18); border-radius:18px; padding:22px 28px; margin-bottom:24px; display:flex; align-items:center; justify-content:space-between;">
+    <div>
+        <div id="greeting-text" style="font-size:22px; font-weight:700; font-family:'Outfit',sans-serif; margin-bottom:4px;">Selamat Pagi</div>
+        <div id="greeting-date" style="font-size:13px; color:rgba(255,255,255,0.45);">Memuat tanggal...</div>
+    </div>
+    <div style="text-align:right;">
+        <div style="font-size:11px; color:rgba(255,255,255,0.3); margin-bottom:4px;">Platform Status</div>
+        <div style="display:flex; align-items:center; gap:6px; justify-content:flex-end;">
+            <div style="width:7px; height:7px; border-radius:50%; background:#00C864; box-shadow:0 0 8px #00C864;"></div>
+            <span style="font-size:13px; font-weight:600; color:#00C864;">Aktif & Online</span>
+        </div>
+    </div>
+</div>
+
+<!-- Stat Cards -->
+<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:16px; margin-bottom:24px;">
+    <div class="stat-card">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+            <span style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Total Pengguna</span>
+            <div style="width:34px; height:34px; border-radius:10px; background:rgba(0,229,255,0.1); display:flex; align-items:center; justify-content:center;">
+                <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </div>
+        </div>
+        <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">248</div>
+        <div style="font-size:11px; color:#00C864; margin-top:6px; display:flex; align-items:center; gap:4px;">
+            <svg style="width:11px;height:11px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            +12 bulan ini
+        </div>
+    </div>
+    <div class="stat-card">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+            <span style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Modul Aktif</span>
+            <div style="width:34px; height:34px; border-radius:10px; background:rgba(99,102,241,0.12); display:flex; align-items:center; justify-content:center;">
+                <svg style="width:16px;height:16px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+        </div>
+        <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">14</div>
+        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:6px;">3 dalam pengembangan</div>
+    </div>
+    <div class="stat-card">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+            <span style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Sesi Hari Ini</span>
+            <div style="width:34px; height:34px; border-radius:10px; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center;">
+                <svg style="width:16px;height:16px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+        </div>
+        <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">73</div>
+        <div style="font-size:11px; color:#00C864; margin-top:6px; display:flex; align-items:center; gap:4px;">
+            <svg style="width:11px;height:11px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+            +8% dari kemarin
+        </div>
+    </div>
+    <div class="stat-card">
+        <div style="display:flex; align-items:flex-start; justify-content:space-between; margin-bottom:14px;">
+            <span style="font-size:12px; color:rgba(255,255,255,0.45); font-weight:500;">Penyelesaian Modul</span>
+            <div style="width:34px; height:34px; border-radius:10px; background:rgba(16,185,129,0.1); display:flex; align-items:center; justify-content:center;">
+                <svg style="width:16px;height:16px;color:#10B981;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+        </div>
+        <div style="font-size:30px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif; line-height:1;">68<span style="font-size:16px; font-weight:500; color:rgba(255,255,255,0.4);">%</span></div>
+        <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:6px;">Rata-rata semua peserta</div>
+    </div>
+</div>
+
+<!-- Ringkasan Kelola Konten -->
+<div class="admin-card" style="margin-bottom:24px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+        <h3 class="section-title" style="margin:0;">Ringkasan Kelola Konten</h3>
+        <span style="font-size:11px; color:rgba(255,255,255,0.35);">Total item di sistem</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:14px;">
+        <a href="/admin/konstruksi" style="background:rgba(0,229,255,0.05); border:1px solid rgba(0,229,255,0.18); border-radius:14px; padding:18px; text-decoration:none; display:block; transition:background 0.15s,border-color 0.15s;"
+           onmouseenter="this.style.background='rgba(0,229,255,0.1)';this.style.borderColor='rgba(0,229,255,0.35)'"
+           onmouseleave="this.style.background='rgba(0,229,255,0.05)';this.style.borderColor='rgba(0,229,255,0.18)'">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(0,229,255,0.1); display:flex; align-items:center; justify-content:center;">
+                    <svg style="width:15px;height:15px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                </div>
+                <span style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.6);">Konstruksi</span>
+            </div>
+            <div style="font-size:28px; font-weight:700; color:#00E5FF; font-family:'Outfit',sans-serif; line-height:1; margin-bottom:4px;">5</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.35);">modul tersedia</div>
+            <div style="font-size:11px; color:rgba(0,229,255,0.6); margin-top:8px; display:flex; align-items:center; gap:4px;">Kelola →</div>
+        </a>
+        <a href="/admin/material" style="background:rgba(129,140,248,0.05); border:1px solid rgba(129,140,248,0.18); border-radius:14px; padding:18px; text-decoration:none; display:block; transition:background 0.15s,border-color 0.15s;"
+           onmouseenter="this.style.background='rgba(129,140,248,0.1)';this.style.borderColor='rgba(129,140,248,0.35)'"
+           onmouseleave="this.style.background='rgba(129,140,248,0.05)';this.style.borderColor='rgba(129,140,248,0.18)'">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(129,140,248,0.1); display:flex; align-items:center; justify-content:center;">
+                    <svg style="width:15px;height:15px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+                <span style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.6);">Material</span>
+            </div>
+            <div style="font-size:28px; font-weight:700; color:#818CF8; font-family:'Outfit',sans-serif; line-height:1; margin-bottom:4px;">3</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.35);">item tersedia</div>
+            <div style="font-size:11px; color:rgba(129,140,248,0.7); margin-top:8px; display:flex; align-items:center; gap:4px;">Kelola →</div>
+        </a>
+        <a href="/admin/tools" style="background:rgba(245,158,11,0.05); border:1px solid rgba(245,158,11,0.18); border-radius:14px; padding:18px; text-decoration:none; display:block; transition:background 0.15s,border-color 0.15s;"
+           onmouseenter="this.style.background='rgba(245,158,11,0.1)';this.style.borderColor='rgba(245,158,11,0.35)'"
+           onmouseleave="this.style.background='rgba(245,158,11,0.05)';this.style.borderColor='rgba(245,158,11,0.18)'">
+            <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+                <div style="width:32px; height:32px; border-radius:8px; background:rgba(245,158,11,0.1); display:flex; align-items:center; justify-content:center;">
+                    <svg style="width:15px;height:15px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                </div>
+                <span style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.6);">Peralatan</span>
+            </div>
+            <div style="font-size:28px; font-weight:700; color:#F59E0B; font-family:'Outfit',sans-serif; line-height:1; margin-bottom:4px;">12</div>
+            <div style="font-size:11px; color:rgba(255,255,255,0.35);">alat tersedia</div>
+            <div style="font-size:11px; color:rgba(245,158,11,0.7); margin-top:8px; display:flex; align-items:center; gap:4px;">Kelola →</div>
+        </a>
+    </div>
+</div>
+
+<!-- Aktivitas & Progress -->
+<div style="display:grid; grid-template-columns:1fr 340px; gap:20px;">
+    <div class="admin-card">
+        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+            <h3 class="section-title" style="margin:0;">Aktivitas Terbaru</h3>
+            <span style="font-size:11px; color:rgba(255,255,255,0.35);">Hari ini</span>
+        </div>
+        <div style="display:flex; flex-direction:column;">
+            <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div class="activity-dot" style="background:#00E5FF;"></div>
+                <div style="flex:1;"><div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Budi Santoso menyelesaikan Modul Konstruksi Tiang</div><div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">08:42 WIB</div></div>
+                <span class="badge badge-green">Selesai</span>
+            </div>
+            <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div class="activity-dot" style="background:#818CF8;"></div>
+                <div style="flex:1;"><div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Modul Gardu Portal diperbarui oleh admin</div><div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">09:15 WIB</div></div>
+                <span class="badge badge-blue">Update</span>
+            </div>
+            <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div class="activity-dot" style="background:#F59E0B;"></div>
+                <div style="flex:1;"><div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">3 pengguna baru mendaftar dari Unit Jawa Timur</div><div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">10:02 WIB</div></div>
+                <span class="badge badge-yellow">Baru</span>
+            </div>
+            <div style="display:flex; gap:14px; padding:12px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <div class="activity-dot" style="background:#10B981;"></div>
+                <div style="flex:1;"><div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Siti Rahayu mencapai 100% pada Modul Alat K3</div><div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">11:30 WIB</div></div>
+                <span class="badge badge-green">Selesai</span>
+            </div>
+            <div style="display:flex; gap:14px; padding:12px 0;">
+                <div class="activity-dot" style="background:#EF4444;"></div>
+                <div style="flex:1;"><div style="font-size:13px; color:rgba(255,255,255,0.85); font-weight:500;">Server maintenance dijadwalkan pukul 23:00 WIB</div><div style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:3px;">13:00 WIB</div></div>
+                <span class="badge badge-red">Notif</span>
+            </div>
+        </div>
+    </div>
+    <div class="admin-card">
+        <h3 class="section-title">Progress Modul</h3>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            <% const progressData = [
+                { label:'Konstruksi Tiang', pct:82 },
+                { label:'Gardu Distribusi', pct:65 },
+                { label:'Alat K3',          pct:91 },
+                { label:'Material Jaringan',pct:48 },
+                { label:'Tower SUTT',       pct:33 },
+            ]; %>
+            <% progressData.forEach(p => { %>
+            <div>
+                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                    <span style="font-size:12px; color:rgba(255,255,255,0.6);"><%= p.label %></span>
+                    <span style="font-size:12px; font-weight:600; color:#00E5FF;"><%= p.pct %>%</span>
+                </div>
+                <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:<%= p.pct %>%;"></div></div>
+            </div>
+            <% }); %>
+        </div>
+    </div>
+</div>
+
+<script src="/js/admin/overview.js"></script>

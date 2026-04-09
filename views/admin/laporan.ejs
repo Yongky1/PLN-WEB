@@ -1,0 +1,66 @@
+<!-- views/admin/laporan.ejs -->
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+    <h3 style="font-size:15px; font-weight:600; color:#fff; margin:0;">Laporan Platform</h3>
+    <div style="display:flex; gap:6px;">
+        <button class="filter-period active" data-period="today">Hari Ini</button>
+        <button class="filter-period" data-period="week">Minggu Ini</button>
+        <button class="filter-period" data-period="month">Bulan Ini</button>
+    </div>
+</div>
+
+<div style="display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:24px;">
+    <div class="stat-card" style="text-align:center;"><div style="font-size:36px; font-weight:700; color:#00E5FF; font-family:'Outfit',sans-serif;">1,842</div><div style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:6px;">Total Sesi</div></div>
+    <div class="stat-card" style="text-align:center;"><div style="font-size:36px; font-weight:700; color:#10B981; font-family:'Outfit',sans-serif;">68%</div><div style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:6px;">Rata-rata Penyelesaian</div></div>
+    <div class="stat-card" style="text-align:center;"><div style="font-size:36px; font-weight:700; color:#F59E0B; font-family:'Outfit',sans-serif;">24m</div><div style="font-size:13px; color:rgba(255,255,255,0.5); margin-top:6px;">Rata-rata Durasi Sesi</div></div>
+</div>
+
+<div class="admin-card" style="margin-bottom:20px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
+        <h3 class="section-title" style="margin:0;">Ringkasan Mingguan</h3>
+        <span style="font-size:11px; color:rgba(255,255,255,0.35);">Minggu ini vs minggu lalu</span>
+    </div>
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:14px;">
+        <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:14px 16px; border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px;">Sesi Belajar</div>
+            <div style="font-size:22px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif;">412</div>
+            <div style="font-size:11px; color:#00C864; margin-top:4px; display:flex; align-items:center; gap:3px;"><svg style="width:10px;height:10px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>+18% vs minggu lalu</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:14px 16px; border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px;">Modul Diselesaikan</div>
+            <div style="font-size:22px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif;">87</div>
+            <div style="font-size:11px; color:#00C864; margin-top:4px; display:flex; align-items:center; gap:3px;"><svg style="width:10px;height:10px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>+5% vs minggu lalu</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:14px 16px; border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px;">Pengguna Baru</div>
+            <div style="font-size:22px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif;">14</div>
+            <div style="font-size:11px; color:#EF4444; margin-top:4px; display:flex; align-items:center; gap:3px;"><svg style="width:10px;height:10px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>-3% vs minggu lalu</div>
+        </div>
+        <div style="background:rgba(255,255,255,0.03); border-radius:12px; padding:14px 16px; border:1px solid rgba(255,255,255,0.06);">
+            <div style="font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:8px;">Rata-rata Durasi</div>
+            <div style="font-size:22px; font-weight:700; color:#fff; font-family:'Outfit',sans-serif;">26m</div>
+            <div style="font-size:11px; color:#00C864; margin-top:4px; display:flex; align-items:center; gap:3px;"><svg style="width:10px;height:10px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>+2m vs minggu lalu</div>
+        </div>
+    </div>
+</div>
+
+<div class="admin-card">
+    <h3 class="section-title">Penyelesaian per Modul</h3>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+        <% const reports = [
+            { name:'Alat K3 Lapangan',        pct:91, users:198 },
+            { name:'Konstruksi Tiang Listrik', pct:82, users:174 },
+            { name:'Gardu Distribusi',         pct:65, users:138 },
+            { name:'Material Jaringan',        pct:48, users:102 },
+            { name:'Tower SUTT 150kV',         pct:33, users: 70 },
+            { name:'Instalasi kWh Meter',      pct:27, users: 57 },
+        ]; %>
+        <% reports.forEach(r => { %>
+        <div style="display:grid; grid-template-columns:1fr 48px 100px 80px; align-items:center; gap:14px;">
+            <span style="font-size:13px; color:rgba(255,255,255,0.75);"><%= r.name %></span>
+            <span style="font-size:13px; font-weight:600; color:#00E5FF; text-align:right;"><%= r.pct %>%</span>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:<%= r.pct %>%;"></div></div>
+            <span style="font-size:11px; color:rgba(255,255,255,0.35); text-align:right;"><%= r.users %> peserta</span>
+        </div>
+        <% }); %>
+    </div>
+</div>

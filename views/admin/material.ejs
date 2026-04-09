@@ -1,0 +1,68 @@
+<!-- views/admin/material.ejs -->
+<div style="max-width:720px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+        <div>
+            <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Material</h3>
+            <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola katalog material jaringan</p>
+        </div>
+        <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(129,140,248,0.12); color:#818CF8; border:1px solid rgba(129,140,248,0.3);">Material</span>
+    </div>
+
+    <div id="material-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+        <div class="item-row">
+            <div style="font-size:24px; flex-shrink:0;">🔩</div>
+            <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:#fff;">Baut M20 HDG</div><div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">BT-M20-HDG · Pengencang</div></div>
+            <span class="badge badge-green">Aktif</span>
+            <button class="btn-danger" onclick="deleteRow(this)">Hapus</button>
+        </div>
+        <div class="item-row">
+            <div style="font-size:24px; flex-shrink:0;">⭕</div>
+            <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:#fff;">Ring Per (Spring Washer)</div><div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">WS-M20-SPR · Pengencang</div></div>
+            <span class="badge badge-green">Aktif</span>
+            <button class="btn-danger" onclick="deleteRow(this)">Hapus</button>
+        </div>
+        <div class="item-row">
+            <div style="font-size:24px; flex-shrink:0;">💡</div>
+            <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:#fff;">Insulator Pin 11kV</div><div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">INS-PIN-11kV · Insulasi</div></div>
+            <span class="badge badge-green">Aktif</span>
+            <button class="btn-danger" onclick="deleteRow(this)">Hapus</button>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 18px; display:flex; align-items:center; gap:8px;">
+            <svg style="width:15px;height:15px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tambah Material Baru
+        </h4>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                <div><label class="admin-label">Nama Material *</label><input id="m-name" type="text" class="admin-input" placeholder="Contoh: Insulator Pin 20kV"></div>
+                <div><label class="admin-label">Kode Material *</label><input id="m-code" type="text" class="admin-input" placeholder="Contoh: INS-PIN-20kV"></div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 80px; gap:14px;">
+                <div><label class="admin-label">Kategori</label><select id="m-cat" class="admin-select"><option>Pengencang</option><option>Insulasi</option><option>Kabel</option><option>Penyangga</option><option>Lainnya</option></select></div>
+                <div><label class="admin-label">Ikon</label><input id="m-icon" type="text" class="admin-input" placeholder="🔩" style="font-size:20px;"></div>
+            </div>
+            <div><label class="admin-label">Deskripsi Singkat</label><input id="m-shortdesc" type="text" class="admin-input" placeholder="Deskripsi singkat yang tampil di kartu..."></div>
+            <div><label class="admin-label">Deskripsi Lengkap</label><textarea id="m-desc" class="admin-input" rows="3" placeholder="Penjelasan lengkap material..." style="resize:vertical;"></textarea></div>
+            <div>
+                <label class="admin-label">Spesifikasi Teknis</label>
+                <div id="spec-container" style="display:flex; flex-direction:column; gap:8px; margin-bottom:8px;">
+                    <div style="display:grid; grid-template-columns:1fr 1fr 32px; gap:8px; align-items:center;">
+                        <input type="text" class="admin-input" placeholder="Nama spek" style="padding:9px 12px; font-size:12px;">
+                        <input type="text" class="admin-input" placeholder="Nilai" style="padding:9px 12px; font-size:12px;">
+                        <button type="button" onclick="this.parentElement.remove()" class="btn-danger" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:16px;">×</button>
+                    </div>
+                </div>
+                <button type="button" onclick="addSpecRow('spec-container')" style="font-size:12px; color:rgba(255,255,255,0.4); border:none; background:none; cursor:pointer; font-family:inherit; display:flex; align-items:center; gap:6px;">
+                    <span style="font-size:16px; color:#00E5FF;">+</span> Tambah Spesifikasi
+                </button>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-primary" onclick="submitMaterial()">Simpan Material</button>
+                <button class="btn-secondary" onclick="resetForm('m')">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/admin/material-admin.js"></script>

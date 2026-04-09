@@ -1,5 +1,7 @@
 const express = require('express');
 const path    = require('path');
+const ejs         = require('ejs');
+const adminRouter = require('./routes/admin');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -364,15 +366,11 @@ app.get('/ModulKonstruksi/:id', (req, res) => {
     });
 });
 
+// Admin routes
+app.use('/admin', adminRouter);
+
 app.listen(PORT, () => {
     console.log(`===============================================`);
     console.log(`🚀 PLN Pusdiklat Concept running on http://localhost:${PORT}`);
     console.log(`===============================================`);
-});
-
-
-app.get('/admin', (req, res) => {
-    res.render('admin', {
-        title: 'Dashboard Admin — PLN Pusdiklat',
-    });
 });

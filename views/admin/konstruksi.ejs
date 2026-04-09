@@ -1,0 +1,54 @@
+<!-- views/admin/konstruksi.ejs -->
+<div style="max-width:720px;">
+    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+        <div>
+            <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Konstruksi</h3>
+            <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola data konstruksi jaringan</p>
+        </div>
+        <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(0,229,255,0.1); color:#00E5FF; border:1px solid rgba(0,229,255,0.25);">Konstruksi</span>
+    </div>
+
+    <div id="konstruksi-list" style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
+        <div class="item-row">
+            <div class="item-icon"><svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg></div>
+            <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:#fff;">Konstruksi Tiang Listrik</div><div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">15 komponen · Aktif</div></div>
+            <span class="badge badge-green">Aktif</span>
+            <button class="btn-danger" onclick="deleteRow(this)">Hapus</button>
+        </div>
+        <div class="item-row">
+            <div class="item-icon"><svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg></div>
+            <div style="flex:1;"><div style="font-size:13px; font-weight:600; color:#fff;">Gardu Portal</div><div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">6 komponen · Aktif</div></div>
+            <span class="badge badge-green">Aktif</span>
+            <button class="btn-danger" onclick="deleteRow(this)">Hapus</button>
+        </div>
+    </div>
+
+    <div class="admin-card">
+        <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 18px; display:flex; align-items:center; gap:8px;">
+            <svg style="width:15px;height:15px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tambah Konstruksi Baru
+        </h4>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+            <div><label class="admin-label">Nama Konstruksi *</label><input id="k-name" type="text" class="admin-input" placeholder="Contoh: Tower SUTT 150kV"></div>
+            <div><label class="admin-label">Deskripsi</label><textarea id="k-desc" class="admin-input" rows="3" placeholder="Deskripsikan konstruksi ini..." style="resize:vertical;"></textarea></div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:14px;">
+                <div><label class="admin-label">Jumlah Komponen</label><input id="k-count" type="number" class="admin-input" placeholder="0" min="0"></div>
+                <div><label class="admin-label">Status</label><select id="k-status" class="admin-select"><option>Aktif</option><option>Draft</option><option>Pengembangan</option></select></div>
+            </div>
+            <div>
+                <label class="admin-label">Upload File Model 3D (.glb)</label>
+                <div class="upload-zone">
+                    <svg style="width:24px;height:24px;color:rgba(255,255,255,0.25);margin:0 auto 8px;display:block;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                    <p style="font-size:12px; color:rgba(255,255,255,0.35);">Klik untuk upload atau drag & drop</p>
+                    <p style="font-size:11px; color:rgba(255,255,255,0.2); margin-top:4px;">Format: .glb, .gltf (maks. 50MB)</p>
+                    <input type="file" accept=".glb,.gltf" style="display:none;">
+                </div>
+            </div>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-primary" onclick="submitKonstruksi()">Simpan Konstruksi</button>
+                <button class="btn-secondary" onclick="resetForm('k')">Reset</button>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="/js/admin/konstruksi.js"></script>
