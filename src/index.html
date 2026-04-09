@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PLN PUSDIKLAT | Pusat Pendidikan dan Pelatihan Ketenagalistrikan</title>
+  <meta name="description" content="PLN PUSDIKLAT adalah pusat pendidikan dan pelatihan terdepan untuk pengembangan SDM ketenagalistrikan Indonesia. Program unggulan berbasis kompetensi, teknologi, dan kepemimpinan." />
+  <meta property="og:title" content="PLN PUSDIKLAT | Mencetak SDM Unggul Ketenagalistrikan" />
+  <meta property="og:description" content="Pusat Pendidikan dan Pelatihan PLN — membangun generasi tenaga listrik Indonesia yang kompeten, inovatif, dan berdaya saing global." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Manrope:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+
+  <!-- ===== NAVBAR ===== -->
+  <nav class="navbar" id="navbar">
+    <div class="nav-inner">
+      <a href="#hero" class="nav-logo" id="nav-logo">
+        <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="20" cy="20" r="18" stroke="white" stroke-width="2"/>
+          <path d="M20 8L20 32M8 20L32 20M12 12L28 28M28 12L12 28" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+          <circle cx="20" cy="20" r="4" fill="white"/>
+        </svg>
+        <span class="logo-text">PLN <strong>PUSDIKLAT</strong></span>
+      </a>
+      <div class="nav-links" id="nav-links">
+        <a href="#tentang" class="nav-link">Tentang Kami</a>
+        <a href="#program" class="nav-link">Program</a>
+        <a href="#solusi" class="nav-link">Solusi</a>
+        <a href="#keunggulan" class="nav-link">Keunggulan</a>
+        <a href="#instruktur" class="nav-link">Instruktur</a>
+        <a href="#berita" class="nav-link">Berita</a>
+      </div>
+      <a href="#kontak" class="btn-contact" id="btn-contact">Hubungi Kami</a>
+      <button class="nav-hamburger" id="nav-hamburger" aria-label="Toggle menu">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ===== MOBILE MENU ===== -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#tentang" class="mobile-link">Tentang Kami</a>
+    <a href="#program" class="mobile-link">Program</a>
+    <a href="#solusi" class="mobile-link">Solusi</a>
+    <a href="#keunggulan" class="mobile-link">Keunggulan</a>
+    <a href="#instruktur" class="mobile-link">Instruktur</a>
+    <a href="#berita" class="mobile-link">Berita</a>
+    <a href="#kontak" class="mobile-link mobile-cta">Hubungi Kami</a>
+  </div>
+
+  <!-- ===== HERO ===== -->
+  <section class="hero" id="hero">
+    <div class="hero-bg">
+      <div class="hero-gradient"></div>
+      <div class="hero-3d-scene">
+        <div class="power-tower-wrap">
+          <svg class="power-tower" viewBox="0 0 300 500" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <!-- Tower body -->
+            <line x1="150" y1="20" x2="80" y2="480" stroke="rgba(255,255,255,0.7)" stroke-width="3"/>
+            <line x1="150" y1="20" x2="220" y2="480" stroke="rgba(255,255,255,0.7)" stroke-width="3"/>
+            <!-- Cross braces -->
+            <line x1="95" y1="120" x2="205" y2="120" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <line x1="95" y1="120" x2="205" y2="200" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <line x1="205" y1="120" x2="95" y2="200" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <line x1="90" y1="200" x2="210" y2="200" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <line x1="90" y1="200" x2="210" y2="300" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <line x1="210" y1="200" x2="90" y2="300" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <line x1="85" y1="300" x2="215" y2="300" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <line x1="85" y1="300" x2="215" y2="400" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <line x1="215" y1="300" x2="85" y2="400" stroke="rgba(255,255,255,0.3)" stroke-width="1.5"/>
+            <line x1="80" y1="400" x2="220" y2="400" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <!-- Top crossarm -->
+            <line x1="50" y1="40" x2="250" y2="40" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
+            <line x1="70" y1="70" x2="230" y2="70" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
+            <!-- Insulators / wires -->
+            <line x1="50" y1="40" x2="0" y2="80" stroke="rgba(200,220,255,0.6)" stroke-width="1.5"/>
+            <line x1="250" y1="40" x2="300" y2="80" stroke="rgba(200,220,255,0.6)" stroke-width="1.5"/>
+            <line x1="70" y1="70" x2="0" y2="120" stroke="rgba(200,220,255,0.6)" stroke-width="1.5"/>
+            <line x1="230" y1="70" x2="300" y2="120" stroke="rgba(200,220,255,0.6)" stroke-width="1.5"/>
+            <!-- Top pole -->
+            <line x1="150" y1="0" x2="150" y2="40" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
+            <!-- Glow dots -->
+            <circle cx="50" cy="40" r="4" fill="rgba(100,180,255,0.9)"/>
+            <circle cx="250" cy="40" r="4" fill="rgba(100,180,255,0.9)"/>
+            <circle cx="70" cy="70" r="4" fill="rgba(100,180,255,0.9)"/>
+            <circle cx="230" cy="70" r="4" fill="rgba(100,180,255,0.9)"/>
+            <circle cx="150" cy="0" r="6" fill="rgba(100,180,255,1)"/>
+          </svg>
+        </div>
+        <!-- Floating particles -->
+        <div class="particle" style="--x:15%;--y:20%;--s:6px;--d:2s"></div>
+        <div class="particle" style="--x:80%;--y:15%;--s:4px;--d:3s"></div>
+        <div class="particle" style="--x:25%;--y:70%;--s:8px;--d:1.5s"></div>
+        <div class="particle" style="--x:70%;--y:65%;--s:5px;--d:2.5s"></div>
+        <div class="particle" style="--x:50%;--y:40%;--s:3px;--d:4s"></div>
+        <div class="particle" style="--x:90%;--y:50%;--s:7px;--d:1s"></div>
+        <div class="particle" style="--x:10%;--y:80%;--s:4px;--d:3.5s"></div>
+        <div class="particle" style="--x:60%;--y:85%;--s:6px;--d:2s"></div>
+      </div>
+    </div>
+    <div class="hero-text">
+      <h1 class="hero-title" id="hero-title">
+        <span class="hero-line">Mencetak</span>
+        <span class="hero-line">SDM Unggul</span>
+      </h1>
+    </div>
+    <div class="hero-subtitle" id="hero-subtitle">
+      <p>Pendidikan dan Pelatihan Ketenagalistrikan</p>
+    </div>
+    <div class="hero-scroll-hint">
+      <span>Scroll</span>
+      <div class="scroll-line"></div>
+    </div>
+  </section>
+
+  <!-- ===== MISSION ===== -->
+  <section class="mission" id="tentang">
+    <div class="mission-label">Nama Mencerminkan Misi Kami</div>
+    <div class="mission-content">
+      <p class="mission-text">
+        PLN PUSDIKLAT telah mendidik lebih dari <strong>150.000 insan ketenagalistrikan</strong> selama lebih dari 50 tahun, menjadi tulang punggung pengembangan kompetensi SDM energi Indonesia menuju masa depan yang berkelanjutan.
+      </p>
+      <a href="#program" class="btn-split" id="btn-discover">
+        <span class="btn-icon">↳</span>
+        <span class="btn-label">Temukan Program Kami</span>
+      </a>
+    </div>
+    <div class="mission-stats">
+      <div class="stat-item">
+        <span class="stat-number" data-target="150000">0</span>
+        <span class="stat-plus">+</span>
+        <span class="stat-label">Alumni Terlatih</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="500">0</span>
+        <span class="stat-plus">+</span>
+        <span class="stat-label">Instruktur Ahli</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="200">0</span>
+        <span class="stat-plus">+</span>
+        <span class="stat-label">Program Diklat</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-number" data-target="50">0</span>
+        <span class="stat-plus">+</span>
+        <span class="stat-label">Tahun Pengalaman</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== APPLICATIONS PARALLAX ===== -->
+  <section class="applications" id="aplikasi">
+    <div class="vignette-border"></div>
+    <div class="app-text">
+      <p class="app-intro">Pusat Pelatihan</p>
+      <p class="app-body">
+        PLN PUSDIKLAT adalah pusat keunggulan yang mendukung komitmen PLN terhadap ketahanan energi nasional — memastikan setiap insan PLN siap menghadapi tantangan ketenagalistrikan masa depan.
+      </p>
+    </div>
+    <div class="app-images">
+      <div class="app-img app-img-1" id="app-img-1">
+        <div class="app-img-inner img-grid-power"></div>
+      </div>
+      <div class="app-img app-img-2" id="app-img-2">
+        <div class="app-img-inner img-plta"></div>
+      </div>
+    </div>
+    <div class="dict-entry">
+      <span class="dict-phonetic">\ ˈpus-di-klaːt \</span>
+      <p class="dict-def">Pusat Pendidikan dan Pelatihan Ketenagalistrikan — lembaga yang menghasilkan sumber daya manusia berkualitas untuk sektor energi dan ketenagalistrikan Indonesia.</p>
+    </div>
+  </section>
+
+  <!-- ===== PROGRAMS (SCROLL PINNED) ===== -->
+  <section class="programs-section" id="program">
+    <div class="programs-sticky-wrapper">
+      <div class="programs-left">
+        <div class="section-label fade-up">Program Unggulan</div>
+        <h2 class="programs-heading fade-up">Modernisasi Pelatihan Berbasis Teknologi</h2>
+        <p class="programs-desc fade-up">
+          Kami adalah pusat pelatihan ketenagalistrikan yang memadukan metode pembelajaran berbasis kompetensi dengan teknologi terkini, menghadirkan pengalaman belajar yang relevan dan berdampak nyata.
+        </p>
+        <a href="#solusi" class="btn-split fade-up">
+          <span class="btn-icon">↳</span>
+          <span class="btn-label">Jelajahi Program</span>
+        </a>
+        <div class="prog-tabs">
+          <button class="prog-tab active" data-tab="0" id="tab-0">Berbasis Kompetensi</button>
+          <button class="prog-tab" data-tab="1" id="tab-1">Berbasis Teknologi</button>
+          <button class="prog-tab" data-tab="2" id="tab-2">Berbasis Kepemimpinan</button>
+        </div>
+      </div>
+      <div class="programs-right">
+        <div class="prog-panel active" data-panel="0">
+          <div class="prog-img prog-img-0">
+            <div class="prog-img-visual training-competency"></div>
+          </div>
+          <div class="prog-card">
+            <div class="prog-card-dot"></div>
+            <h3>Pelatihan Berbasis Kompetensi</h3>
+            <p>Program terstruktur yang mengacu pada standar SKKNI Ketenagalistrikan, memastikan setiap peserta memiliki kompetensi teknis yang terukur dan tersertifikasi.</p>
+          </div>
+        </div>
+        <div class="prog-panel" data-panel="1">
+          <div class="prog-img prog-img-1">
+            <div class="prog-img-visual training-technology"></div>
+          </div>
+          <div class="prog-card">
+            <div class="prog-card-dot"></div>
+            <h3>Sistem Cerdas & Digital</h3>
+            <p>Desain pelatihan modern kami memanfaatkan simulasi digital, digital twin, dan AI untuk mempercepat pembelajaran, meminimalkan kesalahan, dan meningkatkan efisiensi operasional.</p>
+          </div>
+        </div>
+        <div class="prog-panel" data-panel="2">
+          <div class="prog-img prog-img-2">
+            <div class="prog-img-visual training-leadership"></div>
+          </div>
+          <div class="prog-card">
+            <div class="prog-card-dot"></div>
+            <h3>Kepemimpinan Strategis</h3>
+            <p>Program pengembangan manajerial yang mempersiapkan pemimpin masa depan PLN — dengan fokus pada transformasi bisnis, inovasi, dan ketangguhan organisasi.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== PILLARS (DARK BG) ===== -->
+  <section class="pillars-section" id="solusi">
+    <div class="pillars-grid">
+      <div class="pillar-item" id="pillar-0">
+        <div class="pillar-icon">⚡</div>
+        <h3 class="pillar-title">Teknik Ketenagalistrikan</h3>
+        <p class="pillar-desc">Pembangkitan, transmisi, distribusi — pelatihan teknis komprehensif untuk seluruh rantai nilai kelistrikan dari PLTU, PLTA, PLTG hingga EBT.</p>
+      </div>
+      <div class="pillar-item" id="pillar-1">
+        <div class="pillar-icon">🛡️</div>
+        <h3 class="pillar-title">K3 & Lingkungan</h3>
+        <p class="pillar-desc">Program keselamatan kerja dan lingkungan bertaraf internasional untuk memastikan setiap operasi PLN berjalan aman, andal, dan bertanggung jawab.</p>
+      </div>
+      <div class="pillar-center">
+        <div class="pillar-core-glow"></div>
+        <div class="pillar-core-ring ring-1"></div>
+        <div class="pillar-core-ring ring-2"></div>
+        <div class="pillar-core-ring ring-3"></div>
+        <div class="pillar-core-icon">
+          <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="50" cy="50" r="30" fill="none" stroke="rgba(100,180,255,0.8)" stroke-width="2"/>
+            <path d="M50 20 L50 80 M20 50 L80 50" stroke="rgba(100,180,255,0.8)" stroke-width="2" stroke-linecap="round"/>
+            <circle cx="50" cy="50" r="8" fill="rgba(100,180,255,0.9)"/>
+            <circle cx="50" cy="20" r="4" fill="rgba(100,180,255,0.7)"/>
+            <circle cx="50" cy="80" r="4" fill="rgba(100,180,255,0.7)"/>
+            <circle cx="20" cy="50" r="4" fill="rgba(100,180,255,0.7)"/>
+            <circle cx="80" cy="50" r="4" fill="rgba(100,180,255,0.7)"/>
+          </svg>
+        </div>
+      </div>
+      <div class="pillar-item" id="pillar-2">
+        <div class="pillar-icon">👥</div>
+        <h3 class="pillar-title">Kepemimpinan & Manajerial</h3>
+        <p class="pillar-desc">Membangun pemimpin transformasional PLN dengan program berbasis studi kasus, benchmarking internasional, dan coaching eksekutif.</p>
+      </div>
+      <div class="pillar-item" id="pillar-3">
+        <div class="pillar-icon">💻</div>
+        <h3 class="pillar-title">Transformasi Digital</h3>
+        <p class="pillar-desc">Program digitalisasi energi — dari IoT dan SCADA hingga AI dan Big Data — agar insan PLN siap memimpin era industri 4.0 ketenagalistrikan.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== EDGE / KEUNGGULAN ===== -->
+  <section class="edge-section" id="keunggulan">
+    <div class="edge-header">
+      <div class="section-label fade-up">Keunggulan Kami</div>
+      <h2 class="edge-title fade-up">Standar Pelatihan Tertinggi di Industri</h2>
+      <p class="edge-desc fade-up">
+        Program PUSDIKLAT dirancang untuk mencakup seluruh sektor ketenagalistrikan, melampaui standar kompetensi nasional menuju keunggulan bertaraf internasional.
+      </p>
+    </div>
+    <div class="edge-tabs-wrap">
+      <div class="edge-tabs" id="edge-tabs">
+        <button class="edge-tab active" data-etab="0" id="etab-0">PLTU</button>
+        <button class="edge-tab" data-etab="1" id="etab-1">PLTA</button>
+        <button class="edge-tab" data-etab="2" id="etab-2">PLTG/GU</button>
+        <button class="edge-tab" data-etab="3" id="etab-3">EBT</button>
+        <button class="edge-tab" data-etab="4" id="etab-4">Transmisi</button>
+        <button class="edge-tab" data-etab="5" id="etab-5">Distribusi</button>
+      </div>
+      <div class="edge-content" id="edge-content">
+        <div class="edge-panel active" data-epanel="0">
+          <div class="edge-panel-visual edge-pltu"></div>
+          <div class="edge-panel-text">
+            <h3>Pelatihan PLTU — Pembangkit Listrik Tenaga Uap</h3>
+            <p>Program pelatihan PLTU kami mencakup operasi boiler, turbin uap, sistem kendali DCS, pemeliharaan prediktif, serta manajemen lingkungan berbasis PROPER. Dirancang untuk teknisi dan operator pembangkit termal.</p>
+            <div class="edge-metrics">
+              <div class="metric"><span class="metric-val">95%</span><span class="metric-lbl">Tingkat Kelulusan</span></div>
+              <div class="metric"><span class="metric-val">40+</span><span class="metric-lbl">Modul Pelatihan</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="edge-panel" data-epanel="1">
+          <div class="edge-panel-visual edge-plta"></div>
+          <div class="edge-panel-text">
+            <h3>Pelatihan PLTA — Pembangkit Listrik Tenaga Air</h3>
+            <p>Dari operasi turbin Kaplan dan Francis hingga manajemen bendungan dan sistem proteksi. Pelatihan PLTA membekali operator dengan keterampilan teknis dan keselamatan di lingkungan hidroelektrik.</p>
+            <div class="edge-metrics">
+              <div class="metric"><span class="metric-val">92%</span><span class="metric-lbl">Tingkat Kelulusan</span></div>
+              <div class="metric"><span class="metric-val">28+</span><span class="metric-lbl">Modul Pelatihan</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="edge-panel" data-epanel="2">
+          <div class="edge-panel-visual edge-pltg"></div>
+          <div class="edge-panel-text">
+            <h3>Pelatihan PLTG — Pembangkit Listrik Tenaga Gas</h3>
+            <p>Operasi turbin gas, HRSG, siklus kombinasi, dan sistem bahan bakar gas. Kurikulum mencakup pula transisi ke hidrogen dan bahan bakar cair hijau sebagai masa depan pembangkitan bersih.</p>
+            <div class="edge-metrics">
+              <div class="metric"><span class="metric-val">93%</span><span class="metric-lbl">Tingkat Kelulusan</span></div>
+              <div class="metric"><span class="metric-val">32+</span><span class="metric-lbl">Modul Pelatihan</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="edge-panel" data-epanel="3">
+          <div class="edge-panel-visual edge-ebt"></div>
+          <div class="edge-panel-text">
+            <h3>Pelatihan EBT — Energi Baru & Terbarukan</h3>
+            <p>PLTS, PLTB, PLTP, dan sistem penyimpanan energi (BESS). Program EBT mempersiapkan insan PLN menghadapi transisi energi menuju net zero emission 2060 dengan penguasaan teknologi hijau mutakhir.</p>
+            <div class="edge-metrics">
+              <div class="metric"><span class="metric-val">97%</span><span class="metric-lbl">Tingkat Kelulusan</span></div>
+              <div class="metric"><span class="metric-val">35+</span><span class="metric-lbl">Modul Pelatihan</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="edge-panel" data-epanel="4">
+          <div class="edge-panel-visual edge-transmisi"></div>
+          <div class="edge-panel-text">
+            <h3>Pelatihan Sistem Transmisi</h3>
+            <p>Pelatihan sistem transmisi tegangan tinggi dan ekstra tinggi (150kV–500kV), manajemen aset jaringan, proteksi sistem, dan dispatch system. Mendukung keandalan jaringan interkoneksi nasional.</p>
+            <div class="edge-metrics">
+              <div class="metric"><span class="metric-val">94%</span><span class="metric-lbl">Tingkat Kelulusan</span></div>
+              <div class="metric"><span class="metric-val">38+</span><span class="metric-lbl">Modul Pelatihan</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="edge-panel" data-epanel="5">
+          <div class="edge-panel-visual edge-distribusi"></div>
+          <div class="edge-panel-text">
+            <h3>Pelatihan Sistem Distribusi</h3>
+            <p>Pengelolaan jaringan distribusi 20kV, AMR/AMI, smart meter, GIS mapping, dan pelayanan pelanggan berbasis teknologi digital. Mendorong peningkatan kualitas dan keandalan layanan listrik ke masyarakat.</p>
+            <div class="edge-metrics">
+              <div class="metric"><span class="metric-val">96%</span><span class="metric-lbl">Tingkat Kelulusan</span></div>
+              <div class="metric"><span class="metric-val">45+</span><span class="metric-lbl">Modul Pelatihan</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Swiper Sectors -->
+    <div class="swiper-wrap">
+      <div class="swiper" id="sector-swiper">
+        <div class="swiper-wrapper">
+          <div class="swiper-slide sector-slide">
+            <div class="sector-bg sector-bg-pltu"></div>
+            <div class="sector-content">
+              <h4>PLTU & Pembangkitan Termal</h4>
+              <p>Pelatihan operasi dan pemeliharaan pembangkit berbahan bakar fosil dengan standar terbaik industri.</p>
+              <a href="#kontak" class="sector-link">Pelajari lebih lanjut →</a>
+            </div>
+          </div>
+          <div class="swiper-slide sector-slide">
+            <div class="sector-bg sector-bg-plta"></div>
+            <div class="sector-content">
+              <h4>PLTA & Energi Hidro</h4>
+              <p>Penguasaan teknologi hidroelektrik dari skala mikro hingga mega untuk operator dan teknisi lapangan.</p>
+              <a href="#kontak" class="sector-link">Pelajari lebih lanjut →</a>
+            </div>
+          </div>
+          <div class="swiper-slide sector-slide">
+            <div class="sector-bg sector-bg-ebt"></div>
+            <div class="sector-content">
+              <h4>Energi Surya & Angin</h4>
+              <p>Program intensif PLTS dan PLTB untuk mendukung target bauran energi terbarukan nasional 2030.</p>
+              <a href="#kontak" class="sector-link">Pelajari lebih lanjut →</a>
+            </div>
+          </div>
+          <div class="swiper-slide sector-slide">
+            <div class="sector-bg sector-bg-digital"></div>
+            <div class="sector-content">
+              <h4>Smart Grid & Digitalisasi</h4>
+              <p>Pelatihan infrastruktur jaringan pintar, SCADA, dan sistem manajemen energi berbasis AI dan IoT.</p>
+              <a href="#kontak" class="sector-link">Pelajari lebih lanjut →</a>
+            </div>
+          </div>
+          <div class="swiper-slide sector-slide">
+            <div class="sector-bg sector-bg-k3"></div>
+            <div class="sector-content">
+              <h4>K3 Ketenagalistrikan</h4>
+              <p>Sertifikasi keselamatan kerja bertaraf nasional dan internasional untuk semua level tenaga kerja PLN.</p>
+              <a href="#kontak" class="sector-link">Pelajari lebih lanjut →</a>
+            </div>
+          </div>
+          <div class="swiper-slide sector-slide">
+            <div class="sector-bg sector-bg-leadership"></div>
+            <div class="sector-content">
+              <h4>Kepemimpinan Energi</h4>
+              <p>Executive program untuk manajer dan pemimpin senior PLN menghadapi tantangan bisnis energi global.</p>
+              <a href="#kontak" class="sector-link">Pelajari lebih lanjut →</a>
+            </div>
+          </div>
+        </div>
+        <div class="swiper-pagination" id="sector-pagination"></div>
+        <div class="swiper-button-next" id="swiper-next"></div>
+        <div class="swiper-button-prev" id="swiper-prev"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DIKLAT AS A SERVICE ===== -->
+  <section class="daas-section" id="layanan">
+    <div class="daas-inner">
+      <div class="daas-text">
+        <div class="section-label fade-up">Layanan Unggulan</div>
+        <h2 class="daas-title fade-up">Diklat as a Service — Pelatihan Tanpa Batas</h2>
+        <p class="daas-desc fade-up">
+          Kami menyediakan paket pelatihan terintegrasi yang dapat disesuaikan — dari analisis kebutuhan pelatihan (TNA), desain kurikulum, pelaksanaan, hingga evaluasi dampak. Mitra institusi cukup fokus pada operasional, selebihnya kami yang urus.
+        </p>
+        <a href="#kontak" class="btn-split fade-up">
+          <span class="btn-icon">↳</span>
+          <span class="btn-label">Hubungi Tim Kami</span>
+        </a>
+      </div>
+      <div class="daas-visual">
+        <div class="daas-cycle">
+          <svg class="cycle-svg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg" fill="none">
+            <!-- Outer circle track -->
+            <circle cx="200" cy="200" r="155" stroke="#e0eaf4" stroke-width="1.5" stroke-dasharray="6 5"/>
+
+            <!-- Curved arrows connecting steps (arcs between the 4 nodes at 315°, 45°, 135°, 225°) -->
+            <!-- TNA (top) → Desain (right): arc top-right quadrant -->
+            <path d="M 230 62 A 155 155 0 0 1 338 230"
+                  stroke="#6aaedc" stroke-width="2" stroke-linecap="round"
+                  marker-end="url(#arrowBlue)"/>
+            <!-- Desain (right) → Delivery (bottom): arc bottom-right quadrant -->
+            <path d="M 338 230 A 155 155 0 0 1 170 338"
+                  stroke="#6aaedc" stroke-width="2" stroke-linecap="round"
+                  marker-end="url(#arrowBlue)"/>
+            <!-- Delivery (bottom) → Evaluasi (left): arc bottom-left quadrant -->
+            <path d="M 170 338 A 155 155 0 0 1 62 170"
+                  stroke="#6aaedc" stroke-width="2" stroke-linecap="round"
+                  marker-end="url(#arrowBlue)"/>
+            <!-- Evaluasi (left) → TNA (top): arc top-left quadrant -->
+            <path d="M 62 170 A 155 155 0 0 1 200 45"
+                  stroke="#6aaedc" stroke-width="2" stroke-linecap="round"
+                  marker-end="url(#arrowBlue)"/>
+
+            <!-- Arrow marker -->
+            <defs>
+              <marker id="arrowBlue" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+                <path d="M0,0 L0,6 L8,3 z" fill="#6aaedc"/>
+              </marker>
+            </defs>
+
+            <!-- Step nodes -->
+            <!-- 1: TNA — top (200, 45) -->
+            <circle cx="200" cy="45" r="42" fill="#1a4a8a" stroke="white" stroke-width="2"/>
+            <text x="200" y="38" text-anchor="middle" fill="white" font-size="11" font-family="Manrope,sans-serif" font-weight="700" letter-spacing="0.5">ANALISIS</text>
+            <text x="200" y="52" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-family="Inter,sans-serif">Kebutuhan</text>
+            <text x="200" y="64" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Inter,sans-serif">(TNA)</text>
+
+            <!-- 2: Desain — right (355, 200) -->
+            <circle cx="355" cy="200" r="42" fill="#3a7abf" stroke="white" stroke-width="2"/>
+            <text x="355" y="193" text-anchor="middle" fill="white" font-size="11" font-family="Manrope,sans-serif" font-weight="700" letter-spacing="0.5">DESAIN</text>
+            <text x="355" y="207" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-family="Inter,sans-serif">Kurikulum</text>
+            <text x="355" y="219" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Inter,sans-serif">&amp; Modul</text>
+
+            <!-- 3: Delivery — bottom (200, 355) -->
+            <circle cx="200" cy="355" r="42" fill="#4a9fd5" stroke="white" stroke-width="2"/>
+            <text x="200" y="348" text-anchor="middle" fill="white" font-size="11" font-family="Manrope,sans-serif" font-weight="700" letter-spacing="0.5">DELIVERY</text>
+            <text x="200" y="362" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-family="Inter,sans-serif">Pelatihan</text>
+            <text x="200" y="374" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Inter,sans-serif">&amp; Sertifikasi</text>
+
+            <!-- 4: Evaluasi — left (45, 200) -->
+            <circle cx="45" cy="200" r="42" fill="#6aaedc" stroke="white" stroke-width="2"/>
+            <text x="45" y="193" text-anchor="middle" fill="white" font-size="11" font-family="Manrope,sans-serif" font-weight="700" letter-spacing="0.5">EVALUASI</text>
+            <text x="45" y="207" text-anchor="middle" fill="rgba(255,255,255,0.8)" font-size="10" font-family="Inter,sans-serif">Dampak</text>
+            <text x="45" y="219" text-anchor="middle" fill="rgba(255,255,255,0.7)" font-size="9" font-family="Inter,sans-serif">&amp; Laporan</text>
+
+            <!-- Center label -->
+            <circle cx="200" cy="200" r="58" fill="white" stroke="#e0eaf4" stroke-width="1.5"/>
+            <text x="200" y="192" text-anchor="middle" fill="#1a4a8a" font-size="11" font-family="Manrope,sans-serif" font-weight="800">DIKLAT</text>
+            <text x="200" y="207" text-anchor="middle" fill="#1a4a8a" font-size="11" font-family="Manrope,sans-serif" font-weight="800">as a</text>
+            <text x="200" y="222" text-anchor="middle" fill="#3a7abf" font-size="11" font-family="Manrope,sans-serif" font-weight="800">SERVICE</text>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== TEAM ===== -->
+  <section class="team-section" id="instruktur">
+    <div class="team-header">
+      <div class="section-label fade-up">Tim Instruktur Kami</div>
+      <h2 class="team-title fade-up">Temui Para Pakar Di Balik Pelatihan Kami</h2>
+      <p class="team-desc fade-up">PUSDIKLAT menghimpun para ahli teknis, manajerial, dan profesional berpengalaman dari seluruh penjuru industri ketenagalistrikan nasional dan internasional.</p>
+    </div>
+    <div class="team-strip">
+      <div class="team-card" id="team-card-0">
+        <div class="team-photo tp-1"></div>
+        <div class="team-info"><span class="team-name">Dr. Ahmad Fauzan</span><span class="team-role">Ahli Teknik Pembangkit</span></div>
+      </div>
+      <div class="team-card" id="team-card-1">
+        <div class="team-photo tp-2"></div>
+        <div class="team-info"><span class="team-name">Ir. Siti Rahayu, M.T.</span><span class="team-role">Spesialis Energi Terbarukan</span></div>
+      </div>
+      <div class="team-card" id="team-card-2">
+        <div class="team-photo tp-3"></div>
+        <div class="team-info"><span class="team-name">Budi Santoso, MBA</span><span class="team-role">Fasilitator Kepemimpinan</span></div>
+      </div>
+      <div class="team-card" id="team-card-3">
+        <div class="team-photo tp-4"></div>
+        <div class="team-info"><span class="team-name">Dr. Rini Astuti</span><span class="team-role">Pakar K3 Ketenagalistrikan</span></div>
+      </div>
+      <div class="team-card" id="team-card-4">
+        <div class="team-photo tp-5"></div>
+        <div class="team-info"><span class="team-name">Hendra Wijaya, S.T.</span><span class="team-role">Instruktur Sistem Digital</span></div>
+      </div>
+      <div class="team-card" id="team-card-5">
+        <div class="team-photo tp-6"></div>
+        <div class="team-info"><span class="team-name">Maya Kusuma, M.Eng</span><span class="team-role">Konsultan Smart Grid</span></div>
+      </div>
+    </div>
+    <div class="team-cta">
+      <a href="#kontak" class="btn-split">
+        <span class="btn-icon">↳</span>
+        <span class="btn-label">Kenali Seluruh Tim</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== WORKFORCE / KOMUNITAS ===== -->
+  <section class="workforce-section" id="berita">
+    <div class="workforce-inner">
+      <div class="section-label fade-up">Karier di PLN PUSDIKLAT</div>
+      <h2 class="workforce-title fade-up">Siapkan Generasi Energi Indonesia</h2>
+      <p class="workforce-desc fade-up">
+        Melalui program pengembangan SDM kami, PUSDIKLAT merekrut instruktur, fasilitator, dan tenaga ahli di seluruh Indonesia — membangun ekosistem pengembangan kompetensi energi yang tangguh dan berdaya saing global.
+      </p>
+      <a href="#kontak" class="btn-split fade-up">
+        <span class="btn-icon">↳</span>
+        <span class="btn-label">Hubungi Kami untuk Informasi Lebih</span>
+      </a>
+    </div>
+  </section>
+
+  <!-- ===== CONTACT ===== -->
+  <section class="contact-section" id="kontak">
+    <div class="contact-inner">
+      <div class="section-label fade-up">Hubungi Kami</div>
+      <h2 class="contact-title fade-up">Mari Berkolaborasi</h2>
+      <p class="contact-desc fade-up">Tertarik dengan program pelatihan kami? Isi formulir di bawah ini dan tim kami akan segera menghubungi Anda.</p>
+      <form class="contact-form fade-up" id="contact-form">
+        <div class="form-row">
+          <input type="text" id="form-name" name="name" placeholder="Nama Lengkap" required />
+          <input type="email" id="form-email" name="email" placeholder="Alamat Email" required />
+        </div>
+        <input type="text" id="form-org" name="org" placeholder="Instansi / Perusahaan" />
+        <textarea id="form-msg" name="message" placeholder="Pesan atau pertanyaan Anda..." rows="5" required></textarea>
+        <button type="submit" class="btn-submit" id="btn-submit">
+          <span class="btn-icon">↳</span>
+          <span class="btn-label">Kirim Pesan</span>
+        </button>
+        <div class="form-success" id="form-success">✓ Pesan berhasil terkirim! Kami akan segera menghubungi Anda.</div>
+      </form>
+    </div>
+  </section>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer" id="footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <a href="#hero" class="nav-logo footer-logo">
+          <svg class="logo-icon" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="20" cy="20" r="18" stroke="white" stroke-width="2"/>
+            <path d="M20 8L20 32M8 20L32 20M12 12L28 28M28 12L12 28" stroke="white" stroke-width="1.5" stroke-linecap="round"/>
+            <circle cx="20" cy="20" r="4" fill="white"/>
+          </svg>
+          <span class="logo-text">PLN <strong>PUSDIKLAT</strong></span>
+        </a>
+        <p class="footer-tagline">Pusat Pendidikan dan Pelatihan Ketenagalistrikan Indonesia</p>
+      </div>
+      <div class="footer-links">
+        <div class="footer-col">
+          <h5>Navigasi</h5>
+          <a href="#tentang">Tentang Kami</a>
+          <a href="#program">Program</a>
+          <a href="#solusi">Solusi</a>
+          <a href="#keunggulan">Keunggulan</a>
+        </div>
+        <div class="footer-col">
+          <h5>Informasi</h5>
+          <a href="#instruktur">Instruktur</a>
+          <a href="#berita">Karier</a>
+          <a href="#kontak">Kontak</a>
+          <a href="#">Kebijakan Privasi</a>
+        </div>
+        <div class="footer-col">
+          <h5>Ikuti Kami</h5>
+          <a href="https://www.linkedin.com/company/pln-pusdiklat" target="_blank" rel="noopener">LinkedIn</a>
+          <a href="https://www.instagram.com/pusdiklat.pln" target="_blank" rel="noopener">Instagram</a>
+          <a href="https://www.youtube.com/@PLN_PUSDIKLAT" target="_blank" rel="noopener">YouTube</a>
+          <a href="https://twitter.com/PLNPusdiklat" target="_blank" rel="noopener">Twitter / X</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>© 2025 PT PLN (Persero) PUSDIKLAT. Seluruh hak cipta dilindungi undang-undang.</p>
+      <a href="#">Syarat & Ketentuan</a>
+    </div>
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script type="module" src="./main.js"></script>
+</body>
+</html>
