@@ -4,6 +4,38 @@
  * Back end dapat extend fungsi ini sesuai kebutuhan API.
  */
 
+/* ---- Security Guard (Otentikasi JWT) ---- */
+const token = localStorage.getItem('auth_token');
+if (!token) {
+    window.location.href = '/login';
+}
+
+/* ---- Fetch Backend Helper ---- */
+async function fetchBackend(endpoint, options = {}) {
+    const headers = {
+        'Authorization': `Bearer ${token}`
+    };
+    
+    // Merge headers kustom
+    if (options.headers) {
+        Object.assign(headers, options.headers);
+    }
+    
+    // Set Content-Type otomatis kecuali untuk FormData
+    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    const res = await fetch(`http://localhost:4000${endpoint}`, {
+        ...options,
+        headers
+    });
+    
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || data.details || 'Network Error');
+    return data;
+}
+
 /* ---- Toast Notification ---- */
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
