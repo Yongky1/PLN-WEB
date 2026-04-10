@@ -22,28 +22,8 @@ function createKonstruksiCard(index, removable) {
             <div style="display:flex; flex-direction:column; gap:12px;">
 
                 <div>
-                    <label class="admin-label">Nama Konstruksi *</label>
-                    <input type="text" class="admin-input k-name" placeholder="Contoh: Tower SUTT 150kV">
-                </div>
-
-                <div>
-                    <label class="admin-label">Deskripsi</label>
-                    <textarea class="admin-input k-desc" rows="3" placeholder="Deskripsikan konstruksi ini..." style="resize:vertical;"></textarea>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <div>
-                        <label class="admin-label">Jumlah Komponen</label>
-                        <input type="number" class="admin-input k-count" placeholder="0" min="0">
-                    </div>
-                    <div>
-                        <label class="admin-label">Status</label>
-                        <select class="admin-select k-status">
-                            <option>Aktif</option>
-                            <option>Draft</option>
-                            <option>Pengembangan</option>
-                        </select>
-                    </div>
+                    <label class="admin-label">Nama Varian Konstruksi (Asset) *</label>
+                    <input type="text" class="admin-input k-name" placeholder="Contoh: Tower SUTT Tipe AA">
                 </div>
 
                 <div>
@@ -82,68 +62,119 @@ function addKonstruksiCard() {
     kCardCount++;
 }
 
-function submitSemuaKonstruksi() {
-    const cards  = document.querySelectorAll('#konstruksi-cards .upload-card');
-    const saved  = document.getElementById('konstruksi-saved');
+async function submitSemuaKonstruksi() {
+    const saved = document.getElementById('konstruksi-saved');
+    
+    // 1. Ambil data Modul Utama
+    const modulName  = document.getElementById('modul-name') ? document.getElementById('modul-name').value.trim() : '';
+    const modulDesc  = document.getElementById('modul-desc') ? document.getElementById('modul-desc').value.trim() : '';
+    const matCount   = document.getElementById('modul-mat-count') ? document.getElementById('modul-mat-count').value || '0' : '0';
+    const eqCount    = document.getElementById('modul-eq-count') ? document.getElementById('modul-eq-count').value || '0' : '0';
+    const statusEl   = document.getElementById('modul-status');
+    const status     = statusEl ? statusEl.value : 'Aktif';
+
+    if (!modulName) {
+        showToast('Nama Modul Konstruksi wajib diisi!', 'error');
+        if(document.getElementById('modul-name')) document.getElementById('modul-name').style.borderColor = '#EF4444';
+        return;
+    }
+    if(document.getElementById('modul-name')) document.getElementById('modul-name').style.borderColor = '';
+
+    // 2. Kumpulkan Varian (Asset 3D)
     let hasError = false;
+    let variants = [];
+    const cards = document.querySelectorAll('#konstruksi-cards .upload-card');
+    
+    if (cards.length === 0) {
+        showToast('Harus ada minimal 1 varian.', 'error');
+        return;
+    }
 
     cards.forEach(card => {
         const nameEl = card.querySelector('.k-name');
-        const name   = nameEl.value.trim();
-        const desc   = card.querySelector('.k-desc').value.trim();
-        const count  = card.querySelector('.k-count').value || '0';
-        const status = card.querySelector('.k-status').value;
-        const file   = card.querySelector('input[type=file]').files[0];
+        const name   = nameEl ? nameEl.value.trim() : '';
+        const fileInput = card.querySelector('input[type=file]');
+        const file   = fileInput ? fileInput.files[0] : null;
 
         if (!name) {
             hasError = true;
-            nameEl.style.borderColor = '#EF4444';
-            return;
+            if(nameEl) nameEl.style.borderColor = '#EF4444';
+        } else {
+            if(nameEl) nameEl.style.borderColor = '';
+            variants.push({ name, file });
         }
-        nameEl.style.borderColor = '';
-
-        /* TODO (back end) — uncomment dan sesuaikan endpoint:
-        const formData = new FormData();
-        formData.append('name',   name);
-        formData.append('desc',   desc);
-        formData.append('count',  count);
-        formData.append('status', status);
-        if (file) formData.append('file', file);
-        await fetch('/api/konstruksi', { method: 'POST', body: formData });
-        */
-
-        const badgeClass = status === 'Aktif' ? 'badge-green'
-                         : status === 'Draft' ? 'badge-yellow'
-                         : 'badge-blue';
-
-        const row       = document.createElement('div');
-        row.className   = 'item-row';
-        row.innerHTML   = `
-            <div class="item-icon">
-                <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-                </svg>
-            </div>
-            <div style="flex:1;">
-                <div style="font-size:13px;font-weight:600;color:#fff;">${name}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
-                    ${file ? file.name : 'Tanpa file'} · ${count} komponen · ${status}
-                </div>
-            </div>
-            <span class="badge ${badgeClass}">${status}</span>
-            <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
-        `;
-        saved.appendChild(row);
     });
 
-    if (hasError) { showToast('Nama konstruksi wajib diisi.', 'error'); return; }
+    if (hasError) {
+        showToast('Semua nama varian harus diisi!', 'error');
+        return;
+    }
+
+    /* TODO (back end) — uncomment dan sesuaikan endpoint:
+    try {
+        // A. Kirim Modul Induk
+        const moduleFormData = new FormData();
+        moduleFormData.append('title', modulName);
+        moduleFormData.append('description', modulDesc);
+        moduleFormData.append('materialCount', matCount);
+        moduleFormData.append('equipmentCount', eqCount);
+        moduleFormData.append('status', status);
+        moduleFormData.append('categoryId', 'konstruksi'); // Asumsi sesuai db
+        
+        const moduleRes = await fetch('/api/modules', { method: 'POST', body: moduleFormData });
+        const moduleData = await moduleRes.json();
+        
+        // B. Kirim setiap variant ke module_assets
+        for(let variant of variants) {
+            if(variant.file) {
+                 const assetFormData = new FormData();
+                 assetFormData.append('name', variant.name);
+                 assetFormData.append('file', variant.file);
+                 assetFormData.append('moduleId', moduleData.id);
+                 await fetch('/api/module-assets', { method: 'POST', body: assetFormData });
+            }
+        }
+    } catch(e) {
+        showToast('Gagal menyimpan ke server', 'error');
+        return;
+    }
+    */
+
+    // UI Update - Tampilkan Modul Induk (pura-pura sukses)
+    const badgeClass = status === 'Aktif' ? 'badge-green' : status === 'Draft' ? 'badge-yellow' : 'badge-blue';
+    const row       = document.createElement('div');
+    row.className   = 'item-row';
+    row.innerHTML   = `
+        <div class="item-icon">
+            <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+            </svg>
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:#fff;">${modulName}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
+                ${variants.length} varian · ${matCount} Material · ${eqCount} Peralatan
+            </div>
+        </div>
+        <span class="badge ${badgeClass}">${status}</span>
+        <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
+    `;
+    if(saved) saved.appendChild(row);
+
     resetKonstruksiForm();
-    showToast('Konstruksi berhasil disimpan!');
+    showToast('Konstruksi beserta varian berhasil disimpan!');
 }
 
 function resetKonstruksiForm() {
-    document.getElementById('konstruksi-cards').innerHTML = '';
+    if(document.getElementById('modul-name')) document.getElementById('modul-name').value = '';
+    if(document.getElementById('modul-desc')) document.getElementById('modul-desc').value = '';
+    if(document.getElementById('modul-mat-count')) document.getElementById('modul-mat-count').value = '';
+    if(document.getElementById('modul-eq-count')) document.getElementById('modul-eq-count').value = '';
+    if(document.getElementById('modul-status')) document.getElementById('modul-status').value = 'Aktif';
+
+    const container = document.getElementById('konstruksi-cards');
+    if(container) container.innerHTML = '';
     kCardCount = 0;
     addKonstruksiCard();
 }

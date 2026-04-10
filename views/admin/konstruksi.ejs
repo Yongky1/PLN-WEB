@@ -63,6 +63,37 @@
             Tambah Konstruksi Baru
         </h4>
 
+        <!-- Data Modul Utama -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div>
+                <label class="admin-label">Nama Modul Konstruksi *</label>
+                <input type="text" id="modul-name" class="admin-input" placeholder="Contoh: Tower SUTT 150kV">
+            </div>
+            <div>
+                <label class="admin-label">Deskripsi Modul</label>
+                <textarea id="modul-desc" class="admin-input" rows="2" placeholder="Deskripsikan konstruksi ini..." style="resize:vertical;"></textarea>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                <div>
+                    <label class="admin-label">Jumlah Material</label>
+                    <input type="number" id="modul-mat-count" class="admin-input" placeholder="0" min="0">
+                </div>
+                <div>
+                    <label class="admin-label">Jumlah Peralatan</label>
+                    <input type="number" id="modul-eq-count" class="admin-input" placeholder="0" min="0">
+                </div>
+                <div>
+                    <label class="admin-label">Status</label>
+                    <select id="modul-status" class="admin-select">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Nonaktif">Nonaktif</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:12px;">Bentuk / Varian Konstruksi (Asset 3D)</div>
         <div id="konstruksi-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
 
         <button class="add-card-btn" onclick="addKonstruksiCard()" style="margin-bottom:16px;">

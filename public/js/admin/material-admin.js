@@ -21,40 +21,9 @@ function createMaterialCard(index, removable) {
         <div class="upload-card-body">
             <div style="display:flex; flex-direction:column; gap:12px;">
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <div>
-                        <label class="admin-label">Nama Material *</label>
-                        <input type="text" class="admin-input m-name" placeholder="Contoh: Baut M24 HDG">
-                    </div>
-                    <div>
-                        <label class="admin-label">Kode Material *</label>
-                        <input type="text" class="admin-input m-code" placeholder="Contoh: BT-M24-HDG">
-                    </div>
-                </div>
-
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <div>
-                        <label class="admin-label">Kategori</label>
-                        <select class="admin-select m-cat">
-                            <option>Pengencang</option>
-                            <option>Insulasi</option>
-                            <option>Kabel</option>
-                            <option>Penyangga</option>
-                            <option>Lainnya</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label class="admin-label">Status</label>
-                        <select class="admin-select m-status">
-                            <option>Aktif</option>
-                            <option>Draft</option>
-                        </select>
-                    </div>
-                </div>
-
                 <div>
-                    <label class="admin-label">Deskripsi Singkat</label>
-                    <input type="text" class="admin-input m-desc" placeholder="Deskripsi singkat untuk kartu...">
+                    <label class="admin-label">Nama Varian Material (Asset) *</label>
+                    <input type="text" class="admin-input m-name" placeholder="Contoh: Baut HDG Ukuran M16">
                 </div>
 
                 <div>
@@ -79,77 +48,132 @@ function createMaterialCard(index, removable) {
         </div>
     `;
 
-    initDropZone(card.querySelector('.file-drop-zone'));
+    const zone = card.querySelector('.file-drop-zone');
+    initDropZone(zone);
+
     return card;
 }
 
 function addMaterialCard() {
     const container = document.getElementById('material-cards');
-    container.appendChild(createMaterialCard(mCardCount, mCardCount > 0));
+    const card      = createMaterialCard(mCardCount, mCardCount > 0);
+    container.appendChild(card);
     mCardCount++;
 }
 
-function submitSemuaMaterial() {
-    const cards  = document.querySelectorAll('#material-cards .upload-card');
-    const saved  = document.getElementById('material-saved');
+async function submitSemuaMaterial() {
+    const saved = document.getElementById('material-saved');
+    
+    // 1. Ambil data Modul Utama
+    const modulName  = document.getElementById('mat-modul-name') ? document.getElementById('mat-modul-name').value.trim() : '';
+    const modulCode  = document.getElementById('mat-modul-code') ? document.getElementById('mat-modul-code').value.trim() : '';
+    const modulDesc  = document.getElementById('mat-modul-desc') ? document.getElementById('mat-modul-desc').value.trim() : '';
+    const catEl      = document.getElementById('mat-modul-cat');
+    const category   = catEl ? catEl.value : 'Lainnya';
+    const statusEl   = document.getElementById('mat-modul-status');
+    const status     = statusEl ? statusEl.value : 'Aktif';
+
+    if (!modulName || !modulCode) {
+        showToast('Nama Material & Kode wajib diisi!', 'error');
+        if(document.getElementById('mat-modul-name')) document.getElementById('mat-modul-name').style.borderColor = modulName ? '' : '#EF4444';
+        if(document.getElementById('mat-modul-code')) document.getElementById('mat-modul-code').style.borderColor = modulCode ? '' : '#EF4444';
+        return;
+    }
+    if(document.getElementById('mat-modul-name')) document.getElementById('mat-modul-name').style.borderColor = '';
+    if(document.getElementById('mat-modul-code')) document.getElementById('mat-modul-code').style.borderColor = '';
+
+    // 2. Kumpulkan Varian (Asset 3D)
     let hasError = false;
+    let variants = [];
+    const cards = document.querySelectorAll('#material-cards .upload-card');
+    
+    if (cards.length === 0) {
+        showToast('Harus ada minimal 1 varian.', 'error');
+        return;
+    }
 
     cards.forEach(card => {
         const nameEl = card.querySelector('.m-name');
-        const codeEl = card.querySelector('.m-code');
-        const name   = nameEl.value.trim();
-        const code   = codeEl.value.trim();
-        const cat    = card.querySelector('.m-cat').value;
-        const status = card.querySelector('.m-status').value;
-        const file   = card.querySelector('input[type=file]').files[0];
+        const name   = nameEl ? nameEl.value.trim() : '';
+        const fileInput = card.querySelector('input[type=file]');
+        const file   = fileInput ? fileInput.files[0] : null;
 
-        if (!name || !code) {
+        if (!name) {
             hasError = true;
-            if (!name) nameEl.style.borderColor = '#EF4444';
-            if (!code) codeEl.style.borderColor = '#EF4444';
-            return;
+            if(nameEl) nameEl.style.borderColor = '#EF4444';
+        } else {
+            if(nameEl) nameEl.style.borderColor = '';
+            variants.push({ name, file });
         }
-        nameEl.style.borderColor = '';
-        codeEl.style.borderColor = '';
-
-        /* TODO (back end):
-        const formData = new FormData();
-        formData.append('name',     name);
-        formData.append('code',     code);
-        formData.append('category', cat);
-        formData.append('status',   status);
-        if (file) formData.append('file', file);
-        await fetch('/api/material', { method: 'POST', body: formData });
-        */
-
-        const row     = document.createElement('div');
-        row.className = 'item-row';
-        row.innerHTML = `
-            <div class="item-icon" style="background:rgba(129,140,248,0.1);">
-                <svg style="width:16px;height:16px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                          d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
-                </svg>
-            </div>
-            <div style="flex:1;">
-                <div style="font-size:13px;font-weight:600;color:#fff;">${name}</div>
-                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
-                    ${code} · ${file ? file.name : 'Tanpa file'} · ${cat}
-                </div>
-            </div>
-            <span class="badge badge-${status === 'Aktif' ? 'green' : 'yellow'}">${status}</span>
-            <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
-        `;
-        saved.appendChild(row);
     });
 
-    if (hasError) { showToast('Nama dan kode material wajib diisi.', 'error'); return; }
+    if (hasError) {
+        showToast('Semua nama varian harus diisi!', 'error');
+        return;
+    }
+
+    /* TODO (back end) — uncomment dan sesuaikan endpoint:
+    try {
+        const moduleFormData = new FormData();
+        moduleFormData.append('title', modulName);
+        moduleFormData.append('code', modulCode);
+        moduleFormData.append('description', modulDesc);
+        moduleFormData.append('category', category);
+        moduleFormData.append('status', status);
+        moduleFormData.append('categoryId', 'material');
+        
+        const moduleRes = await fetch('/api/modules', { method: 'POST', body: moduleFormData });
+        const moduleData = await moduleRes.json();
+        
+        for(let variant of variants) {
+            if(variant.file) {
+                 const assetFormData = new FormData();
+                 assetFormData.append('name', variant.name);
+                 assetFormData.append('file', variant.file);
+                 assetFormData.append('moduleId', moduleData.id);
+                 await fetch('/api/module-assets', { method: 'POST', body: assetFormData });
+            }
+        }
+    } catch(e) {
+        showToast('Gagal menyimpan ke server', 'error');
+        return;
+    }
+    */
+
+    const badgeClass = status === 'Aktif' ? 'badge-green' : status === 'Draft' ? 'badge-yellow' : 'badge-blue';
+    const row       = document.createElement('div');
+    row.className   = 'item-row';
+    row.innerHTML   = `
+        <div class="item-icon">
+            <svg style="width:16px;height:16px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+            </svg>
+        </div>
+        <div style="flex:1;">
+            <div style="font-size:13px;font-weight:600;color:#fff;">${modulName}</div>
+            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
+                ${variants.length} varian · Kategori: ${category}
+            </div>
+        </div>
+        <span class="badge ${badgeClass}">${status}</span>
+        <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
+    `;
+    if(saved) saved.appendChild(row);
+
     resetMaterialForm();
-    showToast('Material berhasil disimpan!');
+    showToast('Material beserta varian berhasil disimpan!');
 }
 
 function resetMaterialForm() {
-    document.getElementById('material-cards').innerHTML = '';
+    if(document.getElementById('mat-modul-name')) document.getElementById('mat-modul-name').value = '';
+    if(document.getElementById('mat-modul-code')) document.getElementById('mat-modul-code').value = '';
+    if(document.getElementById('mat-modul-desc')) document.getElementById('mat-modul-desc').value = '';
+    if(document.getElementById('mat-modul-cat')) document.getElementById('mat-modul-cat').value = 'Pengencang';
+    if(document.getElementById('mat-modul-status')) document.getElementById('mat-modul-status').value = 'Aktif';
+
+    const container = document.getElementById('material-cards');
+    if(container) container.innerHTML = '';
     mCardCount = 0;
     addMaterialCard();
 }
