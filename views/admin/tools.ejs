@@ -76,5 +76,22 @@
     </div>
 </div>
 
+<!-- MODAL EDIT -->
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 style="margin:0; font-size:16px; color:#fff;">Edit Peralatan</h4>
+            <button class="modal-close-btn" onclick="closeEditModal()">×</button>
+        </div>
+        
+        <div id="edit-tools-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
+            <button class="btn-primary" onclick="submitEditTool()">Simpan Perubahan</button>
+        </div>
+    </div>
+</div>
+
 <script src="/js/admin/upload-card.js"></script>
 <script src="/js/admin/tools-admin.js"></script>

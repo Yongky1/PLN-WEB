@@ -19,6 +19,37 @@ function showToast(message, type = 'success') {
     }, 2800);
 }
 
+/* ---- Fetch Backend (Sistem Otentikasi & Penghubung API) ---- */
+async function fetchBackend(endpoint, options = {}) {
+    // Gunakan port 4000 untuk menembak node backend
+    const apiBase = `http://${window.location.hostname}:4000`;
+    const token = localStorage.getItem('auth_token');
+    
+    // Siapkan headers
+    const headers = { ...options.headers };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    // Jangan set Content-Type jika body adalah FormData (agar browser auto-set boundary)
+    if (!(options.body instanceof FormData) && !headers['Content-Type']) {
+        headers['Content-Type'] = 'application/json';
+    }
+
+    const res = await fetch(`${apiBase}${endpoint}`, { ...options, headers });
+    
+    if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('auth_token');
+        window.location.href = '/login';
+        throw new Error('Sesi Anda telah berakhir, silakan login kembali.');
+    }
+    
+    const result = await res.json();
+    if (!res.ok) throw new Error(result.error || result.message || 'Error fetch backend');
+    return result;
+}
+
+
 /* ---- Topbar: Tanggal ---- */
 function initTopbarDate() {
     const el = document.getElementById('topbar-date');

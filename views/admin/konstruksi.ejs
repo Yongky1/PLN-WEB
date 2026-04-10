@@ -108,5 +108,57 @@
     </div>
 </div>
 
+<!-- MODAL EDIT -->
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 style="margin:0; font-size:16px; color:#fff;">Edit Konstruksi</h4>
+            <button class="modal-close-btn" onclick="closeEditModal()">×</button>
+        </div>
+        
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div>
+                <label class="admin-label">Nama Modul Konstruksi *</label>
+                <input type="text" id="edit-modul-name" class="admin-input" placeholder="Contoh: Tower SUTT 150kV">
+            </div>
+            <div>
+                <label class="admin-label">Deskripsi Modul</label>
+                <textarea id="edit-modul-desc" class="admin-input" rows="2" style="resize:vertical;"></textarea>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+                <div>
+                    <label class="admin-label">Jumlah Material</label>
+                    <input type="number" id="edit-modul-mat-count" class="admin-input" min="0">
+                </div>
+                <div>
+                    <label class="admin-label">Jumlah Peralatan</label>
+                    <input type="number" id="edit-modul-eq-count" class="admin-input" min="0">
+                </div>
+                <div>
+                    <label class="admin-label">Status</label>
+                    <select id="edit-modul-status" class="admin-select">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Nonaktif">Nonaktif</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:12px;">Bentuk / Varian Konstruksi (Asset 3D)</div>
+        <div id="edit-konstruksi-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
+
+        <button class="add-card-btn" onclick="addEditKonstruksiCard()" style="margin-bottom:16px;">
+            <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tambah Konstruksi Lagi
+        </button>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
+            <button class="btn-primary" onclick="submitEditKonstruksi()">Simpan Perubahan</button>
+        </div>
+    </div>
+</div>
+
 <script src="/js/admin/upload-card.js"></script>
 <script src="/js/admin/konstruksi.js"></script>

@@ -366,6 +366,15 @@ app.get('/ModulKonstruksi/:id', (req, res) => {
     });
 });
 
+// Admin login route
+app.get('/login', (req, res) => {
+    res.render('login', { title: 'Login Admin - PLN Pusdiklat' });
+});
+
+app.get('/admin-logout', (req, res) => {
+    res.redirect('/login');
+});
+
 // Admin routes
 app.use('/admin', adminRouter);
 
