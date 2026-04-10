@@ -31,12 +31,19 @@ function initDropZone(zone) {
             showToast('Format file harus .glb atau .gltf', 'error');
             return;
         }
-        // Assign ke input file agar bisa dibaca saat submit
         const input    = zone.querySelector('input[type=file]');
         const dt       = new DataTransfer();
         dt.items.add(file);
         input.files    = dt.files;
         setFileSuccess(zone, file.name);
+    });
+
+    // Handle click pada drop zone untuk trigger file input
+    zone.addEventListener('click', (e) => {
+        if (e.target.tagName !== 'INPUT') {
+            const input = zone.querySelector('input[type=file]');
+            if (input) input.click();
+        }
     });
 }
 

@@ -60,7 +60,7 @@ function createToolsCard(index, removable) {
                     <div class="file-drop-zone">
                         <input type="file" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
-                               style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+                               style="display:none;">
                         <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
