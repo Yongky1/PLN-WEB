@@ -106,6 +106,14 @@ function addProcRow(containerId) {
     container.appendChild(row);
 }
 
+/* ---- Logout ---- */
+function handleLogout() {
+    if (confirm('Apakah Anda yakin ingin keluar?')) {
+        localStorage.removeItem('auth_token');
+        window.location.href = '/login';
+    }
+}
+
 /* ---- Init ---- */
 document.addEventListener('DOMContentLoaded', () => {
     initTopbarDate();
