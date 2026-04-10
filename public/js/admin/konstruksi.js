@@ -1,235 +1,151 @@
 /**
  * admin/konstruksi.js
- * Logic halaman Manajemen Konstruksi — dengan CRUD fungsional ke Backend API.
+ * Upload card dinamis — Manajemen Konstruksi
+ *
+ * TODO (back end): di submitSemuaKonstruksi(), aktifkan fetch() ke API.
  */
 
-/* =========================================================
-   SUBMIT (CREATE)
-   ========================================================= */
-async function submitKonstruksi() {
-    const name   = document.getElementById('k-name').value.trim();
-    const desc   = document.getElementById('k-desc').value.trim();
-    const count  = parseInt(document.getElementById('k-count').value || '0', 10);
-    const status = document.getElementById('k-status').value;
-    const fileInput = document.getElementById('k-file');
-    const file = fileInput ? fileInput.files[0] : null;
+let kCardCount = 0;
 
-    if (!name) { showToast('Nama konstruksi tidak boleh kosong.', 'error'); return; }
-    if (!file) { showToast('Harap pilih file Model 3D (.glb) terlebih dahulu!', 'error'); return; }
-
-    const btn = document.querySelector('button[onclick="submitKonstruksi()"]');
-    try {
-        btn.textContent = 'Mengunggah file...';
-        btn.style.pointerEvents = 'none';
-        btn.style.opacity = '0.7';
-
-        // 1. Upload File GLB
-        const formData = new FormData();
-        formData.append('file', file);
-        const uploadRes = await fetchBackend('/api/upload-file', { method: 'POST', body: formData });
-        const fileUrl = uploadRes.publicUrl;
-
-        btn.textContent = 'Menyimpan data...';
-
-        // 2. Buat ID unik dari nama
-        const unitId = name.toLowerCase().replace(/[^a-z0-9]/g, '-') + '-' + Math.round(Math.random()*1000);
-
-        // 3. Simpan Metadata Modul
-        await fetchBackend('/api/modules', {
-            method: 'POST',
-            body: JSON.stringify({ id: unitId, title: name, description: desc, materialCount: isNaN(count) ? 0 : count, equipmentCount: 0, image: '' })
-        });
-
-        // 4. Register Asset 3D
-        await fetchBackend('/api/module-assets', {
-            method: 'POST',
-            body: JSON.stringify({ id: unitId + '-asset', module_id: unitId, name: 'Bentuk 3D ' + name, file: fileUrl })
-        });
-
-        showToast('✅ Konstruksi berhasil disimpan ke Supabase!', 'success');
-        resetForm('k');
-        if (document.getElementById('k-file-text')) {
-            document.getElementById('k-file-text').textContent = 'Klik untuk upload 3D (Asset Modul)';
-        }
-        await loadKonstruksi(); // Reload list dari database
-
-    } catch (err) {
-        console.error(err);
-        showToast(err.message, 'error');
-    } finally {
-        if (btn) {
-            btn.textContent = 'Simpan Konstruksi';
-            btn.style.pointerEvents = 'auto';
-            btn.style.opacity = '1';
-        }
-    }
-}
-
-/* =========================================================
-   LOAD (READ)
-   ========================================================= */
-async function loadKonstruksi() {
-    const listContainer = document.getElementById('konstruksi-list');
-    if (!listContainer) return;
-
-    try {
-        listContainer.innerHTML = '<div style="color:rgba(255,255,255,0.5); font-size:12px; padding:10px;">⏳ Memuat data konstruksi...</div>';
-        const data = await fetchBackend('/api/modules', { method: 'GET' });
-        listContainer.innerHTML = '';
-
-        if (!data || data.length === 0) {
-            listContainer.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px; padding:16px; text-align:center;">Belum ada data konstruksi. Tambahkan di bawah!</div>';
-            return;
-        }
-
-        data.forEach(mod => renderKonstruksiItem(listContainer, mod));
-
-    } catch (err) {
-        console.error('Gagal mengambil data:', err);
-        listContainer.innerHTML = '<div style="color:#EF4444; font-size:12px; padding:10px;">⚠️ Gagal memuat data dari server.</div>';
-    }
-}
-
-function renderKonstruksiItem(container, mod) {
-    const item = document.createElement('div');
-    item.className = 'item-row';
-    item.dataset.id = mod.id;
-    item.dataset.title = mod.title;
-    item.dataset.desc = mod.description || '';
-    item.dataset.count = mod.materialCount || 0;
-    item.innerHTML = `
-        <div class="item-icon"><svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/></svg></div>
-        <div style="flex:1;">
-            <div style="font-size:13px;font-weight:600;color:#fff;">${mod.title}</div>
-            <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">${mod.materialCount || 0} komponen · Aktif</div>
+function createKonstruksiCard(index, removable) {
+    const card       = document.createElement('div');
+    card.className   = 'upload-card';
+    card.dataset.idx = index;
+    card.innerHTML   = `
+        <div class="upload-card-header">
+            <span class="card-label" style="font-size:12px; font-weight:600; color:#00E5FF;">Konstruksi #${index + 1}</span>
+            ${removable
+                ? `<button class="card-close-btn" onclick="removeCard(this,'konstruksi-cards')" title="Hapus kartu ini">×</button>`
+                : ''}
         </div>
-        <span class="badge badge-green">Aktif</span>
-        <button class="btn-secondary" style="padding:6px 14px;font-size:11px;" onclick="openEditModal(this.closest('.item-row'))">✏️ Edit</button>
-        <button class="btn-danger" onclick="deleteKonstruksi(this, '${mod.id}')">Hapus</button>
-    `;
-    container.appendChild(item);
-}
+        <div class="upload-card-body">
+            <div style="display:flex; flex-direction:column; gap:12px;">
 
-/* =========================================================
-   DELETE
-   ========================================================= */
-async function deleteKonstruksi(btn, id) {
-    if (!confirm(`Yakin ingin menghapus konstruksi ini secara permanen dari database?`)) return;
-
-    try {
-        btn.textContent = '...';
-        btn.style.pointerEvents = 'none';
-        await fetchBackend(`/api/modules/${id}`, { method: 'DELETE' });
-        btn.closest('.item-row').remove();
-        showToast('🗑️ Konstruksi berhasil dihapus dari Supabase!', 'success');
-    } catch (err) {
-        console.error(err);
-        showToast(err.message, 'error');
-        btn.textContent = 'Hapus';
-        btn.style.pointerEvents = 'auto';
-    }
-}
-
-/* =========================================================
-   EDIT (UPDATE) — Modal Pop-up
-   ========================================================= */
-function openEditModal(row) {
-    const id    = row.dataset.id;
-    const title = row.dataset.title;
-    const desc  = row.dataset.desc;
-    const count = row.dataset.count;
-
-    // Buat modal overlay
-    const overlay = document.createElement('div');
-    overlay.id = 'edit-modal-overlay';
-    overlay.style.cssText = `
-        position:fixed; inset:0; z-index:1000;
-        background:rgba(0,0,0,0.7); backdrop-filter:blur(4px);
-        display:flex; align-items:center; justify-content:center;
-    `;
-    overlay.innerHTML = `
-        <div style="background:#071525; border:1px solid rgba(255,255,255,0.1); border-radius:20px; padding:32px; width:100%; max-width:480px; position:relative;">
-            <button onclick="closeEditModal()" style="position:absolute;top:16px;right:16px;background:none;border:none;color:rgba(255,255,255,0.5);font-size:20px;cursor:pointer;line-height:1;">×</button>
-            <h3 style="font-size:15px;font-weight:700;color:#fff;margin:0 0 6px;">✏️ Edit Konstruksi</h3>
-            <p style="font-size:11px;color:rgba(255,255,255,0.35);margin:0 0 24px;">ID: ${id}</p>
-            <div style="display:flex;flex-direction:column;gap:14px;">
                 <div>
                     <label class="admin-label">Nama Konstruksi *</label>
-                    <input id="edit-k-name" type="text" class="admin-input" value="${title}">
+                    <input type="text" class="admin-input k-name" placeholder="Contoh: Tower SUTT 150kV">
                 </div>
+
                 <div>
                     <label class="admin-label">Deskripsi</label>
-                    <textarea id="edit-k-desc" class="admin-input" rows="3" style="resize:vertical;">${desc}</textarea>
+                    <textarea class="admin-input k-desc" rows="3" placeholder="Deskripsikan konstruksi ini..." style="resize:vertical;"></textarea>
                 </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                    <div>
+                        <label class="admin-label">Jumlah Komponen</label>
+                        <input type="number" class="admin-input k-count" placeholder="0" min="0">
+                    </div>
+                    <div>
+                        <label class="admin-label">Status</label>
+                        <select class="admin-select k-status">
+                            <option>Aktif</option>
+                            <option>Draft</option>
+                            <option>Pengembangan</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div>
-                    <label class="admin-label">Jumlah Komponen</label>
-                    <input id="edit-k-count" type="number" class="admin-input" value="${count}" min="0">
+                    <label class="admin-label">File Model 3D (.glb / .gltf)</label>
+                    <div class="file-drop-zone">
+                        <input type="file" accept=".glb,.gltf"
+                               onchange="handleFileSelect(this)"
+                               style="position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%;">
+                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
+                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                        </svg>
+                        <span class="drop-label" style="font-size:12px;color:rgba(255,255,255,0.35);">
+                            Drag & drop atau klik untuk upload
+                        </span>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
+                    </div>
                 </div>
-                <div style="display:flex;gap:10px;margin-top:8px;">
-                    <button id="edit-save-btn" class="btn-primary" onclick="saveEdit('${id}', this.closest('[id]').parentElement.closest('div').parentElement)">Simpan Perubahan</button>
-                    <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
-                </div>
-                <div id="edit-error" style="color:#EF4444;font-size:12px;display:none;"></div>
+
             </div>
         </div>
     `;
-    // Simpan ref ke row yang sedang diedit
-    overlay.dataset.targetId = id;
-    document.body.appendChild(overlay);
+
+    // Aktifkan drag & drop
+    const zone = card.querySelector('.file-drop-zone');
+    initDropZone(zone);
+
+    return card;
 }
 
-function closeEditModal() {
-    const el = document.getElementById('edit-modal-overlay');
-    if (el) el.remove();
+function addKonstruksiCard() {
+    const container = document.getElementById('konstruksi-cards');
+    const card      = createKonstruksiCard(kCardCount, kCardCount > 0);
+    container.appendChild(card);
+    kCardCount++;
 }
 
-async function saveEdit(id) {
-    const overlay = document.getElementById('edit-modal-overlay');
-    const name  = document.getElementById('edit-k-name').value.trim();
-    const desc  = document.getElementById('edit-k-desc').value.trim();
-    const count = parseInt(document.getElementById('edit-k-count').value || '0', 10);
-    const errEl = document.getElementById('edit-error');
-    const btn   = document.getElementById('edit-save-btn');
+function submitSemuaKonstruksi() {
+    const cards  = document.querySelectorAll('#konstruksi-cards .upload-card');
+    const saved  = document.getElementById('konstruksi-saved');
+    let hasError = false;
 
-    if (!name) { errEl.textContent = 'Nama tidak boleh kosong.'; errEl.style.display = 'block'; return; }
+    cards.forEach(card => {
+        const nameEl = card.querySelector('.k-name');
+        const name   = nameEl.value.trim();
+        const desc   = card.querySelector('.k-desc').value.trim();
+        const count  = card.querySelector('.k-count').value || '0';
+        const status = card.querySelector('.k-status').value;
+        const file   = card.querySelector('input[type=file]').files[0];
 
-    try {
-        btn.textContent = 'Menyimpan...';
-        btn.style.pointerEvents = 'none';
-        errEl.style.display = 'none';
+        if (!name) {
+            hasError = true;
+            nameEl.style.borderColor = '#EF4444';
+            return;
+        }
+        nameEl.style.borderColor = '';
 
-        await fetchBackend(`/api/modules/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify({ title: name, description: desc, materialCount: isNaN(count) ? 0 : count })
-        });
+        /* TODO (back end) — uncomment dan sesuaikan endpoint:
+        const formData = new FormData();
+        formData.append('name',   name);
+        formData.append('desc',   desc);
+        formData.append('count',  count);
+        formData.append('status', status);
+        if (file) formData.append('file', file);
+        await fetch('/api/konstruksi', { method: 'POST', body: formData });
+        */
 
-        showToast('✅ Konstruksi berhasil diperbarui!', 'success');
-        closeEditModal();
-        await loadKonstruksi(); // Reload dari database
+        const badgeClass = status === 'Aktif' ? 'badge-green'
+                         : status === 'Draft' ? 'badge-yellow'
+                         : 'badge-blue';
 
-    } catch (err) {
-        errEl.textContent = err.message;
-        errEl.style.display = 'block';
-        btn.textContent = 'Simpan Perubahan';
-        btn.style.pointerEvents = 'auto';
-    }
-}
-
-/* =========================================================
-   RESET FORM
-   ========================================================= */
-function resetForm(prefix) {
-    ['name','desc','count'].forEach(f => {
-        const el = document.getElementById(`${prefix}-${f}`);
-        if (el) el.value = '';
+        const row       = document.createElement('div');
+        row.className   = 'item-row';
+        row.innerHTML   = `
+            <div class="item-icon">
+                <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                          d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
+                </svg>
+            </div>
+            <div style="flex:1;">
+                <div style="font-size:13px;font-weight:600;color:#fff;">${name}</div>
+                <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
+                    ${file ? file.name : 'Tanpa file'} · ${count} komponen · ${status}
+                </div>
+            </div>
+            <span class="badge ${badgeClass}">${status}</span>
+            <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
+        `;
+        saved.appendChild(row);
     });
-    const status = document.getElementById(`${prefix}-status`);
-    if (status) status.selectedIndex = 0;
-    const fileInput = document.getElementById(`${prefix}-file`);
-    if (fileInput) fileInput.value = '';
+
+    if (hasError) { showToast('Nama konstruksi wajib diisi.', 'error'); return; }
+    resetKonstruksiForm();
+    showToast('Konstruksi berhasil disimpan!');
 }
 
-// Muat data saat halaman siap
-document.addEventListener('DOMContentLoaded', () => {
-    loadKonstruksi();
-});
+function resetKonstruksiForm() {
+    document.getElementById('konstruksi-cards').innerHTML = '';
+    kCardCount = 0;
+    addKonstruksiCard();
+}
+
+document.addEventListener('DOMContentLoaded', addKonstruksiCard);
