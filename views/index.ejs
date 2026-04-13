@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PLN Pusdiklat | Premium Learning Center</title>
+  <link rel="stylesheet" href="/css/output.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    h1, h2, h3, h4, h5, h6, .brand-font { font-family: 'Space Grotesk', sans-serif; }
+  </style>
+</head>
+<body class="bg-pln-darker text-white antialiased">
+  
+  <%- include('partials/navbar') %>
+  
+  <main>
+    <%- include('partials/hero') %>
+    <%- include('partials/intro') %>
+    <%- include('partials/categories') %>
+    <%- include('partials/showcase') %>
+    <%- include('partials/cta') %>
+  </main>
+  
+  <%- include('partials/footer') %>
+
+  <!-- Intersections observer for fade animation -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if(entry.isIntersecting) {
+            entry.target.classList.add('fade-in-up');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.1 });
+      
+      document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "name": "plnweb",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/output.css --watch",
+    "dev:server": "nodemon app.js",
+    "dev": "npm-run-all --parallel dev:css dev:server",
+    "build:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/output.css --minify",
+    "start": "node app.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "ejs": "^5.0.2",
+    "express": "^5.2.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.2.2",
+    "autoprefixer": "^10.4.27",
+    "nodemon": "^3.1.14",
+    "npm-run-all": "^4.1.5",
+    "postcss": "^8.5.9",
+    "tailwindcss": "^4.2.2"
+  }
+}
