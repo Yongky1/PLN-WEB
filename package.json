@@ -4,10 +4,10 @@
   "main": "server.js",
   "scripts": {
     "dev:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/output.css --watch",
-    "dev:server": "nodemon server.js",
+    "dev:server": "nodemon --env-file .env server.js",
     "dev": "npm-run-all --parallel dev:css dev:server",
     "build:css": "npx @tailwindcss/cli -i ./public/css/style.css -o ./public/css/output.css --minify",
-    "start": "node server.js"
+    "start": "node --env-file .env server.js"
   },
   "keywords": [],
   "author": "",

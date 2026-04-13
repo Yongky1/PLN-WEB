@@ -2,10 +2,12 @@ const express = require('express');
 const path    = require('path');
 const ejs         = require('ejs');
 const cookieParser = require('cookie-parser');
+const os          = require('os');
 const adminRouter = require('./routes/admin');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
@@ -353,7 +355,7 @@ app.get('/material', (req, res) => {
 
 app.get('/ModulKonstruksi', async (req, res) => {
     try {
-        const fetchRes = await fetch('http://localhost:4000/api/modules?all=true');
+        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?all=true`);
         let dbModules = await fetchRes.json();
         
         // Sorting logic based on req.query.sort
@@ -406,7 +408,7 @@ app.get('/ModulKonstruksi', async (req, res) => {
 app.get('/ModulKonstruksi/:id', async (req, res) => {
     const moduleId = req.params.id;
     try {
-        const fetchRes = await fetch(`http://localhost:4000/api/modules/${moduleId}`);
+        const fetchRes = await fetch(`${BACKEND_URL}/api/modules/${moduleId}`);
         if (!fetchRes.ok) {
             return res.redirect('/ModulKonstruksi');
         }
@@ -443,7 +445,7 @@ const authGuard = async (req, res, next) => {
 
     try {
         // 2. Verifikasi token ke backend (Supabase)
-        const verifyRes = await fetch('http://localhost:4000/api/auth/verify', {
+        const verifyRes = await fetch(`${BACKEND_URL}/api/auth/verify`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -501,8 +503,22 @@ app.get('/admin-logout', (req, res) => {
 // Admin routes - Menggunakan authGuard
 app.use('/admin', authGuard, adminRouter);
 
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
+    // Cari IP jaringan lokal
+    const nets = os.networkInterfaces();
+    let localIP = 'localhost';
+    for (const name of Object.keys(nets)) {
+        for (const net of nets[name]) {
+            if (net.family === 'IPv4' && !net.internal) {
+                localIP = net.address;
+                break;
+            }
+        }
+        if (localIP !== 'localhost') break;
+    }
     console.log(`===============================================`);
     console.log(`🚀 PLN Pusdiklat Concept running on http://localhost:${PORT}`);
+    console.log(`🌍 Untuk akses dari device lain : http://${localIP}:${PORT}`);
+    console.log(`📡 Backend API : ${BACKEND_URL}`);
     console.log(`===============================================`);
 });
