@@ -2,6 +2,12 @@
 <html lang="id" class="scroll-smooth">
 <head>
     <%- include('partials/head') %>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        /* Custom modal styles for preview */
+        #preview-modal.active { display: flex !important; }
+        .preview-content { max-height: 90vh; }
+    </style>
 </head>
 <body class="bg-brand-light dark:bg-brand-dark text-gray-900 dark:text-white transition-colors duration-700 font-sans antialiased overflow-x-hidden selection:bg-brand-accent selection:text-brand-dark">
 
@@ -10,68 +16,276 @@
     <!-- Main Content -->
     <main class="pt-32 pb-24 px-6 bg-brand-light dark:bg-brand-dark transition-colors duration-700 min-h-screen">
         <div class="max-w-7xl mx-auto">
-            <!-- Page Title -->
-            <div class="mb-10 text-left">
-                <span class="inline-block py-1 px-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-brand-blue dark:text-brand-accent text-[10px] font-semibold tracking-widest uppercase mb-3 border border-blue-200 dark:border-blue-800">
-                    Visualisasi 3D
-                </span>
-                <h1 class="text-3xl md:text-4xl font-display font-bold mb-3">
-                    Modul <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-brand-accent dark:from-blue-400 dark:to-brand-accent">Konstruksi</span>
-                </h1>
-                <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
-                    Pilih modul di bawah ini untuk memulai interaksi 3D.
-                </p>
-            </div>
-
-            <!-- Modules Grid Section -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                
-                <% modulesData.forEach(mod => { %>
-                <!-- Module Card -->
-                <a href="/ModulKonstruksi/<%= mod.id %>" class="group block relative rounded-2xl overflow-hidden bg-white dark:bg-[#0d2238] shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-white/5 hover:-translate-y-1 flex flex-col">
-                    
-                    <!-- Cover Image -->
-                    <div class="w-full h-32 bg-gray-50 dark:bg-gray-800/50 relative overflow-hidden flex items-center justify-center">
-                        <% if (mod.image) { %>
-                            <img src="<%= mod.image %>" alt="<%= mod.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
-                        <% } else { %>
-                            <!-- Placeholder -->
-                            <div class="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-accent via-transparent to-transparent group-hover:scale-150 transition-transform duration-700"></div>
-                            <svg class="w-8 h-8 text-gray-300 dark:text-gray-600 group-hover:text-brand-accent transition-colors duration-500 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                        <% } %>
-                    </div>
-
-                    <!-- Content Section -->
-                    <div class="p-5 flex flex-col flex-grow">
-                        <h3 class="text-base font-bold mb-1.5 text-gray-900 dark:text-white group-hover:text-brand-blue dark:group-hover:text-brand-accent transition-colors leading-tight">
-                            <%= mod.title %>
-                        </h3>
-                        <p class="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 flex-grow">
-                            <%= mod.description %>
-                        </p>
-                        
-                        <!-- Material & Peralatan List -->
-                        <div class="mt-auto border-t border-gray-100 dark:border-gray-800/60 pt-3 flex flex-col gap-1.5">
-                            <p class="text-xs text-gray-600 dark:text-gray-300 font-medium">Material : <%= mod.materialCount %></p>
-                            <p class="text-xs text-gray-600 dark:text-gray-300 font-medium">Peralatan : <%= mod.equipmentCount %></p>
-                        </div>
-                    </div>
-                </a>
-                <% }); %>
-            </div>
             
-            <% if(modulesData.length === 0) { %>
-                <div class="text-center py-20">
-                    <p class="text-gray-500 dark:text-gray-400 text-sm">Belum ada modul yang tersedia.</p>
+            <!-- Page Title & Sort -->
+            <div class="mb-10 text-left flex flex-col md:flex-row md:items-end justify-between gap-4">
+                <div>
+                    <span class="inline-block py-1 px-3 rounded-full bg-blue-100 dark:bg-blue-900/30 text-brand-blue dark:text-brand-accent text-[10px] font-semibold tracking-widest uppercase mb-3 border border-blue-200 dark:border-blue-800">
+                        Visualisasi 3D
+                    </span>
+                    <h1 class="text-3xl md:text-4xl font-display font-bold mb-3">
+                        Modul <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-brand-accent dark:from-blue-400 dark:to-brand-accent">Konstruksi</span>
+                    </h1>
+                    <p class="text-sm md:text-base text-gray-600 dark:text-gray-400 max-w-2xl leading-relaxed">
+                        Pilih modul di bawah ini untuk memulai interaksi 3D.
+                    </p>
                 </div>
+                
+                <!-- Sort Dropdown -->
+                <div class="relative min-w-[200px]">
+                    <form id="sort-form" method="GET" action="/ModulKonstruksi">
+                        <select name="sort" onchange="document.getElementById('sort-form').submit()" class="w-full appearance-none bg-white dark:bg-[#0d2238] border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3 pr-10 text-sm font-medium text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-brand-accent focus:border-transparent transition-all shadow-sm">
+                            <option value="newest" <%= currentSort === 'newest' ? 'selected' : '' %>>Urutan: Terbaru</option>
+                            <option value="name_asc" <%= currentSort === 'name_asc' ? 'selected' : '' %>>Urutan: Abjad (A-Z)</option>
+                            <option value="name_desc" <%= currentSort === 'name_desc' ? 'selected' : '' %>>Urutan: Abjad (Z-A)</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 flex items-center px-3 pointer-events-none text-gray-500 dark:text-gray-400">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Modules Grid Section: ACTIVE -->
+            <div class="mb-12">
+                <h2 class="text-xl font-bold mb-6 text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    Modul Aktif
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <% if(activeModules.length === 0) { %>
+                        <div class="col-span-full text-center py-10 bg-white/50 dark:bg-white/5 rounded-2xl border border-gray-100 dark:border-white/5">
+                            <p class="text-gray-500 dark:text-gray-400 text-sm">Belum ada modul aktif.</p>
+                        </div>
+                    <% } %>
+                    
+                    <% activeModules.forEach(mod => { %>
+                    <!-- Active Module Card -->
+                    <a href="/ModulKonstruksi/<%= mod.id %>" class="group block relative rounded-2xl overflow-hidden bg-white dark:bg-[#0d2238] shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 dark:border-white/5 hover:-translate-y-1 flex flex-col cursor-pointer">
+                        <!-- Cover Image -->
+                        <div class="w-full h-32 bg-gray-50 dark:bg-gray-800/50 relative overflow-hidden flex items-center justify-center">
+                            <% if (mod.image) { %>
+                                <img src="<%= mod.image %>" alt="<%= mod.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <% } else { %>
+                                <div class="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-brand-accent via-transparent to-transparent group-hover:scale-150 transition-transform duration-700"></div>
+                                <svg class="w-8 h-8 text-gray-300 dark:text-gray-600 group-hover:text-brand-accent transition-colors duration-500 z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <% } %>
+                        </div>
+                        <!-- Content -->
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="text-base font-bold mb-1.5 text-gray-900 dark:text-white group-hover:text-brand-blue dark:group-hover:text-brand-accent transition-colors leading-tight">
+                                <%= mod.title %>
+                            </h3>
+                            <p class="text-gray-500 dark:text-gray-400 text-xs leading-relaxed mb-4 flex-grow line-clamp-2">
+                                <%= mod.description %>
+                            </p>
+                            <div class="mt-auto border-t border-gray-100 dark:border-gray-800/60 pt-3 flex flex-col gap-1.5">
+                                <p class="text-xs text-gray-600 dark:text-gray-300 font-medium">Material : <%= mod.materialCount %></p>
+                                <p class="text-xs text-gray-600 dark:text-gray-300 font-medium">Peralatan : <%= mod.equipmentCount %></p>
+                            </div>
+                        </div>
+                    </a>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Modules Grid Section: INACTIVE / DRAFT -->
+            <% if(inactiveModules.length > 0) { %>
+            <div class="pt-8 border-t border-gray-200 dark:border-white/10">
+                <h2 class="text-xl font-bold mb-6 text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                    <svg class="w-5 h-5 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    Draft & Pengembangan
+                </h2>
+                
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <% inactiveModules.forEach(mod => { %>
+                    <!-- Inactive Module Card (Click opens modal) -->
+                    <div onclick="openPreviewModal('<%= mod.id %>')" class="group relative rounded-2xl overflow-hidden bg-gray-50/50 dark:bg-[#091522] shadow-sm hover:shadow-md transition-all duration-300 border border-gray-200 dark:border-white/5 opacity-80 hover:opacity-100 flex flex-col cursor-pointer">
+                        
+                        <!-- Status Badge -->
+                        <div class="absolute top-3 right-3 z-20">
+                            <span class="inline-block px-2 py-1 bg-yellow-100 text-yellow-800 dark:bg-yellow-900/50 dark:text-yellow-400 text-[10px] font-bold rounded-md uppercase tracking-wider shadow-sm">
+                                <%= mod.status %>
+                            </span>
+                        </div>
+
+                        <!-- Cover Image -->
+                        <div class="w-full h-32 bg-gray-100 dark:bg-[#07101a] relative overflow-hidden flex items-center justify-center filter grayscale group-hover:grayscale-0 transition-all duration-500">
+                            <% if (mod.image) { %>
+                                <img src="<%= mod.image %>" alt="<%= mod.title %>" class="w-full h-full object-cover">
+                            <% } else { %>
+                                <div class="absolute inset-0 opacity-10 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-yellow-500 via-transparent to-transparent"></div>
+                                <svg class="w-8 h-8 text-gray-400 dark:text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                            <% } %>
+                        </div>
+                        <!-- Content -->
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="text-base font-bold mb-1.5 text-gray-600 dark:text-gray-300 leading-tight">
+                                <%= mod.title %>
+                            </h3>
+                            <p class="text-gray-500 dark:text-gray-500 text-xs leading-relaxed mb-4 flex-grow line-clamp-2">
+                                <%= mod.description %>
+                            </p>
+                            <div class="mt-auto border-t border-gray-200 dark:border-gray-800/60 pt-3 flex justify-between items-center">
+                                <span class="text-[10px] text-gray-500 dark:text-gray-500 uppercase tracking-wider font-semibold">Preview 3D</span>
+                                <svg class="w-4 h-4 text-gray-400 group-hover:text-brand-accent transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path></svg>
+                            </div>
+                        </div>
+
+                        <!-- Data tersembunyi untuk modal JS -->
+                        <script type="application/json" id="data-mod-<%= mod.id %>">
+                            <%- JSON.stringify(mod.assets) %>
+                        </script>
+                        <input type="hidden" id="title-mod-<%= mod.id %>" value="<%= mod.title %>">
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
             <% } %>
 
         </div>
     </main>
 
+    <!-- Preview Modal (Draft Modules) -->
+    <div id="preview-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70 backdrop-blur-sm" style="display: none;">
+        <div class="preview-content bg-white dark:bg-[#0A1929] w-full max-w-4xl rounded-3xl overflow-hidden shadow-2xl flex flex-col relative border border-gray-200 dark:border-white/10">
+            
+            <!-- Modal Header -->
+            <div class="px-6 py-4 border-b border-gray-100 dark:border-white/10 flex justify-between items-center bg-gray-50 dark:bg-[#071524]">
+                <div>
+                    <h3 id="modal-title" class="text-xl font-bold text-gray-900 dark:text-white">Preview Modul</h3>
+                    <p class="text-xs text-yellow-600 dark:text-yellow-400 font-medium">Mode Preview (Sedang Dikembangkan)</p>
+                </div>
+                <button onclick="closePreviewModal()" class="p-2 bg-gray-200 dark:bg-white/5 hover:bg-gray-300 dark:hover:bg-white/10 rounded-full transition-colors">
+                    <svg class="w-5 h-5 text-gray-700 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+
+            <!-- Modal Body (3D Viewer) -->
+            <div class="relative w-full bg-gray-100 dark:bg-[#05101E] flex-grow flex items-center justify-center p-4" style="height: 60vh; min-height: 400px;">
+                
+                <model-viewer 
+                    id="modal-model-viewer"
+                    src="" 
+                    camera-controls 
+                    auto-rotate
+                    rotation-per-second="30deg"
+                    interaction-prompt="none"
+                    shadow-intensity="1.5"
+                    environment-image="neutral"
+                    exposure="1"
+                    class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+                </model-viewer>
+
+                <!-- Navigation Arrows (Variant Carousel) -->
+                <button id="modal-prev-btn" onclick="prevVariant(event)" class="absolute left-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 hover:text-brand-accent transition-all hidden z-20 border border-white/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button id="modal-next-btn" onclick="nextVariant(event)" class="absolute right-6 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/10 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/20 hover:text-brand-accent transition-all hidden z-20 border border-white/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <!-- Variant Display Name -->
+                <div id="modal-variant-name" class="absolute bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/60 backdrop-blur-md text-white text-xs font-medium rounded-full pointer-events-none z-10 hidden">
+                    Varian - 
+                </div>
+
+                <!-- Empty State -->
+                <div id="modal-empty-state" class="absolute inset-0 flex flex-col items-center justify-center text-gray-500 hidden z-10">
+                    <svg class="w-12 h-12 mb-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                    <span class="text-sm font-medium">Belum ada file 3D yang diunggah.</span>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
     <%- include('partials/footer') %>
 
     <!-- Scripts -->
     <script src="/js/main.js"></script>
+    <script>
+        // Logistics Modal Preview
+        let currentAssets = [];
+        let currentIndex = 0;
+
+        function openPreviewModal(moduleId) {
+            const modal = document.getElementById('preview-modal');
+            const titleEl = document.getElementById('modal-title');
+            const viewer = document.getElementById('modal-model-viewer');
+            const emptyState = document.getElementById('modal-empty-state');
+            const prevBtn = document.getElementById('modal-prev-btn');
+            const nextBtn = document.getElementById('modal-next-btn');
+            const variantName = document.getElementById('modal-variant-name');
+
+            // Ambil data
+            const titleRaw = document.getElementById(`title-mod-${moduleId}`).value;
+            const assetsRaw = document.getElementById(`data-mod-${moduleId}`).textContent;
+            
+            titleEl.textContent = titleRaw;
+            currentAssets = JSON.parse(assetsRaw) || [];
+            currentIndex = 0;
+
+            if (currentAssets.length === 0) {
+                viewer.style.display = 'none';
+                emptyState.style.display = 'flex';
+                prevBtn.style.display = 'none';
+                nextBtn.style.display = 'none';
+                variantName.style.display = 'none';
+            } else {
+                viewer.style.display = 'block';
+                emptyState.style.display = 'none';
+                loadVariant(0);
+                
+                if (currentAssets.length > 1) {
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
+                    variantName.style.display = 'block';
+                } else {
+                    prevBtn.style.display = 'none';
+                    nextBtn.style.display = 'none';
+                    variantName.style.display = 'none';
+                }
+            }
+
+            modal.style.display = 'flex';
+            document.body.style.overflow = 'hidden';
+            setTimeout(() => modal.classList.add('active'), 10);
+        }
+
+        function closePreviewModal() {
+            const modal = document.getElementById('preview-modal');
+            modal.classList.remove('active');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 300);
+        }
+
+        function loadVariant(index) {
+            if (index < 0 || index >= currentAssets.length) return;
+            const viewer = document.getElementById('modal-model-viewer');
+            const variantName = document.getElementById('modal-variant-name');
+            const asset = currentAssets[index];
+            
+            viewer.src = asset.file || '';
+            variantName.textContent = `Varian ${index + 1}/${currentAssets.length} : ${asset.name}`;
+        }
+
+        function nextVariant(e) {
+            if(e) e.stopPropagation();
+            if (currentAssets.length <= 1) return;
+            currentIndex = (currentIndex + 1) % currentAssets.length;
+            loadVariant(currentIndex);
+        }
+
+        function prevVariant(e) {
+            if(e) e.stopPropagation();
+            if (currentAssets.length <= 1) return;
+            currentIndex = (currentIndex - 1 + currentAssets.length) % currentAssets.length;
+            loadVariant(currentIndex);
+        }
+    </script>
 </body>
 </html>

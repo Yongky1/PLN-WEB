@@ -108,11 +108,14 @@
     </div>
 </div>
 
+<!-- Library Model Viewer untuk Preview Admin -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
 <!-- MODAL EDIT -->
 <div id="edit-modal" class="modal-overlay">
-    <div class="modal-content">
+    <div class="modal-content" style="max-width: 900px;">
         <div class="modal-header">
-            <h4 style="margin:0; font-size:16px; color:#fff;">Edit Konstruksi</h4>
+            <h4 style="margin:0; font-size:16px; color:#fff;">Edit Konstruksi & Live Preview</h4>
             <button class="modal-close-btn" onclick="closeEditModal()">×</button>
         </div>
         
@@ -145,15 +148,54 @@
             </div>
         </div>
 
-        <div style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:12px;">Bentuk / Varian Konstruksi (Asset 3D)</div>
-        <div id="edit-konstruksi-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
+        <!-- Wrapper untuk Split Form dan Preview -->
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+            
+            <!-- Area Kiri: Form Detail & Varian -->
+            <div style="flex: 1; min-width:300px; display:flex; flex-direction:column;">
+                <div style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:12px;">Bentuk / Varian Konstruksi (Asset 3D)</div>
+                <div id="edit-konstruksi-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px; max-height:400px; overflow-y:auto; padding-right:10px;"></div>
 
-        <button class="add-card-btn" onclick="addEditKonstruksiCard()" style="margin-bottom:16px;">
-            <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Tambah Konstruksi Lagi
-        </button>
+                <button class="add-card-btn" onclick="addEditKonstruksiCard()" style="margin-bottom:16px;">
+                    <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Tambah Konstruksi Lagi
+                </button>
+            </div>
 
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
+            <!-- Area Kanan: 3D Preview -->
+            <div style="flex: 1; min-width:300px; display:flex; flex-direction:column; background:rgba(0,0,0,0.2); border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); position:relative;">
+                
+                <model-viewer 
+                    id="admin-preview-viewer"
+                    src="" 
+                    camera-controls 
+                    auto-rotate
+                    rotation-per-second="30deg"
+                    interaction-prompt="none"
+                    shadow-intensity="1.5"
+                    environment-image="neutral"
+                    exposure="1"
+                    style="width:100%; height:100%; min-height:400px; outline:none; background:#0A1520;">
+                </model-viewer>
+
+                <!-- Status Teks Jika Kosong -->
+                <div id="admin-preview-empty" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:rgba(255,255,255,0.3); pointer-events:none;">
+                    <svg style="width:40px;height:40px;margin-bottom:10px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <div style="font-size:12px; font-weight:600;">Belum ada file GLB terpilih</div>
+                </div>
+
+                <!-- Info Varian Aktif Dropdown -->
+                <div style="position:absolute; bottom:12px; left:12px; right:12px; z-index:10;">
+                    <select id="admin-preview-selector" onchange="changeAdminPreview()" style="width:100%; padding:8px 12px; background:rgba(0,0,0,0.6); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; font-size:12px; outline:none; backdrop-filter:blur(4px);">
+                        <option value="">-- Pilih Varian untuk Preview --</option>
+                    </select>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px;">
             <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
             <button class="btn-primary" onclick="submitEditKonstruksi()">Simpan Perubahan</button>
         </div>

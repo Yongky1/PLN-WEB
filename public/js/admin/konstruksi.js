@@ -97,7 +97,117 @@ function editKonstruksi(id) {
     // Tampilkan Modal
     const modal = document.getElementById('edit-modal');
     if (modal) modal.classList.add('active');
+    
+    // Inisialisasi Live Preview Dropdown
+    refreshAdminPreviewSelector(m.assets);
 }
+
+// ================= LIVE PREVIEW LOGIC =================
+function refreshAdminPreviewSelector(assets) {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+
+    // Bersihkan dropdown
+    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
+
+    if(assets && assets.length > 0) {
+        assets.forEach((a, idx) => {
+            if(a.file && a.file !== '-') {
+                const opt = document.createElement('option');
+                opt.value = a.file;
+                opt.textContent = `Varian ${idx+1}: ${a.name}`;
+                selector.appendChild(opt);
+            }
+        });
+        
+        // Auto select first file if available
+        if(selector.options.length > 1) {
+            selector.selectedIndex = 1;
+            changeAdminPreview();
+        } else {
+            viewer.style.display = 'none';
+            emptyState.style.display = 'flex';
+        }
+    } else {
+        viewer.style.display = 'none';
+        emptyState.style.display = 'flex';
+    }
+}
+
+window.changeAdminPreview = function() {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+    
+    if(selector.value) {
+        viewer.setAttribute('src', selector.value);
+        viewer.style.display = 'block';
+        emptyState.style.display = 'none';
+        viewer.dismissPoster && viewer.dismissPoster();
+    } else {
+        viewer.removeAttribute('src');
+        viewer.style.display = 'none';
+        emptyState.style.display = 'flex';
+    }
+};
+
+window.syncAdminPreviewDropdown = function() {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+
+    const cards = document.querySelectorAll('#edit-konstruksi-cards .upload-card');
+    const currentValue = selector.value;
+    
+    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
+    
+    let hasValidOption = false;
+
+    cards.forEach((card, idx) => {
+        const nameEl = card.querySelector('.k-name');
+        const nameText = nameEl ? nameEl.value.trim() || `Varian ${idx+1}` : `Varian ${idx+1}`;
+        const fileInput = card.querySelector('input[type="file"]');
+        
+        let fileUrl = '';
+        let isLocal = false;
+        
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            fileUrl = URL.createObjectURL(fileInput.files[0]);
+            isLocal = true;
+        } else if (card.dataset.oldFile && card.dataset.oldFile !== '-') {
+            fileUrl = card.dataset.oldFile;
+        }
+
+        if (fileUrl) {
+            const opt = document.createElement('option');
+            opt.value = fileUrl;
+            opt.textContent = isLocal ? `[Baru] ${nameText}` : nameText;
+            selector.appendChild(opt);
+            hasValidOption = true;
+        }
+    });
+
+    if (hasValidOption) {
+        // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama (index 1)
+        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[1].value : "");
+    } else {
+        selector.value = "";
+    }
+    
+    window.changeAdminPreview();
+};
+
+window.previewLocalFile = function(file) {
+    if(file && file.name.endsWith('.glb')) {
+        window.syncAdminPreviewDropdown();
+    }
+};
+// ======================================================
 
 function closeEditModal() {
     window.currentEditingId = null;
@@ -132,6 +242,7 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
     const card       = document.createElement('div');
     card.className   = 'upload-card';
     card.dataset.idx = index;
+    card.style       = 'flex-shrink: 0; padding: 14px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;';
     card.innerHTML   = `
         <div class="upload-card-header">
             <span class="card-label" style="font-size:12px; font-weight:600; color:#00E5FF;">Konstruksi #${index + 1}</span>
@@ -171,6 +282,18 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
 
     const zone = card.querySelector('.file-drop-zone');
     initDropZone(zone);
+    
+    // Binding event keyup pada input nama agar sync ke dropdown
+    const nameInput = card.querySelector('.k-name');
+    if (nameInput) {
+        nameInput.addEventListener('keyup', () => {
+            if(containerId === 'edit-konstruksi-cards') {
+                if(typeof window.syncAdminPreviewDropdown === 'function') {
+                    window.syncAdminPreviewDropdown();
+                }
+            }
+        });
+    }
 
     return card;
 }
@@ -187,6 +310,9 @@ function addEditKonstruksiCard() {
     const card      = createKonstruksiCard(kCardCount, true, 'edit-konstruksi-cards');
     container.appendChild(card);
     kCardCount++;
+    if(typeof window.syncAdminPreviewDropdown === 'function') {
+        window.syncAdminPreviewDropdown();
+    }
 }
 
 async function processKonstruksiSubmission(isEditing) {
@@ -237,10 +363,15 @@ async function processKonstruksiSubmission(isEditing) {
         return;
     }
 
-    const saveBtn = event.target || (isEditing ? document.querySelector('button[onclick="submitEditKonstruksi()"]') : document.querySelector('button[onclick="submitSemuaKonstruksi()"]'));
-    const oldText = saveBtn.textContent;
-    saveBtn.textContent = 'Menyimpan...';
-    saveBtn.disabled = true;
+// Hapus penggunaan event global yang bisa error di browser tertentu
+    const isEditBtn = isEditing ? document.querySelector('button[onclick="submitEditKonstruksi()"]') : document.querySelector('button[onclick="submitSemuaKonstruksi()"]');
+    const saveBtn = isEditBtn;
+    const oldText = saveBtn ? saveBtn.textContent : 'Simpan';
+    
+    if (saveBtn) {
+        saveBtn.textContent = 'Menyimpan...';
+        saveBtn.disabled = true;
+    }
 
     try {
         const moduleBody = {
@@ -321,7 +452,11 @@ async function processKonstruksiSubmission(isEditing) {
         loadKonstruksiSaved();
 
     } catch(e) {
+        console.error("DEBUG ERROR SIMPAN:", e);
+        // Alert berguna untuk nge-freeze browser sesaat agar user 100% bisa membaca pesan error
+        alert(`Gagal menyimpan: ${e.message}\n(Lihat console/F12 untuk detail)`);
         showToast(`Gagal menyimpan: ${e.message}`, 'error');
+        // Jangan pernah closeEditModal() di sini. Modal akan tetap terbuka.
     } finally {
         if(saveBtn) {
             saveBtn.textContent = oldText;

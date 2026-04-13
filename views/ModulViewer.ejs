@@ -30,6 +30,11 @@
                 </div>
             </div>
 
+            <!-- Data tersembunyi untuk modal JS -->
+            <script type="application/json" id="module-assets-data">
+                <%- JSON.stringify(module.assets || []) %>
+            </script>
+
             <!-- 3D Viewer Container -->
             <div id="viewer-container" class="relative w-full rounded-3xl overflow-hidden bg-white/50 dark:bg-[#111928] border border-gray-200 dark:border-white/10 shadow-lg flex items-center justify-center group mb-6 transition-all duration-500" style="height: 75vh; min-height: 500px;">
                 <!-- Fallback / Background Pattern -->
@@ -44,7 +49,7 @@
                 <!-- Web Component Model Viewer -->
                 <model-viewer 
                     id="main-model-viewer"
-                    src="/models/<%= module.id %>.glb" 
+                    src="" 
                     camera-controls 
                     auto-rotate
                     rotation-per-second="30deg"
@@ -60,6 +65,19 @@
                         <span id="loading-text" class="text-sm font-medium">Memuat Model 3D...</span>
                     </div>
                 </model-viewer>
+
+                <!-- Navigation Arrows (Variant Carousel) -->
+                <button id="viewer-prev-btn" onclick="prevVariant()" class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 hover:text-brand-accent transition-all hidden z-20 border border-white/20 hover:scale-110 shadow-lg">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button id="viewer-next-btn" onclick="nextVariant()" class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/20 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-white/40 hover:text-brand-accent transition-all hidden z-20 border border-white/20 hover:scale-110 shadow-lg">
+                    <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <!-- Variant Display Name -->
+                <div id="viewer-variant-name" class="absolute top-6 left-1/2 -translate-x-1/2 px-5 py-2 bg-black/60 backdrop-blur-md text-white text-sm font-semibold rounded-full pointer-events-none z-10 hidden shadow-md border border-white/10 uppercase tracking-wide">
+                    Varian - 
+                </div>
             </div>
 
             <!-- Detail Info Module under viewer -->
@@ -80,6 +98,10 @@
     <!-- Scripts -->
     <script src="/js/main.js"></script>
     <script>
+        // Logistics Viewer
+        let currentAssets = [];
+        let currentIndex = 0;
+
         document.addEventListener('DOMContentLoaded', () => {
             const modelViewer = document.getElementById('main-model-viewer');
             const spinner = document.getElementById('loading-spinner');
@@ -89,20 +111,58 @@
 
             if (modelViewer) {
                 modelViewer.addEventListener('error', () => {
-                    // Hentikan loading spinner
                     if (spinner) spinner.style.display = 'none';
-                    // Sembunyikan hint text
                     if (hintText) hintText.style.display = 'none';
-                    // Ubah teks loading menjadi informasi elegan
                     if (loadingText) loadingText.textContent = 'Objek 3D Tidak Tersedia';
-                    
-                    // Tambahkan efek blur (glassmorphism) pada background sebagai penanda error
                     if (posterContainer) {
                         posterContainer.classList.add('backdrop-blur-md', 'bg-white/40', 'dark:bg-black/40');
                     }
                 });
             }
+
+            // Inisialisasi Assets
+            const assetsRaw = document.getElementById('module-assets-data').textContent;
+            currentAssets = JSON.parse(assetsRaw) || [];
+            
+            const prevBtn = document.getElementById('viewer-prev-btn');
+            const nextBtn = document.getElementById('viewer-next-btn');
+            const variantName = document.getElementById('viewer-variant-name');
+
+            if (currentAssets.length === 0) {
+                if (loadingText) loadingText.textContent = 'Belum ada file 3D yang diunggah.';
+                if (spinner) spinner.style.display = 'none';
+            } else {
+                loadVariant(0);
+                
+                if (currentAssets.length > 1) {
+                    prevBtn.style.display = 'flex';
+                    nextBtn.style.display = 'flex';
+                    variantName.style.display = 'block';
+                }
+            }
         });
+
+        function loadVariant(index) {
+            if (index < 0 || index >= currentAssets.length) return;
+            const viewer = document.getElementById('main-model-viewer');
+            const variantName = document.getElementById('viewer-variant-name');
+            const asset = currentAssets[index];
+            
+            viewer.src = asset.file || '';
+            variantName.textContent = `Varian ${index + 1}/${currentAssets.length} : ${asset.name}`;
+        }
+
+        function nextVariant() {
+            if (currentAssets.length <= 1) return;
+            currentIndex = (currentIndex + 1) % currentAssets.length;
+            loadVariant(currentIndex);
+        }
+
+        function prevVariant() {
+            if (currentAssets.length <= 1) return;
+            currentIndex = (currentIndex - 1 + currentAssets.length) % currentAssets.length;
+            loadVariant(currentIndex);
+        }
     </script>
 </body>
 </html>

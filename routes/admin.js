@@ -70,9 +70,19 @@ router.get('/users', (req, res) => {
 });
 
 // Modul Konten
-router.get('/modules', (req, res) => {
-    renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul pembelajaran dan konten');
-    // TODO (back end): const modules = await db.getModules();
+router.get('/modules', async (req, res) => {
+    try {
+        const fetchRes = await fetch('http://localhost:4000/api/modules?all=true');
+        const modules = await fetchRes.json();
+        
+        // Peta data agar sesuai dengan ejs format jika perlu, 
+        // tapi ejs admin/modules.ejs masih menggunakan variabel statis m.name, m.cat dll
+        // Kita akan pass data as-is dan sesuaikan EJS nya di langkah berikutnya
+        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul pembelajaran dan konten', { modules });
+    } catch(err) {
+        console.error(err);
+        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul pembelajaran dan konten', { modules: [] });
+    }
 });
 
 // Manajemen Konstruksi

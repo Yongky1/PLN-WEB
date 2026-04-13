@@ -348,25 +348,82 @@ app.get('/material', (req, res) => {
     });
 });
 
-app.get('/ModulKonstruksi', (req, res) => {
-    res.render('ModulKonstruksi', {
-        title: 'Modul Pembelajaran — PLN Pusdiklat',
-        modulesData
-    });
+app.get('/ModulKonstruksi', async (req, res) => {
+    try {
+        const fetchRes = await fetch('http://localhost:4000/api/modules?all=true');
+        let dbModules = await fetchRes.json();
+        
+        // Sorting logic based on req.query.sort
+        const sort = req.query.sort || 'newest';
+        if (sort === 'newest') {
+            dbModules.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+        } else if (sort === 'name_asc') {
+            dbModules.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
+        } else if (sort === 'name_desc') {
+            dbModules.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
+        }
+
+        // Hitung material & eq count, lalu petakan
+        const mappedModules = dbModules.map(m => {
+            return {
+                id: m.id,
+                title: m.title,
+                description: m.description,
+                image: m.image,
+                status: m.status,
+                materialCount: m.materials ? m.materials.length : 0,
+                equipmentCount: m.tools ? m.tools.length : 0,
+                assets: m.assets || []
+            };
+        });
+
+        // Pisahkan yang aktif dan yang non-aktif/draft
+        const activeModules = mappedModules.filter(m => m.status === 'Aktif');
+        const inactiveModules = mappedModules.filter(m => m.status !== 'Aktif');
+
+        res.render('ModulKonstruksi', {
+            title: 'Modul Pembelajaran — PLN Pusdiklat',
+            activeModules,
+            inactiveModules,
+            currentSort: sort
+        });
+    } catch(err) {
+        console.error(err);
+        res.render('ModulKonstruksi', {
+            title: 'Modul Pembelajaran — PLN Pusdiklat',
+            activeModules: [],
+            inactiveModules: [],
+            currentSort: 'newest'
+        });
+    }
 });
 
-app.get('/ModulKonstruksi/:id', (req, res) => {
+app.get('/ModulKonstruksi/:id', async (req, res) => {
     const moduleId = req.params.id;
-    const moduleItem = modulesData.find(m => m.id === moduleId);
-    
-    if (!moduleItem) {
-        return res.redirect('/ModulKonstruksi');
+    try {
+        const fetchRes = await fetch(`http://localhost:4000/api/modules/${moduleId}`);
+        if (!fetchRes.ok) {
+            return res.redirect('/ModulKonstruksi');
+        }
+        const moduleItem = await fetchRes.json();
+        
+        const mappedModule = {
+            id: moduleItem.id,
+            title: moduleItem.title,
+            description: moduleItem.description,
+            materialCount: moduleItem.materials ? moduleItem.materials.length : 0,
+            equipmentCount: moduleItem.tools ? moduleItem.tools.length : 0,
+            assets: moduleItem.assets || []
+        };
+        
+        res.render('ModulViewer', {
+            title: `${mappedModule.title} - PLN Pusdiklat 3D`,
+            module: mappedModule
+        });
+    } catch(err) {
+        console.error(err);
+        res.redirect('/ModulKonstruksi');
     }
-
-    res.render('ModulViewer', {
-        title: `${moduleItem.title} - PLN Pusdiklat 3D`,
-        module: moduleItem
-    });
 });
 
 // Middleware Proteksi Rute Admin

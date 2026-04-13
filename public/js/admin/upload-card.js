@@ -36,6 +36,11 @@ function initDropZone(zone) {
         dt.items.add(file);
         input.files    = dt.files;
         setFileSuccess(zone, file.name);
+
+        // Jika fungsi preview tersedia (untuk edit konstruksi), panggil
+        if (typeof window.previewLocalFile === 'function') {
+            window.previewLocalFile(file);
+        }
     });
 
     // Handle click pada drop zone untuk trigger file input
@@ -60,6 +65,11 @@ function handleFileSelect(input) {
         return;
     }
     setFileSuccess(zone, file.name);
+
+    // Jika fungsi preview tersedia, panggil
+    if (typeof window.previewLocalFile === 'function') {
+        window.previewLocalFile(file);
+    }
 }
 
 function setFileSuccess(zone, fileName) {
@@ -78,6 +88,11 @@ function setFileSuccess(zone, fileName) {
 function removeCard(btn, containerId) {
     btn.closest('.upload-card').remove();
     renumberCards(containerId);
+    
+    // Sinkronisasikan dropdown jika card dihapus saat di Edit Modal
+    if(containerId === 'edit-konstruksi-cards' && typeof window.syncAdminPreviewDropdown === 'function') {
+        window.syncAdminPreviewDropdown();
+    }
 }
 
 function renumberCards(containerId) {
