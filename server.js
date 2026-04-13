@@ -1,6 +1,7 @@
 const express = require('express');
 const path    = require('path');
 const ejs         = require('ejs');
+const cookieParser = require('cookie-parser');
 const adminRouter = require('./routes/admin');
 
 const app  = express();
@@ -9,6 +10,8 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+app.use(cookieParser());
+app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
 
@@ -366,17 +369,51 @@ app.get('/ModulKonstruksi/:id', (req, res) => {
     });
 });
 
+// Middleware Proteksi Rute Admin
+const authGuard = (req, res, next) => {
+    if (!req.cookies.auth_token) {
+        return res.redirect('/login');
+    }
+    next();
+};
+
 // Admin login route
 app.get('/login', (req, res) => {
+    // Jika sudah ada cookie token, jangan biarkan login lagi, lempar ke admin
+    if (req.cookies.auth_token) {
+        return res.redirect('/admin');
+    }
     res.render('login', { title: 'Login Admin - PLN Pusdiklat' });
 });
 
+// Helper Route: Set Session (Cookie)
+app.post('/set-session', (req, res) => {
+    const { token } = req.body;
+    if (!token) return res.status(400).json({ error: 'Token missing' });
+
+    // Set cookie (HttpOnly: false agar bisa dibaca client-side jika perlu, atau true untuk keamanan extra)
+    // Di sini kita pakai default (Session Cookie - hilang saat browser tutup)
+    res.cookie('auth_token', token, { 
+        httpOnly: true, 
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax'
+    });
+    res.json({ success: true });
+});
+
+// Helper Route: Clear Session (Cookie)
+app.get('/clear-session', (req, res) => {
+    res.clearCookie('auth_token');
+    res.json({ success: true });
+});
+
 app.get('/admin-logout', (req, res) => {
+    res.clearCookie('auth_token');
     res.redirect('/login');
 });
 
-// Admin routes
-app.use('/admin', adminRouter);
+// Admin routes - Menggunakan authGuard
+app.use('/admin', authGuard, adminRouter);
 
 app.listen(PORT, () => {
     console.log(`===============================================`);

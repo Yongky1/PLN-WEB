@@ -71,11 +71,6 @@
     </div>
 
     <script>
-        // Cek jika sudah login, lempar ke dashboard
-        if (localStorage.getItem('auth_token')) {
-            window.location.href = '/admin';
-        }
-
         document.getElementById('login-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -105,8 +100,16 @@
                     throw new Error(result.error || result.message || 'Login Gagal');
                 }
 
-                // Simpan token!
+                // Simpan token di localStorage (untuk API Fetch)
                 localStorage.setItem('auth_token', result.token);
+
+                // Sinkronkan ke Cookie Server agar rute EJS terproteksi
+                await fetch('/set-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: result.token })
+                });
+
                 // Redirect ke dasbor
                 window.location.href = '/admin';
 

@@ -107,9 +107,15 @@ function addProcRow(containerId) {
 }
 
 /* ---- Logout ---- */
-function handleLogout() {
+async function handleLogout() {
     if (confirm('Apakah Anda yakin ingin keluar?')) {
         localStorage.removeItem('auth_token');
+        // Hapus session di server (Cookie)
+        try {
+            await fetch('/clear-session');
+        } catch (e) {
+            console.error('Gagal menghapus sesi server:', e);
+        }
         window.location.href = '/login';
     }
 }
