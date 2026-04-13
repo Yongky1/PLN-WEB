@@ -1,0 +1,51 @@
+@import "tailwindcss";
+
+@theme {
+  --color-pln-yellow: #FFD500;
+  --color-pln-blue: #00A2E9;
+  --color-pln-dark: #121212;
+  --color-pln-darker: #0A0A0A;
+  --color-pln-gray: #333333;
+}
+
+@custom-variant hover (&:hover);
+
+/* Custom utilities */
+@layer components {
+  .btn-primary {
+    @apply bg-[var(--color-pln-yellow)] text-black px-6 py-3 font-semibold transition-transform hover:scale-105;
+  }
+}
+
+body {
+  background-color: var(--color-pln-dark);
+  color: white;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+/* Base custom styles */
+.text-pln-yellow {
+  color: var(--color-pln-yellow);
+}
+.bg-pln-darker {
+  background-color: var(--color-pln-darker);
+}
+.bg-pln-dark {
+  background-color: var(--color-pln-dark);
+}
+
+/* Animations */
+.fade-in-up {
+  opacity: 0;
+  transform: translateY(20px);
+  animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

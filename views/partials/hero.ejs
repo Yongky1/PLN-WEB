@@ -1,0 +1,123 @@
+<!-- Cinematic Storytelling Scroll Wrapper -->
+<div id="hero-scroll-container" class="relative w-full bg-black">
+  
+  <!-- The Sticky Canvas Background Layer -->
+  <section class="sticky top-0 w-full h-screen overflow-hidden bg-black flex items-center justify-center z-0 pointer-events-none">
+    <div class="absolute inset-0 z-0">
+      <div id="hero-fallback" class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-50" style="background-image: url('/images/hero/fallback.jpg');"></div>
+      
+      <!-- The Animation Canvas -->
+      <!-- Added mix-blend-screen/lighten if user frames are dark, but normal is safer. -->
+      <canvas id="hero-canvas" class="w-full h-full object-cover relative z-10 opacity-0 transition-opacity duration-1000"></canvas>
+      
+      <!-- SANGAT PENTING: Hilangkan overlay gelap tebal di tengah agar animasi pengguna terlihat 100% detail dan jernih! -->
+      <!-- Hanya tambahkan shadow tipis di bawah tempat teks berada agar teks tetap terbaca -->
+      <div class="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black via-black/80 to-transparent z-20"></div>
+    </div>
+  </section>
+
+  <!-- Narrative Layers -->
+  <!-- Setiap blok diselaraskan ke BAWAH (justify-end) agar tidak menutupi area utama animasi di tengah layer layar -->
+  <div class="relative z-10 w-full -mt-[100vh] pointer-events-none">
+    
+    <!-- Act 1 -->
+    <div class="story-block w-full h-[100vh] flex flex-col items-center justify-end pb-24 px-4 text-center">
+      <div class="cool-reveal pointer-events-auto flex flex-col items-center">
+        <h1 class="text-6xl md:text-[7rem] font-black text-white mb-6 leading-none brand-font tracking-tighter drop-shadow-[0_0_80px_rgba(0,0,0,1)]">
+          Pusat Pengetahuan<br>
+          <span class="text-white/60">Infrastruktur.</span>
+        </h1>
+        <p class="text-lg md:text-xl text-gray-300 max-w-2xl font-light tracking-wide mt-2 leading-relaxed drop-shadow-xl">
+          Eksplorasi ekosistem ketenagalistrikan Nusantara melalui rekayasa teknologi dan simulasi presisi tinggi.
+        </p>
+      </div>
+    </div>
+
+    <!-- Act 2 -->
+    <div class="story-block w-full h-[100vh] flex flex-col items-start justify-end pb-24 px-6 md:px-24 mx-auto overflow-hidden">
+      <div class="cool-reveal pointer-events-auto max-w-xl">
+        <div class="flex items-center gap-3 mb-6 pl-1 drop-shadow-md">
+          <div class="w-1 h-3 bg-[var(--color-pln-yellow)]"></div>
+          <span class="text-[var(--color-pln-yellow)] tracking-[0.2em] text-xs font-bold uppercase">01 / Objective</span>
+        </div>
+        
+        <!-- Style Teks Minimalis Tanpa Kotak Border/Background yang menutupi animasi berlapis -->
+        <h2 class="text-5xl md:text-[6rem] font-bold text-white mb-6 brand-font leading-none tracking-tight drop-shadow-[0_4px_40px_rgba(0,0,0,1)]">Menempa<br>Kompetensi.</h2>
+        <p class="text-md md:text-xl text-gray-300 font-light leading-relaxed drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+          Membangun fondasi keahlian teknis secara praktikal. Menyiapkan talenta di garda terdepan untuk keandalan sistem energi nasional tanpa kompromi.
+        </p>
+      </div>
+    </div>
+
+    <!-- Act 3 -->
+    <div class="story-block w-full h-[100vh] flex flex-col items-end justify-end pb-24 px-6 md:px-24 mx-auto text-left overflow-hidden">
+      <div class="cool-reveal pointer-events-auto max-w-xl">
+        <div class="flex items-center gap-3 mb-6 pl-1 drop-shadow-md">
+          <div class="w-1 h-3 bg-[#00A2E9]"></div>
+          <span class="text-[#00A2E9] tracking-[0.2em] text-xs font-bold uppercase">02 / Engineering</span>
+        </div>
+        
+        <h2 class="text-5xl md:text-[6rem] font-bold text-white mb-6 brand-font leading-none tracking-tight drop-shadow-[0_4px_40px_rgba(0,0,0,1)]">Utamakan<br>Presisi.</h2>
+        <p class="text-md md:text-xl text-gray-300 font-light leading-relaxed drop-shadow-[0_4px_10px_rgba(0,0,0,0.8)]">
+          Fasilitas simulasi komprehensif berskala riil. Dari interaksi panel manuver hingga anatomi menara transmisi ekstra tinggi secara gamblang.
+        </p>
+      </div>
+    </div>
+
+    <!-- Act 4 -->
+    <div class="story-block w-full h-[100vh] flex flex-col items-center justify-end pb-32 px-4 text-center">
+      <div class="cool-reveal pointer-events-auto w-full max-w-3xl">
+        <h2 class="text-5xl md:text-[6rem] font-black text-white mb-12 brand-font leading-none tracking-tight drop-shadow-[0_0_80px_rgba(0,0,0,1)]">
+          Menerangi Negeri.
+        </h2>
+        <div class="flex flex-col sm:flex-row gap-6 justify-center">
+          <a href="#explore" class="bg-white text-black px-10 py-5 font-bold rounded text-xs tracking-[0.2em] uppercase transition-all hover:bg-gray-200 hover:-translate-y-1 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+            Eksplorasi Fasilitas
+          </a>
+          <a href="#about" class="bg-transparent px-10 py-5 font-bold border border-white/30 text-white rounded text-xs tracking-[0.2em] uppercase hover:bg-white/10 transition-all hover:-translate-y-1 backdrop-blur-md">
+            Informasi Ekosistem
+          </a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Mindhyve-inspired minimal animations -->
+<style>
+  html {
+    scroll-behavior: smooth;
+  }
+  .cool-reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 1.2s cubic-bezier(0.2, 1, 0.3, 1), transform 1.2s cubic-bezier(0.2, 1, 0.3, 1);
+  }
+  .cool-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+</style>
+
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+        } else {
+          entry.target.classList.remove('is-visible');
+        }
+      });
+    }, {
+      root: null,
+      threshold: 0.1
+    });
+
+    document.querySelectorAll('.cool-reveal').forEach(el => observer.observe(el));
+  });
+</script>
+
+<!-- Include Hero Animation Logic -->
+<script src="/js/hero-animation.js"></script>
