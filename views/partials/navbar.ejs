@@ -16,10 +16,10 @@
       <!-- Desktop Menu -->
       <div class="hidden md:block">
         <div class="ml-10 flex items-baseline space-x-8">
-          <a href="/" class="text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)] px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Home</a>
-          <a href="#explore" class="text-gray-300 hover:text-white px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors cursor-pointer">Alat</a>
-          <a href="#explore" class="text-gray-300 hover:text-white px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors cursor-pointer">Konstruksi</a>
-          <a href="#explore" class="text-gray-300 hover:text-white px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors cursor-pointer">Material</a>
+          <a href="/" class="<%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Home</a>
+          <a href="/tools" class="<%= typeof currentPage !== 'undefined' && currentPage === 'tools' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Alat</a>
+          <a href="/ModulKonstruksi" class="<%= typeof currentPage !== 'undefined' && currentPage === 'konstruksi' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Konstruksi</a>
+          <a href="/material" class="<%= typeof currentPage !== 'undefined' && currentPage === 'material' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Material</a>
         </div>
       </div>
       

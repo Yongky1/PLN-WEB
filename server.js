@@ -331,6 +331,7 @@ const materialData = [
 app.get('/', (req, res) => {
     res.render('index', {
         title: 'PLN Pusdiklat — Ekosistem Pembelajaran Masa Depan',
+        currentPage: 'home'
     });
 });
 
@@ -338,6 +339,7 @@ app.get('/tools', (req, res) => {
     res.render('tools', {
         title: 'Tools & Alat K3 — PLN Pusdiklat',
         toolsData,
+        currentPage: 'tools'
     });
 });
 
@@ -345,6 +347,7 @@ app.get('/material', (req, res) => {
     res.render('material', {
         title: 'Material Jaringan — PLN Pusdiklat',
         materialData,
+        currentPage: 'material'
     });
 });
 
@@ -385,7 +388,8 @@ app.get('/ModulKonstruksi', async (req, res) => {
             title: 'Modul Pembelajaran — PLN Pusdiklat',
             activeModules,
             inactiveModules,
-            currentSort: sort
+            currentSort: sort,
+            currentPage: 'konstruksi'
         });
     } catch(err) {
         console.error(err);
@@ -393,7 +397,8 @@ app.get('/ModulKonstruksi', async (req, res) => {
             title: 'Modul Pembelajaran — PLN Pusdiklat',
             activeModules: [],
             inactiveModules: [],
-            currentSort: 'newest'
+            currentSort: 'newest',
+            currentPage: 'konstruksi'
         });
     }
 });
