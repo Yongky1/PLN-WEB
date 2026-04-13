@@ -432,11 +432,35 @@ app.get('/ModulKonstruksi/:id', async (req, res) => {
 });
 
 // Middleware Proteksi Rute Admin
-const authGuard = (req, res, next) => {
-    if (!req.cookies.auth_token) {
+// Verifikasi token ke backend — bukan hanya cek keberadaan cookie
+const authGuard = async (req, res, next) => {
+    const token = req.cookies.auth_token;
+
+    // 1. Cookie tidak ada → langsung lempar ke login
+    if (!token) {
         return res.redirect('/login');
     }
-    next();
+
+    try {
+        // 2. Verifikasi token ke backend (Supabase)
+        const verifyRes = await fetch('http://localhost:4000/api/auth/verify', {
+            method: 'GET',
+            headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (!verifyRes.ok) {
+            // Token expired / tidak valid → hapus cookie & redirect login
+            res.clearCookie('auth_token');
+            return res.redirect('/login');
+        }
+
+        next();
+    } catch (err) {
+        // Backend tidak bisa dihubungi → amankan dengan redirect login
+        console.error('authGuard: Gagal verifikasi token ke backend:', err.message);
+        res.clearCookie('auth_token');
+        return res.redirect('/login');
+    }
 };
 
 // Admin login route
