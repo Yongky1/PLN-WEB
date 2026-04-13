@@ -87,8 +87,8 @@
             errorBox.style.display = 'none';
 
             try {
-                // Tembak backend Express yang berjalan di :4000
-                const response = await fetch('http://localhost:4000/api/auth/login', {
+                // Lewat proxy frontend — aman untuk device manapun
+                const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ email, password })

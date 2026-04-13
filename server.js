@@ -474,6 +474,22 @@ app.get('/login', (req, res) => {
     res.render('login', { title: 'Login Admin - PLN Pusdiklat' });
 });
 
+// Proxy Login Route
+app.post('/api/login', async (req, res) => {
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(req.body)
+        });
+        const data = await response.json();
+        res.status(response.status).json(data);
+    } catch (err) {
+        console.error('Login proxy error:', err);
+        res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+    }
+});
+
 // Helper Route: Set Session (Cookie)
 app.post('/set-session', (req, res) => {
     const { token } = req.body;
