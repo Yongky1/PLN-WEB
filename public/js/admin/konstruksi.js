@@ -27,50 +27,144 @@ async function loadAndRenderMaterialToolLists() {
     }
 }
 
-function renderMaterialList(containerId, allMaterials, selected, isEdit) {
+// Global Filter State
+let globalSearchQuery = '';
+let moduleSearchQuery = '';
+
+function renderMaterialList(containerId, allMaterials, selected, isEdit, filter = '') {
     const el = document.getElementById(containerId);
     if (!el) return;
-    if (!allMaterials || allMaterials.length === 0) {
-        el.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.4);">Belum ada material tersedia</div>';
+    
+    // Filter logic
+    const filtered = filter 
+        ? allMaterials.filter(m => m.name.toLowerCase().includes(filter.toLowerCase()))
+        : allMaterials;
+
+    if (!filtered || filtered.length === 0) {
+        el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;">
+            <span style="font-size:22px;">📦</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada material<br>tersedia'}</span>
+        </div>`;
         return;
     }
     const selectedMap = {};
     if (selected && selected.length) {
         selected.forEach(s => { selectedMap[s.material_id || (s.material && s.material.id)] = s.quantity || 1; });
     }
-    el.innerHTML = allMaterials.map(m => {
+    el.innerHTML = filtered.map(m => {
         const mid = m.id;
         const qty = selectedMap[mid] || 1;
-        const checked = selectedMap[mid] !== undefined ? 'checked' : '';
-        return `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.04);">
-            <input type="checkbox" class="mat-checkbox" data-id="${mid}" ${checked} style="accent-color:#818CF8;width:14px;height:14px;flex-shrink:0;">
-            <span style="flex:1;">${m.name || mid}</span>
-            <input type="number" class="mat-qty" data-id="${mid}" value="${qty}" min="1" oninput="this.value=Math.max(1,parseInt(this.value)||1)"
-                style="width:50px;padding:2px 6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:11px;text-align:center;">
-        </label>`;
+        const isChecked = selectedMap[mid] !== undefined;
+        const icon = m.icon || '📦';
+        const activeStyle = isChecked
+            ? 'background:rgba(129,140,248,0.12);border-color:rgba(129,140,248,0.35);'
+            : 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.07);';
+        return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;" onclick="toggleMatItem(this,'${mid}')">
+            <input type="checkbox" class="mat-checkbox" data-id="${mid}" ${isChecked ? 'checked' : ''} style="display:none;">
+            <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
+            <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(255,255,255,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name || mid}</span>
+            <div class="mat-qty-wrap" style="display:${isChecked ? 'flex' : 'none'};align-items:center;gap:6px;flex-shrink:0;">
+                <button type="button" onclick="event.stopPropagation();stepQty(this,-1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">-</button>
+                <input type="number" class="mat-qty" data-id="${mid}" value="${qty}" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:rgba(0,0,0,0.3);border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">
+                <button type="button" onclick="event.stopPropagation();stepQty(this,1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">+</button>
+            </div>
+            <span class="mat-check-badge" style="width:18px;height:18px;border-radius:50%;background:${isChecked ? '#818CF8' : 'rgba(255,255,255,0.08)'};border:1.5px solid ${isChecked ? '#818CF8' : 'rgba(255,255,255,0.15)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">
+                ${isChecked ? '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
+            </span>
+        </div>`;
     }).join('');
 }
 
-function renderToolList(containerId, allTools, selected, isEdit) {
+window.toggleMatItem = function(el, mid) {
+    const cb = el.querySelector('.mat-checkbox');
+    const badge = el.querySelector('.mat-check-badge');
+    const nameEl = el.querySelector('span:nth-child(3)');
+    const qtyWrap = el.querySelector('.mat-qty-wrap');
+    cb.checked = !cb.checked;
+    if (cb.checked) {
+        el.style.background = 'rgba(129,140,248,0.12)';
+        el.style.borderColor = 'rgba(129,140,248,0.35)';
+        if(nameEl) nameEl.style.color = 'rgba(255,255,255,0.9)';
+        badge.style.background = '#818CF8';
+        badge.style.borderColor = '#818CF8';
+        badge.innerHTML = '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+        if(qtyWrap) qtyWrap.style.display = 'flex';
+    } else {
+        el.style.background = 'rgba(255,255,255,0.03)';
+        el.style.borderColor = 'rgba(255,255,255,0.07)';
+        if(nameEl) nameEl.style.color = 'rgba(255,255,255,0.55)';
+        badge.style.background = 'rgba(255,255,255,0.08)';
+        badge.style.borderColor = 'rgba(255,255,255,0.15)';
+        badge.innerHTML = '';
+        if(qtyWrap) qtyWrap.style.display = 'none';
+    }
+};
+
+window.stepQty = function(btn, delta, mid) {
+    const input = btn.parentElement.querySelector('.mat-qty[data-id="'+mid+'"]');
+    if (!input) return;
+    input.value = Math.max(1, (parseInt(input.value) || 1) + delta);
+};
+
+function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
     const el = document.getElementById(containerId);
     if (!el) return;
-    if (!allTools || allTools.length === 0) {
-        el.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.4);">Belum ada peralatan tersedia</div>';
+
+    // Filter logic
+    const filtered = filter 
+        ? allTools.filter(t => t.name.toLowerCase().includes(filter.toLowerCase()))
+        : allTools;
+
+    if (!filtered || filtered.length === 0) {
+        el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;">
+            <span style="font-size:22px;">🔧</span>
+            <span style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada peralatan<br>tersedia'}</span>
+        </div>`;
         return;
     }
     const selectedIds = new Set();
     if (selected && selected.length) {
         selected.forEach(s => selectedIds.add(s.tool_id || (s.tool && s.tool.id)));
     }
-    el.innerHTML = allTools.map(t => {
+    el.innerHTML = filtered.map(t => {
         const tid = t.id;
-        const checked = selectedIds.has(tid) ? 'checked' : '';
-        return `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.04);">
-            <input type="checkbox" class="tool-checkbox" data-id="${tid}" ${checked} style="accent-color:#F59E0B;width:14px;height:14px;flex-shrink:0;">
-            <span>${t.name || tid}</span>
-        </label>`;
+        const isChecked = selectedIds.has(tid);
+        const icon = t.icon || '🔧';
+        const activeStyle = isChecked
+            ? 'background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.35);'
+            : 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.07);';
+        return `<div class="tool-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;" onclick="toggleToolItem(this,'${tid}')">
+            <input type="checkbox" class="tool-checkbox" data-id="${tid}" ${isChecked ? 'checked' : ''} style="display:none;">
+            <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
+            <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(255,255,255,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.name || tid}</span>
+            <span class="tool-check-badge" style="width:18px;height:18px;border-radius:50%;background:${isChecked ? '#F59E0B' : 'rgba(255,255,255,0.08)'};border:1.5px solid ${isChecked ? '#F59E0B' : 'rgba(255,255,255,0.15)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">
+                ${isChecked ? '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
+            </span>
+        </div>`;
     }).join('');
 }
+
+window.toggleToolItem = function(el, tid) {
+    const cb = el.querySelector('.tool-checkbox');
+    const badge = el.querySelector('.tool-check-badge');
+    const nameEl = el.querySelector('span:nth-child(3)');
+    cb.checked = !cb.checked;
+    if (cb.checked) {
+        el.style.background = 'rgba(245,158,11,0.1)';
+        el.style.borderColor = 'rgba(245,158,11,0.35)';
+        if(nameEl) nameEl.style.color = 'rgba(255,255,255,0.9)';
+        badge.style.background = '#F59E0B';
+        badge.style.borderColor = '#F59E0B';
+        badge.innerHTML = '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+    } else {
+        el.style.background = 'rgba(255,255,255,0.03)';
+        el.style.borderColor = 'rgba(255,255,255,0.07)';
+        if(nameEl) nameEl.style.color = 'rgba(255,255,255,0.55)';
+        badge.style.background = 'rgba(255,255,255,0.08)';
+        badge.style.borderColor = 'rgba(255,255,255,0.15)';
+        badge.innerHTML = '';
+    }
+};
 
 function collectSelectedMaterials(listId) {
     const result = [];
@@ -100,22 +194,31 @@ function generateSafeUUID() {
     });
 }
 
-async function loadKonstruksiSaved() {
+async function loadKonstruksiSaved(filter = '') {
     const saved = document.getElementById('konstruksi-saved');
     if (!saved) return;
     
     saved.innerHTML = getAdminSkeleton(3);
     try {
-        const modules = await fetchBackend('/api/modules?all=true');
-        window.allModules = modules;
+        if (!window.allModules || window.allModules.length === 0 || filter === '') {
+            const modules = await fetchBackend('/api/modules?all=true');
+            window.allModules = modules;
+        }
+
+        const filtered = filter 
+            ? window.allModules.filter(m => m.title.toLowerCase().includes(filter.toLowerCase()))
+            : window.allModules;
+
         saved.innerHTML = '';
         
-        if (!modules || modules.length === 0) {
-            saved.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px;">Belum ada data tersimpan</div>';
+        if (!filtered || filtered.length === 0) {
+            saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">
+                ${filter ? 'Tidak ada konstruksi ditemukan' : 'Belum ada data tersimpan'}
+            </div>`;
             return;
         }
 
-        modules.forEach(m => {
+        filtered.forEach(m => {
             const badgeClass = m.status === 'Aktif' ? 'badge-green' : m.status === 'Draft' ? 'badge-yellow' : 'badge-blue';
             const variantsCount = m.assets ? m.assets.length : 0;
             const matCount = m.materialCount || 0;
@@ -593,4 +696,28 @@ document.addEventListener('DOMContentLoaded', () => {
     addKonstruksiCard();
     loadKonstruksiSaved();
     loadAndRenderMaterialToolLists();
+
+    // Search Material Selection
+    const searchMat = document.getElementById('search-select-material');
+    if (searchMat) {
+        searchMat.addEventListener('input', (e) => {
+            renderMaterialList('modul-materials-list', window._allMaterialsGlobal, [], false, e.target.value);
+        });
+    }
+
+    // Search Tool Selection
+    const searchTool = document.getElementById('search-select-tools');
+    if (searchTool) {
+        searchTool.addEventListener('input', (e) => {
+            renderToolList('modul-tools-list', window._allToolsGlobal, [], false, e.target.value);
+        });
+    }
+
+    // Search Saved Data
+    const searchSaved = document.getElementById('search-saved-konstruksi');
+    if (searchSaved) {
+        searchSaved.addEventListener('input', (e) => {
+            loadKonstruksiSaved(e.target.value);
+        });
+    }
 });
