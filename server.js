@@ -390,7 +390,9 @@ app.get('/ModulKonstruksi/:id', async (req, res) => {
             description: moduleItem.description,
             materialCount: moduleItem.materials ? moduleItem.materials.length : 0,
             equipmentCount: moduleItem.tools ? moduleItem.tools.length : 0,
-            assets: moduleItem.assets || []
+            assets: moduleItem.assets || [],
+            materials: moduleItem.materials || [],
+            tools: moduleItem.tools || []
         };
         
         res.render('ModulViewer', {

@@ -6,6 +6,89 @@
 let kCardCount = 0;
 window.currentEditingId = null;
 window.allModules = [];
+window._allMaterialsGlobal = [];
+window._allToolsGlobal = [];
+
+// ================================================================
+// Fungsi Render Checklist Material & Tools di Panel Pilih
+// ================================================================
+async function loadAndRenderMaterialToolLists() {
+    try {
+        const [mats, tools] = await Promise.all([
+            fetchBackend('/api/materials'),
+            fetchBackend('/api/tools')
+        ]);
+        window._allMaterialsGlobal = mats || [];
+        window._allToolsGlobal    = tools || [];
+        renderMaterialList('modul-materials-list', mats, [], false);
+        renderToolList('modul-tools-list', tools, [], false);
+    } catch(e) {
+        console.error('Gagal memuat material/tools:', e);
+    }
+}
+
+function renderMaterialList(containerId, allMaterials, selected, isEdit) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!allMaterials || allMaterials.length === 0) {
+        el.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.4);">Belum ada material tersedia</div>';
+        return;
+    }
+    const selectedMap = {};
+    if (selected && selected.length) {
+        selected.forEach(s => { selectedMap[s.material_id || (s.material && s.material.id)] = s.quantity || 1; });
+    }
+    el.innerHTML = allMaterials.map(m => {
+        const mid = m.id;
+        const qty = selectedMap[mid] || 1;
+        const checked = selectedMap[mid] !== undefined ? 'checked' : '';
+        return `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.04);">
+            <input type="checkbox" class="mat-checkbox" data-id="${mid}" ${checked} style="accent-color:#818CF8;width:14px;height:14px;flex-shrink:0;">
+            <span style="flex:1;">${m.name || mid}</span>
+            <input type="number" class="mat-qty" data-id="${mid}" value="${qty}" min="1" oninput="this.value=Math.max(1,parseInt(this.value)||1)"
+                style="width:50px;padding:2px 6px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:6px;color:#fff;font-size:11px;text-align:center;">
+        </label>`;
+    }).join('');
+}
+
+function renderToolList(containerId, allTools, selected, isEdit) {
+    const el = document.getElementById(containerId);
+    if (!el) return;
+    if (!allTools || allTools.length === 0) {
+        el.innerHTML = '<div style="font-size:11px;color:rgba(255,255,255,0.4);">Belum ada peralatan tersedia</div>';
+        return;
+    }
+    const selectedIds = new Set();
+    if (selected && selected.length) {
+        selected.forEach(s => selectedIds.add(s.tool_id || (s.tool && s.tool.id)));
+    }
+    el.innerHTML = allTools.map(t => {
+        const tid = t.id;
+        const checked = selectedIds.has(tid) ? 'checked' : '';
+        return `<label style="display:flex;align-items:center;gap:8px;padding:5px 0;cursor:pointer;font-size:12px;color:rgba(255,255,255,0.8);border-bottom:1px solid rgba(255,255,255,0.04);">
+            <input type="checkbox" class="tool-checkbox" data-id="${tid}" ${checked} style="accent-color:#F59E0B;width:14px;height:14px;flex-shrink:0;">
+            <span>${t.name || tid}</span>
+        </label>`;
+    }).join('');
+}
+
+function collectSelectedMaterials(listId) {
+    const result = [];
+    document.querySelectorAll(`#${listId} .mat-checkbox:checked`).forEach(cb => {
+        const mid = cb.dataset.id;
+        const qtyEl = document.querySelector(`#${listId} .mat-qty[data-id="${mid}"]`);
+        result.push({ material_id: mid, quantity: qtyEl ? parseInt(qtyEl.value) || 1 : 1 });
+    });
+    return result;
+}
+
+function collectSelectedTools(listId) {
+    const result = [];
+    document.querySelectorAll(`#${listId} .tool-checkbox:checked`).forEach(cb => {
+        result.push({ tool_id: cb.dataset.id });
+    });
+    return result;
+}
 
 function generateSafeUUID() {
     if (typeof crypto !== 'undefined' && crypto.randomUUID) {
@@ -73,9 +156,10 @@ function editKonstruksi(id) {
     // Populasikan Modal
     document.getElementById('edit-modul-name').value = m.title || '';
     document.getElementById('edit-modul-desc').value = m.description || '';
-    document.getElementById('edit-modul-mat-count').value = m.materialCount || '';
-    document.getElementById('edit-modul-eq-count').value = m.equipmentCount || '';
     document.getElementById('edit-modul-status').value = m.status || 'Aktif';
+    // Render checklist dengan preselected based on current relasi
+    renderMaterialList('edit-modul-materials-list', window._allMaterialsGlobal, m.materials || [], true);
+    renderToolList('edit-modul-tools-list', window._allToolsGlobal, m.tools || [], true);
 
     const container = document.getElementById('edit-konstruksi-cards');
     if (container) {
@@ -330,10 +414,13 @@ async function processKonstruksiSubmission(isEditing) {
     const prefix = isEditing ? 'edit-' : '';
     const modulName  = document.getElementById(`${prefix}modul-name`) ? document.getElementById(`${prefix}modul-name`).value.trim() : '';
     const modulDesc  = document.getElementById(`${prefix}modul-desc`) ? document.getElementById(`${prefix}modul-desc`).value.trim() : '';
-    const matCount   = document.getElementById(`${prefix}modul-mat-count`) ? document.getElementById(`${prefix}modul-mat-count`).value || '0' : '0';
-    const eqCount    = document.getElementById(`${prefix}modul-eq-count`) ? document.getElementById(`${prefix}modul-eq-count`).value || '0' : '0';
     const statusEl   = document.getElementById(`${prefix}modul-status`);
     const status     = statusEl ? statusEl.value : 'Aktif';
+    // Kumpulkan Material & Tools yang dipilih via checkbox
+    const matListId  = isEditing ? 'edit-modul-materials-list' : 'modul-materials-list';
+    const toolListId = isEditing ? 'edit-modul-tools-list' : 'modul-tools-list';
+    const selectedMaterials = collectSelectedMaterials(matListId);
+    const selectedTools     = collectSelectedTools(toolListId);
 
     if (!modulName) {
         showToast('Nama Modul Konstruksi wajib diisi!', 'error');
@@ -387,9 +474,11 @@ async function processKonstruksiSubmission(isEditing) {
         const moduleBody = {
             title: modulName,
             description: modulDesc,
-            materialCount: parseInt(matCount, 10),
-            equipmentCount: parseInt(eqCount, 10),
-            status: status
+            materialCount: selectedMaterials.length,
+            equipmentCount: selectedTools.length,
+            status: status,
+            materials: selectedMaterials,
+            tools: selectedTools
         };
 
         if (isEditing) {
@@ -503,4 +592,5 @@ function resetKonstruksiForm() {
 document.addEventListener('DOMContentLoaded', () => {
     addKonstruksiCard();
     loadKonstruksiSaved();
+    loadAndRenderMaterialToolLists();
 });

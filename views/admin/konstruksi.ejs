@@ -61,23 +61,27 @@
                     <label class="admin-label">Deskripsi Modul</label>
                     <textarea id="modul-desc" class="admin-input" rows="2" placeholder="Deskripsikan konstruksi ini..." style="resize:vertical;"></textarea>
                 </div>
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                     <div>
-                        <label class="admin-label">Jml. Material</label>
-                        <input type="number" id="modul-mat-count" class="admin-input" placeholder="0" min="0">
+                        <label class="admin-label">Pilih Material *</label>
+                        <div id="modul-materials-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.4);">Memuat material...</div>
+                        </div>
                     </div>
                     <div>
-                        <label class="admin-label">Jml. Peralatan</label>
-                        <input type="number" id="modul-eq-count" class="admin-input" placeholder="0" min="0">
+                        <label class="admin-label">Pilih Peralatan *</label>
+                        <div id="modul-tools-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.4);">Memuat peralatan...</div>
+                        </div>
                     </div>
-                    <div>
-                        <label class="admin-label">Status</label>
-                        <select id="modul-status" class="admin-select">
-                            <option value="Aktif">Aktif</option>
-                            <option value="Draft">Draft</option>
-                            <option value="Nonaktif">Nonaktif</option>
-                        </select>
-                    </div>
+                </div>
+                <div style="margin-top: 4px;">
+                    <label class="admin-label">Status</label>
+                    <select id="modul-status" class="admin-select" style="max-width: 200px;">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Nonaktif">Nonaktif</option>
+                    </select>
                 </div>
             </div>
 
@@ -122,23 +126,27 @@
                 <label class="admin-label">Deskripsi Modul</label>
                 <textarea id="edit-modul-desc" class="admin-input" rows="2" style="resize:vertical;"></textarea>
             </div>
-            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:12px;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div>
-                    <label class="admin-label">Jml. Material</label>
-                    <input type="number" id="edit-modul-mat-count" class="admin-input" min="0">
+                    <label class="admin-label">Pilih Material *</label>
+                    <div id="edit-modul-materials-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Checkboxes injscted here -->
+                    </div>
                 </div>
                 <div>
-                    <label class="admin-label">Jml. Peralatan</label>
-                    <input type="number" id="edit-modul-eq-count" class="admin-input" min="0">
+                    <label class="admin-label">Pilih Peralatan *</label>
+                    <div id="edit-modul-tools-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Checkboxes injected here -->
+                    </div>
                 </div>
-                <div>
-                    <label class="admin-label">Status</label>
-                    <select id="edit-modul-status" class="admin-select">
-                        <option value="Aktif">Aktif</option>
-                        <option value="Draft">Draft</option>
-                        <option value="Nonaktif">Nonaktif</option>
-                    </select>
-                </div>
+            </div>
+            <div style="margin-top: 4px;">
+                <label class="admin-label">Status</label>
+                <select id="edit-modul-status" class="admin-select" style="max-width: 200px;">
+                    <option value="Aktif">Aktif</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Nonaktif">Nonaktif</option>
+                </select>
             </div>
         </div>
 
