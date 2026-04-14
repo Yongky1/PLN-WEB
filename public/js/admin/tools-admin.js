@@ -21,7 +21,7 @@ async function loadToolsSaved() {
     const saved = document.getElementById('tools-saved');
     if (!saved) return;
     
-    saved.innerHTML = '<div style="color:white; font-size: 13px;">Memuat data...</div>';
+    saved.innerHTML = getAdminSkeleton(3);
     try {
         const tools = await fetchBackend('/api/tools?all=true');
         window.allTools = tools;

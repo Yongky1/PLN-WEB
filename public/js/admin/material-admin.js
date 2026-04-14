@@ -21,7 +21,7 @@ async function loadMaterialSaved() {
     const saved = document.getElementById('material-saved');
     if (!saved) return;
     
-    saved.innerHTML = '<div style="color:white; font-size: 13px;">Memuat data...</div>';
+    saved.innerHTML = getAdminSkeleton(3);
     try {
         const materials = await fetchBackend('/api/materials?all=true');
         window.allMaterials = materials;

@@ -21,7 +21,7 @@ async function loadKonstruksiSaved() {
     const saved = document.getElementById('konstruksi-saved');
     if (!saved) return;
     
-    saved.innerHTML = '<div style="color:white; font-size: 13px;">Memuat data...</div>';
+    saved.innerHTML = getAdminSkeleton(3);
     try {
         const modules = await fetchBackend('/api/modules?all=true');
         window.allModules = modules;

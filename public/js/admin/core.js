@@ -120,6 +120,24 @@ async function handleLogout() {
     }
 }
 
+/* ---- Skeleton Loader ---- */
+function getAdminSkeleton(count = 3) {
+    let html = '';
+    for(let i=0; i<count; i++) {
+        html += `
+        <div class="item-row skeleton-box" style="gap:14px; padding:16px; border:1px solid rgba(255,255,255,0.03); background:transparent;">
+            <div class="skeleton-box skel-avatar"></div>
+            <div style="flex:1;">
+                <div class="skeleton-box skel-title"></div>
+                <div class="skeleton-box skel-desc"></div>
+            </div>
+            <div class="skeleton-box skel-btn"></div>
+            <div class="skeleton-box skel-btn" style="width:40px;"></div>
+        </div>`;
+    }
+    return html;
+}
+
 /* ---- Init ---- */
 document.addEventListener('DOMContentLoaded', () => {
     initTopbarDate();
