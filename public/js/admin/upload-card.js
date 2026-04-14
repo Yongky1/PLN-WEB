@@ -80,6 +80,28 @@ function setFileSuccess(zone, fileName) {
     label.textContent      = '✓ ' + fileName;
     label.style.color      = '#00C864';
     label.style.fontWeight = '600';
+    
+    // Auto-preview inside card (for inline previews)
+    const card = zone.closest('.upload-card');
+    if (card) {
+        const viewerContainer = card.querySelector('.card-model-viewer-container');
+        const internalViewer = card.querySelector('.internal-viewer');
+        const input = zone.querySelector('input[type=file]');
+        if (viewerContainer && internalViewer && input && input.files && input.files[0]) {
+            const file = input.files[0];
+            if (file.name.match(/\.(glb|gltf)$/i)) {
+                // Free old URL if exists
+                if (internalViewer._objectUrl) {
+                    URL.revokeObjectURL(internalViewer._objectUrl);
+                }
+                const url = URL.createObjectURL(file);
+                internalViewer._objectUrl = url;
+                internalViewer.src = url;
+                viewerContainer.style.display = 'block';
+                if (internalViewer.dismissPoster) internalViewer.dismissPoster();
+            }
+        }
+    }
 }
 
 /**

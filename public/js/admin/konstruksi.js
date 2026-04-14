@@ -281,6 +281,16 @@ function editKonstruksi(id) {
                     const fileName = decodeURIComponent(a.file.split('-3d/').pop());
                     dropLabel.textContent = `Ada File: ${fileName}`;
                     dropLabel.style.color = '#00E5FF';
+                    
+                    // Populate inline model viewer
+                    const viewerContainer = card.querySelector('.card-model-viewer-container');
+                    const internalViewer = card.querySelector('.internal-viewer');
+                    if (viewerContainer && internalViewer) {
+                        internalViewer.src = a.file;
+                        viewerContainer.style.display = 'block';
+                        // Fix for some browsers needing manual dismiss
+                        if (internalViewer.dismissPoster) internalViewer.dismissPoster();
+                    }
                 }
                 
                 container.appendChild(card);
@@ -471,6 +481,14 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                         </span>
                         <span style="font-size:11px;color:rgba(255,255,255,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
+                </div>
+                
+                <!-- Internal 3D Preview (Hidden by default) -->
+                <div class="card-model-viewer-container" style="display:none; margin-top:4px; height:200px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); position:relative;">
+                    <model-viewer class="internal-viewer" src="" 
+                        style="width: 100%; height: 100%; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);" 
+                        camera-controls auto-rotate interaction-prompt="none" shadow-intensity="1">
+                    </model-viewer>
                 </div>
 
             </div>
