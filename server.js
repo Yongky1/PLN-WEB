@@ -267,68 +267,8 @@ const toolsData = [
     },
 ];
 
-const materialData = [
-    {
-        id: 'baut-m20',
-        name: 'Baut M20 HDG',
-        code: 'BT-M20-HDG',
-        categoryLabel: 'Pengencang',
-        icon: '🔩',
-        bgGradient: 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
-        shortDesc: 'Baut hexagonal baja galvanis panas M20 untuk pengikat crossarm ke tiang listrik.',
-        description: 'Baut hexagonal Hot-Dip Galvanized (HDG) diameter M20 untuk pengikat struktural crossarm ke tiang listrik. Kelas kekuatan Grade 8.8 dengan lapisan galvanis minimum 85 mikron untuk ketahanan korosi jangka panjang di lingkungan outdoor.',
-        specs: {
-            'Diameter': 'M20',
-            'Panjang': '80 – 150 mm',
-            'Kelas': 'Grade 8.8',
-            'Coating': 'Hot-Dip Galvanis',
-            'Torsi Maks': '380 Nm',
-            'Standar': 'ISO 4014',
-        },
-        shape: 'bolt',
-        color3d: 0xBBBBBB,
-    },
-    {
-        id: 'ring-per',
-        name: 'Ring Per (Spring Washer)',
-        code: 'WS-M20-SPR',
-        categoryLabel: 'Pengencang',
-        icon: '⭕',
-        bgGradient: 'linear-gradient(135deg, #1e1e2e 0%, #11111e 100%)',
-        shortDesc: 'Ring pegas baja untuk mencegah baut kendor akibat getaran pada jaringan listrik.',
-        description: 'Ring pegas (spring washer) baja karbon galvanis untuk mencegah kendornya baut akibat getaran mekanis dan thermal cycling pada jaringan distribusi. Wajib dipasang pada setiap baut kritis di konstruksi tiang.',
-        specs: {
-            'Diameter': 'M20',
-            'Material': 'Baja Per',
-            'Tebal': '4 mm',
-            'Coating': 'Galvanis',
-            'Standar': 'DIN 127',
-            'Gaya Pegas': '1.200 N',
-        },
-        shape: 'torus',
-        color3d: 0x999999,
-    },
-    {
-        id: 'insulator-pin',
-        name: 'Insulator Pin 11kV',
-        code: 'INS-PIN-11kV',
-        categoryLabel: 'Insulasi',
-        icon: '💡',
-        bgGradient: 'linear-gradient(135deg, #2a1a10 0%, #1a0f08 100%)',
-        shortDesc: 'Insulator pin keramik tegangan menengah 11kV untuk jaringan distribusi PLN.',
-        description: 'Insulator pin keramik glazed untuk jaringan distribusi tegangan menengah 11kV. Mengisolasi konduktor dari struktur tiang agar tidak terjadi kebocoran arus ke tanah. Tahan terhadap polusi ringan hingga sedang (kategori C).',
-        specs: {
-            'Tegangan Kerja': '11 kV',
-            'BIL': '75 kV',
-            'Material': 'Keramik Glazed',
-            'Kategori Polusi': 'C (Sedang)',
-            'Panjang Lintasan': '210 mm',
-            'Standar': 'IEC 60305',
-        },
-        shape: 'insulator',
-        color3d: 0xCC9966,
-    },
-];
+
+
 
 app.get('/', (req, res) => {
     res.render('index', {
@@ -345,12 +285,42 @@ app.get('/tools', (req, res) => {
     });
 });
 
-app.get('/material', (req, res) => {
-    res.render('material', {
-        title: 'Material Jaringan — PLN Pusdiklat',
-        materialData,
-        currentPage: 'material'
-    });
+app.get('/material', async (req, res) => {
+    try {
+        const fetchRes = await fetch(`${BACKEND_URL}/api/materials`);
+        if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
+        const dbMaterials = await fetchRes.json();
+
+        // Mapping kolom DB → field yang dibutuhkan material.ejs
+        const materialData = dbMaterials.map(m => ({
+            id:            m.id,
+            name:          m.name,
+            code:          m.code          || '',
+            category:      (m.categoryLabel || 'lainnya').toLowerCase().replace(/\s+/g, '-'),
+            categoryLabel: m.categoryLabel  || 'Lainnya',
+            icon:          m.icon           || '📦',
+            bgGradient:    m.bgGradient     || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
+            shortDesc:     m.shortDesc      || m.description || '',
+            description:   m.description   || '',
+            specs:         m.specs         || {},
+            image:         m.image         || null,
+            // file3d: ambil asset pertama jika ada (material_assets)
+            file3d:        (m.assets && m.assets.length > 0) ? m.assets[0].file : null,
+        }));
+
+        res.render('material', {
+            title:        'Material Jaringan — PLN Pusdiklat',
+            materialData,
+            currentPage:  'material'
+        });
+    } catch (err) {
+        console.error('[/material] Gagal fetch data dari backend:', err.message);
+        res.render('material', {
+            title:        'Material Jaringan — PLN Pusdiklat',
+            materialData: [],
+            currentPage:  'material'
+        });
+    }
 });
 
 app.get('/ModulKonstruksi', async (req, res) => {

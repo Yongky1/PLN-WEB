@@ -1,108 +1,93 @@
 <!-- views/admin/material.ejs -->
 <link rel="stylesheet" href="/css/upload-card.css">
 <style>
-    #material-cards .upload-card-header { background: rgba(129,140,248,0.04); }
-    #material-cards .file-drop-zone {
-        --zone-color: rgba(129,140,248,0.5);
-        --zone-bg:    rgba(129,140,248,0.04);
-    }
-    #material-cards .add-card-btn {
-        border: 2px dashed rgba(129,140,248,0.3);
-        color: #818CF8;
-    }
-    #material-cards .add-card-btn:hover {
-        background: rgba(129,140,248,0.06);
-        border-color: rgba(129,140,248,0.55);
-    }
+    :root { --m-accent: #818CF8; --m-accent-raw: 129,140,248; }
+
+    #material-saved { display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
+
+    #material-cards .upload-card-header { background: rgba(var(--m-accent-raw), 0.04); }
+    #material-cards .file-drop-zone { --zone-color: rgba(var(--m-accent-raw), 0.5); --zone-bg: rgba(var(--m-accent-raw), 0.04); }
+    #material-cards .add-card-btn  { border: 2px dashed rgba(var(--m-accent-raw), 0.3); color: var(--m-accent); }
+    #material-cards .add-card-btn:hover { background: rgba(var(--m-accent-raw), 0.06); border-color: rgba(var(--m-accent-raw), 0.55); }
 </style>
 
-<div style="max-width:760px;">
-
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-        <div>
-            <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Material</h3>
-            <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola katalog material jaringan</p>
-        </div>
-        <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(129,140,248,0.12); color:#818CF8; border:1px solid rgba(129,140,248,0.3);">Material</span>
+<!-- Header -->
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+    <div>
+        <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Material</h3>
+        <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola katalog material jaringan</p>
     </div>
+    <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(129,140,248,0.12); color:#818CF8; border:1px solid rgba(129,140,248,0.3);">Material</span>
+</div>
 
-    <!-- Data tersimpan -->
-    <div class="admin-card" style="margin-bottom:24px;">
-        <h4 class="section-title" style="margin:0 0 16px;">Data Material Tersimpan</h4>
-        <div id="material-saved" style="display:flex; flex-direction:column; gap:10px;">
-            <div class="item-row">
-                <div class="item-icon" style="background:rgba(129,140,248,0.1);">
-                    <svg style="width:16px;height:16px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                </div>
-                <div style="flex:1;">
-                    <div style="font-size:13px; font-weight:600; color:#fff;">Baut M20 HDG</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">BT-M20-HDG · baut-m20.glb · Pengencang</div>
-                </div>
-                <span class="badge badge-green">Aktif</span>
-                <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
-            </div>
-            <div class="item-row">
-                <div class="item-icon" style="background:rgba(129,140,248,0.1);">
-                    <svg style="width:16px;height:16px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                </div>
-                <div style="flex:1;">
-                    <div style="font-size:13px; font-weight:600; color:#fff;">Ring Per (Spring Washer)</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">WS-M20-SPR · ring-per.glb · Pengencang</div>
-                </div>
-                <span class="badge badge-green">Aktif</span>
-                <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
+<!-- Split Layout -->
+<div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+
+    <!-- ===== KOLOM KIRI – LIST DATA TERSIMPAN ===== -->
+    <div style="flex: 1 1 0; min-width: 0;">
+        <div class="admin-card" style="height:100%;">
+            <h4 class="section-title" style="margin: 0 0 14px; display:flex; align-items:center; gap:8px;">
+                <svg style="width:14px;height:14px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                Data Tersimpan
+            </h4>
+            <div id="material-saved">
+                <div style="color:rgba(255,255,255,0.35); font-size:12px; text-align:center; padding:24px 0;">Memuat data...</div>
             </div>
         </div>
     </div>
 
-    <!-- Form tambah baru -->
-    <div class="admin-card">
-        <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 18px; display:flex; align-items:center; gap:8px;">
-            <svg style="width:15px;height:15px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Tambah Material Baru
-        </h4>
+    <!-- ===== KOLOM KANAN – FORM TAMBAH ===== -->
+    <div style="flex: 1 1 0; min-width: 0;">
+        <div class="admin-card">
+            <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 16px; display:flex; align-items:center; gap:8px;">
+                <svg style="width:14px;height:14px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Material Baru
+            </h4>
 
-        <!-- Data Modul Utama -->
-        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1);">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div>
-                    <label class="admin-label">Nama Material Utama *</label>
-                    <input type="text" id="mat-modul-name" class="admin-input" placeholder="Contoh: Baut HDG">
+            <!-- Info Utama -->
+            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label class="admin-label">Nama Material *</label>
+                        <input type="text" id="mat-modul-name" class="admin-input" placeholder="Contoh: Baut HDG">
+                    </div>
+                    <div>
+                        <label class="admin-label">Kode / Standar *</label>
+                        <input type="text" id="mat-modul-code" class="admin-input" placeholder="Contoh: BT-HDG">
+                    </div>
                 </div>
                 <div>
-                    <label class="admin-label">Kode / Standar *</label>
-                    <input type="text" id="mat-modul-code" class="admin-input" placeholder="Contoh: BT-HDG">
+                    <label class="admin-label">Deskripsi</label>
+                    <textarea id="mat-modul-desc" class="admin-input" rows="2" placeholder="Deskripsi material ini..." style="resize:vertical;"></textarea>
+                </div>
+                <div>
+                    <label class="admin-label">Kategori</label>
+                    <select id="mat-modul-cat" class="admin-select" style="max-width:60%;">
+                        <option value="Pengencang">Pengencang</option>
+                        <option value="Insulasi">Insulasi</option>
+                        <option value="Kabel">Kabel</option>
+                        <option value="Penyangga">Penyangga</option>
+                        <option value="Lainnya">Lainnya</option>
+                    </select>
                 </div>
             </div>
-            <div>
-                <label class="admin-label">Deskripsi</label>
-                <textarea id="mat-modul-desc" class="admin-input" rows="2" placeholder="Deskripsi material ini..."></textarea>
+
+            <!-- Asset 3D Cards -->
+            <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Varian / Asset 3D</div>
+            <div id="material-cards" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;"></div>
+
+            <button class="add-card-btn" onclick="addMaterialCard()" style="margin-bottom:14px; border:2px dashed rgba(129,140,248,0.3); color:#818CF8;">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Varian
+            </button>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn-primary" onclick="submitSemuaMaterial()">Simpan Semua</button>
+                <button class="btn-secondary" onclick="resetMaterialForm()">Reset</button>
             </div>
-            <div style="margin-top:12px;">
-                <label class="admin-label">Kategori</label>
-                <select id="mat-modul-cat" class="admin-select" style="max-width: 50%;">
-                    <option value="Pengencang">Pengencang</option>
-                    <option value="Insulasi">Insulasi</option>
-                    <option value="Kabel">Kabel</option>
-                    <option value="Penyangga">Penyangga</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
-            </div>
-        </div>
-
-        <div style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:12px;">Bentuk / Varian Material (Asset 3D)</div>
-        <div id="material-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
-
-        <button class="add-card-btn" onclick="addMaterialCard()" style="margin-bottom:16px;">
-            <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Tambah Material Lagi
-        </button>
-
-        <div style="display:flex; gap:10px;">
-            <button class="btn-primary" onclick="submitSemuaMaterial()">Simpan Semua</button>
-            <button class="btn-secondary" onclick="resetMaterialForm()">Reset</button>
         </div>
     </div>
+
 </div>
 
 <!-- MODAL EDIT -->
@@ -112,11 +97,11 @@
             <h4 style="margin:0; font-size:16px; color:#fff;">Edit Material</h4>
             <button class="modal-close-btn" onclick="closeEditModal()">×</button>
         </div>
-        
+
         <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1);">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                 <div>
-                    <label class="admin-label">Nama Material Utama *</label>
+                    <label class="admin-label">Nama Material *</label>
                     <input type="text" id="edit-mat-modul-name" class="admin-input" placeholder="Contoh: Baut HDG">
                 </div>
                 <div>
@@ -126,11 +111,11 @@
             </div>
             <div>
                 <label class="admin-label">Deskripsi</label>
-                <textarea id="edit-mat-modul-desc" class="admin-input" rows="2" placeholder="Deskripsi material ini..."></textarea>
+                <textarea id="edit-mat-modul-desc" class="admin-input" rows="2" style="resize:vertical;"></textarea>
             </div>
-            <div style="margin-top:12px;">
+            <div>
                 <label class="admin-label">Kategori</label>
-                <select id="edit-mat-modul-cat" class="admin-select" style="max-width: 50%;">
+                <select id="edit-mat-modul-cat" class="admin-select" style="max-width:60%;">
                     <option value="Pengencang">Pengencang</option>
                     <option value="Insulasi">Insulasi</option>
                     <option value="Kabel">Kabel</option>
@@ -140,15 +125,15 @@
             </div>
         </div>
 
-        <div style="font-size:12px; font-weight:600; color:rgba(255,255,255,0.5); margin-bottom:12px;">Bentuk / Varian Material (Asset 3D)</div>
-        <div id="edit-material-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
+        <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Varian / Asset 3D</div>
+        <div id="edit-material-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px; max-height:320px; overflow-y:auto; padding-right:6px;"></div>
 
-        <button class="add-card-btn" onclick="addEditMaterialCard()" style="margin-bottom:16px;">
-            <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Tambah Material Lagi
+        <button class="add-card-btn" onclick="addEditMaterialCard()" style="margin-bottom:14px; border:2px dashed rgba(129,140,248,0.3); color:#818CF8;">
+            <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+            Tambah Varian
         </button>
 
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <div style="display:flex; justify-content:flex-end; gap:10px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
             <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
             <button class="btn-primary" onclick="submitEditMaterial()">Simpan Perubahan</button>
         </div>

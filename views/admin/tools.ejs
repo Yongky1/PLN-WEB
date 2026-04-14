@@ -1,79 +1,63 @@
 <!-- views/admin/tools.ejs -->
 <link rel="stylesheet" href="/css/upload-card.css">
 <style>
-    #tools-cards .upload-card-header { background: rgba(245,158,11,0.04); }
-    #tools-cards .file-drop-zone {
-        --zone-color: rgba(245,158,11,0.5);
-        --zone-bg:    rgba(245,158,11,0.04);
-    }
-    #tools-cards .add-card-btn {
-        border: 2px dashed rgba(245,158,11,0.3);
-        color: #F59E0B;
-    }
-    #tools-cards .add-card-btn:hover {
-        background: rgba(245,158,11,0.06);
-        border-color: rgba(245,158,11,0.55);
-    }
+    :root { --t-accent: #F59E0B; --t-accent-raw: 245,158,11; }
+
+    #tools-saved { display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
+
+    #tools-cards .upload-card-header { background: rgba(var(--t-accent-raw), 0.04); }
+    #tools-cards .file-drop-zone { --zone-color: rgba(var(--t-accent-raw), 0.5); --zone-bg: rgba(var(--t-accent-raw), 0.04); }
+    #tools-cards .add-card-btn  { border: 2px dashed rgba(var(--t-accent-raw), 0.3); color: var(--t-accent); }
+    #tools-cards .add-card-btn:hover { background: rgba(var(--t-accent-raw), 0.06); border-color: rgba(var(--t-accent-raw), 0.55); }
 </style>
 
-<div style="max-width:760px;">
-
-    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-        <div>
-            <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Peralatan</h3>
-            <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola katalog alat lapangan & K3</p>
-        </div>
-        <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(245,158,11,0.1); color:#F59E0B; border:1px solid rgba(245,158,11,0.25);">Peralatan</span>
+<!-- Header -->
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+    <div>
+        <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Peralatan</h3>
+        <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola katalog alat lapangan & K3</p>
     </div>
+    <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(245,158,11,0.1); color:#F59E0B; border:1px solid rgba(245,158,11,0.25);">Peralatan</span>
+</div>
 
-    <!-- Data tersimpan -->
-    <div class="admin-card" style="margin-bottom:24px;">
-        <h4 class="section-title" style="margin:0 0 16px;">Data Peralatan Tersimpan</h4>
-        <div id="tools-saved" style="display:flex; flex-direction:column; gap:10px;">
-            <div class="item-row">
-                <div class="item-icon" style="background:rgba(245,158,11,0.1);">
-                    <svg style="width:16px;height:16px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <div style="flex:1;">
-                    <div style="font-size:13px; font-weight:600; color:#fff;">Helm Safety</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Alat K3 · helm-safety.glb · Wajib</div>
-                </div>
-                <span class="badge badge-red">K3</span>
-                <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
-            </div>
-            <div class="item-row">
-                <div class="item-icon" style="background:rgba(245,158,11,0.1);">
-                    <svg style="width:16px;height:16px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <div style="flex:1;">
-                    <div style="font-size:13px; font-weight:600; color:#fff;">Tangga Fiberglass</div>
-                    <div style="font-size:11px; color:rgba(255,255,255,0.35); margin-top:2px;">Alat Teknis · tangga.glb · Wajib</div>
-                </div>
-                <span class="badge badge-blue">Teknis</span>
-                <button class="btn-danger" onclick="this.closest('.item-row').remove(); showToast('Item dihapus')">Hapus</button>
+<!-- Split Layout -->
+<div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+
+    <!-- ===== KOLOM KIRI – LIST DATA TERSIMPAN ===== -->
+    <div style="flex: 1 1 0; min-width: 0;">
+        <div class="admin-card" style="height:100%;">
+            <h4 class="section-title" style="margin: 0 0 14px; display:flex; align-items:center; gap:8px;">
+                <svg style="width:14px;height:14px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                Data Tersimpan
+            </h4>
+            <div id="tools-saved">
+                <div style="color:rgba(255,255,255,0.35); font-size:12px; text-align:center; padding:24px 0;">Memuat data...</div>
             </div>
         </div>
     </div>
 
-    <!-- Form tambah baru -->
-    <div class="admin-card">
-        <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 18px; display:flex; align-items:center; gap:8px;">
-            <svg style="width:15px;height:15px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Tambah Peralatan Baru
-        </h4>
+    <!-- ===== KOLOM KANAN – FORM TAMBAH ===== -->
+    <div style="flex: 1 1 0; min-width: 0;">
+        <div class="admin-card">
+            <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 16px; display:flex; align-items:center; gap:8px;">
+                <svg style="width:14px;height:14px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Peralatan Baru
+            </h4>
 
-        <div id="tools-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
+            <div id="tools-cards" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;"></div>
 
-        <button class="add-card-btn" onclick="addToolsCard()" style="margin-bottom:16px;">
-            <svg style="width:16px;height:16px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-            Tambah Peralatan Lagi
-        </button>
+            <button class="add-card-btn" onclick="addToolsCard()" style="margin-bottom:14px; border:2px dashed rgba(245,158,11,0.3); color:#F59E0B;">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Peralatan Lagi
+            </button>
 
-        <div style="display:flex; gap:10px;">
-            <button class="btn-primary" onclick="submitSemuaTools()">Simpan Semua</button>
-            <button class="btn-secondary" onclick="resetToolsForm()">Reset</button>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-primary" onclick="submitSemuaTools()">Simpan Semua</button>
+                <button class="btn-secondary" onclick="resetToolsForm()">Reset</button>
+            </div>
         </div>
     </div>
+
 </div>
 
 <!-- MODAL EDIT -->
@@ -83,10 +67,10 @@
             <h4 style="margin:0; font-size:16px; color:#fff;">Edit Peralatan</h4>
             <button class="modal-close-btn" onclick="closeEditModal()">×</button>
         </div>
-        
+
         <div id="edit-tools-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px;"></div>
 
-        <div style="display:flex; justify-content:flex-end; gap:10px;">
+        <div style="display:flex; justify-content:flex-end; gap:10px; padding-top:14px; border-top:1px solid rgba(255,255,255,0.08);">
             <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
             <button class="btn-primary" onclick="submitEditTool()">Simpan Perubahan</button>
         </div>
