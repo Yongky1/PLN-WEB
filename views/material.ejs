@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <%- include('partials/head') %>
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        /* ============================================================
+           Material Page – Apple Glassmorphism Style
+        ============================================================ */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%);
+            backdrop-filter: blur(40px) saturate(150%);
+            -webkit-backdrop-filter: blur(40px) saturate(150%);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-top-color: rgba(255,255,255,0.3);
+            border-left-color: rgba(255,255,255,0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
+        }
+
+        /* ---- Filter Pills ---- */
+        .filter-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 7px 18px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            cursor: pointer;
+            border: 1.5px solid rgba(255,255,255,0.1);
+            background: rgba(255,255,255,0.04);
+            color: rgba(255,255,255,0.5);
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s ease;
+        }
+        .filter-pill:hover {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border-color: rgba(255,255,255,0.3);
+        }
+        .filter-pill.active {
+            background: rgba(255, 213, 0, 0.15);
+            border-color: rgba(255, 213, 0, 0.6);
+            color: var(--color-pln-yellow);
+            box-shadow: 0 0 20px rgba(255,213,0,0.15);
+        }
+
+        /* ---- Spec rows (modal info panel) ---- */
+        .mat-spec-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .mat-spec-row:last-child { border-bottom: none; }
+        .mat-spec-key { font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; }
+        .mat-spec-val { font-size: 13px; font-weight: 700; color: #FFD500; font-family: monospace; }
+        .mat-spec-empty { font-size: 13px; color: rgba(255,255,255,0.3); font-style: italic; }
+
+        /* ---- Material Card ---- */
+        .mat-card {
+            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                        box-shadow 0.4s ease,
+                        border-color 0.3s ease;
+        }
+        .mat-card:hover {
+            transform: translateY(-6px) scale(1.01);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 40px rgba(255,213,0,0.08);
+            border-color: rgba(255,255,255,0.3) !important;
+        }
+
+        /* ---- Modal ---- */
+        #mat-modal-overlay {
+            background: rgba(0,0,0,0.75);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+        }
+        #mat-modal-overlay.active { display: flex !important; }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.94) translateY(20px); }
+            to   { opacity: 1; transform: scale(1)    translateY(0);    }
+        }
+        #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+        /* ---- Modal 3D Viewer Area ---- */
+        #mat-canvas-wrap {
+            background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);
+            position: relative;
+            overflow: hidden;
+        }
+        #mat-canvas-wrap model-viewer {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        /* ---- Modal Info Scrollbar ---- */
+        #mat-info-wrap { overflow-y: auto; }
+        #mat-info-wrap::-webkit-scrollbar { width: 4px; }
+        #mat-info-wrap::-webkit-scrollbar-track { background: transparent; }
+        #mat-info-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+        #mat-info-wrap::-webkit-scrollbar-thumb:hover { background: rgba(255,213,0,0.3); }
+
+        /* ---- Spec Row ---- */
+        .spec-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .spec-row:last-child { border-bottom: none; }
+
+        /* ---- Hide Card Animation ---- */
+        .mat-card-item { transition: opacity 0.3s ease, transform 0.3s ease; }
+        .mat-card-item.hidden-card { opacity: 0; pointer-events: none; transform: scale(0.96); height: 0; overflow: hidden; margin: 0; padding: 0; }
+    </style>
+</head>
+<body class="bg-[var(--color-pln-darker)] text-white font-sans antialiased overflow-x-hidden">
+
+    <%- include('partials/navbar') %>
+
+    <main class="pt-32 pb-24 px-4 sm:px-6 bg-[var(--color-pln-darker)] min-h-screen relative">
+
+        <!-- Ambient Background Glow -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+        <div class="absolute top-[40%] left-[10%] w-[400px] h-[400px] bg-blue-500/3 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+
+        <div class="max-w-7xl mx-auto z-10 relative">
+
+            <!-- Page Hero -->
+            <div class="hero-content mb-14 text-left flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-10">
+                <div class="max-w-2xl">
+                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-pln-yellow)]/10 text-[var(--color-pln-yellow)] text-[10px] font-bold tracking-[0.15em] uppercase mb-4 border border-[var(--color-pln-yellow)]/20 shadow-[0_0_15px_rgba(255,213,0,0.1)]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-pln-yellow)] animate-pulse"></span>
+                        Katalog Material
+                    </span>
+                    <h1 class="text-4xl md:text-6xl font-black mb-4 font-['Space_Grotesk'] tracking-tight leading-tight">
+                        Material <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-pln-yellow)] to-yellow-200">Jaringan PLN</span>
+                    </h1>
+                    <p class="text-sm md:text-base text-white/50 leading-relaxed font-light">
+                        Klik pada material untuk menampilkan visualisasi 3D interaktif beserta spesifikasi teknis lengkap.
+                    </p>
+                </div>
+
+                <!-- Filter Pills -->
+                <div class="flex flex-wrap gap-2.5" id="filter-container">
+                    <button class="filter-pill active" data-filter="all">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        Semua
+                    </button>
+                <%
+                const _validForFilter = materialData.filter(m => m.name && m.name.trim() !== '');
+                const categories = [...new Set(_validForFilter.map(m => m.category))];
+                %>
+                    <% categories.forEach(cat => { %>
+                    <button class="filter-pill" data-filter="<%= cat %>">
+                        <%= _validForFilter.find(m => m.category === cat)?.categoryLabel || cat %>
+                    </button>
+                    <% }); %>
+                </div>
+            </div>
+
+            <!-- Material Grid -->
+            <div id="material-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 grid-container">
+
+                <%
+                // Filter hanya material yang punya nama valid (hindari data kosong/rusak dari DB)
+                const validMaterials = materialData.filter(m => m.name && m.name.trim() !== '');
+                %>
+
+                <% if (validMaterials.length === 0) { %>
+                <div class="col-span-full text-center py-16 glass-panel rounded-3xl">
+                    <svg class="w-12 h-12 text-white/20 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <p class="text-white/40 font-medium">Belum ada material yang tersedia.</p>
+                </div>
+                <% } %>
+
+                <% validMaterials.forEach(mat => { %>
+                <div class="mat-card-item" data-category="<%= mat.category %>">
+                    <!-- App Store Style Card -->
+                    <div class="mat-card group flex flex-col apple-glass-light rounded-[2.5rem] overflow-hidden cursor-pointer relative border border-white/10"
+                         data-id="<%= mat.id %>">
+
+                        <!-- Image / Icon Container (Top) -->
+                        <div class="h-[200px] relative overflow-hidden flex items-center justify-center" style="background: <%= mat.bgGradient %>;">
+                            <!-- Radial Glow Overlay -->
+                            <div class="absolute inset-0 opacity-30 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-[var(--color-pln-yellow)] via-transparent to-transparent group-hover:opacity-60 transition-opacity duration-500"></div>
+                            <!-- Icon / Image -->
+                            <% if (mat.image) { %>
+                                <img src="<%= mat.image %>" alt="<%= mat.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out relative z-10">
+                            <% } else { %>
+                                <span class="relative z-10 text-6xl select-none group-hover:scale-110 transition-transform duration-500" style="filter:drop-shadow(0 4px 20px rgba(0,0,0,0.5));"><%= mat.icon %></span>
+                            <% } %>
+                            <!-- Category Badge -->
+                            <div class="absolute top-4 right-4 z-20">
+                                <span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-black/40 text-white/80 backdrop-blur-md border border-white/10">
+                                    <%= mat.categoryLabel %>
+                                </span>
+                            </div>
+                            <!-- 3D Badge -->
+                            <div class="absolute bottom-4 left-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-[var(--color-pln-yellow)]/20 text-[var(--color-pln-yellow)] border border-[var(--color-pln-yellow)]/30 backdrop-blur-md">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/></svg>
+                                    Lihat 3D
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Content Area -->
+                        <div class="p-6 md:p-7 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/40 via-black/5 to-transparent">
+                            <h3 class="text-lg md:text-xl font-bold mb-2 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight">
+                                <%= mat.name %>
+                            </h3>
+                            <p class="text-white/40 text-[13px] leading-relaxed mb-6 font-['Inter'] line-clamp-2 flex-grow">
+                                <%= mat.shortDesc %>
+                            </p>
+
+                            <div class="mt-auto flex justify-between items-center border-t border-white/5 pt-4">
+                                <span class="text-[10px] font-mono text-white/30 tracking-wider"><%= mat.code %></span>
+                                <div class="w-9 h-9 rounded-full bg-[var(--color-pln-yellow)]/10 flex items-center justify-center text-[var(--color-pln-yellow)] group-hover:bg-[var(--color-pln-yellow)] group-hover:text-black transition-colors">
+                                    <svg class="w-4 h-4 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+
+
+            </div>
+
+            <!-- Empty state after filter (hanya tampil via JS saat filter aktif) -->
+            <div id="no-results" class="hidden text-center py-16 glass-panel rounded-3xl mt-4">
+                <svg class="w-12 h-12 text-white/20 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <p class="text-white/40 font-medium">Tidak ada material untuk kategori ini.</p>
+            </div>
+
+        </div>
+    </main>
+
+
+    <!-- ====================================================
+         MODAL – Material Detail & 3D Viewer
+    ==================================================== -->
+    <div id="mat-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none;">
+        <div id="mat-modal-card" class="relative w-full max-w-5xl rounded-[2rem] overflow-hidden shadow-2xl border border-white/10 bg-[#0A1929]/95 backdrop-blur-2xl flex flex-col" style="max-height: 90vh;">
+
+            <!-- Modal Header Bar -->
+            <div class="px-6 md:px-8 py-5 border-b border-white/5 flex justify-between items-center shrink-0">
+                <div>
+                    <span id="mat-modal-category" class="text-[10px] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full bg-[var(--color-pln-yellow)]/10 text-[var(--color-pln-yellow)] border border-[var(--color-pln-yellow)]/20 inline-block mb-2"></span>
+                    <h2 id="mat-modal-name" class="text-xl md:text-2xl font-bold text-white font-['Space_Grotesk']"></h2>
+                    <p id="mat-modal-code" class="text-[11px] font-mono text-white/30 mt-0.5 tracking-wider"></p>
+                </div>
+                <button id="mat-btn-close" class="w-10 h-10 flex items-center justify-center bg-white/5 hover:bg-white/10 rounded-full transition-colors border border-white/10 shrink-0 ml-4">
+                    <svg class="w-5 h-5 text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <!-- Modal Body: Split View —— identik total dengan ModulViewer -->
+            <div class="flex flex-col md:flex-row flex-1 min-h-0" style="height: 520px; max-height: 520px;">
+
+                <!-- LEFT – 3D Viewer (50%) — PIXEL-PERFECT IDENTIK ModulViewer viewer-container -->
+                <div id="mat-canvas-wrap" class="apple-glass-dark w-full md:w-1/2 shrink-0 relative overflow-hidden flex items-center justify-center group transition-all duration-500">
+
+                    <!-- Radial Background Highlight (identik ModulViewer) -->
+                    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#0A2045]/60 via-[#0A1222]/30 to-transparent pointer-events-none z-[-1]"></div>
+
+                    <!-- Hint Text Pill (identik ModulViewer: bottom-6, left-1/2) -->
+                    <div id="mat-hint-text" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#1d1d1f]/80 backdrop-blur-2xl border border-white/10 text-white/80 text-[11px] font-medium tracking-wide px-5 py-2.5 rounded-full pointer-events-none z-10 opacity-70 group-hover:opacity-100 transition-opacity flex items-center gap-2 shadow-2xl">
+                        <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                        <span>Rotasi 360° | Zoom via Scroll</span>
+                    </div>
+
+                    <!-- model-viewer — SELALU AKTIF, sama persis dengan ModulViewer -->
+                    <model-viewer
+                        id="mat-model-viewer"
+                        src=""
+                        camera-controls
+                        auto-rotate
+                        rotation-per-second="30deg"
+                        interaction-prompt="none"
+                        shadow-intensity="1.5"
+                        environment-image="neutral"
+                        exposure="1"
+                        class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+                        <!-- Loading poster — identik slot="poster" ModulViewer -->
+                        <div slot="poster" class="absolute inset-0 flex flex-col items-center justify-center text-white/40 transition-all duration-500 bg-[#0A1929]/50 backdrop-blur-sm">
+                            <div id="mat-loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)] border-b-transparent border-l-transparent mb-4"></div>
+                            <span id="mat-loading-text" class="text-xs uppercase tracking-[0.15em] font-semibold">Memuat Skema Spasial...</span>
+                        </div>
+                    </model-viewer>
+
+                    <!-- Empty state (muncul via JS saat src kosong / error) -->
+                    <div id="mat-empty-state" class="absolute inset-0 flex-col items-center justify-center text-white/30 z-10 hidden" style="display:none;">
+                        <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        <span class="text-sm font-medium tracking-wide">Belum ada file 3D</span>
+                    </div>
+
+                    <!-- Fullscreen Button (identik ModulViewer: bottom-6 right-6) -->
+                    <button id="mat-fullscreen-btn" title="Full Screen" class="absolute bottom-6 right-6 w-11 h-11 bg-[#1d1d1f]/60 backdrop-blur-2xl rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 shadow-xl group-hover:scale-105 opacity-80 hover:opacity-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    </button>
+                </div>
+
+                <!-- RIGHT – Info Panel (50%) -->
+                <div id="mat-info-wrap" class="w-full md:w-1/2 shrink-0 flex flex-col overflow-y-auto" style="padding: 28px 32px;">
+                    <!-- Icon + Description -->
+                    <div class="flex items-center gap-4 mb-5">
+                        <span id="mat-modal-icon" class="text-4xl select-none shrink-0"></span>
+                        <p id="mat-modal-desc" class="text-sm text-white/55 leading-relaxed font-['Inter']"></p>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="border-t border-white/8 mb-5"></div>
+
+                    <!-- Specs -->
+                    <p class="text-[10px] font-bold uppercase tracking-[0.2em] text-white/30 mb-3 font-['Inter']">Spesifikasi Teknis</p>
+                    <div id="mat-modal-specs" class="flex-1"></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>var __MATERIAL_DATA__ = <%- JSON.stringify(materialData) %>;</script>
+    <%- include('partials/footer') %>
+    <script src="/js/main.js"></script>
+    <script src="/js/material.js"></script>
+
+    <script>
+        // ---- GSAP Animations ----
+        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.from(".hero-content > div", {
+                y: 40, opacity: 0, duration: 1.2, stagger: 0.2, ease: "power3.out", delay: 0.1
+            });
+            gsap.from(".mat-card-item", {
+                scrollTrigger: { trigger: ".grid-container", start: "top 85%" },
+                y: 60, opacity: 0, duration: 1, stagger: 0.08, ease: "power4.out"
+            });
+        }
+
+        // ---- Filter Logic ----
+        document.querySelectorAll('.filter-pill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.dataset.filter;
+                document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                let visible = 0;
+                document.querySelectorAll('.mat-card-item').forEach(card => {
+                    const show = filter === 'all' || card.dataset.category === filter;
+                    card.classList.toggle('hidden-card', !show);
+                    if (show) visible++;
+                });
+                document.getElementById('no-results').classList.toggle('hidden', visible > 0);
+            });
+        });
+    </script>
+</body>
+</html>

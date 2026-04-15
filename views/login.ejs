@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/output.css">
+    <style>
+        body { margin: 0; font-family: 'Inter', sans-serif; background: #05101E; color: #fff; height: 100vh; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+        
+        /* Ambient Background */
+        .ambient-bg { position: absolute; width: 100%; height: 100%; overflow: hidden; z-index: 0; }
+        .glow { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.15; animation: float 10s infinite alternate ease-in-out; }
+        .glow-1 { width: 500px; height: 500px; background: #00E5FF; top: -100px; left: -100px; }
+        .glow-2 { width: 600px; height: 600px; background: #0055FF; bottom: -200px; right: -100px; animation-delay: -5s; }
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 30px); } }
+
+        /* Login Card */
+        .login-card { position: relative; z-index: 10; width: 100%; max-width: 400px; background: rgba(7, 21, 37, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 40px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4); }
+        
+        .logo-area { text-align: center; margin-bottom: 32px; }
+        .logo-text { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -0.5px; }
+        .logo-text span { color: #00E5FF; }
+        .subtitle { font-size: 13px; color: rgba(255, 255, 255, 0.4); margin-top: 4px; }
+
+        .input-group { margin-bottom: 20px; text-align: left; }
+        .input-label { display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.6); margin-bottom: 8px; }
+        .input-field { width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.3s ease; outline: none; box-sizing: border-box; }
+        .input-field:focus { border-color: #00E5FF; background: rgba(0, 229, 255, 0.03); box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.1); }
+        .input-field::placeholder { color: rgba(255, 255, 255, 0.2); }
+
+        .btn-login { width: 100%; padding: 14px; margin-top: 10px; background: linear-gradient(135deg, #00C8FF 0%, #0055FF 100%); border: none; border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
+        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 150, 255, 0.3); }
+        .btn-login:active { transform: translateY(0); }
+        
+        .loading { display: none; margin-left: 8px; font-weight: normal; }
+
+        .error-msg { color: #FF4444; font-size: 12px; margin-bottom: 16px; text-align: center; display: none; font-weight: 500; background: rgba(255, 68, 68, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 68, 68, 0.2); }
+    </style>
+</head>
+<body>
+    <div class="ambient-bg">
+        <div class="glow glow-1"></div>
+        <div class="glow glow-2"></div>
+    </div>
+
+    <div class="login-card">
+        <div class="logo-area">
+            <div class="logo-text">PLN<span>Pusdiklat</span></div>
+            <div class="subtitle">Secure Admin Portal</div>
+        </div>
+
+        <div id="error-box" class="error-msg">Email atau password salah.</div>
+
+        <form id="login-form">
+            <div class="input-group">
+                <label class="input-label">Email Address</label>
+                <input type="email" id="email" class="input-field" placeholder="admin@pln.co.id" required>
+            </div>
+            
+            <div class="input-group">
+                <label class="input-label">Password</label>
+                <input type="password" id="password" class="input-field" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" id="btn-submit" class="btn-login">
+                Sign In <span class="loading" id="loading-txt">🔄 Memproses...</span>
+            </button>
+        </form>
+    </div>
+
+    <script>
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const btn = document.getElementById('btn-submit');
+            const errorBox = document.getElementById('error-box');
+            const loadingTxt = document.getElementById('loading-txt');
+
+            // UI Loading state
+            btn.style.opacity = '0.8';
+            btn.style.pointerEvents = 'none';
+            loadingTxt.style.display = 'inline-block';
+            errorBox.style.display = 'none';
+
+            try {
+                // Lewat proxy frontend — aman untuk device manapun
+                const response = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(result.error || result.message || 'Login Gagal');
+                }
+
+                // Simpan token di localStorage (untuk API Fetch)
+                localStorage.setItem('auth_token', result.token);
+
+                // Sinkronkan ke Cookie Server agar rute EJS terproteksi
+                await fetch('/set-session', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: result.token })
+                });
+
+                // Redirect ke dasbor
+                window.location.href = '/admin';
+
+            } catch (err) {
+                errorBox.textContent = err.message;
+                errorBox.style.display = 'block';
+                
+                // Reset UI
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+                loadingTxt.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

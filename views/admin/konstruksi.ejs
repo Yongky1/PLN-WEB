@@ -1,0 +1,228 @@
+<!-- views/admin/konstruksi.ejs -->
+<link rel="stylesheet" href="/css/upload-card.css">
+<style>
+    /* ---- Warna aksen Konstruksi (biru neon) ---- */
+    :root { --k-accent: #00E5FF; --k-accent-raw: 0,229,255; }
+
+    .k-col-left  { flex: 1 1 0; min-width: 0; }
+    .k-col-right { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; }
+
+    /* List panel styles */
+    #konstruksi-saved { display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
+
+    #konstruksi-cards .upload-card-header { background: rgba(var(--k-accent-raw), 0.04); }
+    #konstruksi-cards .file-drop-zone { --zone-color: rgba(var(--k-accent-raw), 0.5); --zone-bg: rgba(var(--k-accent-raw), 0.04); }
+    #konstruksi-cards .add-card-btn  { border: 2px dashed rgba(var(--k-accent-raw), 0.3); color: var(--k-accent); }
+    #konstruksi-cards .add-card-btn:hover { background: rgba(var(--k-accent-raw), 0.06); border-color: rgba(var(--k-accent-raw), 0.55); }
+</style>
+
+<!-- ========================
+     PAGE HEADER
+========================= -->
+<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
+    <div>
+        <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Konstruksi</h3>
+        <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola data konstruksi jaringan</p>
+    </div>
+    <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(0,229,255,0.1); color:#00E5FF; border:1px solid rgba(0,229,255,0.25);">Konstruksi</span>
+</div>
+
+<!-- ========================
+     SPLIT LAYOUT
+========================= -->
+<div style="display: flex; gap: 20px; align-items: flex-start; flex-wrap: wrap;">
+
+    <!-- ===== KOLOM KIRI – LIST DATA TERSIMPAN ===== -->
+    <div class="k-col-left">
+        <div class="admin-card" style="height: 100%;">
+            <h4 class="section-title" style="margin: 0 0 14px; display:flex; align-items:center; gap:8px;">
+                <svg style="width:14px;height:14px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                Data Tersimpan
+            </h4>
+            <!-- Search Saved Data -->
+            <div style="margin-bottom: 12px; position: relative;">
+                <input type="text" id="search-saved-konstruksi" class="admin-input" placeholder="Cari konstruksi..." 
+                    style="font-size: 11px; padding: 6px 10px 6px 30px; height: 32px;">
+                <svg style="width: 12px; height: 12px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                </svg>
+            </div>
+            <div id="konstruksi-saved"></div>
+        </div>
+    </div>
+
+    <!-- ===== KOLOM KANAN – FORM TAMBAH ===== -->
+    <div class="k-col-right">
+        <div class="admin-card">
+            <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 16px; display:flex; align-items:center; gap:8px;">
+                <svg style="width:14px;height:14px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Konstruksi Baru
+            </h4>
+
+            <!-- Info Utama -->
+            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
+                <div>
+                    <label class="admin-label">Nama Modul Konstruksi *</label>
+                    <input type="text" id="modul-name" class="admin-input" placeholder="Contoh: Tower SUTT 150kV">
+                </div>
+                <div>
+                    <label class="admin-label">Deskripsi Modul</label>
+                    <textarea id="modul-desc" class="admin-input" rows="2" placeholder="Deskripsikan konstruksi ini..." style="resize:vertical;"></textarea>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div>
+                        <label class="admin-label" style="display:flex;align-items:center;gap:5px; margin-bottom: 4px;"><span style="color:#818CF8;">●</span> Pilih Material *</label>
+                        <!-- Search Material -->
+                        <div style="margin-bottom: 8px; position: relative;">
+                            <input type="text" id="search-select-material" class="admin-input" placeholder="Cari material..." 
+                                style="font-size: 10px; padding: 4px 8px 4px 26px; height: 28px;">
+                            <svg style="width: 10px; height: 10px; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <div id="modul-materials-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.4);">Memuat material...</div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="admin-label" style="display:flex;align-items:center;gap:5px; margin-bottom: 4px;"><span style="color:#F59E0B;">●</span> Pilih Peralatan *</label>
+                        <!-- Search Equipment -->
+                        <div style="margin-bottom: 8px; position: relative;">
+                            <input type="text" id="search-select-tools" class="admin-input" placeholder="Cari peralatan..." 
+                                style="font-size: 10px; padding: 4px 8px 4px 26px; height: 28px;">
+                            <svg style="width: 10px; height: 10px; position: absolute; left: 8px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                        <div id="modul-tools-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                            <div style="font-size: 11px; color: rgba(255,255,255,0.4);">Memuat peralatan...</div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 4px;">
+                    <label class="admin-label">Status</label>
+                    <select id="modul-status" class="admin-select" style="width: 100%;">
+                        <option value="Aktif">Aktif</option>
+                        <option value="Draft">Draft</option>
+                        <option value="Nonaktif">Nonaktif</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Asset 3D Cards -->
+            <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Varian / Asset 3D</div>
+            <div id="konstruksi-cards" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;"></div>
+
+            <button class="add-card-btn" onclick="addKonstruksiCard()" style="margin-bottom:14px; border:2px dashed rgba(0,229,255,0.3); color:#00E5FF;">
+                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                Tambah Varian
+            </button>
+
+            <div style="display:flex; gap:10px;">
+                <button class="btn-primary" onclick="submitSemuaKonstruksi()">Simpan Semua</button>
+                <button class="btn-secondary" onclick="resetKonstruksiForm()">Reset</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- Library Model Viewer untuk Preview Admin -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+
+<!-- ========================
+     MODAL EDIT
+========================= -->
+<div id="edit-modal" class="modal-overlay">
+    <div class="modal-content" style="max-width: 900px;">
+        <div class="modal-header">
+            <h4 style="margin:0; font-size:16px; color:#fff;">Edit Konstruksi & Live Preview</h4>
+            <button class="modal-close-btn" onclick="closeEditModal()">×</button>
+        </div>
+
+        <!-- Info Utama Edit -->
+        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1);">
+            <div>
+                <label class="admin-label">Nama Modul Konstruksi *</label>
+                <input type="text" id="edit-modul-name" class="admin-input" placeholder="Contoh: Tower SUTT 150kV">
+            </div>
+            <div>
+                <label class="admin-label">Deskripsi Modul</label>
+                <textarea id="edit-modul-desc" class="admin-input" rows="2" style="resize:vertical;"></textarea>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                <div>
+                    <label class="admin-label">Pilih Material *</label>
+                    <div id="edit-modul-materials-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Checkboxes injscted here -->
+                    </div>
+                </div>
+                <div>
+                    <label class="admin-label">Pilih Peralatan *</label>
+                    <div id="edit-modul-tools-list" class="admin-input" style="height: 140px; overflow-y: auto; padding: 8px; background: rgba(0,0,0,0.2); display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Checkboxes injected here -->
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top: 4px;">
+                <label class="admin-label">Status</label>
+                <select id="edit-modul-status" class="admin-select" style="width: 100%;">
+                    <option value="Aktif">Aktif</option>
+                    <option value="Draft">Draft</option>
+                    <option value="Nonaktif">Nonaktif</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Split: Varian + 3D Preview -->
+        <div style="display:flex; gap:20px; flex-wrap:wrap;">
+
+            <!-- Kiri: Varian -->
+            <div style="flex:1; min-width:280px; display:flex; flex-direction:column;">
+                <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Varian / Asset 3D</div>
+                <div id="edit-konstruksi-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px; max-height:340px; overflow-y:auto; padding-right:8px;"></div>
+                <button class="add-card-btn" onclick="addEditKonstruksiCard()" style="margin-bottom:14px; border:2px dashed rgba(0,229,255,0.3); color:#00E5FF;">
+                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                    Tambah Varian
+                </button>
+            </div>
+
+            <!-- Kanan: 3D Preview -->
+            <div style="flex:1; min-width:280px; display:flex; flex-direction:column; background:rgba(0,0,0,0.2); border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); position:relative; min-height:340px;">
+                <model-viewer
+                    id="admin-preview-viewer"
+                    src=""
+                    camera-controls
+                    auto-rotate
+                    rotation-per-second="30deg"
+                    interaction-prompt="none"
+                    shadow-intensity="1.5"
+                    environment-image="neutral"
+                    exposure="1"
+                    style="width:100%; height:100%; min-height:340px; outline:none; background:#0A1520;">
+                </model-viewer>
+
+                <div id="admin-preview-empty" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:rgba(255,255,255,0.3); pointer-events:none;">
+                    <svg style="width:36px;height:36px;margin-bottom:8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                    <div style="font-size:12px; font-weight:600;">Belum ada file GLB terpilih</div>
+                </div>
+
+                <!-- Dropdown Selector Varian -->
+                <div style="position:absolute; bottom:12px; left:12px; right:12px; z-index:10;">
+                    <select id="admin-preview-selector" onchange="changeAdminPreview()" style="width:100%; padding:8px 12px; background:rgba(0,0,0,0.65); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; font-size:12px; outline:none; backdrop-filter:blur(6px);">
+                        <option value="">-- Pilih Varian untuk Preview --</option>
+                    </select>
+                </div>
+            </div>
+
+        </div>
+
+        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
+            <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
+            <button class="btn-primary" onclick="submitEditKonstruksi()">Simpan Perubahan</button>
+        </div>
+    </div>
+</div>
+
+<script src="/js/admin/upload-card.js"></script>
+<script src="/js/admin/konstruksi.js"></script>
