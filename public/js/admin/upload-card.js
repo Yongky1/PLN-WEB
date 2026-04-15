@@ -112,18 +112,17 @@ function removeCard(btn, containerId) {
     renumberCards(containerId);
     
     // Sinkronisasikan dropdown jika card dihapus saat di Edit Modal
-    if(containerId === 'edit-konstruksi-cards' && typeof window.syncAdminPreviewDropdown === 'function') {
+    if(containerId.startsWith('edit-') && typeof window.syncAdminPreviewDropdown === 'function') {
         window.syncAdminPreviewDropdown();
     }
 }
 
 function renumberCards(containerId) {
-    const prefixMap = {
-        'konstruksi-cards': 'Konstruksi',
-        'material-cards':   'Material',
-        'tools-cards':      'Peralatan',
-    };
-    const prefix = prefixMap[containerId] || 'Item';
+    let prefix = 'Item';
+    if(containerId.includes('konstruksi')) prefix = 'Konstruksi';
+    else if(containerId.includes('material')) prefix = 'Material';
+    else if(containerId.includes('tools')) prefix = 'Peralatan';
+    
     document.querySelectorAll(`#${containerId} .upload-card`).forEach((card, i) => {
         const label = card.querySelector('.card-label');
         if (label) label.textContent = `${prefix} #${i + 1}`;

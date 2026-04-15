@@ -17,22 +17,32 @@ function generateSafeUUID() {
     });
 }
 
-async function loadToolsSaved() {
+async function loadToolsSaved(filter = '') {
     const saved = document.getElementById('tools-saved');
     if (!saved) return;
     
     saved.innerHTML = getAdminSkeleton(3);
     try {
-        const tools = await fetchBackend('/api/tools?all=true');
-        window.allTools = tools;
+        if (!window.allTools || window.allTools.length === 0 || filter === '') {
+            const tools = await fetchBackend('/api/tools?all=true');
+            window.allTools = tools;
+        }
+
+        const filtered = filter
+            ? window.allTools.filter(t =>
+                t.name.toLowerCase().includes(filter.toLowerCase()) ||
+                (t.standard && t.standard.toLowerCase().includes(filter.toLowerCase()))
+              )
+            : window.allTools;
+
         saved.innerHTML = '';
         
-        if (!tools || tools.length === 0) {
-            saved.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px;">Belum ada data tersimpan</div>';
+        if (!filtered || filtered.length === 0) {
+            saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">${filter ? 'Tidak ada peralatan ditemukan' : 'Belum ada data tersimpan'}</div>`;
             return;
         }
 
-        tools.forEach(t => {
+        filtered.forEach(t => {
             const catClass = t.category === 'k3' ? 'badge-red' : t.category === 'teknis' ? 'badge-blue' : 'badge-yellow';
             const catLabel = t.categoryLabel || t.category || '-';
             const hasFile = !!t.file3d;
@@ -98,7 +108,111 @@ function editTool(id) {
 
     const modal = document.getElementById('edit-modal');
     if (modal) modal.classList.add('active');
+
+    // Inisialisasi Live Preview
+    const assets = (t.file3d && t.file3d !== '-') ? [{ file: t.file3d, name: t.name }] : [];
+    refreshAdminPreviewSelector(assets);
 }
+
+// ================= LIVE PREVIEW LOGIC =================
+function refreshAdminPreviewSelector(assets) {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+
+    selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
+
+    if(assets && assets.length > 0) {
+        assets.forEach((a, idx) => {
+            if(a.file && a.file !== '-') {
+                const opt = document.createElement('option');
+                opt.value = a.file;
+                opt.textContent = a.name || `File ${idx+1}`;
+                selector.appendChild(opt);
+            }
+        });
+        
+        if(selector.options.length > 1) {
+            selector.selectedIndex = 1;
+            changeAdminPreview();
+        } else {
+            viewer.style.display = 'none';
+            emptyState.style.display = 'flex';
+        }
+    } else {
+        viewer.style.display = 'none';
+        emptyState.style.display = 'flex';
+    }
+}
+
+window.changeAdminPreview = function() {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+    
+    if(selector.value) {
+        viewer.setAttribute('src', selector.value);
+        viewer.style.display = 'block';
+        emptyState.style.display = 'none';
+        viewer.dismissPoster && viewer.dismissPoster();
+    } else {
+        viewer.removeAttribute('src');
+        viewer.style.display = 'none';
+        emptyState.style.display = 'flex';
+    }
+};
+
+window.syncAdminPreviewDropdown = function() {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+
+    const cards = document.querySelectorAll('#edit-tools-cards .upload-card');
+    const currentValue = selector.value;
+    selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
+    
+    let hasValidOption = false;
+    cards.forEach((card, idx) => {
+        const nameEl = card.querySelector('.t-name');
+        const nameText = nameEl && nameEl.value.trim() ? nameEl.value.trim() : `Peralatan ${idx+1}`;
+        const fileInput = card.querySelector('input[type="file"]');
+        
+        let fileUrl = '';
+        let isLocal = false;
+        
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            fileUrl = URL.createObjectURL(fileInput.files[0]);
+            isLocal = true;
+        } else if (card.dataset.oldFile && card.dataset.oldFile !== '-') {
+            fileUrl = card.dataset.oldFile;
+        }
+
+        if (fileUrl) {
+            const opt = document.createElement('option');
+            opt.value = fileUrl;
+            opt.textContent = isLocal ? `[Baru] ${nameText}` : nameText;
+            selector.appendChild(opt);
+            hasValidOption = true;
+        }
+    });
+
+    if (hasValidOption) {
+        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[selector.options.length - 1].value : "");
+    } else {
+        selector.value = "";
+    }
+    window.changeAdminPreview();
+};
+
+window.previewLocalFile = function(file) {
+    if(file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
+        window.syncAdminPreviewDropdown();
+    }
+};
 
 function closeEditModal() {
     window.currentEditingId = null;
@@ -130,6 +244,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
     const card       = document.createElement('div');
     card.className   = 'upload-card';
     card.dataset.idx = index;
+    card.style       = 'flex-shrink: 0; padding: 14px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;';
     card.innerHTML   = `
         <div class="upload-card-header">
             <span class="card-label" style="font-size:12px; font-weight:600; color:#F59E0B;">Peralatan #${index + 1}</span>
@@ -191,6 +306,16 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                         <span style="font-size:11px;color:rgba(255,255,255,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
                 </div>
+
+                <!-- Internal 3D Preview (Only for Create Form, Edit Modal has separate large viewer) -->
+                ${containerId !== 'edit-tools-cards' ? `
+                <div class="card-model-viewer-container" style="display:none; margin-top:4px; height:200px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); position:relative;">
+                    <model-viewer class="internal-viewer" src="" 
+                        style="width: 100%; height: 100%; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);" 
+                        camera-controls auto-rotate interaction-prompt="none" shadow-intensity="1">
+                    </model-viewer>
+                </div>
+                ` : ''}
 
             </div>
         </div>
@@ -340,4 +465,16 @@ function resetToolsForm() {
 document.addEventListener('DOMContentLoaded', () => {
     addToolsCard();
     loadToolsSaved();
+
+    // Search bar untuk Data Tersimpan
+    const searchInput = document.getElementById('search-saved-tools');
+    if (searchInput) {
+        let debounceTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                loadToolsSaved(searchInput.value.trim());
+            }, 300);
+        });
+    }
 });

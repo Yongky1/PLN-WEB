@@ -483,13 +483,15 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                     </div>
                 </div>
                 
-                <!-- Internal 3D Preview (Hidden by default) -->
+                <!-- Internal 3D Preview (Only for Create Form, Edit Modal has separate large viewer) -->
+                ${containerId !== 'edit-konstruksi-cards' ? `
                 <div class="card-model-viewer-container" style="display:none; margin-top:4px; height:200px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); position:relative;">
                     <model-viewer class="internal-viewer" src="" 
                         style="width: 100%; height: 100%; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);" 
                         camera-controls auto-rotate interaction-prompt="none" shadow-intensity="1">
                     </model-viewer>
                 </div>
+                ` : ''}
 
             </div>
         </div>

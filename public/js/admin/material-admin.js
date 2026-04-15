@@ -105,7 +105,116 @@ function editMaterial(id) {
 
     const modal = document.getElementById('edit-modal');
     if (modal) modal.classList.add('active');
+
+    // Inisialisasi Live Preview Dropdown
+    refreshAdminPreviewSelector(m.assets);
 }
+
+// ================= LIVE PREVIEW LOGIC =================
+function refreshAdminPreviewSelector(assets) {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+
+    // Bersihkan dropdown
+    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
+
+    if(assets && assets.length > 0) {
+        assets.forEach((a, idx) => {
+            if(a.file && a.file !== '-') {
+                const opt = document.createElement('option');
+                opt.value = a.file;
+                opt.textContent = `Varian ${idx+1}: ${a.name}`;
+                selector.appendChild(opt);
+            }
+        });
+        
+        // Auto select first file if available
+        if(selector.options.length > 1) {
+            selector.selectedIndex = 1;
+            changeAdminPreview();
+        } else {
+            viewer.style.display = 'none';
+            emptyState.style.display = 'flex';
+        }
+    } else {
+        viewer.style.display = 'none';
+        emptyState.style.display = 'flex';
+    }
+}
+
+window.changeAdminPreview = function() {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+    
+    if(selector.value) {
+        viewer.setAttribute('src', selector.value);
+        viewer.style.display = 'block';
+        emptyState.style.display = 'none';
+        viewer.dismissPoster && viewer.dismissPoster();
+    } else {
+        viewer.removeAttribute('src');
+        viewer.style.display = 'none';
+        emptyState.style.display = 'flex';
+    }
+};
+
+window.syncAdminPreviewDropdown = function() {
+    const selector = document.getElementById('admin-preview-selector');
+    const viewer = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if(!selector || !viewer || !emptyState) return;
+
+    const cards = document.querySelectorAll('#edit-material-cards .upload-card');
+    const currentValue = selector.value;
+    
+    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
+    
+    let hasValidOption = false;
+
+    cards.forEach((card, idx) => {
+        const nameEl = card.querySelector('.m-name');
+        const nameText = nameEl && nameEl.value.trim() ? nameEl.value.trim() : `Varian ${idx+1}`;
+        const fileInput = card.querySelector('input[type="file"]');
+        
+        let fileUrl = '';
+        let isLocal = false;
+        
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            fileUrl = URL.createObjectURL(fileInput.files[0]);
+            isLocal = true;
+        } else if (card.dataset.oldFile && card.dataset.oldFile !== '-') {
+            fileUrl = card.dataset.oldFile;
+        }
+
+        if (fileUrl) {
+            const opt = document.createElement('option');
+            opt.value = fileUrl;
+            opt.textContent = isLocal ? `[Baru] ${nameText}` : nameText;
+            selector.appendChild(opt);
+            hasValidOption = true;
+        }
+    });
+
+    if (hasValidOption) {
+        // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama/terakhir 
+        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[selector.options.length - 1].value : "");
+    } else {
+        selector.value = "";
+    }
+    
+    window.changeAdminPreview();
+}
+
+window.previewLocalFile = function(file) {
+    if(file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
+        window.syncAdminPreviewDropdown();
+    }
+};
 
 function closeEditModal() {
     window.currentEditingId = null;
@@ -137,6 +246,7 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
     const card       = document.createElement('div');
     card.className   = 'upload-card';
     card.dataset.idx = index;
+    card.style       = 'flex-shrink: 0; padding: 14px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;';
     card.innerHTML   = `
         <div class="upload-card-header">
             <span class="card-label" style="font-size:12px; font-weight:600; color:#818CF8;">Material #${index + 1}</span>
@@ -169,6 +279,16 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
                         <span style="font-size:11px;color:rgba(255,255,255,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
                 </div>
+
+                <!-- Internal 3D Preview (Only for Create Form, Edit Modal has separate large viewer) -->
+                ${containerId !== 'edit-material-cards' ? `
+                <div class="card-model-viewer-container" style="display:none; margin-top:4px; height:200px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); position:relative;">
+                    <model-viewer class="internal-viewer" src="" 
+                        style="width: 100%; height: 100%; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);" 
+                        camera-controls auto-rotate interaction-prompt="none" shadow-intensity="1">
+                    </model-viewer>
+                </div>
+                ` : ''}
 
             </div>
         </div>
