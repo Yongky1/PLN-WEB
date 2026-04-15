@@ -277,12 +277,40 @@ app.get('/', (req, res) => {
     });
 });
 
-app.get('/tools', (req, res) => {
-    res.render('tools', {
-        title: 'Tools & Alat K3 — PLN Pusdiklat',
-        toolsData,
-        currentPage: 'tools'
-    });
+app.get('/tools', async (req, res) => {
+    try {
+        const fetchRes = await fetch(`${BACKEND_URL}/api/tools`);
+        if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
+        const dbTools = await fetchRes.json();
+
+        // Mapping kolom DB → field yang dibutuhkan tools.ejs
+        const toolsData = dbTools.map(t => ({
+            id:            t.id,
+            name:          t.name,
+            category:      t.category      || 'teknis',
+            categoryLabel: t.categoryLabel  || t.category || 'Teknis',
+            icon:          t.icon           || '🔧',
+            bgGradient:    t.bgGradient     || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
+            description:   t.description   || '',
+            standard:      t.standard      || '-',
+            status:        t.status        || 'Wajib',
+            file3d:        t.file3d        || null,
+            procedure:     t.procedure     || [],
+        }));
+
+        res.render('tools', {
+            title: 'Tools & Alat K3 — PLN Pusdiklat',
+            toolsData,
+            currentPage: 'tools'
+        });
+    } catch (err) {
+        console.error('[/tools] Gagal fetch data dari backend:', err.message);
+        res.render('tools', {
+            title: 'Tools & Alat K3 — PLN Pusdiklat',
+            toolsData: [],
+            currentPage: 'tools'
+        });
+    }
 });
 
 app.get('/material', async (req, res) => {
