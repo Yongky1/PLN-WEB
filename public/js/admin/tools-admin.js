@@ -93,7 +93,10 @@ function editTool(id) {
         card.querySelector('.t-standard').value = t.standard || '';
         card.querySelector('.t-cat').value = t.category || 'teknis';
         card.querySelector('.t-status').value = t.status || 'Wajib';
-        card.querySelector('.t-desc').value = t.description || '';
+        const rawToolDesc = (t.description || '').substring(0, 200);
+        card.querySelector('.t-desc').value = rawToolDesc;
+        const tCounter = card.querySelector('.t-desc-counter');
+        if (tCounter) tCounter.textContent = rawToolDesc.length + '/200';
         
         if (t.file3d && t.file3d !== '-') {
             const dropLabel = card.querySelector('.drop-label');
@@ -285,8 +288,8 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 </div>
 
                 <div>
-                    <label class="admin-label">Deskripsi</label>
-                    <textarea class="admin-input t-desc" rows="2" placeholder="Jelaskan fungsi alat..." style="resize:vertical;"></textarea>
+                    <label class="admin-label">Deskripsi <span class="t-desc-counter" style="font-size:10px; color:rgba(255,255,255,0.3); font-weight:400;">0/200</span></label>
+                    <textarea class="admin-input t-desc" rows="2" maxlength="200" placeholder="Jelaskan fungsi alat..." style="resize:vertical;" oninput="this.closest('.upload-card').querySelector('.t-desc-counter').textContent = this.value.length + '/200'"></textarea>
                 </div>
 
                 <div>

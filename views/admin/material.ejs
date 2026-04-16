@@ -63,8 +63,8 @@
                     </div>
                 </div>
                 <div>
-                    <label class="admin-label">Deskripsi</label>
-                    <textarea id="mat-modul-desc" class="admin-input" rows="2" placeholder="Deskripsi material ini..." style="resize:vertical;"></textarea>
+                    <label class="admin-label">Deskripsi <span id="add-desc-char-count" style="font-size:10px; color:rgba(255,255,255,0.3); font-weight:400;">0/200</span></label>
+                    <textarea id="mat-modul-desc" class="admin-input" rows="2" maxlength="200" placeholder="Deskripsi material ini..." style="resize:vertical;" oninput="document.getElementById('add-desc-char-count').textContent = this.value.length + '/200'"></textarea>
                 </div>
                 <div>
                     <label class="admin-label">Kategori</label>
