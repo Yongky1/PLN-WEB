@@ -21,23 +21,29 @@ function openModal(id) {
     if (!mat) return;
 
     // ---- Populate Header ----
-    document.getElementById('mat-modal-category').textContent = mat.categoryLabel || '';
-    document.getElementById('mat-modal-name').textContent     = mat.name          || '';
-    document.getElementById('mat-modal-code').textContent     = mat.code          || '';
-    document.getElementById('mat-modal-icon').textContent     = mat.icon          || '';
-    document.getElementById('mat-modal-desc').textContent     = mat.description   || mat.shortDesc || '';
+    // Category: preserve inner pulse dot, append label text after it
+    const catEl = document.getElementById('mat-modal-category');
+    catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${mat.categoryLabel || ''}`;
 
-    // ---- Specs ----
+    document.getElementById('mat-modal-name').textContent = mat.name       || '';
+    document.getElementById('mat-modal-code').textContent = mat.code       || '';
+    document.getElementById('mat-modal-icon').textContent = mat.icon       || '';
+    // Truncate description: max 200 chars
+    const rawDesc = mat.description || mat.shortDesc || '';
+    const truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
+    document.getElementById('mat-modal-desc').textContent = truncDesc;
+
+    // ---- Specs (Apple-style rows) ----
     const specsEl = document.getElementById('mat-modal-specs');
     if (mat.specs && typeof mat.specs === 'object' && Object.keys(mat.specs).length) {
         specsEl.innerHTML = Object.entries(mat.specs).map(([k, v]) => `
-            <div class="mat-spec-row">
-                <span class="mat-spec-key">${k}</span>
-                <span class="mat-spec-val">${v}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
+                <span style="font-size:12px; color:rgba(255,255,255,0.4); font-family:'Inter',sans-serif;">${k}</span>
+                <span style="font-size:12px; font-weight:700; color:#FFD500; font-family:monospace; letter-spacing:0.04em;">${v}</span>
             </div>
         `).join('');
     } else {
-        specsEl.innerHTML = `<p class="mat-spec-empty">Spesifikasi belum tersedia.</p>`;
+        specsEl.innerHTML = `<p style="font-size:12px; color:rgba(255,255,255,0.25); font-style:italic; padding: 8px 0;">Spesifikasi belum tersedia.</p>`;
     }
 
     // ---- 3D: menggunakan model-viewer persis seperti ModulViewer ----

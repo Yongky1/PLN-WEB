@@ -73,7 +73,12 @@ function editMaterial(id) {
     // Populasikan Modal Edit
     if(document.getElementById('edit-mat-modul-name')) document.getElementById('edit-mat-modul-name').value = m.name || '';
     if(document.getElementById('edit-mat-modul-code')) document.getElementById('edit-mat-modul-code').value = m.code || '';
-    if(document.getElementById('edit-mat-modul-desc')) document.getElementById('edit-mat-modul-desc').value = m.description || '';
+    if(document.getElementById('edit-mat-modul-desc')) {
+        const desc = (m.description || '').substring(0, 200);
+        document.getElementById('edit-mat-modul-desc').value = desc;
+        const counter = document.getElementById('desc-char-count');
+        if (counter) counter.textContent = desc.length + '/200';
+    }
     if(document.getElementById('edit-mat-modul-cat')) document.getElementById('edit-mat-modul-cat').value = m.categoryLabel || 'Pengencang';
 
     const container = document.getElementById('edit-material-cards');
