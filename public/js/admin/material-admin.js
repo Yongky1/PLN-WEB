@@ -81,6 +81,17 @@ function editMaterial(id) {
     }
     if(document.getElementById('edit-mat-modul-cat')) document.getElementById('edit-mat-modul-cat').value = m.categoryLabel || 'Pengencang';
 
+    const imgPreview = document.getElementById('edit-mat-modul-image-preview');
+    if (imgPreview) {
+        if (m.image) {
+            imgPreview.src = m.image;
+            imgPreview.style.display = 'block';
+        } else {
+            imgPreview.src = '';
+            imgPreview.style.display = 'none';
+        }
+    }
+
     const container = document.getElementById('edit-material-cards');
     if (container) {
         container.innerHTML = '';
@@ -270,7 +281,7 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
                 <div>
                     <label class="admin-label">File Model 3D (.glb / .gltf)</label>
                     <div class="file-drop-zone">
-                        <input type="file" accept=".glb,.gltf"
+                        <input type="file" class="m-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
                         <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
@@ -327,6 +338,8 @@ async function processMaterialSubmission(isEditing) {
     const modulDesc  = document.getElementById(`${prefix}mat-modul-desc`) ? document.getElementById(`${prefix}mat-modul-desc`).value.trim() : '';
     const catEl      = document.getElementById(`${prefix}mat-modul-cat`);
     const category   = catEl ? catEl.value : 'Lainnya';
+    const imageInput = document.getElementById(`${prefix}mat-modul-image`);
+    const imageFile  = imageInput && imageInput.files ? imageInput.files[0] : null;
 
     if (!modulName || !modulCode) {
         showToast('Nama Material & Kode wajib diisi!', 'error');
@@ -351,7 +364,7 @@ async function processMaterialSubmission(isEditing) {
     cards.forEach(card => {
         const nameEl = card.querySelector('.m-name');
         const name   = nameEl ? nameEl.value.trim() : '';
-        const fileInput = card.querySelector('input[type=file]');
+        const fileInput = card.querySelector('.m-file-3d');
         const file   = fileInput ? fileInput.files[0] : null;
 
         if (!name) {
@@ -374,12 +387,22 @@ async function processMaterialSubmission(isEditing) {
     saveBtn.disabled = true;
 
     try {
+        let uploadedImageUrl = null;
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append('file', imageFile);
+            const imgRes = await fetchBackend('/api/upload-image', { method: 'POST', body: formData });
+            uploadedImageUrl = imgRes.publicUrl;
+        }
+
         const materialBody = {
             name: modulName,
             code: modulCode,
             description: modulDesc,
             categoryLabel: category
         };
+        
+        if (uploadedImageUrl) materialBody.image = uploadedImageUrl;
         
         if (isEditing) {
             // -- MODE EDIT --

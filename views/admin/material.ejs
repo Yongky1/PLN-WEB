@@ -76,6 +76,11 @@
                         <option value="Lainnya">Lainnya</option>
                     </select>
                 </div>
+                <div>
+                    <label class="admin-label">Cover Gambar (Opsional)</label>
+                    <input type="file" id="mat-modul-image" class="admin-input" accept="image/png, image/jpeg, image/jpg" style="padding: 10px;">
+                    <span style="font-size:10px; color:rgba(255,255,255,0.3); margin-top:4px; display:block;">Maks. 5MB</span>
+                </div>
             </div>
 
             <!-- Asset 3D Cards -->
@@ -131,6 +136,13 @@
                     <option value="Penyangga">Penyangga</option>
                     <option value="Lainnya">Lainnya</option>
                 </select>
+            </div>
+            <div>
+                <label class="admin-label">Cover Gambar (Opsional)</label>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <img id="edit-mat-modul-image-preview" src="" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; display: none; background: rgba(255,255,255,0.1);">
+                    <input type="file" id="edit-mat-modul-image" class="admin-input" accept="image/png, image/jpeg, image/jpg" style="padding: 6px 12px; flex: 1;">
+                </div>
             </div>
         </div>
 

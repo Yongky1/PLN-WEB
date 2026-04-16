@@ -264,6 +264,21 @@ function editKonstruksi(id) {
     renderMaterialList('edit-modul-materials-list', window._allMaterialsGlobal, m.materials || [], true);
     renderToolList('edit-modul-tools-list', window._allToolsGlobal, m.tools || [], true);
 
+    // Preview Image Modal
+    const imgPreview = document.getElementById('edit-modul-image-preview');
+    const dropLabel = document.getElementById('edit-modul-image-drop-label');
+    if (imgPreview) {
+        if (m.image) {
+            imgPreview.src = m.image;
+            imgPreview.style.display = 'block';
+            if(dropLabel) dropLabel.style.display = 'none';
+        } else {
+            imgPreview.src = '';
+            imgPreview.style.display = 'none';
+            if(dropLabel) dropLabel.style.display = 'flex';
+        }
+    }
+
     const container = document.getElementById('edit-konstruksi-cards');
     if (container) {
         container.innerHTML = '';
@@ -468,7 +483,7 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                 <div>
                     <label class="admin-label">File Model 3D (.glb / .gltf)</label>
                     <div class="file-drop-zone">
-                        <input type="file" accept=".glb,.gltf"
+                        <input type="file" class="k-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
                         <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
@@ -539,6 +554,9 @@ async function processKonstruksiSubmission(isEditing) {
     const modulDesc  = document.getElementById(`${prefix}modul-desc`) ? document.getElementById(`${prefix}modul-desc`).value.trim() : '';
     const statusEl   = document.getElementById(`${prefix}modul-status`);
     const status     = statusEl ? statusEl.value : 'Aktif';
+    const imageInput = document.getElementById(`${prefix}modul-image`);
+    const imageFile  = imageInput && imageInput.files ? imageInput.files[0] : null;
+
     // Kumpulkan Material & Tools yang dipilih via checkbox
     const matListId  = isEditing ? 'edit-modul-materials-list' : 'modul-materials-list';
     const toolListId = isEditing ? 'edit-modul-tools-list' : 'modul-tools-list';
@@ -566,7 +584,7 @@ async function processKonstruksiSubmission(isEditing) {
     cards.forEach(card => {
         const nameEl = card.querySelector('.k-name');
         const name   = nameEl ? nameEl.value.trim() : '';
-        const fileInput = card.querySelector('input[type=file]');
+        const fileInput = card.querySelector('.k-file-3d');
         const file   = fileInput ? fileInput.files[0] : null;
 
         if (!name) {
@@ -594,6 +612,14 @@ async function processKonstruksiSubmission(isEditing) {
     }
 
     try {
+        let uploadedImageUrl = null;
+        if (imageFile) {
+            const formData = new FormData();
+            formData.append('file', imageFile);
+            const imgRes = await fetchBackend('/api/upload-image', { method: 'POST', body: formData });
+            uploadedImageUrl = imgRes.publicUrl;
+        }
+
         const moduleBody = {
             title: modulName,
             description: modulDesc,
@@ -603,6 +629,8 @@ async function processKonstruksiSubmission(isEditing) {
             materials: selectedMaterials,
             tools: selectedTools
         };
+
+        if (uploadedImageUrl) moduleBody.image = uploadedImageUrl;
 
         if (isEditing) {
             // -- MODE EDIT --

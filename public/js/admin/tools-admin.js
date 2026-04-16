@@ -98,6 +98,18 @@ function editTool(id) {
         const tCounter = card.querySelector('.t-desc-counter');
         if (tCounter) tCounter.textContent = rawToolDesc.length + '/200';
         
+        // Preview Image 
+        const imgPreview = card.querySelector('.t-image-preview');
+        if (imgPreview) {
+            if (t.image) {
+                imgPreview.src = t.image;
+                imgPreview.style.display = 'block';
+            } else {
+                imgPreview.src = '';
+                imgPreview.style.display = 'none';
+            }
+        }
+        
         if (t.file3d && t.file3d !== '-') {
             const dropLabel = card.querySelector('.drop-label');
             const fn = decodeURIComponent(t.file3d.split('-3d/').pop());
@@ -292,10 +304,19 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                     <textarea class="admin-input t-desc" rows="2" maxlength="200" placeholder="Jelaskan fungsi alat..." style="resize:vertical;" oninput="this.closest('.upload-card').querySelector('.t-desc-counter').textContent = this.value.length + '/200'"></textarea>
                 </div>
 
+                <!-- Cover Gambar -->
+                <div>
+                    <label class="admin-label">Cover Gambar Peralatan (Opsional)</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <img class="t-image-preview" src="" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; display: none; background: rgba(255,255,255,0.1);">
+                        <input type="file" class="admin-input t-image-file" accept="image/png, image/jpeg, image/jpg" style="padding: 6px 12px; flex: 1;">
+                    </div>
+                </div>
+
                 <div>
                     <label class="admin-label">File Model 3D (.glb / .gltf)</label>
                     <div class="file-drop-zone">
-                        <input type="file" accept=".glb,.gltf"
+                        <input type="file" class="t-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
                         <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
@@ -353,14 +374,15 @@ async function processToolSubmission(isEditing) {
         const catTxt  = catEl.options[catEl.selectedIndex].text;
         const status  = card.querySelector('.t-status').value;
         const desc    = card.querySelector('.t-desc').value.trim();
-        const file    = card.querySelector('input[type=file]').files[0];
+        const file    = card.querySelector('.t-file-3d') ? card.querySelector('.t-file-3d').files[0] : undefined;
+        const imageFile = card.querySelector('.t-image-file') ? card.querySelector('.t-image-file').files[0] : null;
 
         if (!name) {
             hasError = true;
             nameEl.style.borderColor = '#EF4444';
         } else {
             nameEl.style.borderColor = '';
-            itemsToUpload.push({ name, std, catVal, catTxt, status, desc, file, _cardRef: card });
+            itemsToUpload.push({ name, std, catVal, catTxt, status, desc, file, imageFile, _cardRef: card });
         }
     });
 
@@ -379,6 +401,7 @@ async function processToolSubmission(isEditing) {
         for (let i = 0; i < itemsToUpload.length; i++) {
             const item = itemsToUpload[i];
             let assetUrl = null;
+            let imgUrl   = null;
 
             if (item.file) {
                  const formData = new FormData();
@@ -391,8 +414,19 @@ async function processToolSubmission(isEditing) {
                  assetUrl = uploadRes.publicUrl;
             }
 
+            if (item.imageFile) {
+                 const formData = new FormData();
+                 formData.append('file', item.imageFile);
+                 
+                 const imgRes = await fetchBackend('/api/upload-image', {
+                     method: 'POST',
+                     body: formData
+                 });
+                 imgUrl = imgRes.publicUrl;
+            }
+
             if (isEditing && i === 0) {
-                 // Mode Edit (Hanya card pertama yang meng-update data lama, card sisanya dibuat baru)
+                 // Mode Edit
                  const toolBody = {
                      name: item.name,
                      standard: item.std,
@@ -401,8 +435,8 @@ async function processToolSubmission(isEditing) {
                      status: item.status,
                      description: item.desc
                  };
-                 // Jika ada upload gambar baru, sertakan file barunya. Jika tidak, backend tidak akan merubah data file yang lama.
                  if (assetUrl) toolBody.file3d = assetUrl;
+                 if (imgUrl)   toolBody.image  = imgUrl;
 
                  await fetchBackend(`/api/tools/${window.currentEditingId}`, {
                      method: 'PUT',
@@ -421,6 +455,8 @@ async function processToolSubmission(isEditing) {
                      description: item.desc,
                      file3d: assetUrl || '-' // default jika kosong
                  };
+                 if (imgUrl) toolBody.image = imgUrl;
+
                  await fetchBackend('/api/tools', {
                      method: 'POST',
                      body: JSON.stringify(toolBody)
