@@ -265,17 +265,27 @@ function editKonstruksi(id) {
     renderToolList('edit-modul-tools-list', window._allToolsGlobal, m.tools || [], true);
 
     // Preview Image Modal
+    const imgPreviewContainer = document.getElementById('edit-modul-image-preview-container');
     const imgPreview = document.getElementById('edit-modul-image-preview');
-    const dropLabel = document.getElementById('edit-modul-image-drop-label');
-    if (imgPreview) {
+    const emptyState = document.getElementById('edit-img-empty');
+    const filledState = document.getElementById('edit-img-filled');
+    const dropZone = document.getElementById('edit-modul-image-drop-zone');
+    const delFlag = document.getElementById('edit-modul-image-deleted');
+    if (delFlag) delFlag.value = 'false';
+    
+    if (imgPreview && imgPreviewContainer) {
         if (m.image) {
             imgPreview.src = m.image;
-            imgPreview.style.display = 'block';
-            if(dropLabel) dropLabel.style.display = 'none';
+            imgPreviewContainer.style.display = 'block';
+            if (emptyState) emptyState.style.display = 'none';
+            if (filledState) filledState.style.display = 'flex';
+            if (dropZone) dropZone.style.borderColor = 'rgba(0,229,255,0.3)';
         } else {
             imgPreview.src = '';
-            imgPreview.style.display = 'none';
-            if(dropLabel) dropLabel.style.display = 'flex';
+            imgPreviewContainer.style.display = 'none';
+            if (emptyState) emptyState.style.display = 'flex';
+            if (filledState) filledState.style.display = 'none';
+            if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
         }
     }
 
@@ -630,7 +640,14 @@ async function processKonstruksiSubmission(isEditing) {
             tools: selectedTools
         };
 
-        if (uploadedImageUrl) moduleBody.image = uploadedImageUrl;
+        if (uploadedImageUrl) {
+            moduleBody.image = uploadedImageUrl;
+        } else if (isEditing) {
+            const delFlag = document.getElementById('edit-modul-image-deleted');
+            if (delFlag && delFlag.value === 'true') {
+                moduleBody.image = '';
+            }
+        }
 
         if (isEditing) {
             // -- MODE EDIT --
