@@ -81,14 +81,30 @@ function editMaterial(id) {
     }
     if(document.getElementById('edit-mat-modul-cat')) document.getElementById('edit-mat-modul-cat').value = m.categoryLabel || 'Pengencang';
 
+    const imgPreviewContainer = document.getElementById('edit-mat-modul-image-preview-container');
     const imgPreview = document.getElementById('edit-mat-modul-image-preview');
-    if (imgPreview) {
+    const emptyState = document.getElementById('edit-mat-img-empty');
+    const filledState = document.getElementById('edit-mat-img-filled');
+    const dropZone = document.getElementById('edit-mat-modul-image-drop-zone');
+    const imgWrapper = document.getElementById('edit-mat-modul-image-wrapper');
+    const delFlag = document.getElementById('edit-mat-modul-image-deleted');
+    if (delFlag) delFlag.value = 'false';
+    
+    if (imgPreview && imgPreviewContainer) {
         if (m.image) {
             imgPreview.src = m.image;
-            imgPreview.style.display = 'block';
+            imgPreviewContainer.style.display = 'block';
+            if (imgWrapper) imgWrapper.style.gridTemplateColumns = '1fr 1fr';
+            if (emptyState) emptyState.style.display = 'none';
+            if (filledState) filledState.style.display = 'flex';
+            if (dropZone) dropZone.style.borderColor = 'rgba(0,229,255,0.3)';
         } else {
             imgPreview.src = '';
-            imgPreview.style.display = 'none';
+            imgPreviewContainer.style.display = 'none';
+            if (imgWrapper) imgWrapper.style.gridTemplateColumns = '1fr';
+            if (emptyState) emptyState.style.display = 'flex';
+            if (filledState) filledState.style.display = 'none';
+            if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
         }
     }
 

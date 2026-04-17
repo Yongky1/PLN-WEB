@@ -78,8 +78,53 @@
                 </div>
                 <div>
                     <label class="admin-label">Cover Gambar (Opsional)</label>
-                    <input type="file" id="mat-modul-image" class="admin-input" accept="image/png, image/jpeg, image/jpg" style="padding: 10px;">
-                    <span style="font-size:10px; color:rgba(255,255,255,0.3); margin-top:4px; display:block;">Maks. 5MB</span>
+                    <div id="mat-modul-image-drop-zone" class="file-drop-zone" onclick="document.getElementById('mat-modul-image').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s;">
+                        <div id="mat-add-img-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height: 100%;">
+                            <svg class="drop-icon" style="width:24px;height:24px;color:rgba(255,255,255,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <div class="drop-label" style="font-size: 14px; color: rgba(255,255,255,0.6);">Pilih Foto Thumbnail</div>
+                            <span style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
+                        </div>
+                        <div id="mat-add-img-filled" style="display:none; flex-direction:column; align-items:center; justify-content:center; height: 100%;">
+                            <svg style="width:28px;height:28px;color:#00E5FF; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div style="font-size: 14px; color: #00E5FF; font-weight:600;">Thumbnail Terpasang</div>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Klik untuk ganti foto</div>
+                        </div>
+                    </div>
+
+                    <input type="file" id="mat-modul-image" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="
+                        if(this.files && this.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                document.getElementById('mat-modul-image-preview-container').style.display = 'block';
+                                document.getElementById('mat-modul-image-preview-img').src = e.target.result;
+                                document.getElementById('mat-add-img-empty').style.display = 'none';
+                                document.getElementById('mat-add-img-filled').style.display = 'flex';
+                                document.getElementById('mat-modul-image-drop-zone').style.borderColor = 'rgba(0,229,255,0.3)';
+                            };
+                            reader.readAsDataURL(this.files[0]);
+                        }
+                    ">
+
+                    <div id="mat-modul-image-preview-container" style="display:none; margin-top: 10px; position: relative; width: 100%; aspect-ratio: 16/9; max-height: 280px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                        <img id="mat-modul-image-preview-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" onclick="document.getElementById('mat-modul-image').click()" style="background: rgba(0, 229, 255, 0.2); border: 1px solid #00E5FF; color: #00E5FF; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Ganti Foto</button>
+                                <button type="button" onclick="
+                                    document.getElementById('mat-modul-image').value = '';
+                                    document.getElementById('mat-modul-image-preview-img').src = '';
+                                    document.getElementById('mat-modul-image-preview-container').style.display = 'none';
+                                    document.getElementById('mat-add-img-empty').style.display = 'flex';
+                                    document.getElementById('mat-add-img-filled').style.display = 'none';
+                                    document.getElementById('mat-modul-image-drop-zone').style.borderColor = 'rgba(255,255,255,0.2)';
+                                " style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #EF4444; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Hapus Thumbnail</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -139,10 +184,59 @@
             </div>
             <div>
                 <label class="admin-label">Cover Gambar (Opsional)</label>
-                <div style="display: flex; gap: 8px; align-items: center;">
-                    <img id="edit-mat-modul-image-preview" src="" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; display: none; background: rgba(255,255,255,0.1);">
-                    <input type="file" id="edit-mat-modul-image" class="admin-input" accept="image/png, image/jpeg, image/jpg" style="padding: 6px 12px; flex: 1;">
+                <div id="edit-mat-modul-image-wrapper" style="display: grid; grid-template-columns: 1fr; gap: 12px; min-height: 140px;">
+                    <div id="edit-mat-modul-image-drop-zone" class="file-drop-zone" onclick="document.getElementById('edit-mat-modul-image').click()" style="cursor: pointer; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s;">
+                        <div id="edit-mat-img-empty" style="display:flex; flex-direction:column; align-items:center;">
+                            <svg class="drop-icon" style="width:24px;height:24px;color:rgba(255,255,255,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                            <div class="drop-label" style="font-size: 14px; color: rgba(255,255,255,0.6);">Pilih Foto Baru</div>
+                            <span style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
+                        </div>
+                        <div id="edit-mat-img-filled" style="display:none; flex-direction:column; align-items:center;">
+                            <svg style="width:28px;height:28px;color:#00E5FF; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            <div style="font-size: 14px; color: #00E5FF; font-weight:600;">Thumbnail Terpasang</div>
+                            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Klik untuk ganti foto</div>
+                        </div>
+                    </div>
+
+                    <input type="file" id="edit-mat-modul-image" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="
+                        if(this.files && this.files[0]) {
+                            const reader = new FileReader();
+                            reader.onload = function(e) {
+                                document.getElementById('edit-mat-modul-image-wrapper').style.gridTemplateColumns = '1fr 1fr';
+                                document.getElementById('edit-mat-modul-image-preview-container').style.display = 'block';
+                                document.getElementById('edit-mat-modul-image-preview').src = e.target.result;
+                                document.getElementById('edit-mat-modul-image-deleted').value = 'false';
+                                
+                                document.getElementById('edit-mat-img-empty').style.display = 'none';
+                                document.getElementById('edit-mat-img-filled').style.display = 'flex';
+                                document.getElementById('edit-mat-modul-image-drop-zone').style.borderColor = 'rgba(0,229,255,0.3)';
+                            };
+                            reader.readAsDataURL(this.files[0]);
+                        }
+                    ">
+
+                    <div id="edit-mat-modul-image-preview-container" style="display:none; position: relative; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                        <img id="edit-mat-modul-image-preview" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                            <button type="button" onclick="
+                                document.getElementById('edit-mat-modul-image').value = '';
+                                document.getElementById('edit-mat-modul-image-preview').src = '';
+                                document.getElementById('edit-mat-modul-image-wrapper').style.gridTemplateColumns = '1fr';
+                                document.getElementById('edit-mat-modul-image-preview-container').style.display = 'none';
+                                document.getElementById('edit-mat-modul-image-deleted').value = 'true';
+                                
+                                document.getElementById('edit-mat-img-empty').style.display = 'flex';
+                                document.getElementById('edit-mat-img-filled').style.display = 'none';
+                                document.getElementById('edit-mat-modul-image-drop-zone').style.borderColor = 'rgba(255,255,255,0.2)';
+                            " style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #EF4444; padding: 6px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight:600; transition: all 0.2s;">Hapus Thumbnail</button>
+                        </div>
+                    </div>
                 </div>
+                <input type="hidden" id="edit-mat-modul-image-deleted" value="false">
             </div>
         </div>
 

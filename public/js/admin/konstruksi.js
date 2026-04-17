@@ -270,6 +270,7 @@ function editKonstruksi(id) {
     const emptyState = document.getElementById('edit-img-empty');
     const filledState = document.getElementById('edit-img-filled');
     const dropZone = document.getElementById('edit-modul-image-drop-zone');
+    const imgWrapper = document.getElementById('edit-modul-image-wrapper');
     const delFlag = document.getElementById('edit-modul-image-deleted');
     if (delFlag) delFlag.value = 'false';
     
@@ -277,12 +278,14 @@ function editKonstruksi(id) {
         if (m.image) {
             imgPreview.src = m.image;
             imgPreviewContainer.style.display = 'block';
+            if (imgWrapper) imgWrapper.style.gridTemplateColumns = '1fr 1fr';
             if (emptyState) emptyState.style.display = 'none';
             if (filledState) filledState.style.display = 'flex';
             if (dropZone) dropZone.style.borderColor = 'rgba(0,229,255,0.3)';
         } else {
             imgPreview.src = '';
             imgPreviewContainer.style.display = 'none';
+            if (imgWrapper) imgWrapper.style.gridTemplateColumns = '1fr';
             if (emptyState) emptyState.style.display = 'flex';
             if (filledState) filledState.style.display = 'none';
             if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';

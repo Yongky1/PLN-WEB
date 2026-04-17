@@ -517,3 +517,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                loadToolsSaved(searchInput.value.trim());
+            }, 300);
+        });
+    }
+});
