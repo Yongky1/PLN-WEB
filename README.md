@@ -26,11 +26,6 @@ Frontend aplikasi web untuk ekosistem pembelajaran interaktif PLN Pusdiklat. Apl
 
 ---
 
-## 📤 Instruksi Persiapan (NAS Upload)
-
-> [!IMPORTANT]
-> Jangan menyertakan folder `node_modules` saat mengupload ke NAS. Pengguna selanjutnya cukup menjalankan `npm install`.
-
 1. **Install Dependensi**
 
    ```bash
@@ -51,12 +46,14 @@ Frontend aplikasi web untuk ekosistem pembelajaran interaktif PLN Pusdiklat. Apl
 Lakukan langkah ini di dalam folder `PLN-WEB`:
 
 1.  **Instalasi Dependensi (Wajib saat pertama kali):**
+
     ```bash
     npm install
     ```
 
 2.  **Menjalankan Proyek (Mode Pengembangan):**
     Menjalankan server dan Tailwind CSS secara paralel:
+
     ```bash
     npm run dev
     ```
