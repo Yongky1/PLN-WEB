@@ -100,14 +100,19 @@ function editTool(id) {
         
         // Preview Image 
         const imgPreview = card.querySelector('.t-image-preview');
+        const imgClearBtn = card.querySelector('.t-image-clear-btn');
+        const imgDelFlag = card.querySelector('.t-image-deleted');
         if (imgPreview) {
             if (t.image) {
                 imgPreview.src = t.image;
                 imgPreview.style.display = 'block';
+                if (imgClearBtn) imgClearBtn.style.display = 'block';
             } else {
                 imgPreview.src = '';
                 imgPreview.style.display = 'none';
+                if (imgClearBtn) imgClearBtn.style.display = 'none';
             }
+            if (imgDelFlag) imgDelFlag.value = 'false';
         }
         
         if (t.file3d && t.file3d !== '-') {
@@ -309,8 +314,10 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                     <label class="admin-label">Cover Gambar Peralatan (Opsional)</label>
                     <div style="display: flex; gap: 8px; align-items: center;">
                         <img class="t-image-preview" src="" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; display: none; background: rgba(255,255,255,0.1);">
-                        <input type="file" class="admin-input t-image-file" accept="image/png, image/jpeg, image/jpg" style="padding: 6px 12px; flex: 1;">
+                        <input type="file" class="admin-input t-image-file" accept="image/png, image/jpeg, image/jpg" style="padding: 6px 12px; flex: 1;" onchange="previewToolImage(this)">
+                        <button type="button" class="btn-danger t-image-clear-btn" style="display:none; padding:6px 10px;" onclick="clearToolImage(this)">Hapus</button>
                     </div>
+                    <input type="hidden" class="t-image-deleted" value="false">
                 </div>
 
                 <div>
@@ -436,7 +443,14 @@ async function processToolSubmission(isEditing) {
                      description: item.desc
                  };
                  if (assetUrl) toolBody.file3d = assetUrl;
-                 if (imgUrl)   toolBody.image  = imgUrl;
+                 if (imgUrl) {
+                     toolBody.image = imgUrl;
+                 } else {
+                     const delFlag = item._cardRef.querySelector('.t-image-deleted');
+                     if (delFlag && delFlag.value === 'true') {
+                         toolBody.image = null;
+                     }
+                 }
 
                  await fetchBackend(`/api/tools/${window.currentEditingId}`, {
                      method: 'PUT',
@@ -517,10 +531,35 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                loadToolsSaved(searchInput.value.trim());
-            }, 300);
-        });
+
+window.previewToolImage = function(input) {
+    const card = input.closest('.upload-card');
+    const preview = card.querySelector('.t-image-preview');
+    const clearBtn = card.querySelector('.t-image-clear-btn');
+    const delFlag = card.querySelector('.t-image-deleted');
+    
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
+            if (clearBtn) clearBtn.style.display = 'block';
+            if (delFlag) delFlag.value = 'false';
+        };
+        reader.readAsDataURL(input.files[0]);
     }
-});
+};
+
+window.clearToolImage = function(btn) {
+    const card = btn.closest('.upload-card');
+    const preview = card.querySelector('.t-image-preview');
+    const input = card.querySelector('.t-image-file');
+    const delFlag = card.querySelector('.t-image-deleted');
+    
+    if (input) input.value = '';
+    if (preview) {
+        preview.src = '';
+        preview.style.display = 'none';
+    }
+    btn.style.display = 'none';
+    if (delFlag) delFlag.value = 'true';
+};

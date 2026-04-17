@@ -648,7 +648,7 @@ async function processKonstruksiSubmission(isEditing) {
         } else if (isEditing) {
             const delFlag = document.getElementById('edit-modul-image-deleted');
             if (delFlag && delFlag.value === 'true') {
-                moduleBody.image = '';
+                moduleBody.image = null;
             }
         }
 

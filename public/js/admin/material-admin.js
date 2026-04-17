@@ -418,7 +418,14 @@ async function processMaterialSubmission(isEditing) {
             categoryLabel: category
         };
         
-        if (uploadedImageUrl) materialBody.image = uploadedImageUrl;
+        if (uploadedImageUrl) {
+            materialBody.image = uploadedImageUrl;
+        } else if (isEditing) {
+            const delFlag = document.getElementById('edit-mat-modul-image-deleted');
+            if (delFlag && delFlag.value === 'true') {
+                materialBody.image = null;
+            }
+        }
         
         if (isEditing) {
             // -- MODE EDIT --
