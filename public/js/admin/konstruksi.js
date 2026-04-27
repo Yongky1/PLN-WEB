@@ -751,6 +751,21 @@ function resetKonstruksiForm() {
     if(document.getElementById('modul-eq-count')) document.getElementById('modul-eq-count').value = '';
     if(document.getElementById('modul-status')) document.getElementById('modul-status').value = 'Aktif';
 
+    const imgInput = document.getElementById('modul-image');
+    if (imgInput) {
+        imgInput.value = '';
+        const previewImg = document.getElementById('modul-image-preview-img');
+        if (previewImg) previewImg.src = '';
+        const previewContainer = document.getElementById('modul-image-preview-container');
+        if (previewContainer) previewContainer.style.display = 'none';
+        const emptyState = document.getElementById('add-img-empty');
+        if (emptyState) emptyState.style.display = 'flex';
+        const filledState = document.getElementById('add-img-filled');
+        if (filledState) filledState.style.display = 'none';
+        const dropZone = document.getElementById('modul-image-drop-zone');
+        if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
+    }
+
     const container = document.getElementById('konstruksi-cards');
     if(container) container.innerHTML = '';
     kCardCount = 0;

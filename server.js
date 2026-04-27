@@ -295,6 +295,7 @@ app.get('/tools', async (req, res) => {
             standard:      t.standard      || '-',
             status:        t.status        || 'Wajib',
             file3d:        t.file3d        || null,
+            image:         t.image         || null,
             procedure:     t.procedure     || [],
         }));
 
@@ -354,8 +355,15 @@ app.get('/material', async (req, res) => {
 app.get('/ModulKonstruksi', async (req, res) => {
     try {
         const fetchRes = await fetch(`${BACKEND_URL}/api/modules?all=true`);
+        if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         let dbModules = await fetchRes.json();
-        
+
+        // Pastikan yang diterima adalah array (bukan objek error)
+        if (!Array.isArray(dbModules)) {
+            console.error('[/ModulKonstruksi] Backend tidak mengembalikan array:', dbModules);
+            dbModules = [];
+        }
+
         // Sorting logic based on req.query.sort
         const sort = req.query.sort || 'newest';
         if (sort === 'newest') {

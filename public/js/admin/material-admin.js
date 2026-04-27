@@ -521,6 +521,21 @@ function resetMaterialForm() {
     if(document.getElementById('mat-modul-desc')) document.getElementById('mat-modul-desc').value = '';
     if(document.getElementById('mat-modul-cat')) document.getElementById('mat-modul-cat').value = 'Pengencang';
 
+    const imgInput = document.getElementById('mat-modul-image');
+    if (imgInput) {
+        imgInput.value = '';
+        const previewImg = document.getElementById('mat-modul-image-preview-img');
+        if (previewImg) previewImg.src = '';
+        const previewContainer = document.getElementById('mat-modul-image-preview-container');
+        if (previewContainer) previewContainer.style.display = 'none';
+        const emptyState = document.getElementById('mat-add-img-empty');
+        if (emptyState) emptyState.style.display = 'flex';
+        const filledState = document.getElementById('mat-add-img-filled');
+        if (filledState) filledState.style.display = 'none';
+        const dropZone = document.getElementById('mat-modul-image-drop-zone');
+        if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
+    }
+
     const container = document.getElementById('material-cards');
     if(container) container.innerHTML = '';
     mCardCount = 0;

@@ -99,24 +99,34 @@ function editTool(id) {
         if (tCounter) tCounter.textContent = rawToolDesc.length + '/200';
         
         // Preview Image 
-        const imgPreview = card.querySelector('.t-image-preview');
-        const imgClearBtn = card.querySelector('.t-image-clear-btn');
+        const wrapper = card.querySelector('.t-image-wrapper');
+        const imgPreviewContainer = card.querySelector('.t-image-preview-container');
+        const imgPreview = card.querySelector('.t-image-preview-img');
+        const imgEmpty = card.querySelector('.t-img-empty');
+        const imgFilled = card.querySelector('.t-img-filled');
+        const dropZone = card.querySelector('.t-image-drop-zone');
         const imgDelFlag = card.querySelector('.t-image-deleted');
         if (imgPreview) {
             if (t.image) {
                 imgPreview.src = t.image;
-                imgPreview.style.display = 'block';
-                if (imgClearBtn) imgClearBtn.style.display = 'block';
+                if (imgPreviewContainer) imgPreviewContainer.style.display = 'block';
+                if (wrapper) wrapper.style.gridTemplateColumns = '1fr 1fr';
+                if (imgEmpty) imgEmpty.style.display = 'none';
+                if (imgFilled) imgFilled.style.display = 'flex';
+                if (dropZone) dropZone.style.borderColor = 'rgba(245,158,11,0.3)';
             } else {
                 imgPreview.src = '';
-                imgPreview.style.display = 'none';
-                if (imgClearBtn) imgClearBtn.style.display = 'none';
+                if (imgPreviewContainer) imgPreviewContainer.style.display = 'none';
+                if (wrapper) wrapper.style.gridTemplateColumns = '1fr';
+                if (imgEmpty) imgEmpty.style.display = 'flex';
+                if (imgFilled) imgFilled.style.display = 'none';
+                if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
             }
             if (imgDelFlag) imgDelFlag.value = 'false';
         }
         
         if (t.file3d && t.file3d !== '-') {
-            const dropLabel = card.querySelector('.drop-label');
+            const dropLabel = card.querySelector('.file-drop-zone:not(.t-image-drop-zone) .drop-label');
             const fn = decodeURIComponent(t.file3d.split('-3d/').pop());
             dropLabel.textContent = `Ada File: ${fn}`;
             dropLabel.style.color = '#F59E0B';
@@ -312,10 +322,35 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 <!-- Cover Gambar -->
                 <div>
                     <label class="admin-label">Cover Gambar Peralatan (Opsional)</label>
-                    <div style="display: flex; gap: 8px; align-items: center;">
-                        <img class="t-image-preview" src="" style="width: 40px; height: 40px; border-radius: 6px; object-fit: cover; display: none; background: rgba(255,255,255,0.1);">
-                        <input type="file" class="admin-input t-image-file" accept="image/png, image/jpeg, image/jpg" style="padding: 6px 12px; flex: 1;" onchange="previewToolImage(this)">
-                        <button type="button" class="btn-danger t-image-clear-btn" style="display:none; padding:6px 10px;" onclick="clearToolImage(this)">Hapus</button>
+                    <div class="t-image-wrapper" style="display: grid; grid-template-columns: 1fr; gap: 12px; min-height: 140px;">
+                        <div class="file-drop-zone t-image-drop-zone" onclick="this.parentElement.querySelector('.t-image-file').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                            <div class="t-img-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                                <svg class="drop-icon" style="width:24px;height:24px;color:rgba(255,255,255,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                </svg>
+                                <div class="drop-label" style="font-size: 14px; color: rgba(255,255,255,0.6);">Pilih Foto Thumbnail</div>
+                                <span style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
+                            </div>
+                            <div class="t-img-filled" style="display:none; flex-direction:column; align-items:center; justify-content:center;">
+                                <svg style="width:28px;height:28px;color:#F59E0B; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                                </svg>
+                                <div style="font-size: 14px; color: #F59E0B; font-weight:600;">Thumbnail Terpasang</div>
+                                <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Klik untuk ganti foto</div>
+                            </div>
+                        </div>
+
+                        <input type="file" class="t-image-file" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="previewToolImage(this)">
+
+                        <div class="t-image-preview-container" style="display:none; position: relative; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                            <img class="t-image-preview-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
+                            <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                                <div style="display: flex; gap: 10px;">
+                                    <button type="button" onclick="this.closest('.t-image-wrapper').querySelector('.t-image-file').click()" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; color: #F59E0B; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Ganti Foto</button>
+                                    <button type="button" onclick="clearToolImage(this)" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #EF4444; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Hapus Thumbnail</button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     <input type="hidden" class="t-image-deleted" value="false">
                 </div>
@@ -352,7 +387,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
         </div>
     `;
 
-    initDropZone(card.querySelector('.file-drop-zone'));
+    initDropZone(card.querySelector('.file-drop-zone:not(.t-image-drop-zone)'));
     return card;
 }
 
@@ -534,15 +569,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 window.previewToolImage = function(input) {
     const card = input.closest('.upload-card');
-    const preview = card.querySelector('.t-image-preview');
-    const clearBtn = card.querySelector('.t-image-clear-btn');
+    const wrapper = card.querySelector('.t-image-wrapper');
+    const previewContainer = card.querySelector('.t-image-preview-container');
+    const preview = card.querySelector('.t-image-preview-img');
+    const imgEmpty = card.querySelector('.t-img-empty');
+    const imgFilled = card.querySelector('.t-img-filled');
+    const dropZone = card.querySelector('.t-image-drop-zone');
     const delFlag = card.querySelector('.t-image-deleted');
     
     if (input.files && input.files[0]) {
         const reader = new FileReader();
         reader.onload = function(e) {
-            if (preview) { preview.src = e.target.result; preview.style.display = 'block'; }
-            if (clearBtn) clearBtn.style.display = 'block';
+            if (preview) { preview.src = e.target.result; }
+            if (previewContainer) { previewContainer.style.display = 'block'; }
+            if (wrapper) { wrapper.style.gridTemplateColumns = '1fr 1fr'; }
+            if (imgEmpty) { imgEmpty.style.display = 'none'; }
+            if (imgFilled) { imgFilled.style.display = 'flex'; }
+            if (dropZone) { dropZone.style.borderColor = 'rgba(245,158,11,0.3)'; }
             if (delFlag) delFlag.value = 'false';
         };
         reader.readAsDataURL(input.files[0]);
@@ -551,15 +594,21 @@ window.previewToolImage = function(input) {
 
 window.clearToolImage = function(btn) {
     const card = btn.closest('.upload-card');
-    const preview = card.querySelector('.t-image-preview');
+    const wrapper = card.querySelector('.t-image-wrapper');
+    const previewContainer = card.querySelector('.t-image-preview-container');
+    const preview = card.querySelector('.t-image-preview-img');
     const input = card.querySelector('.t-image-file');
+    const imgEmpty = card.querySelector('.t-img-empty');
+    const imgFilled = card.querySelector('.t-img-filled');
+    const dropZone = card.querySelector('.t-image-drop-zone');
     const delFlag = card.querySelector('.t-image-deleted');
     
     if (input) input.value = '';
-    if (preview) {
-        preview.src = '';
-        preview.style.display = 'none';
-    }
-    btn.style.display = 'none';
+    if (preview) preview.src = '';
+    if (previewContainer) previewContainer.style.display = 'none';
+    if (wrapper) wrapper.style.gridTemplateColumns = '1fr';
+    if (imgEmpty) imgEmpty.style.display = 'flex';
+    if (imgFilled) imgFilled.style.display = 'none';
+    if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
     if (delFlag) delFlag.value = 'true';
 };
