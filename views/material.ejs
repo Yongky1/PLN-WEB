@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('partials/head') %>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
@@ -85,6 +85,10 @@
         }
         #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
 
+        /* Responsive modal height: auto on mobile, fixed on desktop */
+        #mat-modal-card { height: auto; max-height: 90vh; }
+        @media (min-width: 768px) { #mat-modal-card { height: 560px; max-height: unset; } }
+
         /* ---- Modal 3D Viewer Area ---- */
         #mat-canvas-wrap {
             background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);
@@ -123,10 +127,10 @@
 
     <%- include('partials/navbar') %>
 
-    <main class="pt-32 pb-24 px-4 sm:px-6 bg-[var(--color-pln-darker)] min-h-screen relative">
+    <main class="pt-32 pb-24 px-4 sm:px-6 bg-[var(--color-pln-darker)] min-h-screen relative overflow-x-hidden">
 
         <!-- Ambient Background Glow -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-w-[100vw] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
         <div class="absolute top-[40%] left-[10%] w-[400px] h-[400px] bg-blue-500/3 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
         <div class="max-w-7xl mx-auto z-10 relative">
@@ -268,11 +272,11 @@
     ==================================================== -->
     <div id="mat-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none; background: rgba(0,4,15,0.80); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);">
 
-        <div id="mat-modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10" style="height: 560px; background: linear-gradient(160deg, rgba(12,22,42,0.98) 0%, rgba(6,12,26,0.98) 100%); backdrop-filter: blur(40px);">
+        <div id="mat-modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10" style="background: linear-gradient(160deg, rgba(12,22,42,0.98) 0%, rgba(6,12,26,0.98) 100%); backdrop-filter: blur(40px);">
 
             <!-- ========== LEFT: 3D Viewer ========== -->
-            <div id="mat-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group"
-                 style="height: 100%; background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
+            <div id="mat-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto"
+                 style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
 
                 <!-- Ambient top glow -->
                 <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-pln-yellow)]/8 blur-[60px] pointer-events-none"></div>
@@ -315,7 +319,7 @@
             </div>
 
             <!-- ========== RIGHT: Info Panel ========== -->
-            <div id="mat-info-wrap" class="flex-1 flex flex-col overflow-hidden relative" style="height: 100%;">
+            <div id="mat-info-wrap" class="flex-1 flex flex-col min-h-0 relative" style="overflow-y: auto;">
 
                 <!-- STATIC HEADER: Badge, Icon, Name, Code (tidak ikut scroll) -->
                 <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">

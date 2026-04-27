@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('partials/head') %>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
@@ -40,7 +40,11 @@
 
         /* modal viewer fix */
         #preview-modal.active { display: flex !important; }
-        .preview-content { max-height: 90vh; }
+        .preview-content { max-height: 90vh; overflow-y: auto; }
+        .modal-viewer-area { height: 60vh; min-height: 400px; }
+        @media (max-width: 640px) {
+            .modal-viewer-area { height: 50vh; min-height: 250px; }
+        }
     </style>
 </head>
 <body class="bg-[var(--color-pln-darker)] text-white font-sans antialiased overflow-x-hidden">
@@ -49,10 +53,10 @@
     <%- include('partials/navbar') %>
 
     <!-- Main Content -->
-    <main class="pt-32 pb-24 px-4 sm:px-6 bg-[var(--color-pln-darker)] min-h-screen relative">
+    <main class="pt-32 pb-24 px-4 sm:px-6 bg-[var(--color-pln-darker)] min-h-screen relative overflow-x-hidden">
         
         <!-- Subtle Ambient Glow -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-w-[100vw] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
         <div class="max-w-7xl mx-auto z-10 relative">
             
@@ -72,7 +76,7 @@
                 </div>
                 
                 <!-- Premium Select Dropdown -->
-                <div class="relative min-w-[220px]">
+                <div class="relative w-full md:w-auto md:min-w-[220px]">
                     <form id="sort-form" method="GET" action="/ModulKonstruksi">
                         <div class="relative group">
                             <select name="sort" onchange="document.getElementById('sort-form').submit()" class="w-full appearance-none bg-black/20 backdrop-blur-md border border-white/10 rounded-2xl px-5 py-3.5 pr-10 text-sm font-semibold text-white/80 focus:outline-none focus:border-[var(--color-pln-yellow)]/50 focus:bg-black/40 transition-all cursor-pointer">
@@ -224,7 +228,7 @@
             </div>
 
             <!-- Modal Body (3D Viewer) -->
-            <div class="relative w-full flex-grow flex items-center justify-center p-4 overflow-hidden rounded-b-[2rem]" style="height: 60vh; min-height: 400px; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);">
+            <div class="modal-viewer-area relative w-full flex-grow flex items-center justify-center p-4 overflow-hidden rounded-b-[2rem]" style="background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);">
                 <!-- Inner Glow Kaca Apple -->
                 <div class="absolute inset-0 apple-glass-dark pointer-events-none mix-blend-overlay"></div>
                 
@@ -242,11 +246,11 @@
                 </model-viewer>
 
                 <!-- Navigation Arrows (Variant Carousel) -->
-                <button id="modal-prev-btn" onclick="prevVariant(event)" class="absolute left-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-[var(--color-pln-yellow)] hover:text-black transition-all hidden z-20 border border-white/10">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                <button id="modal-prev-btn" onclick="prevVariant(event)" class="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-[var(--color-pln-yellow)] hover:text-black transition-all hidden z-20 border border-white/10">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                 </button>
-                <button id="modal-next-btn" onclick="nextVariant(event)" class="absolute right-6 top-1/2 -translate-y-1/2 w-12 h-12 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-[var(--color-pln-yellow)] hover:text-black transition-all hidden z-20 border border-white/10">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                <button id="modal-next-btn" onclick="nextVariant(event)" class="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 w-9 h-9 sm:w-12 sm:h-12 bg-white/5 backdrop-blur-md rounded-full flex items-center justify-center text-white hover:bg-[var(--color-pln-yellow)] hover:text-black transition-all hidden z-20 border border-white/10">
+                    <svg class="w-4 h-4 sm:w-5 sm:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                 </button>
 
                 <!-- Variant Display Name -->
