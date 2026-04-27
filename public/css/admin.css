@@ -325,3 +325,154 @@ input[type="number"] {
 .skel-title  { height: 14px; width: 60%; margin-bottom: 6px; border-radius: 4px; }
 .skel-desc   { height: 10px; width: 40%; border-radius: 4px; }
 .skel-btn    { width: 64px; height: 26px; border-radius: 8px; flex-shrink: 0; }
+
+/* ============================================
+   RESPONSIVE DESIGN (MOBILE)
+   ============================================ */
+
+/* Mobile Toggle Button */
+.mobile-menu-btn {
+    display: none;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.7);
+    padding: 8px;
+    margin-right: 4px;
+    cursor: pointer;
+    border-radius: 8px;
+    align-items: center;
+    justify-content: center;
+}
+.mobile-menu-btn:hover {
+    background: rgba(255,255,255,0.05);
+}
+
+/* Base Classes for Layout to override inline styles */
+.admin-sidebar {
+    width: 240px;
+    flex-shrink: 0;
+    background: #071525;
+    border-right: 1px solid rgba(255,255,255,0.07);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+.admin-topbar {
+    height: 64px;
+    flex-shrink: 0;
+    border-bottom: 1px solid rgba(255,255,255,0.07);
+    background: #05101E;
+    display: flex;
+    align-items: center;
+    padding: 0 28px;
+    gap: 16px;
+}
+.admin-page-content {
+    flex: 1;
+    overflow-y: auto;
+    background: #05101E;
+    padding: 28px;
+}
+
+
+.admin-split-layout {
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+.admin-split-col {
+    flex: 1 1 0;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+@media (max-width: 768px) {
+    /* Sidebar Slide-in */
+    .admin-sidebar {
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        z-index: 100;
+        transform: translateX(-100%);
+        transition: transform 0.3s ease;
+        box-shadow: 10px 0 30px rgba(0,0,0,0.5);
+    }
+    .admin-sidebar.open {
+        transform: translateX(0);
+    }
+    
+    /* Overlay Backdrop */
+    .sidebar-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0,0,0,0.6);
+        backdrop-filter: blur(4px);
+        z-index: 99;
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 0.3s ease;
+        display: block !important;
+    }
+    .sidebar-overlay.active {
+        opacity: 1;
+        pointer-events: auto;
+    }
+
+    /* Topbar adjustments */
+    .admin-topbar {
+        padding: 0 16px !important;
+    }
+    #topbar-date, .topbar-subtitle {
+        display: none !important;
+    }
+    .mobile-menu-btn {
+        display: flex !important;
+    }
+
+    
+    .admin-split-layout {
+        flex-direction: column;
+    }
+    .admin-split-col {
+        width: 100%;
+        flex: none;
+    }
+
+    /* Content adjustments */
+    .admin-page-content {
+        padding: 16px !important;
+    }
+
+    /* Grid Utilities for inner pages */
+    .grid-cols-4 { grid-template-columns: repeat(2, 1fr) !important; }
+    .grid-cols-3 { grid-template-columns: 1fr !important; }
+    .grid-cols-2 { grid-template-columns: 1fr !important; }
+    
+    /* Specific overrides for overview layout */
+    .lg\\:grid-cols-12 { display: flex !important; flex-direction: column !important; }
+    .lg\\:col-span-8, .lg\\:col-span-4, .lg\\:col-span-3, .lg\\:col-span-9 { width: 100% !important; }
+}
+
+
+
+@media (max-width: 768px) {
+    /* Fix item row overflowing on mobile */
+    .item-row {
+        flex-wrap: wrap;
+        gap: 12px;
+        padding: 14px;
+    }
+    .item-row > div:nth-child(2) {
+        /* Take remaining width next to the 36px icon + 12px gap */
+        flex: 1 1 calc(100% - 48px) !important;
+        min-width: calc(100% - 48px);
+    }
+    /* Group buttons at the bottom */
+    .item-row > span.badge,
+    .item-row > button {
+        margin-top: 4px;
+    }
+}

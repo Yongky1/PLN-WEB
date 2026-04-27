@@ -3,7 +3,7 @@
     <h3 style="font-size:15px; font-weight:600; color:#fff; margin:0;">Daftar Modul Konten</h3>
     <button class="btn-primary">+ Tambah Modul</button>
 </div>
-<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px;">
+<div class="grid-cols-2" style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px;">
     <% if (modules && modules.length > 0) { %>
         <% modules.forEach(m => { 
             // Format ulang status agar cocok dengan badge class UI
