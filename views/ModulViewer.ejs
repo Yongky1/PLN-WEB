@@ -4,6 +4,15 @@
     <%- include('partials/head') %>
     <!-- Tambahkan library model-viewer khusus untuk halaman ini -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <style>
+        .komponen-scroll-row {
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+        }
+        .komponen-scroll-row::-webkit-scrollbar { display: none; }
+        .komponen-scroll-row > * { scroll-snap-align: start; }
+    </style>
 </head>
 <body class="bg-[var(--color-pln-darker)] text-white font-sans antialiased overflow-x-hidden">
 
@@ -120,6 +129,176 @@
             </div>
 
         </div>
+
+        <!-- ===== SECTION: MATERIAL & PERALATAN ===== -->
+        <% if ((module.materials && module.materials.length > 0) || (module.tools && module.tools.length > 0)) { %>
+        <div class="w-full mt-20">
+
+            <!-- Divider -->
+            <div class="flex items-center gap-4 mb-14">
+                <div class="flex-1 h-px bg-white/5"></div>
+                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-white/20">Komponen Konstruksi</span>
+                <div class="flex-1 h-px bg-white/5"></div>
+            </div>
+
+            <!-- ── MATERIAL ─────────────────────────────────── -->
+            <% if (module.materials && module.materials.length > 0) { %>
+            <div class="mb-16">
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-pln-yellow)]/10 text-[var(--color-pln-yellow)] text-[10px] font-bold tracking-[0.15em] uppercase border border-[var(--color-pln-yellow)]/20 shadow-[0_0_15px_rgba(255,213,0,0.1)]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-pln-yellow)] animate-pulse"></span>
+                        Katalog Material
+                    </span>
+                    <h2 class="text-xl md:text-2xl font-black text-white font-['Space_Grotesk'] tracking-tight">yang Dibutuhkan</h2>
+                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.materials.length %> item</span>
+                </div>
+
+                <!-- Horizontal Scroll Row -->
+                <div class="komponen-scroll-row flex gap-5 overflow-x-auto pb-4">
+                    <% module.materials.forEach(function(row) { %>
+                    <% const m = row.material || {}; %>
+
+                    <div class="group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] hover:border-white/40 hover:-translate-y-2 transition-all duration-500 cursor-default relative flex-shrink-0 w-[220px]">
+
+                        <!-- Image Top -->
+                        <div class="h-[140px] relative overflow-hidden bg-black/20">
+                            <% if (m.image) { %>
+                                <img src="<%= m.image %>" alt="<%= m.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                            <% } else { %>
+                                <div class="absolute inset-0" style="background: <%= m.bgGradient || 'linear-gradient(135deg,#1a2030 0%,#0d1520 100%)' %>;"></div>
+                                <div class="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30"></div>
+                                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,213,0,0.12)_0%,transparent_65%)] opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div class="w-full h-full flex items-center justify-center relative z-10">
+                                    <span class="text-5xl select-none group-hover:scale-110 transition-transform duration-500" style="filter:drop-shadow(0 6px 20px rgba(0,0,0,0.5));"><%= m.icon || '📦' %></span>
+                                </div>
+                            <% } %>
+
+                            <!-- Category badge -->
+                            <div class="absolute top-3 right-3 z-20">
+                                <span class="inline-block px-2.5 py-1 bg-black/40 text-white/80 border border-white/10 text-[9px] font-bold rounded-full uppercase tracking-wider backdrop-blur-md">
+                                    <%= m.categoryLabel || m.category || '' %>
+                                </span>
+                            </div>
+
+                            <!-- Qty badge -->
+                            <% if (row.quantity && row.quantity > 1) { %>
+                            <div class="absolute bottom-3 left-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2.5 py-1 rounded-full bg-[var(--color-pln-yellow)]/20 text-[var(--color-pln-yellow)] border border-[var(--color-pln-yellow)]/30 backdrop-blur-md uppercase tracking-wider">
+                                    × <%= row.quantity %>
+                                </span>
+                            </div>
+                            <% } %>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-5 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent">
+                            <h3 class="text-[15px] font-bold mb-1.5 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight line-clamp-2">
+                                <%= m.name || '-' %>
+                            </h3>
+                            <p class="text-white/40 text-[11px] leading-relaxed mb-5 font-['Inter'] line-clamp-2">
+                                <%= m.shortDesc || m.description || '' %>
+                            </p>
+                            <div class="mt-auto flex justify-between items-end">
+                                <div>
+                                    <p class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5 font-semibold">Kategori</p>
+                                    <p class="text-[13px] font-bold text-[var(--color-pln-yellow)] font-['Outfit']"><%= m.categoryLabel || '-' %></p>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-[var(--color-pln-yellow)]/10 flex items-center justify-center text-[var(--color-pln-yellow)] group-hover:bg-[var(--color-pln-yellow)] group-hover:text-black transition-colors shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+            <% } %>
+
+            <!-- ── PERALATAN ────────────────────────────────── -->
+            <% if (module.tools && module.tools.length > 0) { %>
+            <div>
+                <div class="flex items-center gap-3 mb-6">
+                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-pln-yellow)]/10 text-[var(--color-pln-yellow)] text-[10px] font-bold tracking-[0.15em] uppercase border border-[var(--color-pln-yellow)]/20 shadow-[0_0_15px_rgba(255,213,0,0.1)]">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-pln-yellow)] animate-pulse"></span>
+                        Peralatan Lapangan
+                    </span>
+                    <h2 class="text-xl md:text-2xl font-black text-white font-['Space_Grotesk'] tracking-tight">yang Dibutuhkan</h2>
+                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.tools.length %> item</span>
+                </div>
+
+                <!-- Horizontal Scroll Row -->
+                <div class="komponen-scroll-row flex gap-5 overflow-x-auto pb-4">
+                    <% module.tools.forEach(function(row) { %>
+                    <% const t = row.tool || {}; %>
+                    <%
+                        const catBadgeClass = t.category === 'k3'
+                            ? 'bg-red-500/15 text-red-400 border-red-500/30'
+                            : t.category === 'teknis'
+                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
+                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30';
+                    %>
+
+                    <div class="group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] hover:border-white/40 hover:-translate-y-2 transition-all duration-500 cursor-default relative flex-shrink-0 w-[220px]">
+
+                        <!-- Image Top -->
+                        <div class="h-[140px] relative overflow-hidden bg-black/20">
+                            <% if (t.image) { %>
+                                <img src="<%= t.image %>" alt="<%= t.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                            <% } else { %>
+                                <div class="absolute inset-0" style="background: <%= t.bgGradient || 'linear-gradient(135deg,#1a2030 0%,#0d1520 100%)' %>;"></div>
+                                <div class="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30 group-hover:opacity-70 transition-opacity duration-500"></div>
+                                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.12)_0%,transparent_65%)] opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
+                                <div class="w-full h-full flex items-center justify-center opacity-20 group-hover:opacity-35 transition-opacity duration-500">
+                                    <svg class="w-14 h-14 text-[var(--color-pln-yellow)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                    </svg>
+                                </div>
+                            <% } %>
+
+                            <!-- Category badge -->
+                            <div class="absolute top-3 right-3 flex flex-col gap-1.5 items-end z-10">
+                                <span class="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border backdrop-blur-md <%= catBadgeClass %>">
+                                    <%= t.categoryLabel || t.category || '' %>
+                                </span>
+                            </div>
+                        </div>
+
+                        <!-- Content -->
+                        <div class="p-5 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent">
+                            <h3 class="text-[15px] font-bold mb-1.5 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight line-clamp-2">
+                                <%= t.name || '-' %>
+                            </h3>
+                            <p class="text-white/40 text-[11px] leading-relaxed mb-5 font-['Inter'] line-clamp-2">
+                                <%= t.description || '' %>
+                            </p>
+                            <div class="mt-auto flex justify-between items-end">
+                                <div class="flex items-center gap-3">
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5 font-semibold">Standar</p>
+                                        <p class="text-[13px] font-bold text-[var(--color-pln-yellow)] font-['Outfit']"><%= t.standard || '-' %></p>
+                                    </div>
+                                    <div class="w-px h-6 bg-white/10"></div>
+                                    <div>
+                                        <p class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5 font-semibold">Status</p>
+                                        <p class="text-[13px] font-bold font-['Outfit'] <%= t.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400' %>"><%= t.status || '-' %></p>
+                                    </div>
+                                </div>
+                                <div class="w-8 h-8 rounded-full bg-[var(--color-pln-yellow)]/10 flex items-center justify-center text-[var(--color-pln-yellow)] group-hover:bg-[var(--color-pln-yellow)] group-hover:text-black transition-colors shrink-0">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% }); %>
+                </div>
+            </div>
+            <% } %>
+
+        </div>
+        <% } %>
+
     </main>
 
     <%- include('partials/footer') %>
