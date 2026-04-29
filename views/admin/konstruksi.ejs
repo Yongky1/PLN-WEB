@@ -529,6 +529,41 @@ function clearModulImage(inputId, dropId, emptyId, filledId, previewContainerId,
   document.getElementById(dropId).classList.remove('has-file');
 }
 
+function initImageDropZone(dropZoneId, inputId) {
+  const zone = document.getElementById(dropZoneId);
+  const input = document.getElementById(inputId);
+  if (!zone || !input) return;
+
+  zone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    zone.classList.add('dragover');
+  });
+  zone.addEventListener('dragleave', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+  });
+  zone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    zone.classList.remove('dragover');
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (file.type.startsWith('image/')) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change'));
+      } else {
+        if (typeof showToast === 'function') showToast('Format file harus gambar', 'error');
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  initImageDropZone('modul-image-drop-zone', 'modul-image');
+  initImageDropZone('edit-modul-image-drop-zone', 'edit-modul-image');
+});
+
 /* Filter chips */
 let _kFilter = 'all';
 function setKFilter(btn, val) {

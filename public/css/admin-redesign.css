@@ -590,6 +590,7 @@ input, textarea, select { font-family: inherit; }
   border-radius: 10px; cursor: pointer; transition: all 0.15s;
 }
 .rd-drop-zone:hover { border-color: var(--accent); background: oklch(from var(--accent) l c h / 0.04); }
+.rd-drop-zone.dragover { border-style: dashed; border-color: var(--accent); background: oklch(from var(--accent) l c h / 0.12); transform: scale(1.02); box-shadow: 0 0 15px oklch(from var(--accent) l c h / 0.2); }
 .rd-drop-zone.has-file { border-style: solid; border-color: oklch(from var(--accent) l c h / 0.4); background: oklch(from var(--accent) l c h / 0.06); }
 .rd-drop-zone .dz-icon {
   width: 36px; height: 36px; border-radius: 8px; background: var(--bg-surface-2);
