@@ -1,5 +1,59 @@
 <!-- views/admin/tools.ejs — Admin Redesign -->
 <link rel="stylesheet" href="/css/upload-card.css">
+<style>
+  #add-tool-modal:not(.active),
+  #edit-modal:not(.active) {
+    display: none !important;
+  }
+  #add-tool-modal.active,
+  #edit-modal.active {
+    display: flex !important;
+  }
+  #add-tool-modal .rd-modal {
+    position: relative;
+    isolation: isolate;
+  }
+  #add-tool-modal .rd-modal-body {
+    position: relative;
+    z-index: 2;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  #add-tool-modal .rd-step-panel.active,
+  #add-tool-modal .rd-section-block,
+  #tools-cards,
+  #tools-cards .upload-card {
+    width: 100%;
+    min-width: 0;
+  }
+  #tools-cards .upload-card-body > div > div[style*="grid-template-columns:1fr 1fr"] > div {
+    min-width: 0;
+  }
+  #add-tool-modal input,
+  #add-tool-modal select,
+  #add-tool-modal textarea,
+  #add-tool-modal button,
+  #add-tool-modal .file-drop-zone {
+    position: relative;
+    z-index: 3;
+    pointer-events: auto;
+  }
+  #add-tool-modal .t-image-preview-container > div {
+    pointer-events: none;
+  }
+  #add-tool-modal .t-image-preview-container:hover > div {
+    opacity: 1 !important;
+    pointer-events: auto;
+  }
+  #add-tool-modal .card-model-viewer-container model-viewer {
+    pointer-events: none;
+  }
+  @media (max-width: 760px) {
+    #tools-cards .upload-card-body > div > div[style*="grid-template-columns:1fr 1fr"] {
+      grid-template-columns: 1fr !important;
+    }
+  }
+</style>
 
 <!-- ======================== PAGE HEAD ======================== -->
 <div class="rd-page-head">
@@ -58,7 +112,7 @@
 
 <!-- ======================== ADD MODAL ======================== -->
 <div id="add-tool-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeAddToolModal()">
-  <div class="rd-modal" style="max-width:700px;">
+  <div class="rd-modal" style="max-width:920px;width:min(920px,calc(100vw - 48px));">
 
     <div class="rd-modal-header">
       <div class="rd-modal-title-block">
@@ -78,10 +132,6 @@
       </div>
       <div class="rd-step" data-step="1" onclick="goAddTStep(1)">
         <div class="step-num">2</div>
-        <div class="step-info"><span class="step-label">Model 3D</span><span class="step-name">Upload (opsional)</span></div>
-      </div>
-      <div class="rd-step" data-step="2" onclick="goAddTStep(2)">
-        <div class="step-num">3</div>
         <div class="step-info"><span class="step-label">Review</span><span class="step-name">Konfirmasi</span></div>
       </div>
     </div>
@@ -102,36 +152,19 @@
         </div>
       </div>
 
-      <!-- Step 2: Model 3D - just info since cards handle file upload -->
+      <!-- Step 2: Review -->
       <div class="rd-step-panel" id="add-t-panel-1">
         <div class="rd-section-block">
           <div class="rd-section-head">
             <div>
-              <div class="rd-section-title"><span class="num">2</span> Model 3D Peralatan</div>
-              <p class="rd-section-desc">Opsional — file 3D sudah dapat diupload via kartu di step sebelumnya. Pastikan semua file sudah terlampir.</p>
+              <div class="rd-section-title"><span class="num">2</span> Review &amp; Konfirmasi</div>
+              <p class="rd-section-desc">Periksa kembali semua data peralatan sebelum menyimpan.</p>
             </div>
           </div>
-          <div class="rd-variant-preview" style="border-radius:12px;height:160px;">
-            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent);opacity:0.5;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-            <div class="rd-muted">File 3D diupload per kartu peralatan</div>
+          <div class="rd-review-grid" style="margin-top:14px;">
+            <div class="rd-review-tile full"><div class="label">Jumlah Peralatan</div><div class="value" id="review-t-count">-</div></div>
           </div>
-        </div>
-      </div>
-
-      <!-- Step 3: Review -->
-      <div class="rd-step-panel" id="add-t-panel-2">
-        <div class="rd-section-block">
-          <div class="rd-section-head">
-            <div>
-              <div class="rd-section-title"><span class="num">3</span> Review &amp; Konfirmasi</div>
-              <p class="rd-section-desc">Periksa kembali sebelum menyimpan.</p>
-            </div>
-            <span class="rd-badge rd-badge-success">Siap disimpan</span>
-          </div>
-          <div class="rd-review-grid">
-            <div class="rd-review-tile full"><div class="label">Jumlah Peralatan</div><div class="value" id="review-t-count">—</div></div>
-            <div class="rd-review-tile full"><div class="label">Catatan</div><div class="value" style="font-size:13px;font-weight:400;color:var(--text-secondary);">Setiap peralatan akan disimpan dengan nama, kategori, standar, dan file 3D (jika ada).</div></div>
-          </div>
+          <div id="review-t-items" style="display:flex;flex-direction:column;gap:12px;margin-top:14px;"></div>
         </div>
       </div>
 
@@ -216,7 +249,7 @@
 <script>
 /* Add tool wizard */
 let _addTStep = 0;
-const _addTSteps = [{ label: 'Detail peralatan' }, { label: 'Upload (opsional)' }, { label: 'Konfirmasi' }];
+const _addTSteps = [{ label: 'Detail peralatan' }, { label: 'Konfirmasi' }];
 
 function openAddToolModal() {
   _addTStep = 0; renderAddTStep();
@@ -240,14 +273,69 @@ function renderAddTStep() {
     nextBtn.innerHTML = 'Lanjutkan <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
     nextBtn.onclick = addTStepNext;
   }
-  document.getElementById('add-t-footer-info').textContent = `Step ${_addTStep+1} dari ${_addTSteps.length} · ${_addTSteps[_addTStep].label}`;
-  if (_addTStep === 2) {
-    document.getElementById('review-t-count').textContent = document.querySelectorAll('#tools-cards .upload-card').length + ' peralatan';
+  document.getElementById('add-t-footer-info').textContent = `Step ${_addTStep+1} dari ${_addTSteps.length} - ${_addTSteps[_addTStep].label}`;
+  if (_addTStep === _addTSteps.length - 1) {
+    renderToolReview();
   }
 }
 function goAddTStep(i) { _addTStep = i; renderAddTStep(); }
 function addTStepNext() { if (_addTStep < _addTSteps.length - 1) { _addTStep++; renderAddTStep(); } }
 function addTStepPrev() { if (_addTStep > 0) { _addTStep--; renderAddTStep(); } }
+
+function escapeReviewText(value) {
+  return String(value || '').replace(/[&<>"']/g, char => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#039;'
+  }[char]));
+}
+
+function renderToolReview() {
+  const cards = Array.from(document.querySelectorAll('#tools-cards .upload-card'));
+  const countEl = document.getElementById('review-t-count');
+  const itemsEl = document.getElementById('review-t-items');
+  if (!countEl || !itemsEl) return;
+
+  countEl.textContent = `${cards.length} peralatan`;
+
+  if (cards.length === 0) {
+    itemsEl.innerHTML = '<div class="rd-review-tile"><div class="value" style="font-size:13px;color:var(--text-secondary);">Belum ada data peralatan.</div></div>';
+    return;
+  }
+
+  itemsEl.innerHTML = cards.map((card, index) => {
+    const name = card.querySelector('.t-name')?.value.trim() || '-';
+    const standard = card.querySelector('.t-standard')?.value.trim() || '-';
+    const catEl = card.querySelector('.t-cat');
+    const category = catEl ? catEl.options[catEl.selectedIndex].text : '-';
+    const status = card.querySelector('.t-status')?.value || '-';
+    const description = card.querySelector('.t-desc')?.value.trim() || '-';
+    const imageFile = card.querySelector('.t-image-file')?.files?.[0];
+    const modelFile = card.querySelector('.t-file-3d')?.files?.[0];
+    const hasImagePreview = !!card.querySelector('.t-image-preview-img')?.getAttribute('src');
+    const imageStatus = imageFile ? imageFile.name : (hasImagePreview ? 'Thumbnail terpasang' : 'Tidak ada');
+    const modelStatus = modelFile ? modelFile.name : 'Tidak ada';
+
+    return `
+      <div class="rd-review-tile full" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+        <div style="grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border-default);padding-bottom:10px;">
+          <div>
+            <div class="label">Peralatan #${index + 1}</div>
+            <div class="value">${escapeReviewText(name)}</div>
+          </div>
+          <span class="rd-badge rd-badge-warning">${escapeReviewText(status)}</span>
+        </div>
+        <div><div class="label">Kategori</div><div class="value">${escapeReviewText(category)}</div></div>
+        <div><div class="label">Standar</div><div class="value rd-mono">${escapeReviewText(standard)}</div></div>
+        <div style="grid-column:1 / -1;"><div class="label">Deskripsi</div><div class="value" style="font-size:13px;font-weight:400;color:var(--text-secondary);line-height:1.55;">${escapeReviewText(description)}</div></div>
+        <div><div class="label">Cover Gambar</div><div class="value" style="font-size:13px;">${escapeReviewText(imageStatus)}</div></div>
+        <div><div class="label">Model 3D</div><div class="value" style="font-size:13px;">${escapeReviewText(modelStatus)}</div></div>
+      </div>
+    `;
+  }).join('');
+}
 
 /* Filter & view */
 function setToolFilter(btn, val) {

@@ -60,7 +60,7 @@
 
 [data-module="konstruksi"] { --accent: var(--pln-blue); --accent-soft: var(--pln-blue-soft); --accent-strong: var(--pln-blue-strong); }
 [data-module="material"]   { --accent: var(--pln-green); --accent-soft: var(--pln-green-soft); --accent-strong: var(--pln-green-strong); }
-[data-module="peralatan"]  { --accent: var(--pln-orange); --accent-soft: var(--pln-orange-soft); --accent-strong: var(--pln-orange-strong); }
+[data-module="tools"]      { --accent: var(--pln-orange); --accent-soft: var(--pln-orange-soft); --accent-strong: var(--pln-orange-strong); }
 [data-module="overview"]   { --accent: var(--pln-blue); --accent-soft: var(--pln-blue-soft); --accent-strong: var(--pln-blue-strong); }
 [data-module="default"]    { --accent: var(--pln-blue); --accent-soft: var(--pln-blue-soft); --accent-strong: var(--pln-blue-strong); }
 
