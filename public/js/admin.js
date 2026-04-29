@@ -182,3 +182,4 @@ function removeProcRow(btn) {
     const rows = document.getElementById('procedure-rows').children;
     if (rows.length > 1) btn.parentElement.remove();
 }
+

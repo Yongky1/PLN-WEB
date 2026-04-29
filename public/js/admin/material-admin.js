@@ -41,21 +41,31 @@ async function loadMaterialSaved() {
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
-                <div class="item-icon">
+                <div class="item-icon" style="width:36px; flex-shrink:0;">
                     <svg style="width:16px;height:16px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                     </svg>
                 </div>
-                <div style="flex:1;">
-                    <div style="font-size:13px;font-weight:600;color:#fff;">${m.name} (${m.code || '-'})</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
-                        ${variantsCount} varian · Kategori: ${cat}
+                <div style="flex:1; padding-right:16px;">
+                    <div style="font-size:13px;font-weight:600;color:#fff;">${m.name}</div>
+                    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;font-family:monospace;">
+                        ${m.code || '-'}
                     </div>
                 </div>
-                <span class="badge ${badgeClass}">${m.status || 'Aktif'}</span>
-                <button class="btn-warning" onclick="editMaterial('${m.id}')" style="margin-right:8px;">Edit</button>
-                <button class="btn-danger" onclick="deleteMaterial('${m.id}', this)">Hapus</button>
+                <div style="width:140px;">
+                    <span style="font-size:12px; font-weight:500; color:#fff;">${cat}</span>
+                </div>
+                <div style="width:100px; display:flex; justify-content:center;">
+                    <span class="badge ${badgeClass}">${m.status || 'Aktif'}</span>
+                </div>
+                <div style="width:100px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                    ${variantsCount}
+                </div>
+                <div style="width:130px; display:flex; gap:6px; justify-content:center;">
+                    <button class="btn-warning rd-btn-sm" onclick="editMaterial('${m.id}')">Edit</button>
+                    <button class="btn-danger rd-btn-sm" onclick="deleteMaterial('${m.id}', this)">Hapus</button>
+                </div>
             `;
             saved.appendChild(row);
         });

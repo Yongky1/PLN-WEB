@@ -1,294 +1,380 @@
-<!-- views/admin/material.ejs -->
+<!-- views/admin/material.ejs — Admin Redesign -->
 <link rel="stylesheet" href="/css/upload-card.css">
-<style>
-    :root { --m-accent: #818CF8; --m-accent-raw: 129,140,248; }
 
-    #material-saved { display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
-
-    #material-cards .upload-card-header { background: rgba(var(--m-accent-raw), 0.04); }
-    #material-cards .file-drop-zone { --zone-color: rgba(var(--m-accent-raw), 0.5); --zone-bg: rgba(var(--m-accent-raw), 0.04); }
-    #material-cards .add-card-btn  { border: 2px dashed rgba(var(--m-accent-raw), 0.3); color: var(--m-accent); }
-    #material-cards .add-card-btn:hover { background: rgba(var(--m-accent-raw), 0.06); border-color: rgba(var(--m-accent-raw), 0.55); }
-</style>
-
-<!-- Header -->
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-    <div>
-        <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Material</h3>
-        <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola katalog material jaringan</p>
-    </div>
-    <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(129,140,248,0.12); color:#818CF8; border:1px solid rgba(129,140,248,0.3);">Material</span>
+<!-- ======================== PAGE HEAD ======================== -->
+<div class="rd-page-head">
+  <div class="rd-page-title-block">
+    <span class="rd-page-eyebrow">Manajemen Komponen</span>
+    <h1 class="rd-page-title">Material</h1>
+    <p class="rd-page-subtitle">Kelola katalog material dengan kategori, kode, dan varian model 3D.</p>
+  </div>
+  <div class="rd-page-actions">
+    <button class="rd-btn rd-btn-secondary" onclick="showToast('Export fitur akan segera tersedia.','info')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="rd-btn rd-btn-primary" onclick="openAddMatModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tambah Material
+    </button>
+  </div>
 </div>
 
-<!-- Split Layout -->
-<div class="admin-split-layout">
+<!-- ======================== TOOLBAR ======================== -->
+<div class="rd-toolbar">
+  <div class="rd-search">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="search-saved-material" placeholder="Cari material..." />
+  </div>
+  <div class="rd-divider-v"></div>
+  <button class="rd-filter-chip active" onclick="setMatFilter(this,'')">Semua</button>
+  <button class="rd-filter-chip" onclick="setMatFilter(this,'Pengencang')">Pengencang</button>
+  <button class="rd-filter-chip" onclick="setMatFilter(this,'Insulasi')">Insulasi</button>
+  <button class="rd-filter-chip" onclick="setMatFilter(this,'Kabel')">Kabel</button>
+  <button class="rd-filter-chip" onclick="setMatFilter(this,'Lainnya')">Lainnya</button>
+  <div class="rd-divider-v"></div>
+  <div class="rd-view-toggle">
+    <button id="m-view-table" class="active" onclick="setMatView('table')" title="Tabel">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+    <button id="m-view-grid" onclick="setMatView('grid')" title="Grid">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
+</div>
 
-    <!-- ===== KOLOM KIRI – LIST DATA TERSIMPAN ===== -->
-    <div class="admin-split-col">
-        <div class="admin-card" style="height:100%;">
-            <h4 class="section-title" style="margin: 0 0 14px; display:flex; align-items:center; gap:8px;">
-                <svg style="width:14px;height:14px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                Data Tersimpan
-            </h4>
-            <!-- Search Saved Data -->
-            <div style="margin-bottom: 12px; position: relative;">
-                <input type="text" id="search-saved-material" class="admin-input" placeholder="Cari material..." 
-                    style="font-size: 11px; padding: 6px 10px 6px 30px; height: 32px;">
-                <svg style="width: 12px; height: 12px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </div>
-            <div id="material-saved"></div>
-        </div>
+<!-- ======================== LIST ======================== -->
+<div class="rd-data-card">
+  <div class="rd-table-head" id="m-table-head">
+    <div style="width:36px;flex-shrink:0;"></div>
+    <div style="flex:1;">Material</div>
+    <div style="width:140px;">Kategori</div>
+    <div style="width:100px;text-align:center;">Status</div>
+    <div style="width:100px;text-align:center;">Varian</div>
+    <div style="width:130px;text-align:center;">Aksi</div>
+  </div>
+  <div id="material-saved"></div>
+</div>
+
+<!-- ======================== ADD MODAL ======================== -->
+<div id="add-material-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeAddMatModal()">
+  <div class="rd-modal">
+
+    <div class="rd-modal-header">
+      <div class="rd-modal-title-block">
+        <div class="rd-modal-eyebrow">Tambah Baru · Material</div>
+        <h2 class="rd-modal-title">Buat Material Baru</h2>
+      </div>
+      <button class="rd-modal-close" onclick="closeAddMatModal()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
 
-    <!-- ===== KOLOM KANAN – FORM TAMBAH ===== -->
-    <div class="admin-split-col">
-        <div class="admin-card">
-            <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 16px; display:flex; align-items:center; gap:8px;">
-                <svg style="width:14px;height:14px;color:#818CF8;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Tambah Material Baru
-            </h4>
+    <!-- Stepper -->
+    <div class="rd-stepper" id="add-m-stepper">
+      <div class="rd-step active" data-step="0" onclick="goAddMStep(0)">
+        <div class="step-num">1</div>
+        <div class="step-info"><span class="step-label">Informasi</span><span class="step-name">Detail material</span></div>
+      </div>
+      <div class="rd-step" data-step="1" onclick="goAddMStep(1)">
+        <div class="step-num">2</div>
+        <div class="step-info"><span class="step-label">Varian 3D</span><span class="step-name">Upload model</span></div>
+      </div>
+      <div class="rd-step" data-step="2" onclick="goAddMStep(2)">
+        <div class="step-num">3</div>
+        <div class="step-info"><span class="step-label">Review</span><span class="step-name">Konfirmasi</span></div>
+      </div>
+    </div>
 
-            <!-- Info Utama -->
-            <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px; padding-bottom:16px; border-bottom:1px solid rgba(255,255,255,0.08);">
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-                    <div>
-                        <label class="admin-label">Nama Material *</label>
-                        <input type="text" id="mat-modul-name" class="admin-input" placeholder="Contoh: Baut HDG">
-                    </div>
-                    <div>
-                        <label class="admin-label">Kode / Standar *</label>
-                        <input type="text" id="mat-modul-code" class="admin-input" placeholder="Contoh: BT-HDG">
-                    </div>
-                </div>
-                <div>
-                    <label class="admin-label">Deskripsi <span id="add-desc-char-count" style="font-size:10px; color:rgba(255,255,255,0.3); font-weight:400;">0/200</span></label>
-                    <textarea id="mat-modul-desc" class="admin-input" rows="2" maxlength="200" placeholder="Deskripsi material ini..." style="resize:vertical;" oninput="document.getElementById('add-desc-char-count').textContent = this.value.length + '/200'"></textarea>
-                </div>
-                <div>
-                    <label class="admin-label">Kategori</label>
-                    <select id="mat-modul-cat" class="admin-select" style="max-width:60%;">
-                        <option value="Pengencang">Pengencang</option>
-                        <option value="Insulasi">Insulasi</option>
-                        <option value="Kabel">Kabel</option>
-                        <option value="Penyangga">Penyangga</option>
-                        <option value="Lainnya">Lainnya</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="admin-label">Cover Gambar (Opsional)</label>
-                    <div id="mat-modul-image-drop-zone" class="file-drop-zone" onclick="document.getElementById('mat-modul-image').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s;">
-                        <div id="mat-add-img-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height: 100%;">
-                            <svg class="drop-icon" style="width:24px;height:24px;color:rgba(255,255,255,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <div class="drop-label" style="font-size: 14px; color: rgba(255,255,255,0.6);">Pilih Foto Thumbnail</div>
-                            <span style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
-                        </div>
-                        <div id="mat-add-img-filled" style="display:none; flex-direction:column; align-items:center; justify-content:center; height: 100%;">
-                            <svg style="width:28px;height:28px;color:#00E5FF; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <div style="font-size: 14px; color: #00E5FF; font-weight:600;">Thumbnail Terpasang</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Klik untuk ganti foto</div>
-                        </div>
-                    </div>
+    <div class="rd-modal-body">
 
-                    <input type="file" id="mat-modul-image" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="
-                        if(this.files && this.files[0]) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                document.getElementById('mat-modul-image-preview-container').style.display = 'block';
-                                document.getElementById('mat-modul-image-preview-img').src = e.target.result;
-                                document.getElementById('mat-add-img-empty').style.display = 'none';
-                                document.getElementById('mat-add-img-filled').style.display = 'flex';
-                                document.getElementById('mat-modul-image-drop-zone').style.borderColor = 'rgba(0,229,255,0.3)';
-                            };
-                            reader.readAsDataURL(this.files[0]);
-                        }
-                    ">
-
-                    <div id="mat-modul-image-preview-container" style="display:none; margin-top: 10px; position: relative; width: 100%; aspect-ratio: 16/9; max-height: 280px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                        <img id="mat-modul-image-preview-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
-                            <div style="display: flex; gap: 10px;">
-                                <button type="button" onclick="document.getElementById('mat-modul-image').click()" style="background: rgba(0, 229, 255, 0.2); border: 1px solid #00E5FF; color: #00E5FF; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Ganti Foto</button>
-                                <button type="button" onclick="
-                                    document.getElementById('mat-modul-image').value = '';
-                                    document.getElementById('mat-modul-image-preview-img').src = '';
-                                    document.getElementById('mat-modul-image-preview-container').style.display = 'none';
-                                    document.getElementById('mat-add-img-empty').style.display = 'flex';
-                                    document.getElementById('mat-add-img-filled').style.display = 'none';
-                                    document.getElementById('mat-modul-image-drop-zone').style.borderColor = 'rgba(255,255,255,0.2)';
-                                " style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #EF4444; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Hapus Thumbnail</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+      <!-- Step 1: Info -->
+      <div class="rd-step-panel active" id="add-m-panel-0">
+        <div class="rd-section-block">
+          <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Informasi Material</div></div>
+          <div class="rd-field-row cols-2">
+            <div class="rd-field-group">
+              <label class="rd-field-label">Nama Material <span class="req">*</span></label>
+              <input type="text" id="mat-modul-name" class="rd-input" placeholder="Contoh: Baut HDG M16" />
             </div>
+            <div class="rd-field-group">
+              <label class="rd-field-label">Kode / Standar <span class="req">*</span></label>
+              <input type="text" id="mat-modul-code" class="rd-input rd-mono" placeholder="MAT-101" />
+            </div>
+          </div>
+          <div class="rd-field-row cols-2">
+            <div class="rd-field-group">
+              <label class="rd-field-label">Kategori</label>
+              <select id="mat-modul-cat" class="rd-select">
+                <option value="Pengencang">Pengencang</option>
+                <option value="Insulasi">Insulasi</option>
+                <option value="Kabel">Kabel</option>
+                <option value="Penyangga">Penyangga</option>
+                <option value="Lainnya">Lainnya</option>
+              </select>
+            </div>
+            <div class="rd-field-group">
+              <label class="rd-field-label">Status</label>
+              <select id="mat-modul-status" class="rd-select">
+                <option value="Aktif">Aktif</option>
+                <option value="Draft">Draft</option>
+              </select>
+            </div>
+          </div>
+          <div class="rd-field-group">
+            <label class="rd-field-label" style="justify-content:space-between;">
+              Deskripsi
+              <span class="rd-field-counter" id="add-desc-char-count">0/200</span>
+            </label>
+            <textarea id="mat-modul-desc" class="rd-textarea" maxlength="200" rows="3" placeholder="Spesifikasi singkat material..." oninput="document.getElementById('add-desc-char-count').textContent=this.value.length+'/200'"></textarea>
+          </div>
+          <div class="rd-field-group">
+            <label class="rd-field-label">Cover Gambar (Opsional)</label>
+            <div id="mat-modul-image-drop-zone" class="rd-drop-zone" onclick="document.getElementById('mat-modul-image').click()">
+              <div class="dz-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <div class="dz-text">
+                <div id="mat-add-img-empty"><div class="dz-title">Tarik &amp; lepas atau klik</div><div class="dz-sub">PNG · JPG · WEBP · maks 5MB</div></div>
+                <div id="mat-add-img-filled" style="display:none;"><div class="dz-title" style="color:var(--accent);">Thumbnail terpasang</div><div class="dz-sub">Klik untuk ganti</div></div>
+              </div>
+              <button class="rd-btn rd-btn-secondary rd-btn-sm" onclick="event.stopPropagation();document.getElementById('mat-modul-image').click()">Pilih file</button>
+            </div>
+            <input type="file" id="mat-modul-image" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="
+              if(this.files&&this.files[0]){const reader=new FileReader();reader.onload=function(e){document.getElementById('mat-modul-image-preview-container').style.display='block';document.getElementById('mat-modul-image-preview-img').src=e.target.result;document.getElementById('mat-add-img-empty').style.display='none';document.getElementById('mat-add-img-filled').style.display='block';document.getElementById('mat-modul-image-drop-zone').classList.add('has-file');};reader.readAsDataURL(this.files[0]);}
+            " />
+            <div id="mat-modul-image-preview-container" style="display:none;margin-top:10px;border-radius:8px;overflow:hidden;border:1px solid var(--border-default);aspect-ratio:16/9;max-height:200px;position:relative;">
+              <img id="mat-modul-image-preview-img" src="" style="width:100%;height:100%;object-fit:cover;" />
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,0.5);display:flex;align-items:center;justify-content:center;gap:8px;opacity:0;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                <button class="rd-btn rd-btn-secondary rd-btn-sm" onclick="document.getElementById('mat-modul-image').click()">Ganti Foto</button>
+                <button class="rd-btn rd-btn-danger rd-btn-sm" onclick="document.getElementById('mat-modul-image').value='';document.getElementById('mat-modul-image-preview-img').src='';document.getElementById('mat-modul-image-preview-container').style.display='none';document.getElementById('mat-add-img-empty').style.display='block';document.getElementById('mat-add-img-filled').style.display='none';document.getElementById('mat-modul-image-drop-zone').classList.remove('has-file');">Hapus</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            <!-- Asset 3D Cards -->
-            <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Varian / Asset 3D</div>
-            <div id="material-cards" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;"></div>
+      <!-- Step 2: Varian 3D -->
+      <div class="rd-step-panel" id="add-m-panel-1">
+        <div class="rd-section-block">
+          <div class="rd-section-head">
+            <div>
+              <div class="rd-section-title"><span class="num">2</span> Varian Model 3D</div>
+              <p class="rd-section-desc">Upload varian 3D untuk material ini.</p>
+            </div>
+          </div>
+          <div id="material-cards" style="display:flex;flex-direction:column;gap:12px;"></div>
+          <button class="rd-btn rd-btn-ghost" style="border:1px dashed var(--border-strong);width:100%;justify-content:center;padding:12px;border-radius:var(--radius-md);margin-top:4px;" onclick="addMaterialCard()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah varian baru
+          </button>
+        </div>
+      </div>
 
-            <button class="add-card-btn" onclick="addMaterialCard()" style="margin-bottom:14px; border:2px dashed rgba(129,140,248,0.3); color:#818CF8;">
-                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Tambah Varian
+      <!-- Step 3: Review -->
+      <div class="rd-step-panel" id="add-m-panel-2">
+        <div class="rd-section-block">
+          <div class="rd-section-head">
+            <div>
+              <div class="rd-section-title"><span class="num">3</span> Review &amp; Konfirmasi</div>
+              <p class="rd-section-desc">Periksa kembali sebelum menyimpan.</p>
+            </div>
+            <span class="rd-badge rd-badge-success">Siap disimpan</span>
+          </div>
+          <div class="rd-review-grid">
+            <div class="rd-review-tile full"><div class="label">Nama Material</div><div class="value" id="review-m-name">—</div></div>
+            <div class="rd-review-tile"><div class="label">Kode</div><div class="value rd-mono" id="review-m-code">—</div></div>
+            <div class="rd-review-tile"><div class="label">Kategori</div><div class="value" id="review-m-cat">—</div></div>
+            <div class="rd-review-tile"><div class="label">Status</div><div class="value" id="review-m-status">—</div></div>
+            <div class="rd-review-tile"><div class="label">Jumlah Varian</div><div class="value" id="review-m-variants">—</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="rd-modal-footer">
+      <div class="rd-footer-meta">
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span id="add-m-footer-info">Step 1 dari 3 · Detail material</span>
+      </div>
+      <div class="rd-footer-actions">
+        <button class="rd-btn rd-btn-ghost" onclick="closeAddMatModal()">Batal</button>
+        <button id="add-m-prev-btn" class="rd-btn rd-btn-secondary" style="display:none;" onclick="addMStepPrev()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Sebelumnya
+        </button>
+        <button id="add-m-next-btn" class="rd-btn rd-btn-primary" onclick="addMStepNext()">
+          Lanjutkan <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== EDIT MODAL ======================== -->
+<div id="edit-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="rd-modal">
+
+    <div class="rd-modal-header">
+      <div class="rd-modal-title-block">
+        <div class="rd-modal-eyebrow">Edit · Material</div>
+        <h2 class="rd-modal-title">Edit Material &amp; Live Preview</h2>
+      </div>
+      <button class="rd-modal-close" onclick="closeEditModal()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="rd-modal-body">
+      <div class="rd-section-block">
+        <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Informasi Material</div></div>
+        <div class="rd-field-row cols-2">
+          <div class="rd-field-group">
+            <label class="rd-field-label">Nama Material <span class="req">*</span></label>
+            <input type="text" id="edit-mat-modul-name" class="rd-input" placeholder="Contoh: Baut HDG" />
+          </div>
+          <div class="rd-field-group">
+            <label class="rd-field-label">Kode / Standar <span class="req">*</span></label>
+            <input type="text" id="edit-mat-modul-code" class="rd-input rd-mono" placeholder="Contoh: BT-HDG" />
+          </div>
+        </div>
+        <div class="rd-field-group">
+          <label class="rd-field-label" style="justify-content:space-between;">
+            Deskripsi <span class="rd-field-counter" id="desc-char-count">0/200</span>
+          </label>
+          <textarea id="edit-mat-modul-desc" class="rd-textarea" maxlength="200" rows="2" oninput="document.getElementById('desc-char-count').textContent=this.value.length+'/200'"></textarea>
+        </div>
+        <div class="rd-field-group">
+          <label class="rd-field-label">Kategori</label>
+          <select id="edit-mat-modul-cat" class="rd-select" style="max-width:60%;">
+            <option value="Pengencang">Pengencang</option>
+            <option value="Insulasi">Insulasi</option>
+            <option value="Kabel">Kabel</option>
+            <option value="Penyangga">Penyangga</option>
+            <option value="Lainnya">Lainnya</option>
+          </select>
+        </div>
+        <div class="rd-field-group">
+          <label class="rd-field-label">Cover Gambar</label>
+          <div id="edit-mat-modul-image-wrapper" style="display:grid;grid-template-columns:1fr;gap:12px;">
+            <div id="edit-mat-modul-image-drop-zone" class="rd-drop-zone" onclick="document.getElementById('edit-mat-modul-image').click()">
+              <div class="dz-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+              <div class="dz-text">
+                <div id="edit-mat-img-empty"><div class="dz-title">Pilih Foto Baru</div><div class="dz-sub">PNG · JPG · WEBP · maks 5MB</div></div>
+                <div id="edit-mat-img-filled" style="display:none;"><div class="dz-title" style="color:var(--accent);">Thumbnail terpasang</div><div class="dz-sub">Klik untuk ganti</div></div>
+              </div>
+              <button class="rd-btn rd-btn-secondary rd-btn-sm" onclick="event.stopPropagation();document.getElementById('edit-mat-modul-image').click()">Pilih</button>
+            </div>
+            <input type="file" id="edit-mat-modul-image" accept="image/png,image/jpeg,image/webp" style="display:none" onchange="
+              if(this.files&&this.files[0]){const reader=new FileReader();reader.onload=function(e){document.getElementById('edit-mat-modul-image-wrapper').style.gridTemplateColumns='1fr 1fr';document.getElementById('edit-mat-modul-image-preview-container').style.display='block';document.getElementById('edit-mat-modul-image-preview').src=e.target.result;document.getElementById('edit-mat-modul-image-deleted').value='false';document.getElementById('edit-mat-img-empty').style.display='none';document.getElementById('edit-mat-img-filled').style.display='block';document.getElementById('edit-mat-modul-image-drop-zone').classList.add('has-file');};reader.readAsDataURL(this.files[0]);}
+            " />
+            <div id="edit-mat-modul-image-preview-container" style="display:none;position:relative;aspect-ratio:16/9;border-radius:8px;overflow:hidden;border:1px solid var(--border-default);">
+              <img id="edit-mat-modul-image-preview" src="" style="width:100%;height:100%;object-fit:cover;" />
+              <div style="position:absolute;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .2s" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
+                <button class="rd-btn rd-btn-danger rd-btn-sm" onclick="document.getElementById('edit-mat-modul-image').value='';document.getElementById('edit-mat-modul-image-preview').src='';document.getElementById('edit-mat-modul-image-wrapper').style.gridTemplateColumns='1fr';document.getElementById('edit-mat-modul-image-preview-container').style.display='none';document.getElementById('edit-mat-modul-image-deleted').value='true';document.getElementById('edit-mat-img-empty').style.display='block';document.getElementById('edit-mat-img-filled').style.display='none';document.getElementById('edit-mat-modul-image-drop-zone').classList.remove('has-file');">Hapus</button>
+              </div>
+            </div>
+            <input type="hidden" id="edit-mat-modul-image-deleted" value="false" />
+          </div>
+        </div>
+      </div>
+
+      <div class="rd-section-block" style="margin-top:14px;">
+        <div class="rd-section-head"><div class="rd-section-title"><span class="num">2</span> Varian &amp; Preview 3D</div></div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;">
+            <div id="edit-material-cards" style="display:flex;flex-direction:column;gap:14px;max-height:320px;overflow-y:auto;padding-right:4px;"></div>
+            <button class="rd-btn rd-btn-ghost" style="border:1px dashed var(--border-strong);width:100%;justify-content:center;padding:10px;" onclick="addEditMaterialCard()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Tambah Varian
             </button>
-
-            <div style="display:flex; gap:10px;">
-                <button class="btn-primary" onclick="submitSemuaMaterial()">Simpan Semua</button>
-                <button class="btn-secondary" onclick="resetMaterialForm()">Reset</button>
+          </div>
+          <div style="flex:1;min-width:280px;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;border:1px solid var(--border-default);position:relative;min-height:320px;">
+            <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+            <model-viewer id="admin-preview-viewer" src="" camera-controls auto-rotate rotation-per-second="30deg"
+              interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1"
+              style="width:100%;height:100%;min-height:320px;outline:none;background:#0A1520;"></model-viewer>
+            <div id="admin-preview-empty" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);pointer-events:none;gap:8px;">
+              <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+              <span style="font-size:12px;font-weight:600;">Belum ada file GLB terpilih</span>
             </div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
+              <select id="admin-preview-selector" onchange="changeAdminPreview()" class="rd-select" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
+                <option value="">-- Pilih Varian untuk Preview --</option>
+              </select>
+            </div>
+          </div>
         </div>
+      </div>
     </div>
 
-</div>
-
-<!-- Library Model Viewer untuk Preview Admin -->
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-
-<!-- MODAL EDIT -->
-<div id="edit-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 900px;">
-        <div class="modal-header">
-            <h4 style="margin:0; font-size:16px; color:#fff;">Edit Material</h4>
-            <button class="modal-close-btn" onclick="closeEditModal()">×</button>
-        </div>
-
-        <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:20px; padding-bottom:20px; border-bottom:1px solid rgba(255,255,255,0.1);">
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                <div>
-                    <label class="admin-label">Nama Material *</label>
-                    <input type="text" id="edit-mat-modul-name" class="admin-input" placeholder="Contoh: Baut HDG">
-                </div>
-                <div>
-                    <label class="admin-label">Kode / Standar *</label>
-                    <input type="text" id="edit-mat-modul-code" class="admin-input" placeholder="Contoh: BT-HDG">
-                </div>
-            </div>
-            <div>
-                <label class="admin-label">Deskripsi <span id="desc-char-count" style="font-size:10px; color:rgba(255,255,255,0.3); font-weight:400;">0/200</span></label>
-                <textarea id="edit-mat-modul-desc" class="admin-input" rows="2" maxlength="200" style="resize:vertical;" oninput="document.getElementById('desc-char-count').textContent = this.value.length + '/200'"></textarea>
-            </div>
-            <div>
-                <label class="admin-label">Kategori</label>
-                <select id="edit-mat-modul-cat" class="admin-select" style="max-width:60%;">
-                    <option value="Pengencang">Pengencang</option>
-                    <option value="Insulasi">Insulasi</option>
-                    <option value="Kabel">Kabel</option>
-                    <option value="Penyangga">Penyangga</option>
-                    <option value="Lainnya">Lainnya</option>
-                </select>
-            </div>
-            <div>
-                <label class="admin-label">Cover Gambar (Opsional)</label>
-                <div id="edit-mat-modul-image-wrapper" style="display: grid; grid-template-columns: 1fr; gap: 12px; min-height: 140px;">
-                    <div id="edit-mat-modul-image-drop-zone" class="file-drop-zone" onclick="document.getElementById('edit-mat-modul-image').click()" style="cursor: pointer; padding: 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s;">
-                        <div id="edit-mat-img-empty" style="display:flex; flex-direction:column; align-items:center;">
-                            <svg class="drop-icon" style="width:24px;height:24px;color:rgba(255,255,255,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                            </svg>
-                            <div class="drop-label" style="font-size: 14px; color: rgba(255,255,255,0.6);">Pilih Foto Baru</div>
-                            <span style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
-                        </div>
-                        <div id="edit-mat-img-filled" style="display:none; flex-direction:column; align-items:center;">
-                            <svg style="width:28px;height:28px;color:#00E5FF; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            <div style="font-size: 14px; color: #00E5FF; font-weight:600;">Thumbnail Terpasang</div>
-                            <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Klik untuk ganti foto</div>
-                        </div>
-                    </div>
-
-                    <input type="file" id="edit-mat-modul-image" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="
-                        if(this.files && this.files[0]) {
-                            const reader = new FileReader();
-                            reader.onload = function(e) {
-                                document.getElementById('edit-mat-modul-image-wrapper').style.gridTemplateColumns = '1fr 1fr';
-                                document.getElementById('edit-mat-modul-image-preview-container').style.display = 'block';
-                                document.getElementById('edit-mat-modul-image-preview').src = e.target.result;
-                                document.getElementById('edit-mat-modul-image-deleted').value = 'false';
-                                
-                                document.getElementById('edit-mat-img-empty').style.display = 'none';
-                                document.getElementById('edit-mat-img-filled').style.display = 'flex';
-                                document.getElementById('edit-mat-modul-image-drop-zone').style.borderColor = 'rgba(0,229,255,0.3)';
-                            };
-                            reader.readAsDataURL(this.files[0]);
-                        }
-                    ">
-
-                    <div id="edit-mat-modul-image-preview-container" style="display:none; position: relative; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
-                        <img id="edit-mat-modul-image-preview" src="" style="width: 100%; height: 100%; object-fit: cover;">
-                        <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
-                            <button type="button" onclick="
-                                document.getElementById('edit-mat-modul-image').value = '';
-                                document.getElementById('edit-mat-modul-image-preview').src = '';
-                                document.getElementById('edit-mat-modul-image-wrapper').style.gridTemplateColumns = '1fr';
-                                document.getElementById('edit-mat-modul-image-preview-container').style.display = 'none';
-                                document.getElementById('edit-mat-modul-image-deleted').value = 'true';
-                                
-                                document.getElementById('edit-mat-img-empty').style.display = 'flex';
-                                document.getElementById('edit-mat-img-filled').style.display = 'none';
-                                document.getElementById('edit-mat-modul-image-drop-zone').style.borderColor = 'rgba(255,255,255,0.2)';
-                            " style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #EF4444; padding: 6px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight:600; transition: all 0.2s;">Hapus Thumbnail</button>
-                        </div>
-                    </div>
-                </div>
-                <input type="hidden" id="edit-mat-modul-image-deleted" value="false">
-            </div>
-        </div>
-
-        <!-- Split: Varian + 3D Preview -->
-        <div style="display:flex; gap:20px; flex-wrap:wrap;">
-
-            <!-- Kiri: Varian -->
-            <div style="flex:1; min-width:280px; display:flex; flex-direction:column;">
-                <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Varian / Asset 3D</div>
-                <div id="edit-material-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px; max-height:340px; overflow-y:auto; padding-right:8px;"></div>
-                <button class="add-card-btn" onclick="addEditMaterialCard()" style="margin-bottom:14px; border:2px dashed rgba(129,140,248,0.3); color:#818CF8;">
-                    <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                    Tambah Varian
-                </button>
-            </div>
-
-            <!-- Kanan: 3D Preview -->
-            <div style="flex:1; min-width:280px; display:flex; flex-direction:column; background:rgba(0,0,0,0.2); border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); position:relative; min-height:340px;">
-                <model-viewer
-                    id="admin-preview-viewer"
-                    src=""
-                    camera-controls
-                    auto-rotate
-                    rotation-per-second="30deg"
-                    interaction-prompt="none"
-                    shadow-intensity="1.5"
-                    environment-image="neutral"
-                    exposure="1"
-                    style="width:100%; height:100%; min-height:340px; outline:none; background:#0A1520;">
-                </model-viewer>
-
-                <div id="admin-preview-empty" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:rgba(255,255,255,0.3); pointer-events:none;">
-                    <svg style="width:36px;height:36px;margin-bottom:8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                    <div style="font-size:12px; font-weight:600;">Belum ada file GLB terpilih</div>
-                </div>
-
-                <!-- Dropdown Selector Varian -->
-                <div style="position:absolute; bottom:12px; left:12px; right:12px; z-index:10;">
-                    <select id="admin-preview-selector" onchange="changeAdminPreview()" style="width:100%; padding:8px 12px; background:rgba(0,0,0,0.65); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; font-size:12px; outline:none; backdrop-filter:blur(6px);">
-                        <option value="">-- Pilih Varian untuk Preview --</option>
-                    </select>
-                </div>
-            </div>
-
-        </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:20px; padding-top:16px; border-top:1px solid rgba(255,255,255,0.08);">
-            <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
-            <button class="btn-primary" onclick="submitEditMaterial()">Simpan Perubahan</button>
-        </div>
+    <div class="rd-modal-footer">
+      <div class="rd-footer-meta"></div>
+      <div class="rd-footer-actions">
+        <button class="rd-btn rd-btn-ghost" onclick="closeEditModal()">Batal</button>
+        <button class="rd-btn rd-btn-primary" onclick="submitEditMaterial()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Simpan Perubahan
+        </button>
+      </div>
     </div>
+
+  </div>
 </div>
 
 <script src="/js/admin/upload-card.js"></script>
 <script src="/js/admin/material-admin.js"></script>
+<script>
+/* Wizard for material add */
+let _addMStep = 0;
+const _addMSteps = [{ label: 'Detail material' }, { label: 'Upload model' }, { label: 'Konfirmasi' }];
+
+function openAddMatModal() {
+  _addMStep = 0; renderAddMStep();
+  document.getElementById('add-material-modal').classList.add('active');
+}
+function closeAddMatModal() { document.getElementById('add-material-modal').classList.remove('active'); }
+function renderAddMStep() {
+  document.querySelectorAll('#add-material-modal .rd-step-panel').forEach((p,i) => p.classList.toggle('active', i === _addMStep));
+  document.querySelectorAll('#add-m-stepper .rd-step').forEach((s,i) => {
+    s.classList.toggle('active', i === _addMStep);
+    s.classList.toggle('done', i < _addMStep);
+    const num = s.querySelector('.step-num');
+    num.innerHTML = i < _addMStep ? '<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' : (i+1);
+  });
+  document.getElementById('add-m-prev-btn').style.display = _addMStep > 0 ? '' : 'none';
+  const nextBtn = document.getElementById('add-m-next-btn');
+  if (_addMStep === _addMSteps.length - 1) {
+    nextBtn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Simpan Material';
+    nextBtn.onclick = () => submitSemuaMaterial();
+  } else {
+    nextBtn.innerHTML = 'Lanjutkan <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+    nextBtn.onclick = addMStepNext;
+  }
+  document.getElementById('add-m-footer-info').textContent = `Step ${_addMStep+1} dari ${_addMSteps.length} · ${_addMSteps[_addMStep].label}`;
+  if (_addMStep === 2) {
+    document.getElementById('review-m-name').textContent = document.getElementById('mat-modul-name')?.value || '—';
+    document.getElementById('review-m-code').textContent = document.getElementById('mat-modul-code')?.value || '—';
+    document.getElementById('review-m-cat').textContent = document.getElementById('mat-modul-cat')?.value || '—';
+    document.getElementById('review-m-status').textContent = document.getElementById('mat-modul-status')?.value || '—';
+    document.getElementById('review-m-variants').textContent = document.querySelectorAll('#material-cards .upload-card').length + ' varian';
+  }
+}
+function goAddMStep(i) { _addMStep = i; renderAddMStep(); }
+function addMStepNext() { if (_addMStep < _addMSteps.length - 1) { _addMStep++; renderAddMStep(); } }
+function addMStepPrev() { if (_addMStep > 0) { _addMStep--; renderAddMStep(); } }
+
+/* Filter & view */
+function setMatFilter(btn, val) {
+  document.querySelectorAll('.rd-toolbar .rd-filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+  loadMaterialSaved(val);
+}
+function setMatView(view) {
+  const saved = document.getElementById('material-saved');
+  const head = document.getElementById('m-table-head');
+  document.getElementById('m-view-table').classList.toggle('active', view === 'table');
+  document.getElementById('m-view-grid').classList.toggle('active', view === 'grid');
+  saved.classList.toggle('grid-view', view === 'grid');
+  if (head) head.style.display = view === 'grid' ? 'none' : '';
+}
+</script>

@@ -227,21 +227,34 @@ async function loadKonstruksiSaved(filter = '') {
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
-                <div class="item-icon">
+                <div class="item-icon" style="width:36px; flex-shrink:0;">
                     <svg style="width:16px;height:16px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                     </svg>
                 </div>
-                <div style="flex:1;">
+                <div style="flex:1; padding-right:16px;">
                     <div style="font-size:13px;font-weight:600;color:#fff;">${m.title}</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
                         ${variantsCount} varian · ${matCount} Material · ${eqCount} Peralatan
                     </div>
                 </div>
-                <span class="badge ${badgeClass}">${m.status || 'Aktif'}</span>
-                <button class="btn-warning" onclick="editKonstruksi('${m.id}')" style="margin-right:8px;">Edit</button>
-                <button class="btn-danger" onclick="deleteKonstruksi('${m.id}', this)">Hapus</button>
+                <div style="width:100px; display:flex; justify-content:center;">
+                    <span class="badge ${badgeClass}">${m.status || 'Aktif'}</span>
+                </div>
+                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                    ${variantsCount}
+                </div>
+                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                    ${matCount}
+                </div>
+                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                    ${eqCount}
+                </div>
+                <div style="width:130px; display:flex; gap:6px; justify-content:center;">
+                    <button class="btn-warning" onclick="editKonstruksi('${m.id}')">Edit</button>
+                    <button class="btn-danger" onclick="deleteKonstruksi('${m.id}', this)">Hapus</button>
+                </div>
             `;
             saved.appendChild(row);
         });

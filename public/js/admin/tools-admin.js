@@ -50,22 +50,35 @@ async function loadToolsSaved(filter = '') {
             const row = document.createElement('div');
             row.className = 'item-row';
             row.innerHTML = `
-                <div class="item-icon" style="background:rgba(245,158,11,0.1);">
+                <div class="item-icon" style="background:rgba(245,158,11,0.1); width:36px; flex-shrink:0;">
                     <svg style="width:16px;height:16px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                               d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                     </svg>
                 </div>
-                <div style="flex:1;">
+                <div style="flex:1; padding-right:16px;">
                     <div style="font-size:13px;font-weight:600;color:#fff;">${t.name}</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
-                        ${catLabel}${t.standard ? ' · ' + t.standard : ''} · ${hasFile ? 'Ada file 3D' : 'Tanpa file 3D'} · ${t.status || 'Wajib'}
+                        ${t.description ? (t.description.substring(0, 45) + '...') : '-'}
                     </div>
                 </div>
-                <span class="badge ${catClass}">${catLabel}</span>
-                <button class="btn-warning" onclick="editTool('${t.id}')" style="margin-right:8px;">Edit</button>
-                <button class="btn-danger" onclick="deleteTool('${t.id}', this)">Hapus</button>
+                <div style="width:130px;">
+                    <span class="badge ${catClass}">${catLabel}</span>
+                </div>
+                <div style="width:110px; text-align:center; font-size:12px; font-weight:500; color:#fff;">
+                    ${t.standard || '-'}
+                </div>
+                <div style="width:100px; display:flex; justify-content:center;">
+                    <div style="font-size:12px; font-weight:500; color:#fff;">${t.status || 'Wajib'}</div>
+                </div>
+                <div style="width:80px; text-align:center; font-size:12px; font-weight:500; color:${hasFile ? '#10B981' : 'rgba(255,255,255,0.4)'};">
+                    ${hasFile ? 'Ada' : '-'}
+                </div>
+                <div style="width:130px; display:flex; gap:6px; justify-content:center;">
+                    <button class="btn-warning rd-btn-sm" onclick="editTool('${t.id}')">Edit</button>
+                    <button class="btn-danger rd-btn-sm" onclick="deleteTool('${t.id}', this)">Hapus</button>
+                </div>
             `;
             saved.appendChild(row);
         });

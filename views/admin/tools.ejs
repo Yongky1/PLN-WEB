@@ -1,127 +1,265 @@
-<!-- views/admin/tools.ejs -->
+<!-- views/admin/tools.ejs — Admin Redesign -->
 <link rel="stylesheet" href="/css/upload-card.css">
-<style>
-    :root { --t-accent: #F59E0B; --t-accent-raw: 245,158,11; }
 
-    #tools-saved { display: flex; flex-direction: column; gap: 8px; max-height: 520px; overflow-y: auto; padding-right: 4px; }
-
-    #tools-cards .upload-card-header { background: rgba(var(--t-accent-raw), 0.04); }
-    #tools-cards .file-drop-zone { --zone-color: rgba(var(--t-accent-raw), 0.5); --zone-bg: rgba(var(--t-accent-raw), 0.04); }
-    #tools-cards .add-card-btn  { border: 2px dashed rgba(var(--t-accent-raw), 0.3); color: var(--t-accent); }
-    #tools-cards .add-card-btn:hover { background: rgba(var(--t-accent-raw), 0.06); border-color: rgba(var(--t-accent-raw), 0.55); }
-</style>
-
-<!-- Header -->
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px;">
-    <div>
-        <h3 style="font-size:16px; font-weight:700; color:#fff; margin:0;">Manajemen Peralatan</h3>
-        <p style="font-size:12px; color:rgba(255,255,255,0.35); margin:4px 0 0;">Tambah dan kelola katalog alat lapangan & K3</p>
-    </div>
-    <span style="font-size:11px; font-weight:600; padding:4px 12px; border-radius:999px; background:rgba(245,158,11,0.1); color:#F59E0B; border:1px solid rgba(245,158,11,0.25);">Peralatan</span>
+<!-- ======================== PAGE HEAD ======================== -->
+<div class="rd-page-head">
+  <div class="rd-page-title-block">
+    <span class="rd-page-eyebrow">Manajemen Komponen</span>
+    <h1 class="rd-page-title">Peralatan</h1>
+    <p class="rd-page-subtitle">Kelola katalog peralatan kerja, K3, dan instrumen pengukuran.</p>
+  </div>
+  <div class="rd-page-actions">
+    <button class="rd-btn rd-btn-secondary" onclick="showToast('Export fitur akan segera tersedia.','info')">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="rd-btn rd-btn-primary" onclick="openAddToolModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tambah Peralatan
+    </button>
+  </div>
 </div>
 
-<!-- Split Layout -->
-<div class="admin-split-layout">
-
-    <!-- ===== KOLOM KIRI – LIST DATA TERSIMPAN ===== -->
-    <div class="admin-split-col">
-        <div class="admin-card" style="height:100%;">
-            <h4 class="section-title" style="margin: 0 0 14px; display:flex; align-items:center; gap:8px;">
-                <svg style="width:14px;height:14px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
-                Data Tersimpan
-            </h4>
-            <!-- Search Saved Data -->
-            <div style="margin-bottom: 12px; position: relative;">
-                <input type="text" id="search-saved-tools" class="admin-input" placeholder="Cari peralatan..." 
-                    style="font-size: 11px; padding: 6px 10px 6px 30px; height: 32px;">
-                <svg style="width: 12px; height: 12px; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.3);" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-                </svg>
-            </div>
-            <div id="tools-saved"></div>
-        </div>
-    </div>
-
-    <!-- ===== KOLOM KANAN – FORM TAMBAH ===== -->
-    <div class="admin-split-col">
-        <div class="admin-card">
-            <h4 style="font-size:13px; font-weight:600; color:#fff; margin:0 0 16px; display:flex; align-items:center; gap:8px;">
-                <svg style="width:14px;height:14px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Tambah Peralatan Baru
-            </h4>
-
-            <div id="tools-cards" style="display:flex; flex-direction:column; gap:12px; margin-bottom:12px;"></div>
-
-            <button class="add-card-btn" onclick="addToolsCard()" style="margin-bottom:14px; border:2px dashed rgba(245,158,11,0.3); color:#F59E0B;">
-                <svg style="width:14px;height:14px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-                Tambah Peralatan Lagi
-            </button>
-
-            <div style="display:flex; gap:10px;">
-                <button class="btn-primary" onclick="submitSemuaTools()">Simpan Semua</button>
-                <button class="btn-secondary" onclick="resetToolsForm()">Reset</button>
-            </div>
-        </div>
-    </div>
-
+<!-- ======================== TOOLBAR ======================== -->
+<div class="rd-toolbar">
+  <div class="rd-search">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="search-saved-tools" placeholder="Cari peralatan..." />
+  </div>
+  <div class="rd-divider-v"></div>
+  <button class="rd-filter-chip active" onclick="setToolFilter(this,'')">Semua</button>
+  <button class="rd-filter-chip" onclick="setToolFilter(this,'Alat K3')">Alat K3</button>
+  <button class="rd-filter-chip" onclick="setToolFilter(this,'Alat Teknis')">Alat Teknis</button>
+  <button class="rd-filter-chip" onclick="setToolFilter(this,'Pengukuran')">Pengukuran</button>
+  <div class="rd-divider-v"></div>
+  <div class="rd-view-toggle">
+    <button id="t-view-table" class="active" onclick="setToolView('table')" title="Tabel">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+    <button id="t-view-grid" onclick="setToolView('grid')" title="Grid">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
 </div>
 
-<!-- Library Model Viewer untuk Preview Admin -->
-<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+<!-- ======================== LIST ======================== -->
+<div class="rd-data-card">
+  <div class="rd-table-head" id="t-table-head">
+    <div style="width:36px;flex-shrink:0;"></div>
+    <div style="flex:1;">Peralatan</div>
+    <div style="width:130px;">Kategori</div>
+    <div style="width:110px;text-align:center;">Standar</div>
+    <div style="width:100px;text-align:center;">Status</div>
+    <div style="width:80px;text-align:center;">3D</div>
+    <div style="width:130px;text-align:center;">Aksi</div>
+  </div>
+  <div id="tools-saved"></div>
+</div>
 
-<!-- MODAL EDIT -->
-<div id="edit-modal" class="modal-overlay">
-    <div class="modal-content" style="max-width: 900px;">
-        <div class="modal-header">
-            <h4 style="margin:0; font-size:16px; color:#fff;">Edit Peralatan & Live Preview</h4>
-            <button class="modal-close-btn" onclick="closeEditModal()">×</button>
-        </div>
+<!-- ======================== ADD MODAL ======================== -->
+<div id="add-tool-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeAddToolModal()">
+  <div class="rd-modal" style="max-width:700px;">
 
-        <!-- Split: Varian + 3D Preview -->
-        <div style="display:flex; gap:20px; flex-wrap:wrap; margin-top:20px;">
-
-            <!-- Kiri: Varian (Hanya 1 kartu biasanya untuk peralatan) -->
-            <div style="flex:1; min-width:280px; display:flex; flex-direction:column;">
-                <div style="font-size:11px; font-weight:600; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; letter-spacing:.08em;">Data Peralatan / Asset 3D</div>
-                <div id="edit-tools-cards" style="display:flex; flex-direction:column; gap:14px; margin-bottom:14px; max-height:340px; overflow-y:auto; padding-right:8px;"></div>
-            </div>
-
-            <!-- Kanan: 3D Preview -->
-            <div style="flex:1; min-width:280px; display:flex; flex-direction:column; background:rgba(0,0,0,0.2); border-radius:12px; overflow:hidden; border:1px solid rgba(255,255,255,0.05); position:relative; min-height:340px;">
-                <model-viewer
-                    id="admin-preview-viewer"
-                    src=""
-                    camera-controls
-                    auto-rotate
-                    rotation-per-second="30deg"
-                    interaction-prompt="none"
-                    shadow-intensity="1.5"
-                    environment-image="neutral"
-                    exposure="1"
-                    style="width:100%; height:100%; min-height:340px; outline:none; background:#0A1520;">
-                </model-viewer>
-
-                <div id="admin-preview-empty" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:rgba(255,255,255,0.3); pointer-events:none;">
-                    <svg style="width:36px;height:36px;margin-bottom:8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                    <div style="font-size:12px; font-weight:600;">Belum ada file GLB terpilih</div>
-                </div>
-
-                <!-- Dropdown Selector Varian -->
-                <div style="position:absolute; bottom:12px; left:12px; right:12px; z-index:10;">
-                    <select id="admin-preview-selector" onchange="changeAdminPreview()" style="width:100%; padding:8px 12px; background:rgba(0,0,0,0.65); color:#fff; border:1px solid rgba(255,255,255,0.1); border-radius:8px; font-size:12px; outline:none; backdrop-filter:blur(6px);">
-                        <option value="">-- Pilih File untuk Preview --</option>
-                    </select>
-                </div>
-            </div>
-
-        </div>
-
-        <div style="display:flex; justify-content:flex-end; gap:10px; padding-top:14px; margin-top:20px; border-top:1px solid rgba(255,255,255,0.08);">
-            <button class="btn-secondary" onclick="closeEditModal()">Batal</button>
-            <button class="btn-primary" onclick="submitEditTool()">Simpan Perubahan</button>
-        </div>
+    <div class="rd-modal-header">
+      <div class="rd-modal-title-block">
+        <div class="rd-modal-eyebrow">Tambah Baru · Peralatan</div>
+        <h2 class="rd-modal-title">Buat Peralatan Baru</h2>
+      </div>
+      <button class="rd-modal-close" onclick="closeAddToolModal()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
     </div>
+
+    <!-- Stepper -->
+    <div class="rd-stepper" id="add-t-stepper">
+      <div class="rd-step active" data-step="0" onclick="goAddTStep(0)">
+        <div class="step-num">1</div>
+        <div class="step-info"><span class="step-label">Informasi</span><span class="step-name">Detail peralatan</span></div>
+      </div>
+      <div class="rd-step" data-step="1" onclick="goAddTStep(1)">
+        <div class="step-num">2</div>
+        <div class="step-info"><span class="step-label">Model 3D</span><span class="step-name">Upload (opsional)</span></div>
+      </div>
+      <div class="rd-step" data-step="2" onclick="goAddTStep(2)">
+        <div class="step-num">3</div>
+        <div class="step-info"><span class="step-label">Review</span><span class="step-name">Konfirmasi</span></div>
+      </div>
+    </div>
+
+    <div class="rd-modal-body">
+
+      <!-- Step 1: Info -->
+      <div class="rd-step-panel active" id="add-t-panel-0">
+        <div class="rd-section-block">
+          <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Informasi Peralatan</div></div>
+          <!-- tools-cards renders individual cards including info fields when initToolsCard is called -->
+          <!-- We put the cards container here so addToolsCard() works, first card auto-added on DOMContentLoaded -->
+          <div id="tools-cards" style="display:flex;flex-direction:column;gap:12px;"></div>
+          <button class="rd-btn rd-btn-ghost" style="border:1px dashed var(--border-strong);width:100%;justify-content:center;padding:12px;border-radius:var(--radius-md);margin-top:4px;" onclick="addToolsCard()">
+            <svg width="15" height="15" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Peralatan Lagi
+          </button>
+        </div>
+      </div>
+
+      <!-- Step 2: Model 3D - just info since cards handle file upload -->
+      <div class="rd-step-panel" id="add-t-panel-1">
+        <div class="rd-section-block">
+          <div class="rd-section-head">
+            <div>
+              <div class="rd-section-title"><span class="num">2</span> Model 3D Peralatan</div>
+              <p class="rd-section-desc">Opsional — file 3D sudah dapat diupload via kartu di step sebelumnya. Pastikan semua file sudah terlampir.</p>
+            </div>
+          </div>
+          <div class="rd-variant-preview" style="border-radius:12px;height:160px;">
+            <svg width="48" height="48" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--accent);opacity:0.5;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+            <div class="rd-muted">File 3D diupload per kartu peralatan</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Review -->
+      <div class="rd-step-panel" id="add-t-panel-2">
+        <div class="rd-section-block">
+          <div class="rd-section-head">
+            <div>
+              <div class="rd-section-title"><span class="num">3</span> Review &amp; Konfirmasi</div>
+              <p class="rd-section-desc">Periksa kembali sebelum menyimpan.</p>
+            </div>
+            <span class="rd-badge rd-badge-success">Siap disimpan</span>
+          </div>
+          <div class="rd-review-grid">
+            <div class="rd-review-tile full"><div class="label">Jumlah Peralatan</div><div class="value" id="review-t-count">—</div></div>
+            <div class="rd-review-tile full"><div class="label">Catatan</div><div class="value" style="font-size:13px;font-weight:400;color:var(--text-secondary);">Setiap peralatan akan disimpan dengan nama, kategori, standar, dan file 3D (jika ada).</div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="rd-modal-footer">
+      <div class="rd-footer-meta">
+        <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        <span id="add-t-footer-info">Step 1 dari 3 · Detail peralatan</span>
+      </div>
+      <div class="rd-footer-actions">
+        <button class="rd-btn rd-btn-ghost" onclick="closeAddToolModal()">Batal</button>
+        <button id="add-t-prev-btn" class="rd-btn rd-btn-secondary" style="display:none;" onclick="addTStepPrev()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Sebelumnya
+        </button>
+        <button id="add-t-next-btn" class="rd-btn rd-btn-primary" onclick="addTStepNext()">
+          Lanjutkan <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ======================== EDIT MODAL ======================== -->
+<div id="edit-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeEditModal()">
+  <div class="rd-modal">
+
+    <div class="rd-modal-header">
+      <div class="rd-modal-title-block">
+        <div class="rd-modal-eyebrow">Edit · Peralatan</div>
+        <h2 class="rd-modal-title">Edit Peralatan &amp; Live Preview</h2>
+      </div>
+      <button class="rd-modal-close" onclick="closeEditModal()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="rd-modal-body">
+      <div class="rd-section-block">
+        <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Data Peralatan &amp; Preview 3D</div></div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;">
+            <div id="edit-tools-cards" style="display:flex;flex-direction:column;gap:14px;max-height:340px;overflow-y:auto;padding-right:4px;"></div>
+          </div>
+          <div style="flex:1;min-width:280px;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;border:1px solid var(--border-default);position:relative;min-height:320px;">
+            <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+            <model-viewer id="admin-preview-viewer" src="" camera-controls auto-rotate rotation-per-second="30deg"
+              interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1"
+              style="width:100%;height:100%;min-height:320px;outline:none;background:#0A1520;"></model-viewer>
+            <div id="admin-preview-empty" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);pointer-events:none;gap:8px;">
+              <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              <span style="font-size:12px;font-weight:600;">Belum ada file GLB terpilih</span>
+            </div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
+              <select id="admin-preview-selector" onchange="changeAdminPreview()" class="rd-select" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
+                <option value="">-- Pilih File untuk Preview --</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="rd-modal-footer">
+      <div class="rd-footer-meta"></div>
+      <div class="rd-footer-actions">
+        <button class="rd-btn rd-btn-ghost" onclick="closeEditModal()">Batal</button>
+        <button class="rd-btn rd-btn-primary" onclick="submitEditTool()">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+          Simpan Perubahan
+        </button>
+      </div>
+    </div>
+
+  </div>
 </div>
 
 <script src="/js/admin/upload-card.js"></script>
 <script src="/js/admin/tools-admin.js"></script>
+<script>
+/* Add tool wizard */
+let _addTStep = 0;
+const _addTSteps = [{ label: 'Detail peralatan' }, { label: 'Upload (opsional)' }, { label: 'Konfirmasi' }];
+
+function openAddToolModal() {
+  _addTStep = 0; renderAddTStep();
+  document.getElementById('add-tool-modal').classList.add('active');
+}
+function closeAddToolModal() { document.getElementById('add-tool-modal').classList.remove('active'); }
+function renderAddTStep() {
+  document.querySelectorAll('#add-tool-modal .rd-step-panel').forEach((p,i) => p.classList.toggle('active', i === _addTStep));
+  document.querySelectorAll('#add-t-stepper .rd-step').forEach((s,i) => {
+    s.classList.toggle('active', i === _addTStep);
+    s.classList.toggle('done', i < _addTStep);
+    const num = s.querySelector('.step-num');
+    num.innerHTML = i < _addTStep ? '<svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>' : (i+1);
+  });
+  document.getElementById('add-t-prev-btn').style.display = _addTStep > 0 ? '' : 'none';
+  const nextBtn = document.getElementById('add-t-next-btn');
+  if (_addTStep === _addTSteps.length - 1) {
+    nextBtn.innerHTML = '<svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> Simpan Peralatan';
+    nextBtn.onclick = () => submitSemuaTools();
+  } else {
+    nextBtn.innerHTML = 'Lanjutkan <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>';
+    nextBtn.onclick = addTStepNext;
+  }
+  document.getElementById('add-t-footer-info').textContent = `Step ${_addTStep+1} dari ${_addTSteps.length} · ${_addTSteps[_addTStep].label}`;
+  if (_addTStep === 2) {
+    document.getElementById('review-t-count').textContent = document.querySelectorAll('#tools-cards .upload-card').length + ' peralatan';
+  }
+}
+function goAddTStep(i) { _addTStep = i; renderAddTStep(); }
+function addTStepNext() { if (_addTStep < _addTSteps.length - 1) { _addTStep++; renderAddTStep(); } }
+function addTStepPrev() { if (_addTStep > 0) { _addTStep--; renderAddTStep(); } }
+
+/* Filter & view */
+function setToolFilter(btn, val) {
+  document.querySelectorAll('.rd-toolbar .rd-filter-chip').forEach(b => b.classList.toggle('active', b === btn));
+  loadToolsSaved(val);
+}
+function setToolView(view) {
+  const saved = document.getElementById('tools-saved');
+  const head = document.getElementById('t-table-head');
+  document.getElementById('t-view-table').classList.toggle('active', view === 'table');
+  document.getElementById('t-view-grid').classList.toggle('active', view === 'grid');
+  saved.classList.toggle('grid-view', view === 'grid');
+  if (head) head.style.display = view === 'grid' ? 'none' : '';
+}
+</script>
