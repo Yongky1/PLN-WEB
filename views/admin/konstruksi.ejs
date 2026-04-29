@@ -478,6 +478,10 @@ function openAddKonstruksiModal() {
 
 function closeAddKonstruksiModal() {
   document.getElementById('add-konstruksi-modal').classList.remove('active');
+  if (typeof resetKonstruksiForm === 'function') resetKonstruksiForm();
+  document.querySelectorAll('#modul-materials-list .mat-checkbox:checked').forEach(cb => toggleMatItem(cb.parentElement, cb.dataset.id));
+  document.querySelectorAll('#modul-tools-list .tool-checkbox:checked').forEach(cb => toggleToolItem(cb.parentElement, cb.dataset.id));
+  if (typeof goAddKStep === 'function') goAddKStep(0);
 }
 
 function renderAddKStep() {

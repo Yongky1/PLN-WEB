@@ -539,11 +539,14 @@ function resetMaterialForm() {
         const previewContainer = document.getElementById('mat-modul-image-preview-container');
         if (previewContainer) previewContainer.style.display = 'none';
         const emptyState = document.getElementById('mat-add-img-empty');
-        if (emptyState) emptyState.style.display = 'flex';
+        if (emptyState) emptyState.style.display = '';
         const filledState = document.getElementById('mat-add-img-filled');
         if (filledState) filledState.style.display = 'none';
         const dropZone = document.getElementById('mat-modul-image-drop-zone');
-        if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
+        if (dropZone) {
+            dropZone.classList.remove('has-file');
+            dropZone.style.borderColor = '';
+        }
     }
 
     const container = document.getElementById('material-cards');

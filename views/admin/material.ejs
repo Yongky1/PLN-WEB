@@ -355,7 +355,12 @@ function openAddMatModal() {
   _addMStep = 0; renderAddMStep();
   document.getElementById('add-material-modal').classList.add('active');
 }
-function closeAddMatModal() { document.getElementById('add-material-modal').classList.remove('active'); }
+function closeAddMatModal() {
+  document.getElementById('add-material-modal').classList.remove('active');
+  if (typeof resetMaterialForm === 'function') resetMaterialForm();
+  _addMStep = 0;
+  renderAddMStep();
+}
 function renderAddMStep() {
   document.querySelectorAll('#add-material-modal .rd-step-panel').forEach((p,i) => p.classList.toggle('active', i === _addMStep));
   document.querySelectorAll('#add-m-stepper .rd-step').forEach((s,i) => {
