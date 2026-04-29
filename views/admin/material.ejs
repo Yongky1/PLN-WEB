@@ -49,7 +49,6 @@
     <div style="width:36px;flex-shrink:0;"></div>
     <div style="flex:1;">Material</div>
     <div style="width:140px;">Kategori</div>
-    <div style="width:100px;text-align:center;">Status</div>
     <div style="width:100px;text-align:center;">Varian</div>
     <div style="width:130px;text-align:center;">Aksi</div>
   </div>
@@ -102,24 +101,15 @@
               <input type="text" id="mat-modul-code" class="rd-input rd-mono" placeholder="MAT-101" />
             </div>
           </div>
-          <div class="rd-field-row cols-2">
-            <div class="rd-field-group">
-              <label class="rd-field-label">Kategori</label>
-              <select id="mat-modul-cat" class="rd-select">
-                <option value="Pengencang">Pengencang</option>
-                <option value="Insulasi">Insulasi</option>
-                <option value="Kabel">Kabel</option>
-                <option value="Penyangga">Penyangga</option>
-                <option value="Lainnya">Lainnya</option>
-              </select>
-            </div>
-            <div class="rd-field-group">
-              <label class="rd-field-label">Status</label>
-              <select id="mat-modul-status" class="rd-select">
-                <option value="Aktif">Aktif</option>
-                <option value="Draft">Draft</option>
-              </select>
-            </div>
+          <div class="rd-field-group">
+            <label class="rd-field-label">Kategori</label>
+            <select id="mat-modul-cat" class="rd-select" style="max-width:60%;">
+              <option value="Pengencang">Pengencang</option>
+              <option value="Insulasi">Insulasi</option>
+              <option value="Kabel">Kabel</option>
+              <option value="Penyangga">Penyangga</option>
+              <option value="Lainnya">Lainnya</option>
+            </select>
           </div>
           <div class="rd-field-group">
             <label class="rd-field-label" style="justify-content:space-between;">
@@ -183,7 +173,6 @@
             <div class="rd-review-tile full"><div class="label">Nama Material</div><div class="value" id="review-m-name">—</div></div>
             <div class="rd-review-tile"><div class="label">Kode</div><div class="value rd-mono" id="review-m-code">—</div></div>
             <div class="rd-review-tile"><div class="label">Kategori</div><div class="value" id="review-m-cat">—</div></div>
-            <div class="rd-review-tile"><div class="label">Status</div><div class="value" id="review-m-status">—</div></div>
             <div class="rd-review-tile"><div class="label">Jumlah Varian</div><div class="value" id="review-m-variants">—</div></div>
           </div>
           <div class="rd-review-previews" style="display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:14px;">
@@ -383,7 +372,6 @@ function renderAddMStep() {
     document.getElementById('review-m-name').textContent = document.getElementById('mat-modul-name')?.value || '—';
     document.getElementById('review-m-code').textContent = document.getElementById('mat-modul-code')?.value || '—';
     document.getElementById('review-m-cat').textContent = document.getElementById('mat-modul-cat')?.value || '—';
-    document.getElementById('review-m-status').textContent = document.getElementById('mat-modul-status')?.value || '—';
     const cards = document.querySelectorAll('#material-cards .upload-card');
     document.getElementById('review-m-variants').textContent = cards.length + ' varian';
 

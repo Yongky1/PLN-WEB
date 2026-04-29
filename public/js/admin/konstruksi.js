@@ -627,11 +627,11 @@ async function processKonstruksiSubmission(isEditing) {
         return;
     }
 
-// Hapus penggunaan event global yang bisa error di browser tertentu
-    const isEditBtn = isEditing ? document.querySelector('button[onclick="submitEditKonstruksi()"]') : document.querySelector('button[onclick="submitSemuaKonstruksi()"]');
-    const saveBtn = isEditBtn;
+    const saveBtn = isEditing
+        ? document.querySelector('button[onclick="submitEditKonstruksi()"]')
+        : document.getElementById('add-k-next-btn');
     const oldText = saveBtn ? saveBtn.textContent : 'Simpan';
-    
+
     if (saveBtn) {
         saveBtn.textContent = 'Menyimpan...';
         saveBtn.disabled = true;
@@ -730,7 +730,7 @@ async function processKonstruksiSubmission(isEditing) {
         if (isEditing) {
             closeEditModal();
         } else {
-            resetKonstruksiForm();
+            closeAddKonstruksiModal();
         }
         loadKonstruksiSaved();
 

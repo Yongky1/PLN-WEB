@@ -33,8 +33,6 @@ async function loadMaterialSaved() {
         }
 
         materials.forEach(m => {
-            const badgeClass = m.status === 'Aktif' ? 'badge-green' : m.status === 'Draft' ? 'badge-yellow' : 'badge-blue';
-            // Category mapped
             const variantsCount = m.assets ? m.assets.length : 0;
             const cat = m.categoryLabel || '-';
 
@@ -55,9 +53,6 @@ async function loadMaterialSaved() {
                 </div>
                 <div style="width:140px;">
                     <span style="font-size:12px; font-weight:500; color:#fff;">${cat}</span>
-                </div>
-                <div style="width:100px; display:flex; justify-content:center;">
-                    <span class="badge ${badgeClass}">${m.status || 'Aktif'}</span>
                 </div>
                 <div style="width:100px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
                     ${variantsCount}
@@ -381,7 +376,7 @@ async function processMaterialSubmission(isEditing) {
     let variants = [];
     const containerId = isEditing ? 'edit-material-cards' : 'material-cards';
     const cards = document.querySelectorAll(`#${containerId} .upload-card`);
-    
+
     if (cards.length === 0) {
         showToast('Harus ada minimal 1 varian.', 'error');
         return;
@@ -407,10 +402,14 @@ async function processMaterialSubmission(isEditing) {
         return;
     }
 
-    const saveBtn = event.target || (isEditing ? document.querySelector('button[onclick="submitEditMaterial()"]') : document.querySelector('button[onclick="submitSemuaMaterial()"]'));
-    const oldText = saveBtn.textContent;
-    saveBtn.textContent = 'Menyimpan...';
-    saveBtn.disabled = true;
+    const saveBtn = isEditing
+        ? document.querySelector('button[onclick="submitEditMaterial()"]')
+        : document.getElementById('add-m-next-btn');
+    const oldText = saveBtn ? saveBtn.textContent : 'Simpan';
+    if (saveBtn) {
+        saveBtn.textContent = 'Menyimpan...';
+        saveBtn.disabled = true;
+    }
 
     try {
         let uploadedImageUrl = null;
@@ -425,7 +424,7 @@ async function processMaterialSubmission(isEditing) {
             name: modulName,
             code: modulCode,
             description: modulDesc,
-            categoryLabel: category
+            categoryLabel: category,
         };
         
         if (uploadedImageUrl) {
