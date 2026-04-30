@@ -122,6 +122,14 @@ function editMaterial(id) {
                     const fileName = decodeURIComponent(a.file.split('-3d/').pop());
                     dropLabel.textContent = `Ada File: ${fileName}`;
                     dropLabel.style.color = '#818CF8';
+
+                    const viewerContainer = card.querySelector('.card-model-viewer-container');
+                    const internalViewer = card.querySelector('.internal-viewer');
+                    if (viewerContainer && internalViewer) {
+                        internalViewer.src = a.file;
+                        viewerContainer.style.display = 'block';
+                        if (internalViewer.dismissPoster) internalViewer.dismissPoster();
+                    }
                 }
                 
                 container.appendChild(card);
@@ -212,8 +220,9 @@ window.syncAdminPreviewDropdown = function() {
         let fileUrl = '';
         let isLocal = false;
         
-        if (fileInput && fileInput.files && fileInput.files[0]) {
-            fileUrl = URL.createObjectURL(fileInput.files[0]);
+        const localFile = fileInput && (fileInput._confirmedFile || (fileInput.files && fileInput.files[0]));
+        if (localFile) {
+            fileUrl = URL.createObjectURL(localFile);
             isLocal = true;
         } else if (card.dataset.oldFile && card.dataset.oldFile !== '-') {
             fileUrl = card.dataset.oldFile;
@@ -378,7 +387,7 @@ async function processMaterialSubmission(isEditing) {
         const nameEl = card.querySelector('.m-name');
         const name   = nameEl ? nameEl.value.trim() : '';
         const fileInput = card.querySelector('.m-file-3d');
-        const file   = fileInput ? fileInput.files[0] : null;
+        const file   = fileInput ? (fileInput._confirmedFile || fileInput.files[0]) : null;
 
         if (!name) {
             hasError = true;
@@ -433,20 +442,19 @@ async function processMaterialSubmission(isEditing) {
             const finalAssets = [];
             for (let i = 0; i < variants.length; i++) {
                 const variant = variants[i];
-                const card = cards[i]; 
+                const card = cards[i];
                 let assetUrl = card.dataset.oldFile || '-';
-                
+
                 if (variant.file) {
                      const formData = new FormData();
                      formData.append('file', variant.file);
                      const uploadRes = await fetchBackend('/api/upload-file', { method: 'POST', body: formData });
                      assetUrl = uploadRes.publicUrl;
                 }
-                
-                finalAssets.push({
-                    name: variant.name,
-                    file: assetUrl
-                });
+
+                const assetEntry = { name: variant.name, file: assetUrl };
+                if (card.dataset.assetId) assetEntry.id = card.dataset.assetId;
+                finalAssets.push(assetEntry);
             }
             materialBody.assets = finalAssets;
 
@@ -457,18 +465,18 @@ async function processMaterialSubmission(isEditing) {
             showToast('Material beserta sinkronisasi varian berhasil diperbarui!');
         } else {
             // -- MODE CREATE --
-            // materialBody.id = generateSafeUUID();
-            await fetchBackend('/api/materials', { 
-                method: 'POST', 
-                body: JSON.stringify(materialBody) 
+            const createRes = await fetchBackend('/api/materials', {
+                method: 'POST',
+                body: JSON.stringify(materialBody)
             });
-            
+            const newMaterialId = createRes.data.id;
+
             for(let variant of variants) {
                 let assetUrl = '';
                 if(variant.file) {
                      const formData = new FormData();
                      formData.append('file', variant.file);
-                     
+
                      const uploadRes = await fetchBackend('/api/upload-file', {
                          method: 'POST',
                          body: formData
@@ -479,8 +487,7 @@ async function processMaterialSubmission(isEditing) {
                 await fetchBackend('/api/material-assets', {
                     method: 'POST',
                     body: JSON.stringify({
-                        // id removed, backend will generate
-                        material_id: materialBody.id,
+                        material_id: newMaterialId,
                         name: variant.name,
                         file: assetUrl || '-'
                     })
@@ -492,7 +499,7 @@ async function processMaterialSubmission(isEditing) {
         if (isEditing) {
             closeEditModal();
         } else {
-            resetMaterialForm();
+            closeAddMatModal();
         }
         loadMaterialSaved();
 

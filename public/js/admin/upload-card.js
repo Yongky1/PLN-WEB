@@ -35,6 +35,7 @@ function initDropZone(zone) {
         const dt       = new DataTransfer();
         dt.items.add(file);
         input.files    = dt.files;
+        input._confirmedFile = file;
         setFileSuccess(zone, file.name);
 
         // Jika fungsi preview tersedia (untuk edit konstruksi), panggil
@@ -64,6 +65,7 @@ function handleFileSelect(input) {
         input.value = '';
         return;
     }
+    input._confirmedFile = file;
     setFileSuccess(zone, file.name);
 
     // Jika fungsi preview tersedia, panggil

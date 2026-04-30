@@ -401,8 +401,9 @@ function renderAddMStep() {
 
     for (let i = 0; i < cards.length; i++) {
       const fileInput = cards[i].querySelector('.m-file-3d');
-      if (fileInput && fileInput.files && fileInput.files.length > 0) {
-        const url = URL.createObjectURL(fileInput.files[0]);
+      const selectedFile = fileInput && (fileInput._confirmedFile || (fileInput.files && fileInput.files[0]));
+      if (selectedFile) {
+        const url = URL.createObjectURL(selectedFile);
         review3d._objectUrl = url;
         review3d.src = url;
         review3d.style.display = 'block';

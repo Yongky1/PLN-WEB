@@ -415,8 +415,9 @@ window.syncAdminPreviewDropdown = function() {
         let fileUrl = '';
         let isLocal = false;
         
-        if (fileInput && fileInput.files && fileInput.files[0]) {
-            fileUrl = URL.createObjectURL(fileInput.files[0]);
+        const localFile = fileInput && (fileInput._confirmedFile || (fileInput.files && fileInput.files[0]));
+        if (localFile) {
+            fileUrl = URL.createObjectURL(localFile);
             isLocal = true;
         } else if (card.dataset.oldFile && card.dataset.oldFile !== '-') {
             fileUrl = card.dataset.oldFile;
@@ -603,7 +604,7 @@ async function processKonstruksiSubmission(isEditing) {
         const nameEl = card.querySelector('.k-name');
         const name   = nameEl ? nameEl.value.trim() : '';
         const fileInput = card.querySelector('.k-file-3d');
-        const file   = fileInput ? fileInput.files[0] : null;
+        const file   = fileInput ? (fileInput._confirmedFile || fileInput.files[0]) : null;
 
         if (!name) {
             hasError = true;
@@ -641,8 +642,6 @@ async function processKonstruksiSubmission(isEditing) {
         const moduleBody = {
             title: modulName,
             description: modulDesc,
-            materialCount: selectedMaterials.length,
-            equipmentCount: selectedTools.length,
             status: status,
             materials: selectedMaterials,
             tools: selectedTools
@@ -662,20 +661,19 @@ async function processKonstruksiSubmission(isEditing) {
             const finalAssets = [];
             for (let i = 0; i < variants.length; i++) {
                 const variant = variants[i];
-                const card = cards[i]; 
+                const card = cards[i];
                 let assetUrl = card.dataset.oldFile || '-';
-                
+
                 if (variant.file) {
                      const formData = new FormData();
                      formData.append('file', variant.file);
                      const uploadRes = await fetchBackend('/api/upload-file', { method: 'POST', body: formData });
                      assetUrl = uploadRes.publicUrl;
                 }
-                
-                finalAssets.push({
-                    name: variant.name,
-                    file: assetUrl
-                });
+
+                const assetEntry = { name: variant.name, file: assetUrl };
+                if (card.dataset.assetId) assetEntry.id = card.dataset.assetId;
+                finalAssets.push(assetEntry);
             }
             moduleBody.assets = finalAssets;
 
@@ -686,18 +684,18 @@ async function processKonstruksiSubmission(isEditing) {
             showToast('Konstruksi beserta sinkronisasi varian berhasil diperbarui!');
         } else {
             // -- MODE CREATE --
-            // moduleBody.id = generateSafeUUID();
-            await fetchBackend('/api/modules', { 
-                method: 'POST', 
-                body: JSON.stringify(moduleBody) 
+            const createRes = await fetchBackend('/api/modules', {
+                method: 'POST',
+                body: JSON.stringify(moduleBody)
             });
-            
+            const newModuleId = createRes.data.id;
+
             for(let variant of variants) {
                 let assetUrl = '';
                 if(variant.file) {
                      const formData = new FormData();
                      formData.append('file', variant.file);
-                     
+
                      const uploadRes = await fetchBackend('/api/upload-file', {
                          method: 'POST',
                          body: formData
@@ -708,8 +706,7 @@ async function processKonstruksiSubmission(isEditing) {
                 await fetchBackend('/api/module-assets', {
                     method: 'POST',
                     body: JSON.stringify({
-                        // id removed, backend will generate
-                        module_id: moduleBody.id,
+                        module_id: newModuleId,
                         name: variant.name,
                         file: assetUrl || '-'
                     })
