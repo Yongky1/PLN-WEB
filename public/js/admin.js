@@ -52,9 +52,13 @@ function showToast(msg) {
     setTimeout(() => t.remove(), 2800);
 }
 
-function deleteRow(btn) {
+/**
+ * Hanya menghapus baris dari tampilan DOM.
+ * Tidak melakukan request ke backend.
+ * Gunakan hanya untuk elemen UI sementara (bukan data tersimpan).
+ */
+function removeRowFromDOM(btn) {
     btn.closest('[style*="border-radius:14px"]').remove();
-    showToast('Item berhasil dihapus');
 }
 
 function addKonstruksi() {
@@ -74,7 +78,7 @@ function addKonstruksi() {
             <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">${count} komponen · ${status}</div>
         </div>
         <span style="font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(0,200,100,0.12);color:#00C864;font-weight:600;">${status}</span>
-        <button onclick="deleteRow(this)" style="padding:6px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#EF4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Hapus</button>
+        <button onclick="removeRowFromDOM(this)" style="padding:6px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#EF4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Hapus</button>
     `;
     document.getElementById('konstruksi-list').appendChild(item);
     resetForm('konstruksi');
@@ -97,7 +101,7 @@ function addMaterial() {
             <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">${code} · ${cat}</div>
         </div>
         <span style="font-size:11px;padding:3px 10px;border-radius:999px;background:rgba(0,200,100,0.12);color:#00C864;font-weight:600;">Aktif</span>
-        <button onclick="deleteRow(this)" style="padding:6px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#EF4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Hapus</button>
+        <button onclick="removeRowFromDOM(this)" style="padding:6px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#EF4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Hapus</button>
     `;
     document.getElementById('material-list').appendChild(item);
     resetForm('material');
@@ -125,7 +129,7 @@ function addTools() {
             <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">${catLabel}${std ? ' · ' + std : ''} · ${status}</div>
         </div>
         <span style="font-size:11px;padding:3px 10px;border-radius:999px;background:${badgeColor};color:${badgeText};font-weight:600;">${catLabel}</span>
-        <button onclick="deleteRow(this)" style="padding:6px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#EF4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Hapus</button>
+        <button onclick="removeRowFromDOM(this)" style="padding:6px 12px;border-radius:8px;background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#EF4444;font-size:11px;font-weight:600;cursor:pointer;font-family:inherit;">Hapus</button>
     `;
     document.getElementById('tools-list').appendChild(item);
     resetForm('tools');

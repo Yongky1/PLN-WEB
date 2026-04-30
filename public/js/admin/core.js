@@ -60,10 +60,14 @@ function initTopbarDate() {
 }
 
 /* ---- Delete Row Helper (front-end only) ---- */
-function deleteRow(btn, listId) {
+/**
+ * Hanya menghapus baris dari tampilan DOM.
+ * Tidak melakukan request ke backend.
+ * Gunakan hanya untuk elemen UI sementara (bukan data tersimpan).
+ */
+function removeRowFromDOM(btn, listId) {
     const row = btn.closest('.item-row');
     if (row) row.remove();
-    showToast('Item berhasil dihapus');
 }
 
 /* ---- Period Filter ---- */
