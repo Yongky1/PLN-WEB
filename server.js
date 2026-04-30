@@ -354,7 +354,8 @@ app.get('/material', async (req, res) => {
 
 app.get('/ModulKonstruksi', async (req, res) => {
     try {
-        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?all=true`);
+        const sort = req.query.sort || 'newest';
+        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?all=true&sort=${sort}`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         let dbModules = await fetchRes.json();
 
@@ -362,16 +363,6 @@ app.get('/ModulKonstruksi', async (req, res) => {
         if (!Array.isArray(dbModules)) {
             console.error('[/ModulKonstruksi] Backend tidak mengembalikan array:', dbModules);
             dbModules = [];
-        }
-
-        // Sorting logic based on req.query.sort
-        const sort = req.query.sort || 'newest';
-        if (sort === 'newest') {
-            dbModules.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
-        } else if (sort === 'name_asc') {
-            dbModules.sort((a, b) => (a.title || '').localeCompare(b.title || ''));
-        } else if (sort === 'name_desc') {
-            dbModules.sort((a, b) => (b.title || '').localeCompare(a.title || ''));
         }
 
         // Hitung material & eq count, lalu petakan
