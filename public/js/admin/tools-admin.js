@@ -391,6 +391,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
     `;
 
     initDropZone(card.querySelector('.file-drop-zone:not(.t-image-drop-zone)'));
+    initImageDropZone(card.querySelector('.t-image-drop-zone'));
     return card;
 }
 
@@ -520,6 +521,7 @@ async function processToolSubmission(isEditing) {
             closeEditModal();
             showToast('Peralatan berhasil diperbarui!');
         } else {
+            closeAddToolModal();
             resetToolsForm();
             showToast('Semua peralatan berhasil disimpan!');
         }

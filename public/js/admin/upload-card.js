@@ -15,15 +15,27 @@
  * Dipanggil setiap kali card baru dibuat.
  */
 function initDropZone(zone) {
+    let dragCounter = 0;
+
+    zone.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        zone.classList.add('dragover');
+    });
     zone.addEventListener('dragover', (e) => {
         e.preventDefault();
         zone.classList.add('dragover');
     });
     zone.addEventListener('dragleave', () => {
-        zone.classList.remove('dragover');
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dragCounter = 0;
+            zone.classList.remove('dragover');
+        }
     });
     zone.addEventListener('drop', (e) => {
         e.preventDefault();
+        dragCounter = 0;
         zone.classList.remove('dragover');
         const file = e.dataTransfer.files[0];
         if (!file) return;
@@ -38,7 +50,6 @@ function initDropZone(zone) {
         input._confirmedFile = file;
         setFileSuccess(zone, file.name);
 
-        // Jika fungsi preview tersedia (untuk edit konstruksi), panggil
         if (typeof window.previewLocalFile === 'function') {
             window.previewLocalFile(file);
         }
@@ -50,6 +61,46 @@ function initDropZone(zone) {
             const input = zone.querySelector('input[type=file]');
             if (input) input.click();
         }
+    });
+}
+
+function initImageDropZone(zone) {
+    if (!zone) return;
+    let dragCounter = 0;
+
+    zone.addEventListener('dragenter', (e) => {
+        e.preventDefault();
+        dragCounter++;
+        zone.classList.add('dragover');
+    });
+    zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+    });
+    zone.addEventListener('dragleave', () => {
+        dragCounter--;
+        if (dragCounter <= 0) {
+            dragCounter = 0;
+            zone.classList.remove('dragover');
+        }
+    });
+    zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dragCounter = 0;
+        zone.classList.remove('dragover');
+        const file = e.dataTransfer.files[0];
+        if (!file) return;
+        if (!file.type.match(/^image\/(png|jpeg)$/i) && !file.name.match(/\.(png|jpg|jpeg)$/i)) {
+            showToast('Format file harus PNG atau JPG', 'error');
+            return;
+        }
+        const wrapper = zone.closest('.t-image-wrapper');
+        const input = wrapper ? wrapper.querySelector('.t-image-file') : null;
+        if (!input) return;
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        input.dispatchEvent(new Event('change'));
     });
 }
 
