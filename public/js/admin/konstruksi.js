@@ -189,28 +189,29 @@ function collectSelectedTools(listId) {
 async function loadKonstruksiSaved(filter = '') {
     const saved = document.getElementById('konstruksi-saved');
     if (!saved) return;
-    
+
     saved.innerHTML = getAdminSkeleton(3);
     try {
-        if (!window.allModules || window.allModules.length === 0 || filter === '') {
-            const modules = await fetchBackend('/api/modules?all=true');
-            window.allModules = modules;
+        let modules;
+        if (filter) {
+            modules = await fetchBackend(`/api/modules?all=true&search=${encodeURIComponent(filter)}`);
+        } else {
+            if (!window.allModules || window.allModules.length === 0) {
+                window.allModules = await fetchBackend('/api/modules?all=true');
+            }
+            modules = window.allModules;
         }
 
-        const filtered = filter 
-            ? window.allModules.filter(m => m.title.toLowerCase().includes(filter.toLowerCase()))
-            : window.allModules;
-
         saved.innerHTML = '';
-        
-        if (!filtered || filtered.length === 0) {
+
+        if (!modules || modules.length === 0) {
             saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">
                 ${filter ? 'Tidak ada konstruksi ditemukan' : 'Belum ada data tersimpan'}
             </div>`;
             return;
         }
 
-        filtered.forEach(m => {
+        modules.forEach(m => {
             const badgeClass = m.status === 'Aktif' ? 'badge-green' : m.status === 'Draft' ? 'badge-yellow' : 'badge-blue';
             const variantsCount = m.assets ? m.assets.length : 0;
             const matCount = m.materialCount || 0;

@@ -15,26 +15,24 @@ async function loadToolsSaved(filter = '') {
     
     saved.innerHTML = getAdminSkeleton(3);
     try {
-        if (!window.allTools || window.allTools.length === 0 || filter === '') {
-            const tools = await fetchBackend('/api/tools?all=true');
-            window.allTools = tools;
+        let tools;
+        if (filter) {
+            tools = await fetchBackend(`/api/tools?all=true&search=${encodeURIComponent(filter)}`);
+        } else {
+            if (!window.allTools || window.allTools.length === 0) {
+                window.allTools = await fetchBackend('/api/tools?all=true');
+            }
+            tools = window.allTools;
         }
 
-        const filtered = filter
-            ? window.allTools.filter(t =>
-                t.name.toLowerCase().includes(filter.toLowerCase()) ||
-                (t.standard && t.standard.toLowerCase().includes(filter.toLowerCase()))
-              )
-            : window.allTools;
-
         saved.innerHTML = '';
-        
-        if (!filtered || filtered.length === 0) {
+
+        if (!tools || tools.length === 0) {
             saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">${filter ? 'Tidak ada peralatan ditemukan' : 'Belum ada data tersimpan'}</div>`;
             return;
         }
 
-        filtered.forEach(t => {
+        tools.forEach(t => {
             const catClass = t.category === 'k3' ? 'badge-red' : t.category === 'teknis' ? 'badge-blue' : 'badge-yellow';
             const catLabel = t.categoryLabel || t.category || '-';
             const hasFile = !!t.file3d;
