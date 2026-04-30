@@ -7,15 +7,7 @@ let mCardCount = 0;
 window.currentEditingId = null;
 window.allMaterials = [];
 
-function generateSafeUUID() {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        return crypto.randomUUID();
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
+
 
 async function loadMaterialSaved() {
     const saved = document.getElementById('material-saved');
@@ -452,7 +444,6 @@ async function processMaterialSubmission(isEditing) {
                 }
                 
                 finalAssets.push({
-                    id: card.dataset.assetId || generateSafeUUID(),
                     name: variant.name,
                     file: assetUrl
                 });
@@ -466,7 +457,7 @@ async function processMaterialSubmission(isEditing) {
             showToast('Material beserta sinkronisasi varian berhasil diperbarui!');
         } else {
             // -- MODE CREATE --
-            materialBody.id = generateSafeUUID();
+            // materialBody.id = generateSafeUUID();
             await fetchBackend('/api/materials', { 
                 method: 'POST', 
                 body: JSON.stringify(materialBody) 
@@ -488,7 +479,7 @@ async function processMaterialSubmission(isEditing) {
                 await fetchBackend('/api/material-assets', {
                     method: 'POST',
                     body: JSON.stringify({
-                        id: generateSafeUUID(),
+                        // id removed, backend will generate
                         material_id: materialBody.id,
                         name: variant.name,
                         file: assetUrl || '-'

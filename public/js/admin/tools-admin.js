@@ -7,15 +7,7 @@ let tCardCount = 0;
 window.currentEditingId = null;
 window.allTools = [];
 
-function generateSafeUUID() {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        return crypto.randomUUID();
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
+
 
 async function loadToolsSaved(filter = '') {
     const saved = document.getElementById('tools-saved');
@@ -508,7 +500,7 @@ async function processToolSubmission(isEditing) {
             } else {
                  // Mode Create
                  const toolBody = {
-                     id: generateSafeUUID(),
+                     // toolBody.id = generateSafeUUID();
                      name: item.name,
                      standard: item.std,
                      category: item.catVal,

@@ -184,15 +184,7 @@ function collectSelectedTools(listId) {
     return result;
 }
 
-function generateSafeUUID() {
-    if (typeof crypto !== 'undefined' && crypto.randomUUID) {
-        return crypto.randomUUID();
-    }
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
-        return v.toString(16);
-    });
-}
+
 
 async function loadKonstruksiSaved(filter = '') {
     const saved = document.getElementById('konstruksi-saved');
@@ -681,7 +673,6 @@ async function processKonstruksiSubmission(isEditing) {
                 }
                 
                 finalAssets.push({
-                    id: card.dataset.assetId || generateSafeUUID(),
                     name: variant.name,
                     file: assetUrl
                 });
@@ -695,7 +686,7 @@ async function processKonstruksiSubmission(isEditing) {
             showToast('Konstruksi beserta sinkronisasi varian berhasil diperbarui!');
         } else {
             // -- MODE CREATE --
-            moduleBody.id = generateSafeUUID();
+            // moduleBody.id = generateSafeUUID();
             await fetchBackend('/api/modules', { 
                 method: 'POST', 
                 body: JSON.stringify(moduleBody) 
@@ -717,7 +708,7 @@ async function processKonstruksiSubmission(isEditing) {
                 await fetchBackend('/api/module-assets', {
                     method: 'POST',
                     body: JSON.stringify({
-                        id: generateSafeUUID(),
+                        // id removed, backend will generate
                         module_id: moduleBody.id,
                         name: variant.name,
                         file: assetUrl || '-'
