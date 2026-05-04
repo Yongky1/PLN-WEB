@@ -4,7 +4,9 @@ const ejs         = require('ejs');
 const cookieParser = require('cookie-parser');
 const os          = require('os');
 const adminRouter = require('./routes/admin');
-
+const helmet = require('helmet');
+const morgan = require('morgan');
+const compression = require('compression');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
@@ -13,6 +15,9 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(cookieParser());
+app.use(helmet({ contentSecurityPolicy: false })); // Nonaktifkan CSP sementara agar script EJS dan Three.js tidak error
+app.use(compression());
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
