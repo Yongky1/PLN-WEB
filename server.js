@@ -109,7 +109,7 @@ app.get('/material', async (req, res) => {
 app.get('/ModulKonstruksi', async (req, res) => {
     try {
         const sort = req.query.sort || 'newest';
-        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?all=true&sort=${sort}`);
+        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?sort=${sort}`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         let dbModules = await fetchRes.json();
 
@@ -119,29 +119,20 @@ app.get('/ModulKonstruksi', async (req, res) => {
             dbModules = [];
         }
 
-        // Hitung material & eq count, lalu petakan
-        // Catatan: getModules menggunakan aggregate (count) → m.materials = [{count: N}]
-        const mappedModules = dbModules.map(m => {
-            return {
-                id: m.id,
-                title: m.title,
-                description: m.description,
-                image: m.image,
-                status: m.status,
-                materialCount: (m.materials && m.materials[0]) ? (m.materials[0].count ?? 0) : 0,
-                equipmentCount: (m.tools && m.tools[0]) ? (m.tools[0].count ?? 0) : 0,
-                assets: m.assets || []
-            };
-        });
-
-        // Pisahkan yang aktif dan yang non-aktif/draft
-        const activeModules = mappedModules.filter(m => m.status === 'Aktif');
-        const inactiveModules = mappedModules.filter(m => m.status !== 'Aktif');
+        const activeModules = dbModules.map(m => ({
+            id: m.id,
+            title: m.title,
+            description: m.description,
+            image: m.image,
+            materialCount: (m.materials && m.materials[0]) ? (m.materials[0].count ?? 0) : 0,
+            equipmentCount: (m.tools && m.tools[0]) ? (m.tools[0].count ?? 0) : 0,
+            assets: m.assets || []
+        }));
 
         res.render('ModulKonstruksi', {
             title: 'Modul Pembelajaran — PLN Pusdiklat',
             activeModules,
-            inactiveModules,
+            inactiveModules: [],
             currentSort: sort,
             currentPage: 'konstruksi'
         });
