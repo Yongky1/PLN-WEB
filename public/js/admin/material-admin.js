@@ -61,11 +61,18 @@ async function loadMaterialSaved() {
     }
 }
 
-function editMaterial(id) {
-    const m = window.allMaterials.find(x => x.id === id);
-    if (!m) return;
-    
+async function editMaterial(id) {
     window.currentEditingId = id;
+
+    let m;
+    try {
+        m = await fetchBackend(`/api/materials/${id}`);
+    } catch(e) {
+        showToast('Gagal memuat data material', 'error');
+        window.currentEditingId = null;
+        return;
+    }
+    if (!m) return;
 
     // Populasikan Modal Edit
     if(document.getElementById('edit-mat-modul-name')) document.getElementById('edit-mat-modul-name').value = m.name || '';
@@ -501,7 +508,7 @@ async function processMaterialSubmission(isEditing) {
         } else {
             closeAddMatModal();
         }
-        loadMaterialSaved();
+        await loadMaterialSaved();
 
     } catch(e) {
         showToast(`Gagal menyimpan: ${e.message}`, 'error');

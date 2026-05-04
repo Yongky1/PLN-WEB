@@ -72,7 +72,7 @@ router.get('/users', (req, res) => {
 // Modul Konten
 router.get('/modules', async (req, res) => {
     try {
-        const fetchRes = await fetch('http://localhost:4000/api/modules?all=true');
+        const fetchRes = await fetch(`${process.env.BACKEND_URL || 'http://localhost:4000'}/api/modules?all=true`);
         const modules = await fetchRes.json();
         
         // Peta data agar sesuai dengan ejs format jika perlu, 

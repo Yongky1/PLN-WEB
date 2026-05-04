@@ -120,6 +120,7 @@ app.get('/ModulKonstruksi', async (req, res) => {
         }
 
         // Hitung material & eq count, lalu petakan
+        // Catatan: getModules menggunakan aggregate (count) → m.materials = [{count: N}]
         const mappedModules = dbModules.map(m => {
             return {
                 id: m.id,
@@ -127,8 +128,8 @@ app.get('/ModulKonstruksi', async (req, res) => {
                 description: m.description,
                 image: m.image,
                 status: m.status,
-                materialCount: m.materials ? m.materials.length : 0,
-                equipmentCount: m.tools ? m.tools.length : 0,
+                materialCount: (m.materials && m.materials[0]) ? (m.materials[0].count ?? 0) : 0,
+                equipmentCount: (m.tools && m.tools[0]) ? (m.tools[0].count ?? 0) : 0,
                 assets: m.assets || []
             };
         });

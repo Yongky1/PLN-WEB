@@ -256,11 +256,18 @@ async function loadKonstruksiSaved(filter = '') {
     }
 }
 
-function editKonstruksi(id) {
-    const m = window.allModules.find(x => x.id === id);
-    if (!m) return;
-    
+async function editKonstruksi(id) {
     window.currentEditingId = id;
+
+    let m;
+    try {
+        m = await fetchBackend(`/api/modules/${id}`);
+    } catch(e) {
+        showToast('Gagal memuat data modul', 'error');
+        window.currentEditingId = null;
+        return;
+    }
+    if (!m) return;
 
     // Populasikan Modal
     document.getElementById('edit-modul-name').value = m.title || '';
@@ -716,12 +723,13 @@ async function processKonstruksiSubmission(isEditing) {
             showToast('Konstruksi beserta varian berhasil disimpan!');
         }
 
+        window.allModules = null;
         if (isEditing) {
             closeEditModal();
         } else {
             closeAddKonstruksiModal();
         }
-        loadKonstruksiSaved();
+        await loadKonstruksiSaved();
 
     } catch(e) {
         console.error("DEBUG ERROR SIMPAN:", e);
