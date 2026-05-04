@@ -272,6 +272,25 @@ app.get('/admin-logout', (req, res) => {
 // Admin routes - Menggunakan authGuard
 app.use('/admin', authGuard, adminRouter);
 
+// ── Global Error Handler ──────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+    const status = err.status || err.statusCode || 500;
+    const isDev = process.env.NODE_ENV !== 'production';
+
+    console.error(`[ERROR] ${req.method} ${req.originalUrl} → ${status}: ${err.message}`);
+    if (isDev && err.stack) console.error(err.stack);
+
+    try {
+        res.status(status).render('error', {
+            title: `Error ${status} — PLN Pusdiklat`,
+            status,
+            message: isDev ? err.message : 'Terjadi kesalahan yang tidak terduga.',
+        });
+    } catch (_renderErr) {
+        res.status(status).send(`<h1>Error ${status}</h1><p>${err.message}</p>`);
+    }
+});
+
 app.listen(PORT, '0.0.0.0', () => {
     // Cari IP jaringan lokal
     const nets = os.networkInterfaces();
