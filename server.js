@@ -22,7 +22,23 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
 
-
+// Helper fetch dengan timeout
+const fetchWithTimeout = async (resource, options = {}) => {
+    const { timeout = 10000 } = options;
+    const controller = new AbortController();
+    const id = setTimeout(() => controller.abort(), timeout);
+    try {
+        const response = await fetch(resource, {
+            ...options,
+            signal: controller.signal
+        });
+        clearTimeout(id);
+        return response;
+    } catch (error) {
+        clearTimeout(id);
+        throw error;
+    }
+};
 
 app.get('/', (req, res) => {
     res.render('index', {
@@ -33,7 +49,7 @@ app.get('/', (req, res) => {
 
 app.get('/tools', async (req, res) => {
     try {
-        const fetchRes = await fetch(`${BACKEND_URL}/api/tools`);
+        const fetchRes = await fetchWithTimeout(`${BACKEND_URL}/api/tools`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         const dbTools = await fetchRes.json();
 
@@ -70,7 +86,7 @@ app.get('/tools', async (req, res) => {
 
 app.get('/material', async (req, res) => {
     try {
-        const fetchRes = await fetch(`${BACKEND_URL}/api/materials`);
+        const fetchRes = await fetchWithTimeout(`${BACKEND_URL}/api/materials`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         const dbMaterials = await fetchRes.json();
 
@@ -109,7 +125,7 @@ app.get('/material', async (req, res) => {
 app.get('/ModulKonstruksi', async (req, res) => {
     try {
         const sort = req.query.sort || 'newest';
-        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?all=true&sort=${sort}`);
+        const fetchRes = await fetchWithTimeout(`${BACKEND_URL}/api/modules?all=true&sort=${sort}`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         let dbModules = await fetchRes.json();
 
@@ -159,7 +175,7 @@ app.get('/ModulKonstruksi', async (req, res) => {
 app.get('/ModulKonstruksi/:id', async (req, res) => {
     const moduleId = req.params.id;
     try {
-        const fetchRes = await fetch(`${BACKEND_URL}/api/modules/${moduleId}`);
+        const fetchRes = await fetchWithTimeout(`${BACKEND_URL}/api/modules/${moduleId}`);
         if (!fetchRes.ok) {
             return res.redirect('/ModulKonstruksi');
         }
@@ -198,7 +214,7 @@ const authGuard = async (req, res, next) => {
 
     try {
         // 2. Verifikasi token ke backend (Supabase)
-        const verifyRes = await fetch(`${BACKEND_URL}/api/auth/verify`, {
+        const verifyRes = await fetchWithTimeout(`${BACKEND_URL}/api/auth/verify`, {
             method: 'GET',
             headers: { 'Authorization': `Bearer ${token}` }
         });
@@ -230,7 +246,7 @@ app.get('/login', (req, res) => {
 // Proxy Login Route
 app.post('/api/login', async (req, res) => {
     try {
-        const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
+        const response = await fetchWithTimeout(`${BACKEND_URL}/api/auth/login`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(req.body)
