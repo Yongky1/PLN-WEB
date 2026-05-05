@@ -15,7 +15,46 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(cookieParser());
-app.use(helmet({ contentSecurityPolicy: false })); // Nonaktifkan CSP sementara agar script EJS dan Three.js tidak error
+app.use(helmet({
+    contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": [
+                "'self'", 
+                "'unsafe-inline'", 
+                "'unsafe-eval'", 
+                "https://ajax.googleapis.com", 
+                "https://cdnjs.cloudflare.com"
+            ],
+            "script-src-attr": ["'unsafe-inline'"],
+            "style-src": [
+                "'self'", 
+                "'unsafe-inline'", 
+                "https://fonts.googleapis.com"
+            ],
+            "font-src": [
+                "'self'", 
+                "https://fonts.gstatic.com",
+                "data:"
+            ],
+            "img-src": [
+                "'self'", 
+                "data:", 
+                "blob:", 
+                "*"
+            ],
+            "connect-src": [
+                "'self'", 
+                "*"
+            ],
+            "worker-src": ["'self'", "blob:"],
+            "media-src": ["'self'", "blob:", "*"],
+            "object-src": ["'none'"],
+            "upgrade-insecure-requests": null,
+        },
+    }
+}));
 app.use(compression());
 app.use(morgan('dev'));
 app.use(express.json());
