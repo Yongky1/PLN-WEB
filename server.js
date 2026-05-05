@@ -45,7 +45,8 @@ app.use(helmet({
                 "*"
             ],
             "connect-src": [
-                "'self'", 
+                "'self'",
+                "blob:",
                 "*"
             ],
             "worker-src": ["'self'", "blob:"],

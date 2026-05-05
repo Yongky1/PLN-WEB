@@ -233,7 +233,7 @@ window.syncAdminPreviewDropdown = function() {
     });
 
     if (hasValidOption) {
-        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        let found = currentValue && Array.from(selector.options).find(o => o.value === currentValue);
         selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[selector.options.length - 1].value : "");
     } else {
         selector.value = "";

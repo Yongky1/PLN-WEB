@@ -245,8 +245,8 @@ window.syncAdminPreviewDropdown = function() {
     });
 
     if (hasValidOption) {
-        // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama/terakhir 
-        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama/terakhir
+        let found = currentValue && Array.from(selector.options).find(o => o.value === currentValue);
         selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[selector.options.length - 1].value : "");
     } else {
         selector.value = "";

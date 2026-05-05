@@ -442,7 +442,7 @@ window.syncAdminPreviewDropdown = function() {
 
     if (hasValidOption) {
         // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama (index 1)
-        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        let found = currentValue && Array.from(selector.options).find(o => o.value === currentValue);
         selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[1].value : "");
     } else {
         selector.value = "";
@@ -452,7 +452,7 @@ window.syncAdminPreviewDropdown = function() {
 };
 
 window.previewLocalFile = function(file) {
-    if(file && file.name.endsWith('.glb')) {
+    if(file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
         window.syncAdminPreviewDropdown();
     }
 };
