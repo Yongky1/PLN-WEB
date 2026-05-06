@@ -27,8 +27,8 @@
   </div>
   <div class="rd-divider-v"></div>
   <button class="rd-filter-chip active" data-filter="all"      onclick="setFilter(this,'all')">Semua</button>
-  <button class="rd-filter-chip"        data-filter="aktif"    onclick="setFilter(this,'aktif')">Aktif</button>
-  <button class="rd-filter-chip"        data-filter="nonaktif" onclick="setFilter(this,'nonaktif')">Nonaktif</button>
+  <button class="rd-filter-chip"        data-filter="online"   onclick="setFilter(this,'online')">Online</button>
+  <button class="rd-filter-chip"        data-filter="offline"  onclick="setFilter(this,'offline')">Offline</button>
   <div class="rd-divider-v"></div>
   <div class="rd-view-toggle">
     <button class="active" id="view-table" onclick="setView('table')" title="Tampilan Tabel">
@@ -91,17 +91,10 @@
           <input class="rd-input" type="email" placeholder="user@pln.co.id" id="new-email" />
         </div>
       </div>
-      <div class="rd-field-row cols-2">
+      <div class="rd-field-row cols-1">
         <div class="rd-field-group">
           <label class="rd-field-label">Unit / Cabang <span class="req">*</span></label>
           <input class="rd-input" placeholder="Contoh: UP3 Jakarta Utara" id="new-unit" />
-        </div>
-        <div class="rd-field-group">
-          <label class="rd-field-label">Status</label>
-          <select class="rd-select" id="new-status">
-            <option value="Aktif">Aktif</option>
-            <option value="Nonaktif">Nonaktif</option>
-          </select>
         </div>
       </div>
       <div class="rd-field-group">
@@ -168,7 +161,7 @@
 
       const initials = (u.name || 'U').split(' ').slice(0,2).map(n => n[0]).join('');
       const hue = avatarHues[i % avatarHues.length];
-      const statusBadge = u.status === 'Aktif' ? 'rd-badge-success' : 'rd-badge-danger';
+      const statusBadge = u.status === 'Online' ? 'rd-badge-success' : 'rd-badge-danger';
 
       // -- TABLE ROW --
       const row = document.createElement('div');
@@ -194,7 +187,7 @@
         </div>
         <div style="font-size:13px; color:var(--text-secondary); text-align:center;">${u.unit}</div>
         <div style="display:flex; justify-content:center;">
-          <span class="rd-badge ${statusBadge}">${u.status}</span>
+          <span class="rd-badge ${statusBadge}">${u.status || 'Offline'}</span>
         </div>
         <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
           <button class="rd-action-btn danger" title="Hapus" onclick="deleteUser('${u.id}', '${u.name}')">
@@ -223,7 +216,7 @@
                       font-size:14px; font-weight:700; color:oklch(0.75 0.14 ${hue});">
             ${initials}
           </div>
-          <span class="rd-badge ${statusBadge}">${u.status}</span>
+          <span class="rd-badge ${statusBadge}">${u.status || 'Offline'}</span>
         </div>
         <div>
           <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:2px;">${u.name}</div>
@@ -284,7 +277,6 @@
     var name     = (document.getElementById('new-name').value     || '').trim();
     var email    = (document.getElementById('new-email').value    || '').trim();
     var unit     = (document.getElementById('new-unit').value     || '').trim();
-    var status   = (document.getElementById('new-status').value   || '').trim();
     var password = (document.getElementById('new-password').value || '').trim();
     
     if (!name || !email || !unit || !password) {
@@ -298,7 +290,7 @@
       const res = await fetch(`${BACKEND_URL}/api/users`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, name, unit, status })
+        body: JSON.stringify({ email, password, name, unit })
       });
       
       const data = await res.json();
