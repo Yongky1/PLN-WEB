@@ -1,32 +1,378 @@
-<!-- views/admin/users.ejs -->
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
-    <input type="text" placeholder="🔍  Cari pengguna..." class="admin-input" style="width:280px;">
-    <button class="btn-primary">+ Tambah User</button>
+﻿<!-- views/admin/users.ejs -->
+
+<!-- ===== Page Header ===== -->
+<div class="rd-page-head">
+  <div class="rd-page-title-block">
+    <div class="rd-page-eyebrow">Pengaturan</div>
+    <h1 class="rd-page-title">Manajemen Pengguna</h1>
+    <p class="rd-page-subtitle">Kelola akses dan progres pembelajaran seluruh pengguna sistem PLN Pusdiklat.</p>
+  </div>
+  <div class="rd-page-actions">
+    <button class="rd-btn rd-btn-secondary rd-btn-sm" onclick="exportUsers()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+      Export
+    </button>
+    <button class="rd-btn rd-btn-primary" onclick="openAddUserModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tambah Pengguna
+    </button>
+  </div>
 </div>
 
-<div class="admin-card" style="padding:0; overflow:hidden;">
-    <div class="table-header" style="grid-template-columns:2fr 1.5fr 1fr 1fr 80px;">
-        <span>Nama</span><span>Unit</span><span>Modul</span><span>Status</span><span>Aksi</span>
-    </div>
-    <% const users = [
-        { name:'Budi Santoso',   email:'budi.s@pln.co.id',   unit:'UP3 Jakarta Utara', modul:'8/14',  status:'Aktif' },
-        { name:'Siti Rahayu',   email:'siti.r@pln.co.id',   unit:'UP3 Surabaya',      modul:'14/14', status:'Aktif' },
-        { name:'Ahmad Fauzi',   email:'ahmad.f@pln.co.id',  unit:'UP3 Bandung',       modul:'5/14',  status:'Aktif' },
-        { name:'Dewi Lestari',  email:'dewi.l@pln.co.id',   unit:'UP3 Medan',         modul:'11/14', status:'Aktif' },
-        { name:'Rizki Pratama', email:'rizki.p@pln.co.id',  unit:'UP3 Makassar',      modul:'3/14',  status:'Nonaktif' },
-        { name:'Nur Hidayah',   email:'nur.h@pln.co.id',    unit:'UP3 Semarang',      modul:'9/14',  status:'Aktif' },
-        { name:'Eko Wahyudi',   email:'eko.w@pln.co.id',    unit:'UP3 Yogyakarta',    modul:'7/14',  status:'Aktif' },
-        { name:'Maya Kusuma',   email:'maya.k@pln.co.id',   unit:'UP3 Palembang',     modul:'12/14', status:'Aktif' },
-    ]; %>
-    <% users.forEach(u => { %>
-    <div class="table-row" style="grid-template-columns:2fr 1.5fr 1fr 1fr 80px; margin:0 8px; border-radius:8px;">
-        <div><div style="font-size:13px; font-weight:500; color:#fff;"><%= u.name %></div><div style="font-size:11px; color:rgba(255,255,255,0.35);"><%= u.email %></div></div>
-        <div style="font-size:13px; color:rgba(255,255,255,0.6);"><%= u.unit %></div>
-        <div style="font-size:13px; color:rgba(255,255,255,0.6);"><%= u.modul %></div>
-        <span class="badge <%= u.status === 'Aktif' ? 'badge-green' : 'badge-red' %>"><%= u.status %></span>
-        <button style="font-size:11px; color:rgba(255,255,255,0.4); border:none; background:none; cursor:pointer; font-family:inherit; padding:4px 8px; border-radius:6px;"
-                onmouseenter="this.style.background='rgba(255,255,255,0.08)';this.style.color='#fff'"
-                onmouseleave="this.style.background='none';this.style.color='rgba(255,255,255,0.4)'">Detail</button>
+<!-- ===== Toolbar ===== -->
+<div class="rd-toolbar">
+  <div class="rd-search">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input id="um-search" placeholder="Cari nama, email, atau unit..." oninput="filterUsers()" />
+  </div>
+  <div class="rd-divider-v"></div>
+  <button class="rd-filter-chip active" data-filter="all"      onclick="setFilter(this,'all')">Semua</button>
+  <button class="rd-filter-chip"        data-filter="aktif"    onclick="setFilter(this,'aktif')">Aktif</button>
+  <button class="rd-filter-chip"        data-filter="nonaktif" onclick="setFilter(this,'nonaktif')">Nonaktif</button>
+  <div class="rd-divider-v"></div>
+  <div class="rd-view-toggle">
+    <button class="active" id="view-table" onclick="setView('table')" title="Tampilan Tabel">
+      <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+    </button>
+    <button id="view-grid" onclick="setView('grid')" title="Tampilan Grid">
+      <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    </button>
+  </div>
+</div>
+
+<!-- ===== Table View ===== -->
+<div class="rd-data-card" id="users-table-wrap">
+  <div class="rd-table-head" style="display:grid; grid-template-columns:2.5fr 1.5fr 1fr 80px; gap:0;">
+    <span>Pengguna</span>
+    <span style="text-align:center;">Unit</span>
+    <span style="text-align:center;">Status</span>
+    <span style="text-align:center;">Aksi</span>
+  </div>
+
+  <div id="users-list">
+    <%
+    const users = [
+      { name:'Budi Santoso',   email:'budi.s@pln.co.id',   unit:'UP3 Jakarta Utara', done:8,  total:14, status:'Aktif' },
+      { name:'Siti Rahayu',    email:'siti.r@pln.co.id',   unit:'UP3 Surabaya',      done:14, total:14, status:'Aktif' },
+      { name:'Ahmad Fauzi',    email:'ahmad.f@pln.co.id',  unit:'UP3 Bandung',       done:5,  total:14, status:'Aktif' },
+      { name:'Dewi Lestari',   email:'dewi.l@pln.co.id',   unit:'UP3 Medan',         done:11, total:14, status:'Aktif' },
+      { name:'Rizki Pratama',  email:'rizki.p@pln.co.id',  unit:'UP3 Makassar',      done:3,  total:14, status:'Nonaktif' },
+      { name:'Nur Hidayah',    email:'nur.h@pln.co.id',    unit:'UP3 Semarang',      done:9,  total:14, status:'Aktif' },
+      { name:'Eko Wahyudi',    email:'eko.w@pln.co.id',    unit:'UP3 Yogyakarta',    done:7,  total:14, status:'Aktif' },
+      { name:'Maya Kusuma',    email:'maya.k@pln.co.id',   unit:'UP3 Palembang',     done:12, total:14, status:'Aktif' },
+    ];
+    const avatarHues = ['245','270','155','55','25','200','280','320'];
+    %>
+
+    <% users.forEach(function(u, i) {
+      const pct      = Math.round((u.done / u.total) * 100);
+      const initials = u.name.split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
+      const hue      = avatarHues[i % avatarHues.length];
+    %>
+    <div class="um-row"
+         data-name="<%= u.name.toLowerCase() %>"
+         data-email="<%= u.email.toLowerCase() %>"
+         data-unit="<%= u.unit.toLowerCase() %>"
+         data-status="<%= u.status.toLowerCase() %>"
+         style="display:grid; grid-template-columns:2.5fr 1.5fr 1fr 80px; align-items:center;
+                padding:12px 20px; border-bottom:1px solid var(--border-subtle); transition:background 0.12s;"
+         onmouseenter="this.style.background='rgba(255,255,255,0.025)'"
+         onmouseleave="this.style.background=''">
+
+      <!-- Avatar + Name + Email -->
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:36px; height:36px; border-radius:10px; flex-shrink:0;
+                    background:oklch(0.55 0.14 <%= hue %> / 0.18);
+                    border:1px solid oklch(0.55 0.14 <%= hue %> / 0.35);
+                    display:flex; align-items:center; justify-content:center;
+                    font-size:12px; font-weight:700; color:oklch(0.75 0.14 <%= hue %>); letter-spacing:0.02em;">
+          <%= initials %>
+        </div>
+        <div>
+          <div style="font-size:13px; font-weight:600; color:var(--text-primary);"><%- u.name %></div>
+          <div style="font-size:11.5px; color:var(--text-muted); font-family:var(--font-mono);"><%- u.email %></div>
+        </div>
+      </div>
+
+      <!-- Unit -->
+      <div style="font-size:13px; color:var(--text-secondary); text-align:center;"><%- u.unit %></div>
+
+      <!-- Status Badge -->
+      <div style="display:flex; justify-content:center;">
+        <span class="rd-badge <%= u.status === 'Aktif' ? 'rd-badge-success' : 'rd-badge-danger' %>">
+          <%- u.status %>
+        </span>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex; align-items:center; justify-content:center; gap:4px;">
+        <button class="rd-action-btn" title="Edit" data-user="<%= u.name %>" onclick="editUser(this.dataset.user)">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+        </button>
+        <button class="rd-action-btn danger" title="Hapus" data-user="<%= u.name %>" onclick="deleteUser(this.dataset.user)">
+          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+        </button>
+      </div>
     </div>
     <% }); %>
+  </div>
+
+  <!-- Empty state -->
+  <div id="um-empty" class="rd-empty" style="display:none;">
+    <div class="empty-icon">
+      <svg width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+    </div>
+    <div class="empty-title">Tidak ada pengguna ditemukan</div>
+    <div class="empty-sub">Coba ubah kata kunci pencarian atau filter yang digunakan.</div>
+  </div>
 </div>
+
+<!-- ===== Grid View ===== -->
+<div id="users-grid-wrap" style="display:none; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px;">
+  <%
+  const usersGrid = [
+    { name:'Budi Santoso',   email:'budi.s@pln.co.id',   unit:'UP3 Jakarta Utara', done:8,  total:14, status:'Aktif' },
+    { name:'Siti Rahayu',    email:'siti.r@pln.co.id',   unit:'UP3 Surabaya',      done:14, total:14, status:'Aktif' },
+    { name:'Ahmad Fauzi',    email:'ahmad.f@pln.co.id',  unit:'UP3 Bandung',       done:5,  total:14, status:'Aktif' },
+    { name:'Dewi Lestari',   email:'dewi.l@pln.co.id',   unit:'UP3 Medan',         done:11, total:14, status:'Aktif' },
+    { name:'Rizki Pratama',  email:'rizki.p@pln.co.id',  unit:'UP3 Makassar',      done:3,  total:14, status:'Nonaktif' },
+    { name:'Nur Hidayah',    email:'nur.h@pln.co.id',    unit:'UP3 Semarang',      done:9,  total:14, status:'Aktif' },
+    { name:'Eko Wahyudi',    email:'eko.w@pln.co.id',    unit:'UP3 Yogyakarta',    done:7,  total:14, status:'Aktif' },
+    { name:'Maya Kusuma',    email:'maya.k@pln.co.id',   unit:'UP3 Palembang',     done:12, total:14, status:'Aktif' },
+  ];
+  %>
+  <% usersGrid.forEach(function(u, i) {
+    const pct      = Math.round((u.done / u.total) * 100);
+    const initials = u.name.split(' ').slice(0,2).map(function(n){ return n[0]; }).join('');
+    const hue      = avatarHues[i % avatarHues.length];
+  %>
+  <div class="um-grid-card"
+       data-name="<%= u.name.toLowerCase() %>"
+       data-email="<%= u.email.toLowerCase() %>"
+       data-unit="<%= u.unit.toLowerCase() %>"
+       data-status="<%= u.status.toLowerCase() %>"
+       style="background:var(--bg-surface); border:1px solid var(--border-default);
+              border-radius:var(--radius-lg); padding:18px;
+              display:flex; flex-direction:column; gap:14px;
+              cursor:pointer; transition:all 0.18s;"
+       onmouseenter="this.style.borderColor='var(--border-strong)';this.style.transform='translateY(-2px)';this.style.boxShadow='var(--shadow-md)'"
+       onmouseleave="this.style.borderColor='';this.style.transform='';this.style.boxShadow=''">
+
+    <!-- Top row: avatar + status -->
+    <div style="display:flex; align-items:flex-start; justify-content:space-between;">
+      <div style="width:44px; height:44px; border-radius:12px;
+                  background:oklch(0.55 0.14 <%= hue %> / 0.18);
+                  border:1px solid oklch(0.55 0.14 <%= hue %> / 0.35);
+                  display:flex; align-items:center; justify-content:center;
+                  font-size:14px; font-weight:700; color:oklch(0.75 0.14 <%= hue %>);">
+        <%= initials %>
+      </div>
+      <span class="rd-badge <%= u.status === 'Aktif' ? 'rd-badge-success' : 'rd-badge-danger' %>"><%- u.status %></span>
+    </div>
+
+    <!-- Name & Email -->
+    <div>
+      <div style="font-size:14px; font-weight:600; color:var(--text-primary); margin-bottom:2px;"><%- u.name %></div>
+      <div style="font-size:11.5px; color:var(--text-muted); font-family:var(--font-mono);"><%- u.email %></div>
+    </div>
+
+    <!-- Unit -->
+    <div style="font-size:12px; color:var(--text-tertiary); display:flex; align-items:center; gap:5px;">
+      <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+      <%- u.unit %>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex; gap:8px; padding-top:4px; border-top:1px solid var(--border-subtle);">
+      <button class="rd-btn rd-btn-ghost rd-btn-sm" style="flex:1; justify-content:center;"
+              data-user="<%= u.name %>" onclick="editUser(this.dataset.user)">Edit</button>
+      <button class="rd-btn rd-btn-danger rd-btn-sm" style="flex:1; justify-content:center;"
+              data-user="<%= u.name %>" onclick="deleteUser(this.dataset.user)">Hapus</button>
+    </div>
+  </div>
+  <% }); %>
+</div>
+
+<!-- ===== Add User Modal ===== -->
+<div class="rd-modal-overlay" id="add-user-modal">
+  <div class="rd-modal" style="max-width:520px;">
+    <div class="rd-modal-header">
+      <div class="rd-modal-title-block">
+        <div class="rd-modal-eyebrow">Pengguna Baru</div>
+        <div class="rd-modal-title">Tambah Pengguna</div>
+      </div>
+      <button class="rd-modal-close" onclick="closeAddUserModal()">
+        <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="rd-modal-body" style="display:flex; flex-direction:column; gap:16px;">
+      <div class="rd-field-row cols-2">
+        <div class="rd-field-group">
+          <label class="rd-field-label">Nama Lengkap <span class="req">*</span></label>
+          <input class="rd-input" placeholder="Masukkan nama lengkap" id="new-name" />
+        </div>
+        <div class="rd-field-group">
+          <label class="rd-field-label">Email <span class="req">*</span></label>
+          <input class="rd-input" type="email" placeholder="user@pln.co.id" id="new-email" />
+        </div>
+      </div>
+      <div class="rd-field-row cols-2">
+        <div class="rd-field-group">
+          <label class="rd-field-label">Unit / Cabang <span class="req">*</span></label>
+          <input class="rd-input" placeholder="Contoh: UP3 Jakarta Utara" id="new-unit" />
+        </div>
+        <div class="rd-field-group">
+          <label class="rd-field-label">Status</label>
+          <select class="rd-select" id="new-status">
+            <option value="Aktif">Aktif</option>
+            <option value="Nonaktif">Nonaktif</option>
+          </select>
+        </div>
+      </div>
+      <div class="rd-field-group">
+        <label class="rd-field-label">Password Awal <span class="req">*</span></label>
+        <input class="rd-input" type="password" placeholder="Minimal 8 karakter" id="new-password" />
+        <div class="rd-field-help">Pengguna disarankan mengubah password setelah login pertama.</div>
+      </div>
+    </div>
+    <div class="rd-modal-footer">
+      <div class="rd-footer-meta">Field bertanda <span style="color:oklch(0.78 0.18 25)">*</span> wajib diisi</div>
+      <div class="rd-footer-actions">
+        <button class="rd-btn rd-btn-secondary" onclick="closeAddUserModal()">Batal</button>
+        <button class="rd-btn rd-btn-primary" onclick="submitAddUser()">Tambah Pengguna</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== Scripts ===== -->
+<script>
+(function() {
+  let currentFilter = 'all';
+
+  window.setFilter = function(el, filter) {
+    currentFilter = filter;
+    document.querySelectorAll('[data-filter]').forEach(function(btn) { btn.classList.remove('active'); });
+    el.classList.add('active');
+    filterUsers();
+  };
+
+  window.filterUsers = function() {
+    var q = (document.getElementById('um-search').value || '').toLowerCase();
+    var tableRows = document.querySelectorAll('#users-list .um-row');
+    var gridCards = document.querySelectorAll('#users-grid-wrap .um-grid-card');
+    var visible = 0;
+
+    tableRows.forEach(function(row) {
+      var matchQ = !q ||
+        (row.dataset.name  || '').includes(q) ||
+        (row.dataset.email || '').includes(q) ||
+        (row.dataset.unit  || '').includes(q);
+      var matchF = currentFilter === 'all' || (row.dataset.status || '') === currentFilter;
+      var show = matchQ && matchF;
+      row.style.display = show ? 'grid' : 'none';
+      if (show) visible++;
+    });
+    gridCards.forEach(function(row) {
+      var matchQ = !q ||
+        (row.dataset.name  || '').includes(q) ||
+        (row.dataset.email || '').includes(q) ||
+        (row.dataset.unit  || '').includes(q);
+      var matchF = currentFilter === 'all' || (row.dataset.status || '') === currentFilter;
+      var show = matchQ && matchF;
+      row.style.display = show ? 'flex' : 'none';
+      if (show) visible++;
+    });
+    document.getElementById('um-empty').style.display = visible === 0 ? 'flex' : 'none';
+  };
+
+  window.setView = function(v) {
+    var tableWrap = document.getElementById('users-table-wrap');
+    var gridWrap  = document.getElementById('users-grid-wrap');
+    document.getElementById('view-table').classList.toggle('active', v === 'table');
+    document.getElementById('view-grid').classList.toggle('active', v === 'grid');
+    if (v === 'table') {
+      tableWrap.style.display = '';
+      gridWrap.style.display  = 'none';
+    } else {
+      tableWrap.style.display = 'none';
+      gridWrap.style.display  = 'grid';
+    }
+  };
+
+  window.openAddUserModal = function() {
+    document.getElementById('add-user-modal').classList.add('active');
+  };
+  window.closeAddUserModal = function() {
+    document.getElementById('add-user-modal').classList.remove('active');
+    ['new-name','new-email','new-unit','new-password'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (el) el.value = '';
+    });
+  };
+
+  window.submitAddUser = function() {
+    var name     = (document.getElementById('new-name').value     || '').trim();
+    var email    = (document.getElementById('new-email').value    || '').trim();
+    var unit     = (document.getElementById('new-unit').value     || '').trim();
+    var password = (document.getElementById('new-password').value || '').trim();
+    if (!name || !email || !unit || !password) {
+      umToast('Mohon lengkapi semua field wajib.', 'error'); return;
+    }
+    if (password.length < 8) {
+      umToast('Password minimal 8 karakter.', 'error'); return;
+    }
+    closeAddUserModal();
+    umToast('Pengguna ' + name + ' berhasil ditambahkan.', 'success');
+    var stat = document.getElementById('stat-total');
+    if (stat) stat.textContent = parseInt(stat.textContent, 10) + 1;
+  };
+
+  window.editUser = function(name) {
+    umToast('Fitur edit untuk ' + name + ' akan segera hadir.', 'info');
+  };
+
+  window.deleteUser = function(name) {
+    if (confirm('Yakin ingin menghapus pengguna ' + name + '?')) {
+      umToast('Pengguna ' + name + ' telah dihapus.', 'success');
+    }
+  };
+
+  window.exportUsers = function() {
+    umToast('Mengekspor data pengguna...', 'info');
+  };
+
+  function umToast(msg, type) {
+    var t = document.getElementById('toast');
+    if (!t) return;
+    var colors = { success:'oklch(0.7 0.15 155)', error:'oklch(0.65 0.18 25)', info:'oklch(0.7 0.13 230)' };
+    t.textContent = msg;
+    t.style.cssText = [
+      'display:block', 'opacity:1',
+      'background:var(--bg-elevated)',
+      'color:var(--text-primary)',
+      'border:1px solid var(--border-strong)',
+      'border-left:3px solid ' + (colors[type] || colors.info),
+      'padding:12px 20px', 'border-radius:10px',
+      'font-size:13px', 'font-weight:600',
+      'position:fixed', 'bottom:28px', 'right:28px',
+      'z-index:99999', 'box-shadow:var(--shadow-lg)',
+      'transition:opacity 0.25s ease', 'max-width:360px',
+    ].join(';');
+    clearTimeout(t._umTo);
+    t._umTo = setTimeout(function() {
+      t.style.opacity = '0';
+      setTimeout(function() { t.style.display = 'none'; }, 300);
+    }, 3000);
+  }
+
+  // Close modal on overlay click
+  var modal = document.getElementById('add-user-modal');
+  if (modal) {
+    modal.addEventListener('click', function(e) {
+      if (e.target === modal) closeAddUserModal();
+    });
+  }
+})();
+</script>
