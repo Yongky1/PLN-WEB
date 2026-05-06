@@ -1,138 +1,956 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title><%= title %></title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/output.css">
-    <style>
-        html { overflow-x: hidden; }
-        body { margin: 0; padding: 0 16px; box-sizing: border-box; font-family: 'Inter', sans-serif; background: #05101E; color: #fff; min-height: 100vh; display: flex; align-items: center; justify-content: center; overflow-x: hidden; }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= title %></title>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        /* Ambient Background */
-        .ambient-bg { position: fixed; inset: 0; overflow: hidden; z-index: 0; }
-        .glow { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.15; animation: float 10s infinite alternate ease-in-out; }
-        .glow-1 { width: 500px; height: 500px; background: #00E5FF; top: -100px; left: -100px; }
-        .glow-2 { width: 600px; height: 600px; background: #0055FF; bottom: -200px; right: -100px; animation-delay: -5s; }
-        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(30px, 30px); } }
+    :root {
+      --pln-yellow: #FFD600;
+      --pln-blue: #0050cc;
+      --bg-deep: #001833;
+      --bg-form: #020d1c;
+    }
 
-        /* Login Card */
-        .login-card { position: relative; z-index: 10; width: 100%; max-width: 400px; background: rgba(7, 21, 37, 0.7); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 24px; padding: 40px; box-shadow: 0 24px 64px rgba(0, 0, 0, 0.4); }
+    html, body {
+      height: 100%;
+      overflow: hidden;
+      font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+      background: var(--bg-deep);
+      color: #fff;
+    }
 
-        @media (max-width: 480px) {
-            .login-card { padding: 28px 20px; border-radius: 20px; }
-            .logo-area { margin-bottom: 24px; }
-            .logo-text { font-size: 24px; }
-            .input-group { margin-bottom: 16px; }
-            .input-field { padding: 13px 14px; font-size: 16px; } /* font-size 16px cegah auto-zoom iOS */
-            .btn-login { padding: 14px; font-size: 15px; }
-        }
-        
-        .logo-area { text-align: center; margin-bottom: 32px; }
-        .logo-text { font-family: 'Outfit', sans-serif; font-weight: 800; font-size: 28px; letter-spacing: -0.5px; }
-        .logo-text span { color: #00E5FF; }
-        .subtitle { font-size: 13px; color: rgba(255, 255, 255, 0.4); margin-top: 4px; }
+    .page {
+      display: flex;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
 
-        .input-group { margin-bottom: 20px; text-align: left; }
-        .input-label { display: block; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, 0.6); margin-bottom: 8px; }
-        .input-field { width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; color: #fff; font-size: 14px; font-family: 'Inter', sans-serif; transition: all 0.3s ease; outline: none; box-sizing: border-box; }
-        .input-field:focus { border-color: #00E5FF; background: rgba(0, 229, 255, 0.03); box-shadow: 0 0 0 4px rgba(0, 229, 255, 0.1); }
-        .input-field::placeholder { color: rgba(255, 255, 255, 0.2); }
+    /* ── LEFT PANEL ── */
+    .left {
+      position: relative;
+      flex: 1 1 55%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 48px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #001833 0%, #002150 50%, #00112b 100%);
+    }
 
-        .btn-login { width: 100%; padding: 14px; margin-top: 10px; background: linear-gradient(135deg, #00C8FF 0%, #0055FF 100%); border: none; border-radius: 12px; color: #fff; font-size: 14px; font-weight: 700; font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden; }
-        .btn-login:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0, 150, 255, 0.3); }
-        .btn-login:active { transform: translateY(0); }
-        
-        .loading { display: none; margin-left: 8px; font-weight: normal; }
+    .waves {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
 
-        .error-msg { color: #FF4444; font-size: 12px; margin-bottom: 16px; text-align: center; display: none; font-weight: 500; background: rgba(255, 68, 68, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 68, 68, 0.2); }
-    </style>
+    .left::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.08) 1px, transparent 1px);
+      background-size: 44px 44px;
+      pointer-events: none;
+    }
+
+    .left::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 30%, rgba(255,214,0,0.12) 0%, transparent 40%),
+        radial-gradient(circle at 80% 70%, rgba(0,80,204,0.18) 0%, transparent 45%);
+      pointer-events: none;
+    }
+
+    .left-content {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      text-align: center;
+      animation: fadeInUp 0.8s ease;
+      padding: 40px 48px 36px;
+      border-radius: 24px;
+      background: rgba(255,255,255,0.04);
+      backdrop-filter: blur(10px) saturate(140%);
+      -webkit-backdrop-filter: blur(10px) saturate(140%);
+      border: 1px solid rgba(255,255,255,0.28);
+      box-shadow:
+        0 8px 32px rgba(0,0,0,0.25),
+        inset 0 1px 0 rgba(255,255,255,0.3),
+        inset 0 -1px 0 rgba(0,0,0,0.08);
+    }
+
+    .bolt-wrap {
+      animation: floatBolt 3.5s ease-in-out infinite;
+      filter: drop-shadow(0 0 24px rgba(255,214,0,0.5));
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--pln-yellow);
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+
+    h1.title {
+      font-size: clamp(28px, 3.5vw, 44px);
+      font-weight: 800;
+      line-height: 1.15;
+      color: #fff;
+      text-shadow: 0 2px 32px rgba(0,0,0,0.4);
+    }
+
+    h1.title span { color: var(--pln-yellow); }
+
+    .lead {
+      font-size: 15px;
+      color: rgba(255,255,255,0.6);
+      line-height: 1.7;
+      max-width: 360px;
+    }
+
+    .copyright {
+      position: absolute;
+      bottom: 20px;
+      left: 0; right: 0;
+      text-align: center;
+      z-index: 2;
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      letter-spacing: 2px;
+    }
+
+    /* ── RIGHT PANEL ── */
+    .right {
+      flex: 0 0 420px;
+      background: var(--bg-form);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 48px;
+      position: relative;
+      border-left: 1px solid rgba(255,255,255,0.06);
+      overflow: hidden;
+    }
+
+    .right::before, .right::after {
+      content: '';
+      position: absolute;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+    .right::before {
+      top: -80px; right: -80px;
+      width: 300px; height: 300px;
+      background: radial-gradient(circle, rgba(0,80,204,0.18) 0%, transparent 70%);
+    }
+    .right::after {
+      bottom: -60px; left: -60px;
+      width: 240px; height: 240px;
+      background: radial-gradient(circle, rgba(255,214,0,0.08) 0%, transparent 70%);
+    }
+
+    .form-wrap {
+      width: 100%;
+      max-width: 340px;
+      position: relative;
+      z-index: 1;
+      animation: fadeInUp 0.7s ease 0.2s backwards;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,214,0,0.1);
+      border: 1px solid rgba(255,214,0,0.2);
+      border-radius: 24px;
+      padding: 5px 14px;
+      margin-bottom: 18px;
+    }
+    .dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--pln-yellow);
+      animation: pulseDot 2s ease-in-out infinite;
+    }
+    .badge span {
+      font-size: 11px;
+      color: var(--pln-yellow);
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    h2.heading {
+      font-size: 28px;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+    h2.heading span { color: var(--pln-yellow); }
+
+    .subheading {
+      font-size: 14px;
+      color: rgba(255,255,255,0.45);
+      font-weight: 400;
+      margin-bottom: 28px;
+    }
+
+    /* error banner */
+    .error-banner {
+      display: none;
+      background: rgba(255,68,68,0.1);
+      border: 1px solid rgba(255,68,68,0.25);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 13px;
+      color: #ff7070;
+      margin-bottom: 16px;
+      animation: slideIn 0.2s ease;
+    }
+    .error-banner.show { display: block; }
+
+    /* form fields */
+    form { display: flex; flex-direction: column; gap: 16px; }
+
+    .field { position: relative; }
+
+    .field-box {
+      position: relative;
+      border-radius: 14px;
+      border: 1.5px solid rgba(255,255,255,0.15);
+      background: rgba(255,255,255,0.04);
+      transition: all 0.25s ease;
+    }
+    .field-box:focus-within {
+      border-color: var(--pln-yellow);
+      background: rgba(255,255,255,0.07);
+      box-shadow: 0 0 0 3px rgba(255,214,0,0.12);
+    }
+    .field.error .field-box { border-color: #ff5c5c; }
+
+    .field-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: rgba(255,255,255,0.35);
+      transition: color 0.2s;
+      display: flex;
+      pointer-events: none;
+    }
+    .field-box:focus-within .field-icon { color: var(--pln-yellow); }
+
+    .field-label {
+      position: absolute;
+      left: 44px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 14px;
+      font-weight: 500;
+      color: rgba(255,255,255,0.45);
+      pointer-events: none;
+      transition: all 0.2s ease;
+    }
+    .field-box.active .field-label,
+    .field-box:focus-within .field-label {
+      top: 8px;
+      transform: none;
+      font-size: 11px;
+      color: var(--pln-yellow);
+    }
+    .field.error .field-label { color: #ff5c5c; }
+
+    .field-input {
+      width: 100%;
+      padding: 22px 16px 8px 44px;
+      background: transparent;
+      border: none;
+      outline: none;
+      color: #fff;
+      font-size: 15px;
+      font-family: inherit;
+      font-weight: 500;
+    }
+    .field-input.has-right { padding-right: 48px; }
+
+    .toggle-pw {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: rgba(255,255,255,0.35);
+      padding: 4px;
+      display: flex;
+      transition: color 0.2s;
+    }
+    .toggle-pw.active { color: var(--pln-yellow); }
+
+    .err-msg {
+      font-size: 12px;
+      color: #ff7070;
+      margin-top: 5px;
+      margin-left: 16px;
+      animation: slideIn 0.2s ease;
+    }
+
+    /* remember + forgot row */
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: -4px;
+    }
+
+    .checkbox {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13px;
+      color: rgba(255,255,255,0.55);
+      font-weight: 500;
+    }
+
+    .check-box {
+      width: 18px; height: 18px;
+      border-radius: 5px;
+      border: 2px solid rgba(255,255,255,0.25);
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      flex-shrink: 0;
+    }
+    .checkbox input { display: none; }
+    .checkbox input:checked + .check-box {
+      border-color: var(--pln-yellow);
+      background: var(--pln-yellow);
+    }
+    .check-box svg { opacity: 0; transition: opacity 0.15s; }
+    .checkbox input:checked + .check-box svg { opacity: 1; }
+
+    .forgot {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--pln-yellow);
+      font-weight: 600;
+      font-family: inherit;
+      opacity: 0.85;
+      transition: opacity 0.2s;
+    }
+    .forgot:hover { opacity: 1; }
+
+    /* submit */
+    .submit-btn {
+      margin-top: 8px;
+      padding: 15px 24px;
+      border-radius: 14px;
+      border: none;
+      cursor: pointer;
+      background: linear-gradient(135deg, #FFD600 0%, #FFC200 100%);
+      color: #001833;
+      font-size: 15px;
+      font-weight: 800;
+      font-family: inherit;
+      letter-spacing: 0.3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
+      box-shadow: 0 4px 24px rgba(255,214,0,0.35);
+      animation: glowPulse 2.5s ease-in-out infinite;
+    }
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(255,214,0,0.5);
+    }
+    .submit-btn:disabled {
+      cursor: not-allowed;
+      background: rgba(255,214,0,0.4);
+      box-shadow: none;
+      animation: none;
+      transform: none;
+    }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      border: 2.5px solid rgba(0,24,51,0.3);
+      border-top-color: #001833;
+      animation: spinRing 0.7s linear infinite;
+    }
+
+    /* divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .divider .line { flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+    .divider .label {
+      font-size: 12px;
+      color: rgba(255,255,255,0.25);
+      white-space: nowrap;
+      letter-spacing: 1px;
+    }
+
+    /* keyframes */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes floatBolt {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+    @keyframes glowPulse {
+      0%, 100% { box-shadow: 0 4px 24px rgba(255,214,0,0.35); }
+      50%       { box-shadow: 0 8px 40px rgba(255,214,0,0.5); }
+    }
+    @keyframes pulseDot {
+      0%, 100% { box-shadow: 0 0 8px rgba(255,214,0,0.6); opacity: 1; }
+      50%       { box-shadow: 0 0 16px rgba(255,214,0,0.9); opacity: 0.7; }
+    }
+    @keyframes spinRing { to { transform: rotate(360deg); } }
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-4px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-6px); }
+      75% { transform: translateX(6px); }
+    }
+    form.shake { animation: shake 0.4s ease; }
+
+    /* wave animations */
+    @keyframes waveSlide1 {
+      from { transform: translateX(0); }
+      to   { transform: translateX(-50%); }
+    }
+    @keyframes waveSlide2 {
+      from { transform: translateX(-50%); }
+      to   { transform: translateX(0); }
+    }
+    .wave-svg {
+      position: absolute;
+      bottom: 0;
+      width: 200%;
+      height: 100%;
+    }
+    .wave-svg.w1 { animation: waveSlide1 18s linear infinite; opacity: 0.18; }
+    .wave-svg.w2 { animation: waveSlide2 24s linear infinite; opacity: 0.10; }
+    .wave-svg.w3 { animation: waveSlide1 30s linear infinite; opacity: 0.14; }
+
+    /* power scene */
+    .power-scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .power-scene svg { width: 100%; height: 100%; display: block; }
+
+    .cable { fill: none; stroke: rgba(255,255,255,0.55); stroke-width: 1.6; stroke-linecap: round; }
+    .cable.thin { stroke: rgba(255,255,255,0.35); stroke-width: 1.2; }
+
+    @keyframes spark {
+      0%   { stroke-dashoffset: 0; }
+      100% { stroke-dashoffset: -60; }
+    }
+    .spark-line {
+      fill: none;
+      stroke: #FFD600;
+      stroke-width: 1.8;
+      stroke-linecap: round;
+      stroke-dasharray: 4 8;
+      filter: drop-shadow(0 0 4px rgba(255,214,0,0.9));
+      animation: spark 1.2s linear infinite;
+      opacity: 0.85;
+    }
+
+    @keyframes insulatorPulse {
+      0%, 100% { fill: rgba(255,214,0,0.7); filter: drop-shadow(0 0 3px rgba(255,214,0,0.7)); }
+      50%       { fill: #FFD600; filter: drop-shadow(0 0 8px rgba(255,214,0,1)); }
+    }
+    .insulator { animation: insulatorPulse 2.4s ease-in-out infinite; }
+    .insulator.d1 { animation-delay: -0.4s; }
+    .insulator.d2 { animation-delay: -0.8s; }
+    .insulator.d3 { animation-delay: -1.2s; }
+    .insulator.d4 { animation-delay: -1.6s; }
+
+    @keyframes transformerGlow {
+      0%, 100% { filter: drop-shadow(0 0 4px rgba(255,214,0,0.4)); }
+      50%       { filter: drop-shadow(0 0 12px rgba(255,214,0,0.85)); }
+    }
+    .transformer-body { animation: transformerGlow 2.5s ease-in-out infinite; }
+
+    @keyframes twinkle {
+      0%, 100% { opacity: 0.2; }
+      50%       { opacity: 1; }
+    }
+    .star { fill: #fff; animation: twinkle 3s ease-in-out infinite; }
+
+    @keyframes moonGlow {
+      0%, 100% { filter: drop-shadow(0 0 16px rgba(255,255,255,0.3)); }
+      50%       { filter: drop-shadow(0 0 24px rgba(255,255,255,0.5)); }
+    }
+    .moon { animation: moonGlow 4s ease-in-out infinite; }
+
+    @keyframes blink {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.3; }
+    }
+    .blink-light.green {
+      animation: blink 1.8s ease-in-out infinite;
+      animation-delay: -0.5s;
+      fill: #4cff8b;
+      filter: drop-shadow(0 0 6px rgba(76,255,139,0.9));
+    }
+
+    /* responsive: hide left panel on small screens */
+    @media (max-width: 640px) {
+      .left { display: none; }
+      .right { flex: 1; border-left: none; }
+    }
+  </style>
 </head>
 <body>
-    <div class="ambient-bg">
-        <div class="glow glow-1"></div>
-        <div class="glow glow-2"></div>
+  <div class="page">
+
+    <!-- ── LEFT PANEL ── -->
+    <div class="left">
+      <div class="waves">
+        <svg class="wave-svg w3" viewBox="0 0 2400 800" preserveAspectRatio="none">
+          <path d="M0,560 C200,500 400,620 600,560 C800,500 1000,620 1200,560 C1400,500 1600,620 1800,560 C2000,500 2200,620 2400,560 L2400,800 L0,800 Z" fill="#0050cc"/>
+        </svg>
+        <svg class="wave-svg w1" viewBox="0 0 2400 800" preserveAspectRatio="none">
+          <path d="M0,620 C200,580 400,680 600,620 C800,560 1000,680 1200,620 C1400,560 1600,680 1800,620 C2000,560 2200,680 2400,620 L2400,800 L0,800 Z" fill="#FFD600"/>
+        </svg>
+        <svg class="wave-svg w2" viewBox="0 0 2400 800" preserveAspectRatio="none">
+          <path d="M0,680 C300,640 600,720 900,680 C1200,640 1500,720 1800,680 C2100,640 2400,720 2400,680 L2400,800 L0,800 Z" fill="#ffffff"/>
+        </svg>
+      </div>
+
+      <div class="power-scene">
+        <svg viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid slice">
+          <defs>
+            <linearGradient id="sky-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stop-color="#001226"/>
+              <stop offset="60%"  stop-color="#001e45"/>
+              <stop offset="100%" stop-color="#002456"/>
+            </linearGradient>
+            <mask id="crescent-mask">
+              <circle cx="1199" cy="130" r="30" fill="white"/>
+              <circle cx="1184" cy="122" r="24" fill="black"/>
+            </mask>
+          </defs>
+          <!-- opaque sky background so waves don't bleed through -->
+          <rect x="0" y="0" width="1400" height="700" fill="url(#sky-grad)"/>
+          <!-- stars -->
+          <circle class="star" cx="100"  cy="50"  r="1.2"/>
+          <circle class="star" cx="260"  cy="35"  r="1"   style="animation-delay:-1s"/>
+          <circle class="star" cx="420"  cy="70"  r="1.5" style="animation-delay:-2s"/>
+          <circle class="star" cx="580"  cy="48"  r="1"   style="animation-delay:-0.5s"/>
+          <circle class="star" cx="760"  cy="62"  r="1.3" style="animation-delay:-1.5s"/>
+          <circle class="star" cx="920"  cy="30"  r="1"   style="animation-delay:-2.5s"/>
+          <circle class="star" cx="1100" cy="68"  r="1.2" style="animation-delay:-1.8s"/>
+          <circle class="star" cx="1280" cy="42"  r="1"   style="animation-delay:-0.7s"/>
+          <!-- extra stars (lower sky band) -->
+          <circle class="star" cx="60"   cy="140" r="1"   style="animation-delay:-0.3s"/>
+          <circle class="star" cx="340"  cy="155" r="1.2" style="animation-delay:-1.2s"/>
+          <circle class="star" cx="500"  cy="130" r="1"   style="animation-delay:-2.2s"/>
+          <circle class="star" cx="680"  cy="162" r="1.4" style="animation-delay:-0.8s"/>
+          <circle class="star" cx="840"  cy="145" r="1"   style="animation-delay:-1.6s"/>
+          <circle class="star" cx="990"  cy="125" r="1.1" style="animation-delay:-0.6s"/>
+          <circle class="star" cx="1150" cy="158" r="1"   style="animation-delay:-2.0s"/>
+          <circle class="star" cx="1320" cy="138" r="1.3" style="animation-delay:-1.4s"/>
+
+          <!-- crescent moon -->
+          <g class="moon">
+            <circle cx="1199" cy="130" r="30" fill="rgba(225,218,175,0.95)" mask="url(#crescent-mask)"/>
+          </g>
+
+          <!-- mountain silhouette -->
+          <path d="M0,500 L120,420 L240,460 L380,380 L520,440 L660,400 L820,470 L960,420 L1100,460 L1260,400 L1400,440 L1400,700 L0,700 Z" fill="#001020"/>
+          <rect x="0" y="500" width="1400" height="200" fill="#000a14"/>
+          <line x1="0" y1="500" x2="1400" y2="500" stroke="rgba(255,214,0,0.18)" stroke-width="0.8"/>
+
+          <!-- POLE 1 (left) -->
+          <g>
+            <rect x="196" y="180" width="6" height="320" fill="#1a3a6e"/>
+            <rect x="197" y="180" width="2" height="320" fill="rgba(255,255,255,0.2)"/>
+            <rect x="150" y="210" width="100" height="4" fill="#1a3a6e"/>
+            <rect x="160" y="245" width="80" height="4" fill="#1a3a6e"/>
+            <rect x="170" y="275" width="60" height="4" fill="#1a3a6e"/>
+            <line x1="170" y1="214" x2="199" y2="230" stroke="#1a3a6e" stroke-width="2"/>
+            <line x1="230" y1="214" x2="199" y2="230" stroke="#1a3a6e" stroke-width="2"/>
+            <circle class="insulator" cx="160" cy="210" r="4"/>
+            <circle class="insulator d1" cx="199" cy="210" r="4"/>
+            <circle class="insulator d2" cx="240" cy="210" r="4"/>
+            <circle class="insulator d3" cx="170" cy="245" r="3.5"/>
+            <circle class="insulator d4" cx="230" cy="245" r="3.5"/>
+            <rect x="206" y="300" width="22" height="36" rx="3" fill="#163357" stroke="#FFD600" stroke-width="0.8" opacity="0.95"/>
+            <line x1="209" y1="308" x2="225" y2="308" stroke="rgba(255,214,0,0.6)" stroke-width="0.6"/>
+            <line x1="209" y1="316" x2="225" y2="316" stroke="rgba(255,214,0,0.6)" stroke-width="0.6"/>
+            <line x1="209" y1="324" x2="225" y2="324" stroke="rgba(255,214,0,0.6)" stroke-width="0.6"/>
+          </g>
+
+          <!-- POLE 2 (middle) -->
+          <g>
+            <rect x="696" y="180" width="6" height="320" fill="#1a3a6e"/>
+            <rect x="697" y="180" width="2" height="320" fill="rgba(255,255,255,0.2)"/>
+            <rect x="650" y="210" width="100" height="4" fill="#1a3a6e"/>
+            <rect x="660" y="245" width="80" height="4" fill="#1a3a6e"/>
+            <rect x="670" y="275" width="60" height="4" fill="#1a3a6e"/>
+            <line x1="670" y1="214" x2="699" y2="230" stroke="#1a3a6e" stroke-width="2"/>
+            <line x1="730" y1="214" x2="699" y2="230" stroke="#1a3a6e" stroke-width="2"/>
+            <circle class="insulator d1" cx="660" cy="210" r="4"/>
+            <circle class="insulator d2" cx="699" cy="210" r="4"/>
+            <circle class="insulator d3" cx="740" cy="210" r="4"/>
+            <circle class="insulator" cx="670" cy="245" r="3.5"/>
+            <circle class="insulator d4" cx="730" cy="245" r="3.5"/>
+          </g>
+
+          <!-- POLE 3 (right) — shaft cut before substation -->
+          <g>
+            <rect x="1196" y="180" width="6" height="220" fill="#1a3a6e"/>
+            <rect x="1197" y="180" width="2" height="220" fill="rgba(255,255,255,0.2)"/>
+            <rect x="1150" y="210" width="100" height="4" fill="#1a3a6e"/>
+            <rect x="1160" y="245" width="80" height="4" fill="#1a3a6e"/>
+            <rect x="1170" y="275" width="60" height="4" fill="#1a3a6e"/>
+            <line x1="1170" y1="214" x2="1199" y2="230" stroke="#1a3a6e" stroke-width="2"/>
+            <line x1="1230" y1="214" x2="1199" y2="230" stroke="#1a3a6e" stroke-width="2"/>
+            <circle class="insulator" cx="1160" cy="210" r="4"/>
+            <circle class="insulator d1" cx="1199" cy="210" r="4"/>
+            <circle class="insulator d2" cx="1240" cy="210" r="4"/>
+            <circle class="insulator d3" cx="1170" cy="245" r="3.5"/>
+            <circle class="insulator d4" cx="1230" cy="245" r="3.5"/>
+            <circle class="insulator d2" cx="1199" cy="275" r="3"/>
+          </g>
+
+          <!-- CABLES -->
+          <path class="cable" d="M 200 210 Q 100 235 0 215"/>
+          <path class="cable" d="M 200 245 Q 100 268 0 250"/>
+          <path class="cable thin" d="M 200 275 Q 100 298 0 282"/>
+          <path class="cable" d="M 200 210 Q 450 245 700 210"/>
+          <path class="cable" d="M 200 245 Q 450 280 700 245"/>
+          <path class="cable thin" d="M 200 275 Q 450 305 700 275"/>
+          <path class="cable" d="M 700 210 Q 950 240 1200 210"/>
+          <path class="cable" d="M 700 245 Q 950 275 1200 245"/>
+          <path class="cable thin" d="M 700 275 Q 950 305 1200 275"/>
+          <path class="cable" d="M 1200 210 Q 1310 235 1400 230"/>
+          <path class="cable" d="M 1200 245 Q 1310 268 1400 262"/>
+          <path class="cable thin" d="M 1200 275 Q 1310 298 1400 290"/>
+
+          <!-- SPARK LINES: flow right → left (from substation) -->
+          <path class="spark-line" d="M 1400 230 Q 1310 235 1200 210" style="animation-delay:-0.0s"/>
+          <path class="spark-line" d="M 1400 262 Q 1310 268 1200 245" style="animation-delay:-0.4s"/>
+          <path class="spark-line" d="M 1400 290 Q 1310 298 1200 275" style="animation-delay:-0.8s"/>
+          <path class="spark-line" d="M 1200 210 Q 950 240 700 210" style="animation-delay:-0.2s"/>
+          <path class="spark-line" d="M 1200 245 Q 950 275 700 245" style="animation-delay:-0.5s"/>
+          <path class="spark-line" d="M 1200 275 Q 950 305 700 275" style="animation-delay:-0.9s"/>
+          <path class="spark-line" d="M 700 210 Q 450 245 200 210" style="animation-delay:-0.3s"/>
+          <path class="spark-line" d="M 700 245 Q 450 280 200 245" style="animation-delay:-0.6s"/>
+          <path class="spark-line" d="M 700 275 Q 450 305 200 275" style="animation-delay:-1.0s"/>
+          <path class="spark-line" d="M 200 210 Q 100 235 0 215" style="animation-delay:-0.1s"/>
+          <path class="spark-line" d="M 200 245 Q 100 268 0 250" style="animation-delay:-0.7s"/>
+          <path class="spark-line" d="M 200 275 Q 100 298 0 282" style="animation-delay:-1.1s"/>
+
+          <!-- SUBSTATION -->
+          <g transform="translate(1010, 0)">
+            <rect x="-10" y="480" width="260" height="22" fill="#1a3a6e" opacity="0.6"/>
+            <g stroke="#1a3a6e" stroke-width="1.2" opacity="0.7">
+              <line x1="-5" y1="460" x2="-5" y2="500"/>
+              <line x1="30" y1="460" x2="30" y2="500"/>
+              <line x1="65" y1="460" x2="65" y2="500"/>
+              <line x1="100" y1="460" x2="100" y2="500"/>
+              <line x1="135" y1="460" x2="135" y2="500"/>
+              <line x1="170" y1="460" x2="170" y2="500"/>
+              <line x1="205" y1="460" x2="205" y2="500"/>
+              <line x1="240" y1="460" x2="240" y2="500"/>
+              <line x1="-5" y1="475" x2="245" y2="475"/>
+              <line x1="-5" y1="495" x2="245" y2="495"/>
+            </g>
+            <g class="transformer-body">
+              <rect x="15" y="380" width="70" height="100" fill="#163357" stroke="#FFD600" stroke-width="0.8"/>
+              <rect x="15" y="380" width="70" height="6" fill="#1a3a6e"/>
+              <line x1="20" y1="395" x2="80" y2="395" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <line x1="20" y1="410" x2="80" y2="410" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <line x1="20" y1="425" x2="80" y2="425" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <line x1="20" y1="440" x2="80" y2="440" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <line x1="20" y1="455" x2="80" y2="455" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <rect x="22" y="360" width="6" height="22" fill="#163357" stroke="#FFD600" stroke-width="0.6"/>
+              <rect x="47" y="360" width="6" height="22" fill="#163357" stroke="#FFD600" stroke-width="0.6"/>
+              <rect x="72" y="360" width="6" height="22" fill="#163357" stroke="#FFD600" stroke-width="0.6"/>
+              <circle class="insulator" cx="25" cy="360" r="3"/>
+              <circle class="insulator d2" cx="50" cy="360" r="3"/>
+              <circle class="insulator d4" cx="75" cy="360" r="3"/>
+            </g>
+            <g class="transformer-body" style="animation-delay:-0.3s">
+              <rect x="160" y="410" width="60" height="70" fill="#163357" stroke="#FFD600" stroke-width="0.8"/>
+              <rect x="160" y="410" width="60" height="5" fill="#1a3a6e"/>
+              <line x1="165" y1="425" x2="215" y2="425" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <line x1="165" y1="440" x2="215" y2="440" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <line x1="165" y1="455" x2="215" y2="455" stroke="rgba(255,214,0,0.4)" stroke-width="0.6"/>
+              <rect x="170" y="395" width="5" height="16" fill="#163357" stroke="#FFD600" stroke-width="0.6"/>
+              <rect x="205" y="395" width="5" height="16" fill="#163357" stroke="#FFD600" stroke-width="0.6"/>
+              <circle class="insulator d1" cx="172.5" cy="395" r="2.5"/>
+              <circle class="insulator d3" cx="207.5" cy="395" r="2.5"/>
+              <circle class="blink-light green" cx="190" cy="404" r="2.5"/>
+            </g>
+            <g stroke="#1a3a6e" stroke-width="1.8" fill="none" opacity="0.95">
+              <line x1="100" y1="300" x2="100" y2="480"/>
+              <line x1="140" y1="300" x2="140" y2="480"/>
+              <line x1="100" y1="310" x2="140" y2="310"/>
+              <line x1="100" y1="340" x2="140" y2="340"/>
+              <line x1="100" y1="380" x2="140" y2="380"/>
+              <line x1="100" y1="420" x2="140" y2="420"/>
+              <line x1="100" y1="460" x2="140" y2="460"/>
+              <line x1="100" y1="310" x2="140" y2="340"/>
+              <line x1="140" y1="310" x2="100" y2="340"/>
+              <line x1="100" y1="340" x2="140" y2="380"/>
+              <line x1="140" y1="340" x2="100" y2="380"/>
+              <line x1="100" y1="380" x2="140" y2="420"/>
+              <line x1="140" y1="380" x2="100" y2="420"/>
+              <line x1="100" y1="420" x2="140" y2="460"/>
+              <line x1="140" y1="420" x2="100" y2="460"/>
+            </g>
+            <line x1="80" y1="305" x2="160" y2="305" stroke="#1a3a6e" stroke-width="2.4"/>
+            <circle class="insulator d1" cx="85" cy="305" r="3.5"/>
+            <circle class="insulator d3" cx="120" cy="305" r="3.5"/>
+            <circle class="insulator" cx="155" cy="305" r="3.5"/>
+          </g>
+        </svg>
+      </div>
+
+      <div class="left-content">
+        <div>
+          <p class="eyebrow">PT PLN (Persero)</p>
+          <h1 class="title">Pembelajaran 3D<br/><span>Web PLN</span></h1>
+        </div>
+        <p class="lead">Platform pembelajaran konstruksi jaringan tenaga listrik berbasis teknologi 3D interaktif.</p>
+      </div>
+
+      <p class="copyright">© 2026 PT PLN (Persero) · All Rights Reserved</p>
     </div>
 
-    <div class="login-card">
-        <div class="logo-area">
-            <div class="logo-text">PLN<span>Pusdiklat</span></div>
-            <div class="subtitle">Secure Admin Portal</div>
+    <!-- ── RIGHT PANEL ── -->
+    <div class="right">
+      <div class="form-wrap">
+
+        <div class="badge">
+          <span class="dot"></span>
+          <span>PORTAL ADMIN</span>
         </div>
 
-        <div id="error-box" class="error-msg">Email atau password salah.</div>
+        <h2 class="heading">Selamat datang<br/><span>admin!</span></h2>
+        <p class="subheading">Masuk untuk melanjutkan ke dashboard</p>
 
-        <form id="login-form">
-            <div class="input-group">
-                <label class="input-label">Email Address</label>
-                <input type="email" id="email" class="input-field" placeholder="admin@pln.co.id" required>
-            </div>
-            
-            <div class="input-group">
-                <label class="input-label">Password</label>
-                <input type="password" id="password" class="input-field" placeholder="••••••••" required>
-            </div>
+        <div id="error-banner" class="error-banner"></div>
 
-            <button type="submit" id="btn-submit" class="btn-login">
-                Sign In <span class="loading" id="loading-txt">🔄 Memproses...</span>
-            </button>
+        <form id="loginForm" novalidate>
+          <!-- email -->
+          <div class="field" id="emailField">
+            <div class="field-box">
+              <span class="field-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="4" width="20" height="16" rx="3"/><path d="m2 7 10 7 10-7"/>
+                </svg>
+              </span>
+              <label class="field-label" for="email">Alamat Email</label>
+              <input class="field-input" type="email" id="email" autocomplete="email" />
+            </div>
+            <p class="err-msg" id="emailErr" style="display:none"></p>
+          </div>
+
+          <!-- password -->
+          <div class="field" id="passwordField">
+            <div class="field-box">
+              <span class="field-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </span>
+              <label class="field-label" for="password">Password</label>
+              <input class="field-input has-right" type="password" id="password" autocomplete="current-password" />
+              <button type="button" class="toggle-pw" id="togglePw" aria-label="Tampilkan password">
+                <svg id="eyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/>
+                  <line x1="1" y1="1" x2="23" y2="23"/>
+                </svg>
+              </button>
+            </div>
+            <p class="err-msg" id="passwordErr" style="display:none"></p>
+          </div>
+
+          <!-- remember + forgot -->
+          <div class="row">
+            <label class="checkbox">
+              <input type="checkbox" id="remember" />
+              <span class="check-box">
+                <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="#001833" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="10 3 5 9 2 6"/>
+                </svg>
+              </span>
+              <span>Ingat saya</span>
+            </label>
+            <button type="button" class="forgot">Lupa password?</button>
+          </div>
+
+          <!-- submit -->
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span id="btnLabel">Masuk ke Dashboard</span>
+            <svg id="btnArrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M5 12h14M12 5l7 7-7 7"/>
+            </svg>
+          </button>
         </form>
+
+        <div class="divider">
+          <span class="line"></span>
+          <span class="label">VERSI 2.0 · 2026</span>
+          <span class="line"></span>
+        </div>
+      </div>
     </div>
+  </div>
 
-    <script>
-        document.getElementById('login-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const btn = document.getElementById('btn-submit');
-            const errorBox = document.getElementById('error-box');
-            const loadingTxt = document.getElementById('loading-txt');
+  <script>
+    // floating-label active state
+    document.querySelectorAll('.field-input').forEach(input => {
+      const box = input.closest('.field-box');
+      const update = () => input.value.length > 0 ? box.classList.add('active') : box.classList.remove('active');
+      input.addEventListener('input', update);
+      input.addEventListener('blur', update);
+      update();
+    });
 
-            // UI Loading state
-            btn.style.opacity = '0.8';
-            btn.style.pointerEvents = 'none';
-            loadingTxt.style.display = 'inline-block';
-            errorBox.style.display = 'none';
+    // password show/hide
+    const pwInput = document.getElementById('password');
+    const toggle  = document.getElementById('togglePw');
+    const eye     = document.getElementById('eyeIcon');
+    toggle.addEventListener('click', () => {
+      const visible = pwInput.type === 'text';
+      pwInput.type = visible ? 'password' : 'text';
+      toggle.classList.toggle('active', !visible);
+      eye.innerHTML = visible
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+        : '<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>';
+    });
 
-            try {
-                // Lewat proxy frontend — aman untuk device manapun
-                const response = await fetch('/api/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email, password })
-                });
+    // form validation helpers
+    const setError = (field, errEl, msg) => {
+      if (msg) {
+        field.classList.add('error');
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+      } else {
+        field.classList.remove('error');
+        errEl.style.display = 'none';
+      }
+    };
 
-                const result = await response.json();
+    const emailIn   = document.getElementById('email');
+    const emailErr  = document.getElementById('emailErr');
+    const pwErr     = document.getElementById('passwordErr');
+    const emailF    = document.getElementById('emailField');
+    const pwF       = document.getElementById('passwordField');
+    const btn       = document.getElementById('submitBtn');
+    const btnLabel  = document.getElementById('btnLabel');
+    const btnArrow  = document.getElementById('btnArrow');
+    const errorBanner = document.getElementById('error-banner');
+    const form      = document.getElementById('loginForm');
 
-                if (!response.ok) {
-                    throw new Error(result.error || result.message || 'Login Gagal');
-                }
+    emailIn.addEventListener('input', () => setError(emailF, emailErr, ''));
+    pwInput.addEventListener('input', () => setError(pwF, pwErr, ''));
 
-                // Simpan token di localStorage (untuk API Fetch)
-                localStorage.setItem('auth_token', result.token);
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      errorBanner.classList.remove('show');
 
-                // Sinkronkan ke Cookie Server agar rute EJS terproteksi
-                await fetch('/set-session', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: result.token })
-                });
+      let ok = true;
+      const email = emailIn.value.trim();
+      if (!email) { setError(emailF, emailErr, 'Email wajib diisi'); ok = false; }
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setError(emailF, emailErr, 'Format email tidak valid'); ok = false; }
+      else setError(emailF, emailErr, '');
 
-                // Redirect ke dasbor
-                window.location.href = '/admin';
+      const pw = pwInput.value;
+      if (!pw) { setError(pwF, pwErr, 'Password wajib diisi'); ok = false; }
+      else if (pw.length < 6) { setError(pwF, pwErr, 'Password minimal 6 karakter'); ok = false; }
+      else setError(pwF, pwErr, '');
 
-            } catch (err) {
-                errorBox.textContent = err.message;
-                errorBox.style.display = 'block';
-                
-                // Reset UI
-                btn.style.opacity = '1';
-                btn.style.pointerEvents = 'auto';
-                loadingTxt.style.display = 'none';
-            }
+      if (!ok) {
+        form.classList.remove('shake');
+        void form.offsetWidth;
+        form.classList.add('shake');
+        return;
+      }
+
+      // loading state
+      btn.disabled = true;
+      btnLabel.textContent = 'Memverifikasi…';
+      btnArrow.style.display = 'none';
+      const sp = document.createElement('div');
+      sp.className = 'spinner';
+      btn.insertBefore(sp, btnLabel);
+
+      try {
+        const res = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password: pw })
         });
-    </script>
+        const result = await res.json();
+
+        if (!res.ok) throw new Error(result.error || result.message || 'Login gagal');
+
+        localStorage.setItem('auth_token', result.token);
+
+        await fetch('/set-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token: result.token })
+        });
+
+        window.location.href = '/admin';
+
+      } catch (err) {
+        sp.remove();
+        btnLabel.textContent = 'Masuk ke Dashboard';
+        btnArrow.style.display = '';
+        btn.disabled = false;
+
+        errorBanner.textContent = err.message;
+        errorBanner.classList.add('show');
+      }
+    });
+  </script>
 </body>
 </html>
