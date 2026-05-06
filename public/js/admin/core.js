@@ -154,16 +154,11 @@ function addProcRow(containerId) {
 }
 
 /* ---- Logout ---- */
-async function handleLogout() {
+function handleLogout() {
     if (confirm('Apakah Anda yakin ingin keluar?')) {
         localStorage.removeItem('auth_token');
-        // Hapus session di server (Cookie)
-        try {
-            await fetch('/clear-session');
-        } catch (e) {
-            console.error('Gagal menghapus sesi server:', e);
-        }
-        window.location.href = '/login';
+        // Arahkan ke rute proxy logout agar backend juga dikabari
+        window.location.href = '/admin-logout';
     }
 }
 

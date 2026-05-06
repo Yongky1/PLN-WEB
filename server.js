@@ -343,7 +343,18 @@ app.get('/clear-session', (req, res) => {
     res.json({ success: true });
 });
 
-app.get('/admin-logout', (req, res) => {
+app.get('/admin-logout', async (req, res) => {
+    const token = req.cookies.auth_token;
+    if (token) {
+        try {
+            await fetch(`${BACKEND_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (err) {
+            console.error('Gagal logout di backend:', err.message);
+        }
+    }
     res.clearCookie('auth_token');
     res.redirect('/login');
 });
