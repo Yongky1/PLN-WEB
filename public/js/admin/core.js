@@ -19,6 +19,49 @@ function showToast(message, type = 'success') {
     }, 2800);
 }
 
+/* ---- Confirm Dialog ---- */
+function showConfirmDialog({ title, message, confirmText = 'Ya, Hapus', iconColor = '#EF4444', onConfirm }) {
+    const overlay = document.getElementById('confirm-dialog-overlay');
+    if (!overlay) return;
+
+    document.getElementById('confirm-dialog-title').textContent = title;
+    document.getElementById('confirm-dialog-message').textContent = message;
+
+    const icon = document.getElementById('confirm-dialog-icon');
+    if (icon) {
+        icon.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.13)`;
+        const svg = icon.querySelector('svg');
+        if (svg) svg.setAttribute('stroke', iconColor);
+    }
+
+    const okBtn = document.getElementById('confirm-dialog-ok');
+    okBtn.textContent = confirmText;
+    okBtn.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.13)`;
+    okBtn.style.color = iconColor;
+    okBtn.style.borderColor = iconColor;
+    okBtn.onmouseover = () => { okBtn.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.22)`; };
+    okBtn.onmouseout  = () => { okBtn.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.13)`; };
+
+    const fresh = okBtn.cloneNode(true);
+    fresh.style.cssText = okBtn.style.cssText;
+    fresh.onmouseover = okBtn.onmouseover;
+    fresh.onmouseout  = okBtn.onmouseout;
+    okBtn.parentNode.replaceChild(fresh, okBtn);
+    fresh.addEventListener('click', () => { dismissConfirmDialog(); if (onConfirm) onConfirm(); });
+
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.15s';
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+}
+
+function dismissConfirmDialog() {
+    const overlay = document.getElementById('confirm-dialog-overlay');
+    if (!overlay) return;
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.style.display = 'none'; }, 160);
+}
+
 /* ---- Fetch Backend (Sistem Otentikasi & Penghubung API) ---- */
 async function fetchBackend(endpoint, options = {}) {
     // Gunakan port 4000 untuk menembak node backend

@@ -268,23 +268,26 @@ function closeEditModal() {
 }
 
 async function deleteMaterial(id, btn) {
-    if (!confirm('Apakah Anda yakin ingin menghapus material ini permanen? File 3D juga akan ikut terhapus dari server.')) return;
-    
-    const originalText = btn.textContent;
-    btn.textContent = 'Menghapus...';
-    btn.disabled = true;
-
-    try {
-        await fetchBackend(`/api/materials/${id}`, { method: 'DELETE' });
-        showToast('Material berhasil dihapus!');
-        btn.closest('.item-row').remove();
-        
-        if (window.currentEditingId === id) resetMaterialForm();
-    } catch (err) {
-        showToast(`Gagal menghapus: ${err.message}`, 'error');
-        btn.textContent = originalText;
-        btn.disabled = false;
-    }
+    showConfirmDialog({
+        title: 'Hapus Material?',
+        message: 'Tindakan ini permanen dan tidak dapat dibatalkan. File 3D terkait juga akan ikut terhapus dari server.',
+        confirmText: 'Ya, Hapus',
+        onConfirm: async () => {
+            const originalText = btn.textContent;
+            btn.textContent = 'Menghapus...';
+            btn.disabled = true;
+            try {
+                await fetchBackend(`/api/materials/${id}`, { method: 'DELETE' });
+                showToast('Material berhasil dihapus!');
+                btn.closest('.item-row').remove();
+                if (window.currentEditingId === id) resetMaterialForm();
+            } catch (err) {
+                showToast(`Gagal menghapus: ${err.message}`, 'error');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+    });
 }
 
 function createMaterialCard(index, removable, containerId = 'material-cards') {

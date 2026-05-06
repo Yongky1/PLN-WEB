@@ -161,12 +161,24 @@ function setFileSuccess(zone, fileName) {
  * Hapus card dan renumber sisanya
  */
 function removeCard(btn, containerId) {
-    btn.closest('.upload-card').remove();
-    renumberCards(containerId);
-    
-    // Sinkronisasikan dropdown jika card dihapus saat di Edit Modal
-    if(containerId.startsWith('edit-') && typeof window.syncAdminPreviewDropdown === 'function') {
-        window.syncAdminPreviewDropdown();
+    const doRemove = () => {
+        btn.closest('.upload-card').remove();
+        renumberCards(containerId);
+        if (containerId.startsWith('edit-') && typeof window.syncAdminPreviewDropdown === 'function') {
+            window.syncAdminPreviewDropdown();
+        }
+    };
+
+    if (containerId.startsWith('edit-')) {
+        showConfirmDialog({
+            title: 'Hapus Varian Ini?',
+            message: 'Varian akan dihapus dari daftar. Perubahan berlaku permanen saat kamu klik "Simpan Perubahan".',
+            confirmText: 'Hapus Varian',
+            iconColor: '#F59E0B',
+            onConfirm: doRemove
+        });
+    } else {
+        doRemove();
     }
 }
 

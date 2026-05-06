@@ -254,23 +254,26 @@ function closeEditModal() {
 }
 
 async function deleteTool(id, btn) {
-    if (!confirm('Apakah Anda yakin ingin menghapus peralatan ini permanen? File 3D (jika ada) juga akan ikut terhapus dari server.')) return;
-    
-    const originalText = btn.textContent;
-    btn.textContent = 'Menghapus...';
-    btn.disabled = true;
-
-    try {
-        await fetchBackend(`/api/tools/${id}`, { method: 'DELETE' });
-        showToast('Peralatan berhasil dihapus!');
-        btn.closest('.item-row').remove();
-        
-        if (window.currentEditingId === id) resetToolsForm();
-    } catch (err) {
-        showToast(`Gagal menghapus: ${err.message}`, 'error');
-        btn.textContent = originalText;
-        btn.disabled = false;
-    }
+    showConfirmDialog({
+        title: 'Hapus Peralatan?',
+        message: 'Tindakan ini permanen dan tidak dapat dibatalkan. File 3D (jika ada) juga akan ikut terhapus dari server.',
+        confirmText: 'Ya, Hapus',
+        onConfirm: async () => {
+            const originalText = btn.textContent;
+            btn.textContent = 'Menghapus...';
+            btn.disabled = true;
+            try {
+                await fetchBackend(`/api/tools/${id}`, { method: 'DELETE' });
+                showToast('Peralatan berhasil dihapus!');
+                btn.closest('.item-row').remove();
+                if (window.currentEditingId === id) resetToolsForm();
+            } catch (err) {
+                showToast(`Gagal menghapus: ${err.message}`, 'error');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+    });
 }
 
 function createToolsCard(index, removable, containerId = 'tools-cards') {
