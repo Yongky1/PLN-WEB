@@ -105,8 +105,8 @@ router.get('/tools', (req, res) => {
 
 // Pengaturan
 router.get('/settings', (req, res) => {
-    renderAdmin(res, 'settings', 'Pengaturan', 'Konfigurasi sistem dan preferensi admin');
-    // TODO (back end): const adminProfile = await db.getAdminProfile(req.user.id);
+    // req.user diset oleh authGuard di server.js
+    renderAdmin(res, 'settings', 'Pengaturan', 'Konfigurasi sistem dan preferensi admin', { adminProfile: req.user });
 });
 
 module.exports = router;

@@ -241,6 +241,9 @@ const authGuard = async (req, res, next) => {
             return res.redirect('/login');
         }
 
+        const data = await verifyRes.json();
+        req.user = data.user; // Simpan data user (id, name, email, unit) di req.user
+
         next();
     } catch (err) {
         // Backend tidak bisa dihubungi → amankan dengan redirect login
@@ -271,6 +274,50 @@ app.post('/api/login', async (req, res) => {
         res.status(response.status).json(data);
     } catch (err) {
         console.error('Login proxy error:', err);
+        res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+    }
+});
+
+// Proxy Change Password Route
+app.put('/api/change-password', async (req, res) => {
+    const token = req.cookies.auth_token;
+    if (!token) return res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+    
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/users/change-password`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(req.body)
+        });
+        const data = await response.json();
+        res.status(response.status).json(data);
+    } catch (err) {
+        console.error('Change password proxy error:', err);
+        res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+    }
+});
+
+// Proxy Update Profile Route
+app.put('/api/profile', async (req, res) => {
+    const token = req.cookies.auth_token;
+    if (!token) return res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+    
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/users/profile`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(req.body)
+        });
+        const data = await response.json();
+        res.status(response.status).json(data);
+    } catch (err) {
+        console.error('Update profile proxy error:', err);
         res.status(500).json({ error: 'Gagal terhubung ke backend server' });
     }
 });
