@@ -71,17 +71,22 @@ router.get('/users', (req, res) => {
 
 // Modul Konten
 router.get('/modules', async (req, res) => {
+    const base = process.env.BACKEND_URL || 'http://localhost:4000';
     try {
-        const fetchRes = await fetch(`${process.env.BACKEND_URL || 'http://localhost:4000'}/api/modules?all=true`);
-        const modules = await fetchRes.json();
-        
-        // Peta data agar sesuai dengan ejs format jika perlu, 
-        // tapi ejs admin/modules.ejs masih menggunakan variabel statis m.name, m.cat dll
-        // Kita akan pass data as-is dan sesuaikan EJS nya di langkah berikutnya
-        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul pembelajaran dan konten', { modules });
+        const [modulesRes, materialsRes, toolsRes] = await Promise.all([
+            fetch(`${base}/api/modules?all=true`),
+            fetch(`${base}/api/materials`),
+            fetch(`${base}/api/tools`),
+        ]);
+        const [modules, materials, tools] = await Promise.all([
+            modulesRes.json(),
+            materialsRes.json(),
+            toolsRes.json(),
+        ]);
+        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul, material, dan peralatan', { modules, materials, tools });
     } catch(err) {
         console.error(err);
-        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul pembelajaran dan konten', { modules: [] });
+        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul, material, dan peralatan', { modules: [], materials: [], tools: [] });
     }
 });
 
