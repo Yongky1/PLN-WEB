@@ -191,57 +191,6 @@ async function editMaterial(id) {
 }
 
 // ================= LIVE PREVIEW LOGIC =================
-function refreshAdminPreviewSelector(assets) {
-    const selector = document.getElementById('admin-preview-selector');
-    const viewer = document.getElementById('admin-preview-viewer');
-    const emptyState = document.getElementById('admin-preview-empty');
-    if(!selector || !viewer || !emptyState) return;
-
-    // Bersihkan dropdown
-    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
-
-    if(assets && assets.length > 0) {
-        assets.forEach((a, idx) => {
-            if(a.file && a.file !== '-') {
-                const opt = document.createElement('option');
-                opt.value = a.file;
-                opt.textContent = `Varian ${idx+1}: ${a.name}`;
-                selector.appendChild(opt);
-            }
-        });
-        
-        // Auto select first file if available
-        if(selector.options.length > 1) {
-            selector.selectedIndex = 1;
-            changeAdminPreview();
-        } else {
-            viewer.style.display = 'none';
-            emptyState.style.display = 'flex';
-        }
-    } else {
-        viewer.style.display = 'none';
-        emptyState.style.display = 'flex';
-    }
-}
-
-window.changeAdminPreview = function() {
-    const selector = document.getElementById('admin-preview-selector');
-    const viewer = document.getElementById('admin-preview-viewer');
-    const emptyState = document.getElementById('admin-preview-empty');
-    if(!selector || !viewer || !emptyState) return;
-    
-    if(selector.value) {
-        viewer.setAttribute('src', selector.value);
-        viewer.style.display = 'block';
-        emptyState.style.display = 'none';
-        viewer.dismissPoster && viewer.dismissPoster();
-    } else {
-        viewer.removeAttribute('src');
-        viewer.style.display = 'none';
-        emptyState.style.display = 'flex';
-    }
-};
-
 window.syncAdminPreviewDropdown = function() {
     const selector = document.getElementById('admin-preview-selector');
     const viewer = document.getElementById('admin-preview-viewer');
@@ -289,18 +238,6 @@ window.syncAdminPreviewDropdown = function() {
     }
     
     window.changeAdminPreview();
-}
-
-window.previewLocalFile = function(file) {
-    if(file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
-        window.syncAdminPreviewDropdown();
-    }
-};
-
-function closeEditModal() {
-    window.currentEditingId = null;
-    const modal = document.getElementById('edit-modal');
-    if (modal) modal.classList.remove('active');
 }
 
 async function deleteMaterial(id, btn) {
