@@ -13,6 +13,19 @@
         .komponen-scroll-row::-webkit-scrollbar { display: none; }
         .komponen-scroll-row > * { scroll-snap-align: start; }
 
+        /* Component search */
+        .mv-search-wrap { position: relative; max-width: 340px; }
+        .mv-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.38); pointer-events: none; }
+        .mv-search-input {
+            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 9px 14px 9px 40px;
+            font-size: 13px; color: #f0f0f0; font-family: 'Inter', sans-serif;
+            outline: none; transition: border-color .2s, box-shadow .2s;
+        }
+        .mv-search-input:focus { border-color: rgba(255,213,0,0.4); box-shadow: 0 0 0 3px rgba(255,213,0,0.06); }
+        .mv-search-input::placeholder { color: rgba(255,255,255,0.35); }
+        .mat-card.mv-hidden { display: none !important; }
+
         /* ---- Modal Info Scrollbar ---- */
         #mat-info-wrap { overflow-y: auto; }
         #mat-info-wrap::-webkit-scrollbar { width: 4px; }
@@ -29,11 +42,11 @@
         #mat-modal-overlay.active #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     </style>
 </head>
-<body class="bg-[var(--color-pln-darker)] text-white font-sans antialiased overflow-x-hidden">
+<body class="text-white font-sans antialiased overflow-x-hidden" style="background:#080808;">
 
     <%- include('partials/navbar') %>
 
-    <main class="pt-32 pb-24 px-4 sm:px-8 bg-[var(--color-pln-darker)] min-h-screen relative overflow-x-hidden">
+    <main class="pt-32 pb-24 px-4 sm:px-8 min-h-screen relative overflow-x-hidden" style="background:#080808;">
         <!-- Spotlight Backdrop -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-w-[100vw] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
         
@@ -149,11 +162,19 @@
         <% if ((module.materials && module.materials.length > 0) || (module.tools && module.tools.length > 0)) { %>
         <div class="w-full mt-20">
 
-            <!-- Divider -->
-            <div class="flex items-center gap-4 mb-14">
-                <div class="flex-1 h-px bg-white/5"></div>
-                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-white/20">Komponen Konstruksi</span>
-                <div class="flex-1 h-px bg-white/5"></div>
+            <!-- Divider + Search -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-14">
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <div class="flex-1 h-px bg-white/5"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-white/20 whitespace-nowrap">Komponen Konstruksi</span>
+                    <div class="flex-1 h-px bg-white/5"></div>
+                </div>
+                <div class="mv-search-wrap shrink-0">
+                    <div class="mv-search-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    </div>
+                    <input class="mv-search-input" id="mv-search" type="text" placeholder="Cari komponen..." oninput="mvFilterComponents(this.value)">
+                </div>
             </div>
 
             <!-- ── MATERIAL ─────────────────────────────────── -->
@@ -421,6 +442,16 @@
 
     <!-- Scripts -->
     <script src="/js/main.js"></script>
+    <script>
+        function mvFilterComponents(query) {
+            var q = (query || '').toLowerCase().trim();
+            document.querySelectorAll('.mat-card').forEach(function(card) {
+                var h3 = card.querySelector('h3');
+                var name = h3 ? h3.textContent.toLowerCase() : '';
+                card.classList.toggle('mv-hidden', q !== '' && !name.includes(q));
+            });
+        }
+    </script>
     <script>
         // Logistics Viewer
         let currentAssets = [];
