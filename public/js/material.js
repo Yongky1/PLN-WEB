@@ -122,7 +122,7 @@ document.addEventListener('fullscreenchange', () => {
 // =============================================
 // Event Listeners
 // =============================================
-document.querySelectorAll('.mat-card').forEach(card => {
+document.querySelectorAll('#material-grid .v3-card[data-id]').forEach(card => {
     card.addEventListener('click', () => openModal(card.dataset.id));
 });
 

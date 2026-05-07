@@ -9,7 +9,7 @@ const canvasWrap    = document.getElementById('modal-canvas-wrap');
 const emptyState    = document.getElementById('modal-empty-state');
 
 // ============ OPEN DETAIL MODAL ============
-document.querySelectorAll('.tool-card').forEach(card => {
+document.querySelectorAll('#tools-grid .v3-card[data-id]').forEach(card => {
     card.addEventListener('click', () => openDetail(card.dataset.id));
 });
 
