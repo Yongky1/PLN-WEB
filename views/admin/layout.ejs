@@ -59,7 +59,11 @@
         </a>
         <a href="/admin/modules" class="rd-nav-item <%= page==='modules' ? 'active' : '' %>">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          <span class="nav-label">Kategori</span>
+          <span class="nav-label">Kategori / Modul</span>
+        </a>
+        <a href="/admin/categories" class="rd-nav-item <%= page==='categories' ? 'active' : '' %>">
+          <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span class="nav-label">Kategori Tag</span>
         </a>
       </div>
 
@@ -199,6 +203,23 @@
   if (topbarDate) {
     topbarDate.textContent = new Date().toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
   }
+
+  /* ---- Shared dropdown utility for admin filter dropdowns ---- */
+  window.toggleAdminDropdown = function(id) {
+    const dd = document.getElementById(id);
+    if (!dd) return;
+    const isOpen = dd.classList.contains('open');
+    // Close all other dropdowns first
+    document.querySelectorAll('.rd-dropdown.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) dd.classList.add('open');
+  };
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.rd-dropdown')) {
+      document.querySelectorAll('.rd-dropdown.open').forEach(el => el.classList.remove('open'));
+    }
+  });
 </script>
 <%- scripts %>
 </body>

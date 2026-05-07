@@ -21,9 +21,7 @@ function openDetail(id) {
     // Category: preserve inner pulse dot, append label text after it
     const catLabel = document.getElementById('modal-category-label');
     catLabel.className = 'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 ';
-    if (tool.category === 'k3')          catLabel.className += 'cat-badge-k3';
-    else if (tool.category === 'teknis') catLabel.className += 'cat-badge-teknis';
-    else                                 catLabel.className += 'cat-badge-pengukuran';
+    catLabel.className += 'cat-badge-teknis';
     catLabel.innerHTML = `<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>${tool.categoryLabel}`;
 
     document.getElementById('modal-icon').textContent = tool.icon || '🔧';
@@ -40,16 +38,7 @@ function openDetail(id) {
     const truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
     document.getElementById('modal-desc').textContent = truncDesc;
 
-    // Procedure steps
-    const procedures = Array.isArray(tool.procedure) ? tool.procedure : [];
-    document.getElementById('modal-procedure').innerHTML = procedures.length > 0
-        ? procedures.map((step, i) => `
-            <li class="flex items-start gap-3">
-                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--color-pln-yellow)]/10 border border-[var(--color-pln-yellow)]/30 flex items-center justify-center text-[10px] font-bold text-[var(--color-pln-yellow)] mt-0.5">${i + 1}</span>
-                <span class="text-xs text-white/50 leading-relaxed">${step}</span>
-            </li>
-        `).join('')
-        : `<li class="text-xs text-white/30 italic">Prosedur belum tersedia.</li>`;
+
 
     // ---- 3D: menggunakan model-viewer ----
     const hasGlb = tool.file3d && tool.file3d.trim() !== '' && tool.file3d !== '-';

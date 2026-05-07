@@ -6,27 +6,63 @@
 let mCardCount = 0;
 window.currentEditingId = null;
 window.allMaterials = [];
+window.matCategories = [];
+async function loadMatCategories() {
+    try {
+        const res = await fetchBackend('/api/categories?type=material');
+        window.matCategories = res;
+        
+        const opts = res.length > 0 ? res.map(c => `<option value="${c.id}">${c.name}</option>`).join('') : '<option value="">Belum ada kategori</option>';
+        const catSelect1 = document.getElementById('mat-modul-cat');
+        const catSelect2 = document.getElementById('edit-mat-modul-cat');
+        if (catSelect1) catSelect1.innerHTML = opts;
+        if (catSelect2) catSelect2.innerHTML = opts;
+
+        // Render dynamic dropdown items using data-attributes (avoids quote escaping issues)
+        const ddItems = document.getElementById('mat-cat-dd-items');
+        if (ddItems) {
+            ddItems.innerHTML = res.map(c =>
+                `<div class="rd-dropdown-item" data-cat-id="${c.id}" data-cat-name="${c.name.replace(/"/g, '&quot;')}">${c.name}</div>`
+            ).join('');
+            // Attach click handlers via JS (avoids all quoting issues)
+            ddItems.querySelectorAll('.rd-dropdown-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    setMatFilter(this.dataset.catId, this.dataset.catName);
+                });
+            });
+        }
+    } catch (err) {
+        console.error('Gagal memuat kategori material:', err);
+    }
+}
 
 
 
-async function loadMaterialSaved() {
+
+async function loadMaterialSaved(categoryFilter = '') {
     const saved = document.getElementById('material-saved');
     if (!saved) return;
     
     saved.innerHTML = getAdminSkeleton(3);
     try {
-        const materials = await fetchBackend('/api/materials?all=true');
-        window.allMaterials = materials;
+        // Always fetch all data; filter client-side by category_id
+        if (!window.allMaterials || window.allMaterials.length === 0) {
+            window.allMaterials = await fetchBackend('/api/materials?all=true');
+        }
+        const materials = categoryFilter
+            ? window.allMaterials.filter(m => (m.category_id || m.category?.id) === categoryFilter)
+            : window.allMaterials;
+        
         saved.innerHTML = '';
         
         if (!materials || materials.length === 0) {
-            saved.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px;">Belum ada data tersimpan</div>';
+            saved.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding:20px 0;">Belum ada data tersimpan</div>';
             return;
         }
 
         materials.forEach(m => {
             const variantsCount = m.assets ? m.assets.length : 0;
-            const cat = m.categoryLabel || '-';
+            const cat = m.category?.name || '-';
 
             const row = document.createElement('div');
             row.className = 'item-row';
@@ -83,7 +119,7 @@ async function editMaterial(id) {
         const counter = document.getElementById('desc-char-count');
         if (counter) counter.textContent = desc.length + '/200';
     }
-    if(document.getElementById('edit-mat-modul-cat')) document.getElementById('edit-mat-modul-cat').value = m.categoryLabel || 'Pengencang';
+    if(document.getElementById('edit-mat-modul-cat')) document.getElementById('edit-mat-modul-cat').value = m.category_id || (m.category ? m.category.id : '');
 
     const imgPreviewContainer = document.getElementById('edit-mat-modul-image-preview-container');
     const imgPreview = document.getElementById('edit-mat-modul-image-preview');
@@ -435,7 +471,7 @@ async function processMaterialSubmission(isEditing) {
             name: modulName,
             code: modulCode,
             description: modulDesc,
-            categoryLabel: category,
+            category_id: category,
         };
         
         if (uploadedImageUrl) {
@@ -511,6 +547,7 @@ async function processMaterialSubmission(isEditing) {
         } else {
             closeAddMatModal();
         }
+        window.allMaterials = []; // invalidate cache
         await loadMaterialSaved();
 
     } catch(e) {
@@ -536,7 +573,7 @@ function resetMaterialForm() {
     if(document.getElementById('mat-modul-name')) document.getElementById('mat-modul-name').value = '';
     if(document.getElementById('mat-modul-code')) document.getElementById('mat-modul-code').value = '';
     if(document.getElementById('mat-modul-desc')) document.getElementById('mat-modul-desc').value = '';
-    if(document.getElementById('mat-modul-cat')) document.getElementById('mat-modul-cat').value = 'Pengencang';
+    if(document.getElementById('mat-modul-cat') && window.matCategories.length > 0) document.getElementById('mat-modul-cat').value = window.matCategories[0].id;
 
     const imgInput = document.getElementById('mat-modul-image');
     if (imgInput) {
@@ -565,7 +602,26 @@ function resetMaterialForm() {
     if (saveBtn) saveBtn.textContent = 'Simpan Semua';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadMatCategories();
     addMaterialCard();
     loadMaterialSaved();
+
+    // Search bar — filter rendered rows by name/code
+    const searchInput = document.getElementById('search-saved-material');
+    if (searchInput) {
+        let debounceTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const q = searchInput.value.trim().toLowerCase();
+                const saved = document.getElementById('material-saved');
+                if (!saved) return;
+                saved.querySelectorAll('.item-row').forEach(row => {
+                    const name = row.querySelector('div[style*="font-size:13px"]')?.textContent?.toLowerCase() || '';
+                    row.style.display = (!q || name.includes(q)) ? '' : 'none';
+                });
+            }, 200);
+        });
+    }
 });

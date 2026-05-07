@@ -222,10 +222,6 @@
                     </div>
                     <input class="v3-search-input" id="mat-search" type="text" placeholder="Cari material..." oninput="v3MatFilter()">
                 </div>
-                <%
-                const _validForFilter = materialData.filter(m => m.name && m.name.trim() !== '');
-                const categories = [...new Set(_validForFilter.map(m => m.category))];
-                %>
                 <div class="v3-dropdown" id="mat-filter-dd">
                     <button type="button" class="v3-dropdown-btn" onclick="v3ToggleMatFilter()">
                         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
@@ -235,8 +231,7 @@
                     <div class="v3-dropdown-menu">
                         <div class="v3-dropdown-item selected" onclick="v3SelectMatFilter('all','Semua')">Semua</div>
                         <% categories.forEach(cat => { %>
-                        <% const _catLabel = _validForFilter.find(m => m.category === cat)?.categoryLabel || cat; %>
-                        <div class="v3-dropdown-item" onclick="v3SelectMatFilter('<%= cat %>','<%= _catLabel %>')"><%= _catLabel %></div>
+                        <div class="v3-dropdown-item" onclick="v3SelectMatFilter('<%= cat.id %>','<%= cat.name %>')"><%= cat.name %></div>
                         <% }); %>
                     </div>
                 </div>
@@ -379,8 +374,6 @@
                 </div>
                 <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
                     <p id="mat-modal-desc" class="text-[13px] text-white/50 leading-relaxed mb-5 font-['Inter']"></p>
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/25 mb-3 font-['Inter']">Spesifikasi Teknis</p>
-                    <div id="mat-modal-specs" class="flex flex-col gap-0"></div>
                 </div>
             </div>
         </div>

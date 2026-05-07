@@ -100,7 +100,11 @@ router.get('/material', (req, res) => {
 // Manajemen Peralatan (Tools)
 router.get('/tools', (req, res) => {
     renderAdmin(res, 'tools', 'Manajemen Peralatan', 'Tambah dan kelola katalog alat lapangan');
-    // TODO (back end): const toolsList = await db.getTools();
+});
+
+// Manajemen Kategori
+router.get('/categories', (req, res) => {
+    renderAdmin(res, 'categories', 'Manajemen Kategori', 'Kelola kategori material dan peralatan');
 });
 
 // Pengaturan

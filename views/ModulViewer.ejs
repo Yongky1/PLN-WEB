@@ -423,14 +423,8 @@
                     <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3"
                          style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
 
-                        <!-- Description -->
+                        <!-- Content -->
                         <p id="mat-modal-desc" class="text-[13px] text-white/50 leading-relaxed mb-5 font-['Inter']"></p>
-
-                        <!-- Specs title -->
-                        <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/25 mb-3 font-['Inter']">Spesifikasi Teknis</p>
-
-                        <!-- Specs list -->
-                        <div id="mat-modal-specs" class="flex flex-col gap-0"></div>
                     </div>
                 </div>
             </div>
@@ -582,42 +576,17 @@
 
             // Populate Header
             const catEl = document.getElementById('mat-modal-category');
-            catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${item.categoryLabel || item.category || ''}`;
+            const catName = item.category?.name || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
+            catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${catName}`;
 
             document.getElementById('mat-modal-name').textContent = item.name || '';
             document.getElementById('mat-modal-code').textContent = item.code || item.standard || '';
             document.getElementById('mat-modal-icon').textContent = item.icon || (type === 'tool' ? '🔧' : '📦');
             
-            // Truncate description
-            const rawDesc = item.description || item.shortDesc || '';
+            // Description
+            const rawDesc = item.description || '';
             const truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
             document.getElementById('mat-modal-desc').textContent = truncDesc;
-
-            // Specs
-            const specsEl = document.getElementById('mat-modal-specs');
-            let specsContent = '';
-            
-            if (item.specs && typeof item.specs === 'object' && Object.keys(item.specs).length > 0) {
-                specsContent += Object.entries(item.specs).map(([k, v]) => `
-                    <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05);">
-                        <span style="font-size:12px; color:rgba(255,255,255,0.4); font-family:'Inter',sans-serif;">${k}</span>
-                        <span style="font-size:12px; font-weight:700; color:#FFD500; font-family:monospace; letter-spacing:0.04em;">${v}</span>
-                    </div>
-                `).join('');
-            }
-            if (type === 'tool' && item.procedure && item.procedure.length > 0) {
-                specsContent += `
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start; padding:10px 0; border-bottom:1px solid rgba(255,255,255,0.05); flex-direction:column; gap:8px;">
-                        <span style="font-size:12px; color:rgba(255,255,255,0.4); font-family:'Inter',sans-serif;">Prosedur:</span>
-                        <span style="font-size:12px; font-weight:700; color:#FFD500; font-family:monospace; letter-spacing:0.04em; white-space:pre-wrap;">${item.procedure.join('\\n')}</span>
-                    </div>
-                `;
-            }
-
-            if (!specsContent) {
-                specsContent = `<p style="font-size:12px; color:rgba(255,255,255,0.25); font-style:italic; padding: 8px 0;">Spesifikasi belum tersedia.</p>`;
-            }
-            specsEl.innerHTML = specsContent;
 
             // 3D Viewer
             let file3d = item.file3d;

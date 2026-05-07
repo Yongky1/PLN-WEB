@@ -6,35 +6,58 @@
 let tCardCount = 0;
 window.currentEditingId = null;
 window.allTools = [];
+window.toolCategories = [];
+
+async function loadToolCategories() {
+    try {
+        const res = await fetchBackend('/api/categories?type=tool');
+        window.toolCategories = res;
+
+        // Render dynamic dropdown items using data-attributes
+        const ddItems = document.getElementById('tool-cat-dd-items');
+        if (ddItems) {
+            ddItems.innerHTML = res.map(c =>
+                `<div class="rd-dropdown-item" data-cat-id="${c.id}" data-cat-name="${c.name.replace(/"/g, '&quot;')}">${c.name}</div>`
+            ).join('');
+            ddItems.querySelectorAll('.rd-dropdown-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    setToolFilter(this.dataset.catId, this.dataset.catName);
+                });
+            });
+        }
+    } catch (err) {
+        console.error('Gagal memuat kategori alat:', err);
+    }
+}
 
 
 
-async function loadToolsSaved(filter = '') {
+
+
+async function loadToolsSaved(categoryFilter = '') {
     const saved = document.getElementById('tools-saved');
     if (!saved) return;
     
     saved.innerHTML = getAdminSkeleton(3);
     try {
-        let tools;
-        if (filter) {
-            tools = await fetchBackend(`/api/tools?all=true&search=${encodeURIComponent(filter)}`);
-        } else {
-            if (!window.allTools || window.allTools.length === 0) {
-                window.allTools = await fetchBackend('/api/tools?all=true');
-            }
-            tools = window.allTools;
+        // Fetch all once, then filter client-side by category_id
+        if (!window.allTools || window.allTools.length === 0) {
+            window.allTools = await fetchBackend('/api/tools?all=true');
         }
+        const tools = categoryFilter
+            ? window.allTools.filter(t => (t.category_id || t.category?.id) === categoryFilter)
+            : window.allTools;
 
         saved.innerHTML = '';
 
         if (!tools || tools.length === 0) {
-            saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">${filter ? 'Tidak ada peralatan ditemukan' : 'Belum ada data tersimpan'}</div>`;
+            saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">${categoryFilter ? 'Tidak ada peralatan untuk kategori ini' : 'Belum ada data tersimpan'}</div>`;
             return;
         }
 
         tools.forEach(t => {
-            const catClass = t.category === 'k3' ? 'badge-red' : t.category === 'teknis' ? 'badge-blue' : 'badge-yellow';
-            const catLabel = t.categoryLabel || t.category || '-';
+            const catClass = 'badge-blue';
+            const catLabel = t.category?.name || '-';
             const hasFile = !!t.file3d;
 
             const row = document.createElement('div');
@@ -94,7 +117,7 @@ function editTool(id) {
         
         card.querySelector('.t-name').value = t.name;
         card.querySelector('.t-standard').value = t.standard || '';
-        card.querySelector('.t-cat').value = t.category || 'teknis';
+        card.querySelector('.t-cat').value = t.category_id || (t.category ? t.category.id : '');
         card.querySelector('.t-status').value = t.status || 'Wajib';
         const rawToolDesc = (t.description || '').substring(0, 200);
         card.querySelector('.t-desc').value = rawToolDesc;
@@ -306,9 +329,10 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                     <div>
                         <label class="admin-label">Kategori</label>
                         <select class="admin-select t-cat">
-                            <option value="k3">Alat K3</option>
-                            <option value="teknis">Alat Teknis</option>
-                            <option value="pengukuran">Pengukuran</option>
+                            ${window.toolCategories.length > 0 ? 
+                                window.toolCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('') :
+                                '<option value="">Belum ada kategori</option>'
+                            }
                         </select>
                     </div>
                     <div>
@@ -419,8 +443,7 @@ async function processToolSubmission(isEditing) {
         const name    = nameEl.value.trim();
         const std     = card.querySelector('.t-standard').value.trim();
         const catEl   = card.querySelector('.t-cat');
-        const catVal  = catEl.value;
-        const catTxt  = catEl.options[catEl.selectedIndex].text;
+        const category_id = catEl.value;
         const status  = card.querySelector('.t-status').value;
         const desc    = card.querySelector('.t-desc').value.trim();
         const file    = card.querySelector('.t-file-3d') ? card.querySelector('.t-file-3d').files[0] : undefined;
@@ -431,7 +454,7 @@ async function processToolSubmission(isEditing) {
             nameEl.style.borderColor = '#EF4444';
         } else {
             nameEl.style.borderColor = '';
-            itemsToUpload.push({ name, std, catVal, catTxt, status, desc, file, imageFile, _cardRef: card });
+            itemsToUpload.push({ name, std, category_id, status, desc, file, imageFile, _cardRef: card });
         }
     });
 
@@ -479,8 +502,7 @@ async function processToolSubmission(isEditing) {
                  const toolBody = {
                      name: item.name,
                      standard: item.std,
-                     category: item.catVal,
-                     categoryLabel: item.catTxt,
+                     category_id: item.category_id,
                      status: item.status,
                      description: item.desc
                  };
@@ -505,8 +527,7 @@ async function processToolSubmission(isEditing) {
                      // toolBody.id = generateSafeUUID();
                      name: item.name,
                      standard: item.std,
-                     category: item.catVal,
-                     categoryLabel: item.catTxt,
+                     category_id: item.category_id,
                      status: item.status,
                      description: item.desc,
                      file3d: assetUrl || '-' // default jika kosong
@@ -528,6 +549,7 @@ async function processToolSubmission(isEditing) {
             resetToolsForm();
             showToast('Semua peralatan berhasil disimpan!');
         }
+        window.allTools = []; // invalidate cache
         loadToolsSaved();
 
     } catch (e) {
@@ -558,19 +580,26 @@ function resetToolsForm() {
     if (saveBtn) saveBtn.textContent = 'Simpan Semua';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadToolCategories();
     addToolsCard();
     loadToolsSaved();
 
-    // Search bar untuk Data Tersimpan
+    // Search bar — filter from cached allTools by name
     const searchInput = document.getElementById('search-saved-tools');
     if (searchInput) {
         let debounceTimer;
         searchInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
-                loadToolsSaved(searchInput.value.trim());
-            }, 300);
+                const q = searchInput.value.trim().toLowerCase();
+                const saved = document.getElementById('tools-saved');
+                if (!saved) return;
+                document.querySelectorAll('#tools-saved .item-row').forEach(row => {
+                    const name = row.querySelector('div[style*="font-size:13px"]')?.textContent?.toLowerCase() || '';
+                    row.style.display = (!q || name.includes(q)) ? '' : 'none';
+                });
+            }, 200);
         });
     }
 });

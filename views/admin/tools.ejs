@@ -81,10 +81,17 @@
     <input id="search-saved-tools" placeholder="Cari peralatan..." />
   </div>
   <div class="rd-divider-v"></div>
-  <button class="rd-filter-chip active" onclick="setToolFilter(this,'')">Semua</button>
-  <button class="rd-filter-chip" onclick="setToolFilter(this,'Alat K3')">Alat K3</button>
-  <button class="rd-filter-chip" onclick="setToolFilter(this,'Alat Teknis')">Alat Teknis</button>
-  <button class="rd-filter-chip" onclick="setToolFilter(this,'Pengukuran')">Pengukuran</button>
+  <div class="rd-dropdown" id="tool-cat-dd">
+    <button type="button" class="rd-dropdown-btn" onclick="toggleAdminDropdown('tool-cat-dd')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+      <span id="tool-cat-label">Semua</span>
+      <svg class="rd-dropdown-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="rd-dropdown-menu">
+      <div class="rd-dropdown-item selected" data-cat-id="" onclick="setToolFilter('','Semua')">Semua</div>
+      <div id="tool-cat-dd-items"></div>
+    </div>
+  </div>
   <div class="rd-divider-v"></div>
   <div class="rd-view-toggle">
     <button id="t-view-table" class="active" onclick="setToolView('table')" title="Tabel">
@@ -338,9 +345,18 @@ function renderToolReview() {
 }
 
 /* Filter & view */
-function setToolFilter(btn, val) {
-  document.querySelectorAll('.rd-toolbar .rd-filter-chip').forEach(b => b.classList.toggle('active', b === btn));
-  loadToolsSaved(val);
+function setToolFilter(categoryId, label) {
+  // Update dropdown label
+  const labelEl = document.getElementById('tool-cat-label');
+  if (labelEl) labelEl.textContent = label || 'Semua';
+  // Update selected state using data attributes
+  document.querySelectorAll('#tool-cat-dd .rd-dropdown-item').forEach(el => {
+    const id = el.dataset.catId || '';
+    el.classList.toggle('selected', id === (categoryId || ''));
+  });
+  // Close dropdown
+  document.getElementById('tool-cat-dd')?.classList.remove('open');
+  loadToolsSaved(categoryId);
 }
 function setToolView(view) {
   const saved = document.getElementById('tools-saved');

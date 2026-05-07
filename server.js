@@ -76,26 +76,33 @@ app.get('/tools', async (req, res) => {
         const fetchRes = await fetch(`${BACKEND_URL}/api/tools`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         const dbTools = await fetchRes.json();
+        
+        let categories = [];
+        try {
+            const catRes = await fetch(`${BACKEND_URL}/api/categories?type=tool`);
+            if (catRes.ok) categories = await catRes.json();
+        } catch (e) {
+            console.error('Gagal fetch kategori tools:', e.message);
+        }
 
         // Mapping kolom DB → field yang dibutuhkan tools.ejs
         const toolsData = dbTools.map(t => ({
             id:            t.id,
             name:          t.name,
-            category:      t.category      || 'teknis',
-            categoryLabel: t.categoryLabel  || t.category || 'Teknis',
-            icon:          t.icon           || '🔧',
+            category:      t.category?.id || 'teknis',
+            categoryLabel: t.category?.name  || 'Teknis',
             bgGradient:    t.bgGradient     || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
             description:   t.description   || '',
             standard:      t.standard      || '-',
             status:        t.status        || 'Wajib',
             file3d:        t.file3d        || null,
             image:         t.image         || null,
-            procedure:     t.procedure     || [],
         }));
 
         res.render('tools', {
             title: 'Tools & Alat K3 — PLN Pusdiklat',
             toolsData,
+            categories,
             currentPage: 'tools'
         });
     } catch (err) {
@@ -103,6 +110,7 @@ app.get('/tools', async (req, res) => {
         res.render('tools', {
             title: 'Tools & Alat K3 — PLN Pusdiklat',
             toolsData: [],
+            categories: [],
             currentPage: 'tools'
         });
     }
@@ -114,18 +122,23 @@ app.get('/material', async (req, res) => {
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         const dbMaterials = await fetchRes.json();
 
+        let categories = [];
+        try {
+            const catRes = await fetch(`${BACKEND_URL}/api/categories?type=material`);
+            if (catRes.ok) categories = await catRes.json();
+        } catch (e) {
+            console.error('Gagal fetch kategori materials:', e.message);
+        }
+
         // Mapping kolom DB → field yang dibutuhkan material.ejs
         const materialData = dbMaterials.map(m => ({
             id:            m.id,
             name:          m.name,
             code:          m.code          || '',
-            category:      (m.categoryLabel || 'lainnya').toLowerCase().replace(/\s+/g, '-'),
-            categoryLabel: m.categoryLabel  || 'Lainnya',
-            icon:          m.icon           || '📦',
+            category:      m.category?.id || 'lainnya',
+            categoryLabel: m.category?.name  || 'Lainnya',
             bgGradient:    m.bgGradient     || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
-            shortDesc:     m.shortDesc      || m.description || '',
             description:   m.description   || '',
-            specs:         m.specs         || {},
             image:         m.image         || null,
             // file3d: ambil asset pertama jika ada (material_assets)
             file3d:        (m.assets && m.assets.length > 0) ? m.assets[0].file : null,
@@ -134,6 +147,7 @@ app.get('/material', async (req, res) => {
         res.render('material', {
             title:        'Material Jaringan — PLN Pusdiklat',
             materialData,
+            categories,
             currentPage:  'material'
         });
     } catch (err) {
@@ -141,6 +155,7 @@ app.get('/material', async (req, res) => {
         res.render('material', {
             title:        'Material Jaringan — PLN Pusdiklat',
             materialData: [],
+            categories: [],
             currentPage:  'material'
         });
     }
