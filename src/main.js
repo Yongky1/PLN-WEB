@@ -38,8 +38,8 @@ function initNavbar() {
   });
 
   // Smooth scroll for all anchors
-  document.querySelectorAll('a[href^="#"]').forEach(a => {
-    a.addEventListener('click', e => {
+  document.querySelectorAll('a[href^="#"]').forEach((a) => {
+    a.addEventListener('click', (e) => {
       const target = document.querySelector(a.getAttribute('href'));
       if (target) {
         e.preventDefault();
@@ -68,7 +68,8 @@ function initMobileMenu() {
 function initHero() {
   // Stagger hero title lines
   const lines = document.querySelectorAll('.hero-line');
-  gsap.fromTo(lines,
+  gsap.fromTo(
+    lines,
     { y: '100%', opacity: 0 },
     {
       y: '0%',
@@ -81,7 +82,8 @@ function initHero() {
   );
 
   // Hero subtitle
-  gsap.fromTo('#hero-subtitle',
+  gsap.fromTo(
+    '#hero-subtitle',
     { opacity: 0, x: -30 },
     { opacity: 1, x: 0, duration: 1, ease: 'power3.out', delay: 0.9 }
   );
@@ -95,7 +97,7 @@ function initHero() {
       start: 'top top',
       end: 'bottom top',
       scrub: 1.5,
-    }
+    },
   });
 
   // Parallax: hero title text
@@ -108,7 +110,7 @@ function initHero() {
       start: 'top top',
       end: 'bottom top',
       scrub: 1,
-    }
+    },
   });
 }
 
@@ -118,22 +120,25 @@ function initHero() {
 function initMissionStats() {
   const statNums = document.querySelectorAll('.stat-number');
 
-  statNums.forEach(el => {
+  statNums.forEach((el) => {
     const target = parseInt(el.dataset.target, 10);
     ScrollTrigger.create({
       trigger: el,
       start: 'top 85%',
       once: true,
       onEnter: () => {
-        gsap.to({ val: 0 }, {
-          val: target,
-          duration: 2.5,
-          ease: 'power2.out',
-          onUpdate: function () {
-            el.textContent = Math.round(this.targets()[0].val).toLocaleString('id-ID');
+        gsap.to(
+          { val: 0 },
+          {
+            val: target,
+            duration: 2.5,
+            ease: 'power2.out',
+            onUpdate: function () {
+              el.textContent = Math.round(this.targets()[0].val).toLocaleString('id-ID');
+            },
           }
-        });
-      }
+        );
+      },
     });
   });
 }
@@ -142,8 +147,9 @@ function initMissionStats() {
 // 5. FADE-UP ANIMATIONS (all .fade-up elements)
 // ----------------------------------------------------------------
 function initFadeUps() {
-  gsap.utils.toArray('.fade-up').forEach(el => {
-    gsap.fromTo(el,
+  gsap.utils.toArray('.fade-up').forEach((el) => {
+    gsap.fromTo(
+      el,
       { opacity: 0, y: 40 },
       {
         opacity: 1,
@@ -154,14 +160,15 @@ function initFadeUps() {
           trigger: el,
           start: 'top 88%',
           once: true,
-        }
+        },
       }
     );
   });
 
   // Pillar items stagger
   gsap.utils.toArray('.pillar-item').forEach((el, i) => {
-    gsap.fromTo(el,
+    gsap.fromTo(
+      el,
       { opacity: 0, y: 50 },
       {
         opacity: 1,
@@ -173,14 +180,15 @@ function initFadeUps() {
           trigger: '.pillars-section',
           start: 'top 75%',
           once: true,
-        }
+        },
       }
     );
   });
 
   // Team cards stagger
   gsap.utils.toArray('.team-card').forEach((el, i) => {
-    gsap.fromTo(el,
+    gsap.fromTo(
+      el,
       { opacity: 0, y: 40 },
       {
         opacity: 1,
@@ -192,7 +200,7 @@ function initFadeUps() {
           trigger: '.team-strip',
           start: 'top 85%',
           once: true,
-        }
+        },
       }
     );
   });
@@ -201,7 +209,8 @@ function initFadeUps() {
   const cycleSvg = document.querySelector('.cycle-svg');
   if (cycleSvg) {
     const nodes = cycleSvg.querySelectorAll('circle:not([r="155"]):not([r="1.5"])');
-    gsap.fromTo(cycleSvg,
+    gsap.fromTo(
+      cycleSvg,
       { opacity: 0, scale: 0.85, transformOrigin: 'center' },
       {
         opacity: 1,
@@ -212,12 +221,17 @@ function initFadeUps() {
           trigger: '.daas-section',
           start: 'top 75%',
           once: true,
-        }
+        },
       }
     );
     nodes.forEach((node, i) => {
-      gsap.fromTo(node,
-        { opacity: 0, scale: 0, transformOrigin: `${node.getAttribute('cx')}px ${node.getAttribute('cy')}px` },
+      gsap.fromTo(
+        node,
+        {
+          opacity: 0,
+          scale: 0,
+          transformOrigin: `${node.getAttribute('cx')}px ${node.getAttribute('cy')}px`,
+        },
         {
           opacity: 1,
           scale: 1,
@@ -228,7 +242,7 @@ function initFadeUps() {
             trigger: '.daas-section',
             start: 'top 75%',
             once: true,
-          }
+          },
         }
       );
     });
@@ -246,14 +260,19 @@ function initParallax() {
     gsap.to(appImg1.querySelector('.app-img-inner'), {
       yPercent: -15,
       ease: 'none',
-      scrollTrigger: { trigger: '.applications', start: 'top bottom', end: 'bottom top', scrub: 1.5 }
+      scrollTrigger: {
+        trigger: '.applications',
+        start: 'top bottom',
+        end: 'bottom top',
+        scrub: 1.5,
+      },
     });
   }
   if (appImg2) {
     gsap.to(appImg2.querySelector('.app-img-inner'), {
       yPercent: -10,
       ease: 'none',
-      scrollTrigger: { trigger: '.applications', start: 'top bottom', end: 'bottom top', scrub: 2 }
+      scrollTrigger: { trigger: '.applications', start: 'top bottom', end: 'bottom top', scrub: 2 },
     });
   }
 }
@@ -265,14 +284,14 @@ function initProgramTabs() {
   const tabs = document.querySelectorAll('.prog-tab');
   const panels = document.querySelectorAll('.prog-panel');
 
-  tabs.forEach(tab => {
+  tabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       const idx = tab.dataset.tab;
 
-      tabs.forEach(t => t.classList.remove('active'));
+      tabs.forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
 
-      panels.forEach(p => {
+      panels.forEach((p) => {
         if (p.dataset.panel === idx) {
           gsap.fromTo(p, { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power2.out' });
           p.classList.add('active');
@@ -296,7 +315,7 @@ function initProgramTabs() {
       if (currentActive?.dataset.tab !== idx) {
         tabs[parseInt(idx)].click();
       }
-    }
+    },
   });
 }
 
@@ -307,16 +326,17 @@ function initEdgeTabs() {
   const eTabs = document.querySelectorAll('.edge-tab');
   const ePanels = document.querySelectorAll('.edge-panel');
 
-  eTabs.forEach(tab => {
+  eTabs.forEach((tab) => {
     tab.addEventListener('click', () => {
       const idx = tab.dataset.etab;
 
-      eTabs.forEach(t => t.classList.remove('active'));
+      eTabs.forEach((t) => t.classList.remove('active'));
       tab.classList.add('active');
 
-      ePanels.forEach(p => {
+      ePanels.forEach((p) => {
         if (p.dataset.epanel === idx) {
-          gsap.fromTo(p,
+          gsap.fromTo(
+            p,
             { opacity: 0, y: 20 },
             { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
           );
@@ -402,25 +422,29 @@ ScrollTrigger.create({
   onEnter: () => {
     gsap.to('.vignette-border', {
       boxShadow: 'inset 0 0 120px rgba(74, 159, 213, 0.65)',
-      duration: 1.2, ease: 'power2.out'
+      duration: 1.2,
+      ease: 'power2.out',
     });
   },
   onLeave: () => {
     gsap.to('.vignette-border', {
       boxShadow: 'inset 0 0 80px rgba(100, 174, 220, 0.3)',
-      duration: 0.8, ease: 'power2.out'
+      duration: 0.8,
+      ease: 'power2.out',
     });
   },
   onEnterBack: () => {
     gsap.to('.vignette-border', {
       boxShadow: 'inset 0 0 120px rgba(74, 159, 213, 0.65)',
-      duration: 0.8, ease: 'power2.out'
+      duration: 0.8,
+      ease: 'power2.out',
     });
   },
   onLeaveBack: () => {
     gsap.to('.vignette-border', {
       boxShadow: 'inset 0 0 80px rgba(100, 174, 220, 0.3)',
-      duration: 0.8, ease: 'power2.out'
+      duration: 0.8,
+      ease: 'power2.out',
     });
   },
 });

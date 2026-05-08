@@ -7,13 +7,7 @@ const prettierConfig = require('eslint-config-prettier');
 module.exports = [
   // Konfigurasi file yang diabaikan
   {
-    ignores: [
-      'node_modules/**',
-      'dist/**',
-      'build/**',
-      'public/css/output.css',
-      '**/*.min.js',
-    ],
+    ignores: ['node_modules/**', 'dist/**', 'build/**', 'public/css/output.css', '**/*.min.js'],
   },
   // Konfigurasi utama untuk semua file JS (server-side + client-side)
   {

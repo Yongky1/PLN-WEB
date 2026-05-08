@@ -1,10 +1,10 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
-  --color-pln-yellow: #FFD500;
-  --color-pln-blue: #00A2E9;
+  --color-pln-yellow: #ffd500;
+  --color-pln-blue: #00a2e9;
   --color-pln-dark: #121212;
-  --color-pln-darker: #0A0A0A;
+  --color-pln-darker: #0a0a0a;
   --color-pln-gray: #333333;
 }
 
@@ -15,15 +15,21 @@
   .btn-primary {
     @apply bg-[var(--color-pln-yellow)] text-black px-6 py-3 font-semibold transition-transform hover:scale-105;
   }
-  
+
   .apple-glass-light {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.03) 100%);
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.15) 0%,
+      rgba(255, 255, 255, 0.03) 100%
+    );
     backdrop-filter: blur(40px) saturate(150%);
     -webkit-backdrop-filter: blur(40px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.1);
     border-top-color: rgba(255, 255, 255, 0.3);
     border-left-color: rgba(255, 255, 255, 0.2);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.15);
+    box-shadow:
+      0 8px 32px 0 rgba(0, 0, 0, 0.3),
+      inset 0 1px 0 rgba(255, 255, 255, 0.15);
   }
 
   .apple-glass-dark {
@@ -32,8 +38,10 @@
     -webkit-backdrop-filter: blur(40px) saturate(150%);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-top-color: rgba(255, 255, 255, 0.15);
-    border-left-color: rgba(255, 255, 255, 0.1);    
-    box-shadow: 0 12px 40px 0 rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    border-left-color: rgba(255, 255, 255, 0.1);
+    box-shadow:
+      0 12px 40px 0 rgba(0, 0, 0, 0.5),
+      inset 0 1px 0 rgba(255, 255, 255, 0.05);
   }
 }
 

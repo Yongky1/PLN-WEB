@@ -9,60 +9,59 @@ window.allTools = [];
 window.toolCategories = [];
 
 async function loadToolCategories() {
-    try {
-        const res = await fetchBackend('/api/categories?type=tool');
-        window.toolCategories = res;
+  try {
+    const res = await fetchBackend('/api/categories?type=tool');
+    window.toolCategories = res;
 
-        // Render dynamic dropdown items using data-attributes
-        const ddItems = document.getElementById('tool-cat-dd-items');
-        if (ddItems) {
-            ddItems.innerHTML = res.map(c =>
-                `<div class="rd-dropdown-item" data-cat-id="${c.id}" data-cat-name="${c.name.replace(/"/g, '&quot;')}">${c.name}</div>`
-            ).join('');
-            ddItems.querySelectorAll('.rd-dropdown-item').forEach(el => {
-                el.addEventListener('click', function() {
-                    setToolFilter(this.dataset.catId, this.dataset.catName);
-                });
-            });
-        }
-    } catch (err) {
-        console.error('Gagal memuat kategori alat:', err);
+    // Render dynamic dropdown items using data-attributes
+    const ddItems = document.getElementById('tool-cat-dd-items');
+    if (ddItems) {
+      ddItems.innerHTML = res
+        .map(
+          (c) =>
+            `<div class="rd-dropdown-item" data-cat-id="${c.id}" data-cat-name="${c.name.replace(/"/g, '&quot;')}">${c.name}</div>`
+        )
+        .join('');
+      ddItems.querySelectorAll('.rd-dropdown-item').forEach((el) => {
+        el.addEventListener('click', function () {
+          setToolFilter(this.dataset.catId, this.dataset.catName);
+        });
+      });
     }
+  } catch (err) {
+    console.error('Gagal memuat kategori alat:', err);
+  }
 }
 
-
-
-
-
 async function loadToolsSaved(categoryFilter = '') {
-    const saved = document.getElementById('tools-saved');
-    if (!saved) return;
-    
-    saved.innerHTML = getAdminSkeleton(3);
-    try {
-        // Fetch all once, then filter client-side by category_id
-        if (!window.allTools || window.allTools.length === 0) {
-            window.allTools = await fetchBackend('/api/tools?all=true');
-        }
-        const tools = categoryFilter
-            ? window.allTools.filter(t => (t.category_id || t.category?.id) === categoryFilter)
-            : window.allTools;
+  const saved = document.getElementById('tools-saved');
+  if (!saved) return;
 
-        saved.innerHTML = '';
+  saved.innerHTML = getAdminSkeleton(3);
+  try {
+    // Fetch all once, then filter client-side by category_id
+    if (!window.allTools || window.allTools.length === 0) {
+      window.allTools = await fetchBackend('/api/tools?all=true');
+    }
+    const tools = categoryFilter
+      ? window.allTools.filter((t) => (t.category_id || t.category?.id) === categoryFilter)
+      : window.allTools;
 
-        if (!tools || tools.length === 0) {
-            saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">${categoryFilter ? 'Tidak ada peralatan untuk kategori ini' : 'Belum ada data tersimpan'}</div>`;
-            return;
-        }
+    saved.innerHTML = '';
 
-        tools.forEach(t => {
-            const catClass = 'badge-blue';
-            const catLabel = t.category?.name || '-';
-            const hasFile = !!t.file3d;
+    if (!tools || tools.length === 0) {
+      saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">${categoryFilter ? 'Tidak ada peralatan untuk kategori ini' : 'Belum ada data tersimpan'}</div>`;
+      return;
+    }
 
-            const row = document.createElement('div');
-            row.className = 'item-row';
-            row.innerHTML = `
+    tools.forEach((t) => {
+      const catClass = 'badge-blue';
+      const catLabel = t.category?.name || '-';
+      const hasFile = !!t.file3d;
+
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      row.innerHTML = `
                 <div class="item-icon" style="background:rgba(245,158,11,0.1); width:36px; flex-shrink:0;">
                     <svg style="width:16px;height:16px;color:#F59E0B;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -73,7 +72,7 @@ async function loadToolsSaved(categoryFilter = '') {
                 <div style="flex:1; padding-right:16px;">
                     <div style="font-size:13px;font-weight:600;color:#fff;">${t.name}</div>
                     <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
-                        ${t.description ? (t.description.substring(0, 45) + '...') : '-'}
+                        ${t.description ? t.description.substring(0, 45) + '...' : '-'}
                     </div>
                 </div>
                 <div style="width:130px;">
@@ -93,162 +92,171 @@ async function loadToolsSaved(categoryFilter = '') {
                     <button class="btn-danger rd-btn-sm" onclick="deleteTool('${t.id}', this)">Hapus</button>
                 </div>
             `;
-            saved.appendChild(row);
-        });
-    } catch (err) {
-        saved.innerHTML = `<div style="color:#EF4444; font-size: 13px;">Gagal memuat data: ${err.message}</div>`;
-    }
+      saved.appendChild(row);
+    });
+  } catch (err) {
+    saved.innerHTML = `<div style="color:#EF4444; font-size: 13px;">Gagal memuat data: ${err.message}</div>`;
+  }
 }
 
 function editTool(id) {
-    const t = window.allTools.find(x => x.id === id);
-    if (!t) return;
-    
-    window.currentEditingId = id;
+  const t = window.allTools.find((x) => x.id === id);
+  if (!t) return;
 
-    const container = document.getElementById('edit-tools-cards');
-    if (container) {
-        container.innerHTML = '';
-        tCardCount = 0;
-        
-        // Modal Edit Tools tidak butuh multiple card, cukup 1 edit card karena satu Peralatan adalah 1 row mandiri
-        const card = createToolsCard(tCardCount, false, 'edit-tools-cards');
-        card.dataset.oldFile = t.file3d;
-        
-        card.querySelector('.t-name').value = t.name;
-        card.querySelector('.t-standard').value = t.standard || '';
-        card.querySelector('.t-cat').value = t.category_id || (t.category ? t.category.id : '');
-        card.querySelector('.t-status').value = t.status || 'Wajib';
-        const rawToolDesc = (t.description || '').substring(0, 200);
-        card.querySelector('.t-desc').value = rawToolDesc;
-        const tCounter = card.querySelector('.t-desc-counter');
-        if (tCounter) tCounter.textContent = rawToolDesc.length + '/200';
-        
-        // Preview Image 
-        const wrapper = card.querySelector('.t-image-wrapper');
-        const imgPreviewContainer = card.querySelector('.t-image-preview-container');
-        const imgPreview = card.querySelector('.t-image-preview-img');
-        const imgEmpty = card.querySelector('.t-img-empty');
-        const imgFilled = card.querySelector('.t-img-filled');
-        const dropZone = card.querySelector('.t-image-drop-zone');
-        const imgDelFlag = card.querySelector('.t-image-deleted');
-        if (imgPreview) {
-            if (t.image) {
-                imgPreview.src = t.image;
-                if (imgPreviewContainer) imgPreviewContainer.style.display = 'block';
-                if (wrapper) wrapper.style.gridTemplateColumns = '1fr 1fr';
-                if (imgEmpty) imgEmpty.style.display = 'none';
-                if (imgFilled) imgFilled.style.display = 'flex';
-                if (dropZone) dropZone.style.borderColor = 'rgba(245,158,11,0.3)';
-            } else {
-                imgPreview.src = '';
-                if (imgPreviewContainer) imgPreviewContainer.style.display = 'none';
-                if (wrapper) wrapper.style.gridTemplateColumns = '1fr';
-                if (imgEmpty) imgEmpty.style.display = 'flex';
-                if (imgFilled) imgFilled.style.display = 'none';
-                if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
-            }
-            if (imgDelFlag) imgDelFlag.value = 'false';
-        }
-        
-        if (t.file3d && t.file3d !== '-') {
-            const dropLabel = card.querySelector('.file-drop-zone:not(.t-image-drop-zone) .drop-label');
-            const fn = decodeURIComponent(t.file3d.split('-3d/').pop());
-            dropLabel.textContent = `Ada File: ${fn}`;
-            dropLabel.style.color = '#F59E0B';
-        }
-        
-        container.appendChild(card);
-        tCardCount++;
+  window.currentEditingId = id;
+
+  const container = document.getElementById('edit-tools-cards');
+  if (container) {
+    container.innerHTML = '';
+    tCardCount = 0;
+
+    // Modal Edit Tools tidak butuh multiple card, cukup 1 edit card karena satu Peralatan adalah 1 row mandiri
+    const card = createToolsCard(tCardCount, false, 'edit-tools-cards');
+    card.dataset.oldFile = t.file3d;
+
+    card.querySelector('.t-name').value = t.name;
+    card.querySelector('.t-standard').value = t.standard || '';
+    card.querySelector('.t-cat').value = t.category_id || (t.category ? t.category.id : '');
+    card.querySelector('.t-status').value = t.status || 'Wajib';
+    const rawToolDesc = (t.description || '').substring(0, 200);
+    card.querySelector('.t-desc').value = rawToolDesc;
+    const tCounter = card.querySelector('.t-desc-counter');
+    if (tCounter) tCounter.textContent = rawToolDesc.length + '/200';
+
+    // Preview Image
+    const wrapper = card.querySelector('.t-image-wrapper');
+    const imgPreviewContainer = card.querySelector('.t-image-preview-container');
+    const imgPreview = card.querySelector('.t-image-preview-img');
+    const imgEmpty = card.querySelector('.t-img-empty');
+    const imgFilled = card.querySelector('.t-img-filled');
+    const dropZone = card.querySelector('.t-image-drop-zone');
+    const imgDelFlag = card.querySelector('.t-image-deleted');
+    if (imgPreview) {
+      if (t.image) {
+        imgPreview.src = t.image;
+        if (imgPreviewContainer) imgPreviewContainer.style.display = 'block';
+        if (wrapper) wrapper.style.gridTemplateColumns = '1fr 1fr';
+        if (imgEmpty) imgEmpty.style.display = 'none';
+        if (imgFilled) imgFilled.style.display = 'flex';
+        if (dropZone) dropZone.style.borderColor = 'rgba(245,158,11,0.3)';
+      } else {
+        imgPreview.src = '';
+        if (imgPreviewContainer) imgPreviewContainer.style.display = 'none';
+        if (wrapper) wrapper.style.gridTemplateColumns = '1fr';
+        if (imgEmpty) imgEmpty.style.display = 'flex';
+        if (imgFilled) imgFilled.style.display = 'none';
+        if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
+      }
+      if (imgDelFlag) imgDelFlag.value = 'false';
     }
 
-    const modal = document.getElementById('edit-modal');
-    if (modal) modal.classList.add('active');
+    if (t.file3d && t.file3d !== '-') {
+      const dropLabel = card.querySelector('.file-drop-zone:not(.t-image-drop-zone) .drop-label');
+      const fn = decodeURIComponent(t.file3d.split('-3d/').pop());
+      dropLabel.textContent = `Ada File: ${fn}`;
+      dropLabel.style.color = '#F59E0B';
+    }
 
-    // Inisialisasi Live Preview
-    const assets = (t.file3d && t.file3d !== '-') ? [{ file: t.file3d, name: t.name }] : [];
-    refreshAdminPreviewSelector(assets);
+    container.appendChild(card);
+    tCardCount++;
+  }
+
+  const modal = document.getElementById('edit-modal');
+  if (modal) modal.classList.add('active');
+
+  // Inisialisasi Live Preview
+  const assets = t.file3d && t.file3d !== '-' ? [{ file: t.file3d, name: t.name }] : [];
+  refreshAdminPreviewSelector(assets);
 }
 
 // ================= LIVE PREVIEW LOGIC =================
-window.syncAdminPreviewDropdown = function() {
-    const selector = document.getElementById('admin-preview-selector');
-    const viewer = document.getElementById('admin-preview-viewer');
-    const emptyState = document.getElementById('admin-preview-empty');
-    if(!selector || !viewer || !emptyState) return;
+window.syncAdminPreviewDropdown = function () {
+  const selector = document.getElementById('admin-preview-selector');
+  const viewer = document.getElementById('admin-preview-viewer');
+  const emptyState = document.getElementById('admin-preview-empty');
+  if (!selector || !viewer || !emptyState) return;
 
-    const cards = document.querySelectorAll('#edit-tools-cards .upload-card');
-    const currentValue = selector.value;
-    selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
-    
-    let hasValidOption = false;
-    cards.forEach((card, idx) => {
-        const nameEl = card.querySelector('.t-name');
-        const nameText = nameEl && nameEl.value.trim() ? nameEl.value.trim() : `Peralatan ${idx+1}`;
-        const fileInput = card.querySelector('input[type="file"]');
-        
-        let fileUrl = '';
-        let isLocal = false;
-        
-        if (fileInput && fileInput.files && fileInput.files[0]) {
-            fileUrl = URL.createObjectURL(fileInput.files[0]);
-            isLocal = true;
-        } else if (card.dataset.oldFile && card.dataset.oldFile !== '-') {
-            fileUrl = card.dataset.oldFile;
-        }
+  const cards = document.querySelectorAll('#edit-tools-cards .upload-card');
+  const currentValue = selector.value;
+  selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
 
-        if (fileUrl) {
-            const opt = document.createElement('option');
-            opt.value = fileUrl;
-            opt.textContent = isLocal ? `[Baru] ${nameText}` : nameText;
-            selector.appendChild(opt);
-            hasValidOption = true;
-        }
-    });
+  let hasValidOption = false;
+  cards.forEach((card, idx) => {
+    const nameEl = card.querySelector('.t-name');
+    const nameText = nameEl && nameEl.value.trim() ? nameEl.value.trim() : `Peralatan ${idx + 1}`;
+    const fileInput = card.querySelector('input[type="file"]');
 
-    if (hasValidOption) {
-        let found = currentValue && Array.from(selector.options).find(o => o.value === currentValue);
-        selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[selector.options.length - 1].value : "");
-    } else {
-        selector.value = "";
+    let fileUrl = '';
+    let isLocal = false;
+
+    if (fileInput && fileInput.files && fileInput.files[0]) {
+      fileUrl = URL.createObjectURL(fileInput.files[0]);
+      isLocal = true;
+    } else if (card.dataset.oldFile && card.dataset.oldFile !== '-') {
+      fileUrl = card.dataset.oldFile;
     }
-    window.changeAdminPreview();
+
+    if (fileUrl) {
+      const opt = document.createElement('option');
+      opt.value = fileUrl;
+      opt.textContent = isLocal ? `[Baru] ${nameText}` : nameText;
+      selector.appendChild(opt);
+      hasValidOption = true;
+    }
+  });
+
+  if (hasValidOption) {
+    const found =
+      currentValue && Array.from(selector.options).find((o) => o.value === currentValue);
+    selector.value = found
+      ? currentValue
+      : selector.options.length > 1
+        ? selector.options[selector.options.length - 1].value
+        : '';
+  } else {
+    selector.value = '';
+  }
+  window.changeAdminPreview();
 };
 
 async function deleteTool(id, btn) {
-    showConfirmDialog({
-        title: 'Hapus Peralatan?',
-        message: 'Tindakan ini permanen dan tidak dapat dibatalkan. File 3D (jika ada) juga akan ikut terhapus dari server.',
-        confirmText: 'Ya, Hapus',
-        onConfirm: async () => {
-            const originalText = btn.textContent;
-            btn.textContent = 'Menghapus...';
-            btn.disabled = true;
-            try {
-                await fetchBackend(`/api/tools/${id}`, { method: 'DELETE' });
-                showToast('Peralatan berhasil dihapus!');
-                btn.closest('.item-row').remove();
-                if (window.currentEditingId === id) resetToolsForm();
-            } catch (err) {
-                showToast(`Gagal menghapus: ${err.message}`, 'error');
-                btn.textContent = originalText;
-                btn.disabled = false;
-            }
-        }
-    });
+  showConfirmDialog({
+    title: 'Hapus Peralatan?',
+    message:
+      'Tindakan ini permanen dan tidak dapat dibatalkan. File 3D (jika ada) juga akan ikut terhapus dari server.',
+    confirmText: 'Ya, Hapus',
+    onConfirm: async () => {
+      const originalText = btn.textContent;
+      btn.textContent = 'Menghapus...';
+      btn.disabled = true;
+      try {
+        await fetchBackend(`/api/tools/${id}`, { method: 'DELETE' });
+        showToast('Peralatan berhasil dihapus!');
+        btn.closest('.item-row').remove();
+        if (window.currentEditingId === id) resetToolsForm();
+      } catch (err) {
+        showToast(`Gagal menghapus: ${err.message}`, 'error');
+        btn.textContent = originalText;
+        btn.disabled = false;
+      }
+    },
+  });
 }
 
 function createToolsCard(index, removable, containerId = 'tools-cards') {
-    const card       = document.createElement('div');
-    card.className   = 'upload-card';
-    card.dataset.idx = index;
-    card.style       = 'flex-shrink: 0; padding: 14px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;';
-    card.innerHTML   = `
+  const card = document.createElement('div');
+  card.className = 'upload-card';
+  card.dataset.idx = index;
+  card.style =
+    'flex-shrink: 0; padding: 14px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;';
+  card.innerHTML = `
         <div class="upload-card-header">
             <span class="card-label" style="font-size:12px; font-weight:600; color:#F59E0B;">Peralatan #${index + 1}</span>
-            ${removable
+            ${
+              removable
                 ? `<button class="card-close-btn" onclick="removeCard(this,'${containerId}')" title="Hapus kartu ini">×</button>`
-                : ''}
+                : ''
+            }
         </div>
         <div class="upload-card-body">
             <div style="display:flex; flex-direction:column; gap:12px;">
@@ -268,9 +276,12 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                     <div>
                         <label class="admin-label">Kategori</label>
                         <select class="admin-select t-cat">
-                            ${window.toolCategories.length > 0 ? 
-                                window.toolCategories.map(c => `<option value="${c.id}">${c.name}</option>`).join('') :
-                                '<option value="">Belum ada kategori</option>'
+                            ${
+                              window.toolCategories.length > 0
+                                ? window.toolCategories
+                                    .map((c) => `<option value="${c.id}">${c.name}</option>`)
+                                    .join('')
+                                : '<option value="">Belum ada kategori</option>'
                             }
                         </select>
                     </div>
@@ -343,248 +354,270 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 </div>
 
                 <!-- Internal 3D Preview (Only for Create Form, Edit Modal has separate large viewer) -->
-                ${containerId !== 'edit-tools-cards' ? `
+                ${
+                  containerId !== 'edit-tools-cards'
+                    ? `
                 <div class="card-model-viewer-container" style="display:none; margin-top:4px; height:200px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); position:relative;">
                     <model-viewer class="internal-viewer" src="" 
                         style="width: 100%; height: 100%; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);" 
                         camera-controls auto-rotate interaction-prompt="none" shadow-intensity="1">
                     </model-viewer>
                 </div>
-                ` : ''}
+                `
+                    : ''
+                }
 
             </div>
         </div>
     `;
 
-    initDropZone(card.querySelector('.file-drop-zone:not(.t-image-drop-zone)'));
-    initImageDropZone(card.querySelector('.t-image-drop-zone'));
-    return card;
+  initDropZone(card.querySelector('.file-drop-zone:not(.t-image-drop-zone)'));
+  initImageDropZone(card.querySelector('.t-image-drop-zone'));
+  return card;
 }
 
 function addToolsCard() {
-    const container = document.getElementById('tools-cards');
-    container.appendChild(createToolsCard(tCardCount, tCardCount > 0, 'tools-cards'));
-    tCardCount++;
+  const container = document.getElementById('tools-cards');
+  container.appendChild(createToolsCard(tCardCount, tCardCount > 0, 'tools-cards'));
+  tCardCount++;
 }
 
 async function processToolSubmission(isEditing) {
-    const containerId = isEditing ? 'edit-tools-cards' : 'tools-cards';
-    const cards  = document.querySelectorAll(`#${containerId} .upload-card`);
-    
-    if (cards.length === 0) return;
+  const containerId = isEditing ? 'edit-tools-cards' : 'tools-cards';
+  const cards = document.querySelectorAll(`#${containerId} .upload-card`);
 
-    // Validate first
-    let hasError = false;
-    const itemsToUpload = [];
+  if (cards.length === 0) return;
 
-    cards.forEach(card => {
-        const nameEl  = card.querySelector('.t-name');
-        const name    = nameEl.value.trim();
-        const std     = card.querySelector('.t-standard').value.trim();
-        const catEl   = card.querySelector('.t-cat');
-        const category_id = catEl.value;
-        const status  = card.querySelector('.t-status').value;
-        const desc    = card.querySelector('.t-desc').value.trim();
-        const file    = card.querySelector('.t-file-3d') ? card.querySelector('.t-file-3d').files[0] : undefined;
-        const imageFile = card.querySelector('.t-image-file') ? card.querySelector('.t-image-file').files[0] : null;
+  // Validate first
+  let hasError = false;
+  const itemsToUpload = [];
 
-        if (!name) {
-            hasError = true;
-            nameEl.style.borderColor = '#EF4444';
+  cards.forEach((card) => {
+    const nameEl = card.querySelector('.t-name');
+    const name = nameEl.value.trim();
+    const std = card.querySelector('.t-standard').value.trim();
+    const catEl = card.querySelector('.t-cat');
+    const category_id = catEl.value;
+    const status = card.querySelector('.t-status').value;
+    const desc = card.querySelector('.t-desc').value.trim();
+    const file = card.querySelector('.t-file-3d')
+      ? card.querySelector('.t-file-3d').files[0]
+      : undefined;
+    const imageFile = card.querySelector('.t-image-file')
+      ? card.querySelector('.t-image-file').files[0]
+      : null;
+
+    if (!name) {
+      hasError = true;
+      nameEl.style.borderColor = '#EF4444';
+    } else {
+      nameEl.style.borderColor = '';
+      itemsToUpload.push({ name, std, category_id, status, desc, file, imageFile, _cardRef: card });
+    }
+  });
+
+  if (hasError) {
+    showToast('Nama alat wajib diisi pada setiap form.', 'error');
+    return;
+  }
+
+  const saveBtn =
+    event.target ||
+    (isEditing
+      ? document.querySelector('button[onclick="submitEditTool()"]')
+      : document.querySelector('button[onclick="submitSemuaTools()"]'));
+  const oldText = saveBtn.textContent;
+  saveBtn.textContent = 'Menyimpan...';
+  saveBtn.disabled = true;
+
+  try {
+    for (let i = 0; i < itemsToUpload.length; i++) {
+      const item = itemsToUpload[i];
+      let assetUrl = null;
+      let imgUrl = null;
+
+      if (item.file) {
+        const formData = new FormData();
+        formData.append('file', item.file);
+
+        const uploadRes = await fetchBackend('/api/upload-file', {
+          method: 'POST',
+          body: formData,
+        });
+        assetUrl = uploadRes.publicUrl;
+      }
+
+      if (item.imageFile) {
+        const formData = new FormData();
+        formData.append('file', item.imageFile);
+
+        const imgRes = await fetchBackend('/api/upload-image', {
+          method: 'POST',
+          body: formData,
+        });
+        imgUrl = imgRes.publicUrl;
+      }
+
+      if (isEditing && i === 0) {
+        // Mode Edit
+        const toolBody = {
+          name: item.name,
+          standard: item.std,
+          category_id: item.category_id,
+          status: item.status,
+          description: item.desc,
+        };
+        if (assetUrl) toolBody.file3d = assetUrl;
+        if (imgUrl) {
+          toolBody.image = imgUrl;
         } else {
-            nameEl.style.borderColor = '';
-            itemsToUpload.push({ name, std, category_id, status, desc, file, imageFile, _cardRef: card });
+          const delFlag = item._cardRef.querySelector('.t-image-deleted');
+          if (delFlag && delFlag.value === 'true') {
+            toolBody.image = null;
+          }
         }
-    });
 
-    if (hasError) { 
-        showToast('Nama alat wajib diisi pada setiap form.', 'error'); 
-        return; 
+        await fetchBackend(`/api/tools/${window.currentEditingId}`, {
+          method: 'PUT',
+          body: JSON.stringify(toolBody),
+        });
+      } else {
+        // Mode Create
+        const toolBody = {
+          // toolBody.id = generateSafeUUID();
+          name: item.name,
+          standard: item.std,
+          category_id: item.category_id,
+          status: item.status,
+          description: item.desc,
+          file3d: assetUrl || '-', // default jika kosong
+        };
+        if (imgUrl) toolBody.image = imgUrl;
+
+        await fetchBackend('/api/tools', {
+          method: 'POST',
+          body: JSON.stringify(toolBody),
+        });
+      }
     }
 
-    const saveBtn = event.target || (isEditing ? document.querySelector('button[onclick="submitEditTool()"]') : document.querySelector('button[onclick="submitSemuaTools()"]'));
-    const oldText = saveBtn.textContent;
-    saveBtn.textContent = 'Menyimpan...';
-    saveBtn.disabled = true;
-
-    try {
-
-        for (let i = 0; i < itemsToUpload.length; i++) {
-            const item = itemsToUpload[i];
-            let assetUrl = null;
-            let imgUrl   = null;
-
-            if (item.file) {
-                 const formData = new FormData();
-                 formData.append('file', item.file);
-                 
-                 const uploadRes = await fetchBackend('/api/upload-file', {
-                     method: 'POST',
-                     body: formData
-                 });
-                 assetUrl = uploadRes.publicUrl;
-            }
-
-            if (item.imageFile) {
-                 const formData = new FormData();
-                 formData.append('file', item.imageFile);
-                 
-                 const imgRes = await fetchBackend('/api/upload-image', {
-                     method: 'POST',
-                     body: formData
-                 });
-                 imgUrl = imgRes.publicUrl;
-            }
-
-            if (isEditing && i === 0) {
-                 // Mode Edit
-                 const toolBody = {
-                     name: item.name,
-                     standard: item.std,
-                     category_id: item.category_id,
-                     status: item.status,
-                     description: item.desc
-                 };
-                 if (assetUrl) toolBody.file3d = assetUrl;
-                 if (imgUrl) {
-                     toolBody.image = imgUrl;
-                 } else {
-                     const delFlag = item._cardRef.querySelector('.t-image-deleted');
-                     if (delFlag && delFlag.value === 'true') {
-                         toolBody.image = null;
-                     }
-                 }
-
-                 await fetchBackend(`/api/tools/${window.currentEditingId}`, {
-                     method: 'PUT',
-                     body: JSON.stringify(toolBody)
-                 });
-
-            } else {
-                 // Mode Create
-                 const toolBody = {
-                     // toolBody.id = generateSafeUUID();
-                     name: item.name,
-                     standard: item.std,
-                     category_id: item.category_id,
-                     status: item.status,
-                     description: item.desc,
-                     file3d: assetUrl || '-' // default jika kosong
-                 };
-                 if (imgUrl) toolBody.image = imgUrl;
-
-                 await fetchBackend('/api/tools', {
-                     method: 'POST',
-                     body: JSON.stringify(toolBody)
-                 });
-            }
-        }
-
-        if (isEditing) {
-            closeEditModal();
-            showToast('Peralatan berhasil diperbarui!');
-        } else {
-            closeAddToolModal();
-            resetToolsForm();
-            showToast('Semua peralatan berhasil disimpan!');
-        }
-        window.allTools = []; // invalidate cache
-        loadToolsSaved();
-
-    } catch (e) {
-        showToast(`Gagal menyimpan: ${e.message}`, 'error');
-    } finally {
-        if(saveBtn) {
-            saveBtn.textContent = oldText;
-            saveBtn.disabled = false;
-        }
+    if (isEditing) {
+      closeEditModal();
+      showToast('Peralatan berhasil diperbarui!');
+    } else {
+      closeAddToolModal();
+      resetToolsForm();
+      showToast('Semua peralatan berhasil disimpan!');
     }
+    window.allTools = []; // invalidate cache
+    loadToolsSaved();
+  } catch (e) {
+    showToast(`Gagal menyimpan: ${e.message}`, 'error');
+  } finally {
+    if (saveBtn) {
+      saveBtn.textContent = oldText;
+      saveBtn.disabled = false;
+    }
+  }
 }
 
 async function submitSemuaTools() {
-    return processToolSubmission(false);
+  return processToolSubmission(false);
 }
 
 async function submitEditTool() {
-    return processToolSubmission(true);
+  return processToolSubmission(true);
 }
 
 function resetToolsForm() {
-    window.currentEditingId = null;
-    document.getElementById('tools-cards').innerHTML = '';
-    tCardCount = 0;
-    addToolsCard();
-    
-    const saveBtn = document.querySelector('button[onclick="submitSemuaTools()"]');
-    if (saveBtn) saveBtn.textContent = 'Simpan Semua';
+  window.currentEditingId = null;
+  document.getElementById('tools-cards').innerHTML = '';
+  tCardCount = 0;
+  addToolsCard();
+
+  const saveBtn = document.querySelector('button[onclick="submitSemuaTools()"]');
+  if (saveBtn) saveBtn.textContent = 'Simpan Semua';
 }
 
 document.addEventListener('DOMContentLoaded', async () => {
-    await loadToolCategories();
-    addToolsCard();
-    loadToolsSaved();
+  await loadToolCategories();
+  addToolsCard();
+  loadToolsSaved();
 
-    // Search bar — filter from cached allTools by name
-    const searchInput = document.getElementById('search-saved-tools');
-    if (searchInput) {
-        let debounceTimer;
-        searchInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                const q = searchInput.value.trim().toLowerCase();
-                const saved = document.getElementById('tools-saved');
-                if (!saved) return;
-                document.querySelectorAll('#tools-saved .item-row').forEach(row => {
-                    const name = row.querySelector('div[style*="font-size:13px"]')?.textContent?.toLowerCase() || '';
-                    row.style.display = (!q || name.includes(q)) ? '' : 'none';
-                });
-            }, 200);
+  // Search bar — filter from cached allTools by name
+  const searchInput = document.getElementById('search-saved-tools');
+  if (searchInput) {
+    let debounceTimer;
+    searchInput.addEventListener('input', () => {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        const q = searchInput.value.trim().toLowerCase();
+        const saved = document.getElementById('tools-saved');
+        if (!saved) return;
+        document.querySelectorAll('#tools-saved .item-row').forEach((row) => {
+          const name =
+            row.querySelector('div[style*="font-size:13px"]')?.textContent?.toLowerCase() || '';
+          row.style.display = !q || name.includes(q) ? '' : 'none';
         });
-    }
+      }, 200);
+    });
+  }
 });
 
-window.previewToolImage = function(input) {
-    const card = input.closest('.upload-card');
-    const wrapper = card.querySelector('.t-image-wrapper');
-    const previewContainer = card.querySelector('.t-image-preview-container');
-    const preview = card.querySelector('.t-image-preview-img');
-    const imgEmpty = card.querySelector('.t-img-empty');
-    const imgFilled = card.querySelector('.t-img-filled');
-    const dropZone = card.querySelector('.t-image-drop-zone');
-    const delFlag = card.querySelector('.t-image-deleted');
-    
-    if (input.files && input.files[0]) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            if (preview) { preview.src = e.target.result; }
-            if (previewContainer) { previewContainer.style.display = 'block'; }
-            if (wrapper) { wrapper.style.gridTemplateColumns = '1fr 1fr'; }
-            if (imgEmpty) { imgEmpty.style.display = 'none'; }
-            if (imgFilled) { imgFilled.style.display = 'flex'; }
-            if (dropZone) { dropZone.style.borderColor = 'rgba(245,158,11,0.3)'; }
-            if (delFlag) delFlag.value = 'false';
-        };
-        reader.readAsDataURL(input.files[0]);
-    }
+window.previewToolImage = function (input) {
+  const card = input.closest('.upload-card');
+  const wrapper = card.querySelector('.t-image-wrapper');
+  const previewContainer = card.querySelector('.t-image-preview-container');
+  const preview = card.querySelector('.t-image-preview-img');
+  const imgEmpty = card.querySelector('.t-img-empty');
+  const imgFilled = card.querySelector('.t-img-filled');
+  const dropZone = card.querySelector('.t-image-drop-zone');
+  const delFlag = card.querySelector('.t-image-deleted');
+
+  if (input.files && input.files[0]) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      if (preview) {
+        preview.src = e.target.result;
+      }
+      if (previewContainer) {
+        previewContainer.style.display = 'block';
+      }
+      if (wrapper) {
+        wrapper.style.gridTemplateColumns = '1fr 1fr';
+      }
+      if (imgEmpty) {
+        imgEmpty.style.display = 'none';
+      }
+      if (imgFilled) {
+        imgFilled.style.display = 'flex';
+      }
+      if (dropZone) {
+        dropZone.style.borderColor = 'rgba(245,158,11,0.3)';
+      }
+      if (delFlag) delFlag.value = 'false';
+    };
+    reader.readAsDataURL(input.files[0]);
+  }
 };
 
-window.clearToolImage = function(btn) {
-    const card = btn.closest('.upload-card');
-    const wrapper = card.querySelector('.t-image-wrapper');
-    const previewContainer = card.querySelector('.t-image-preview-container');
-    const preview = card.querySelector('.t-image-preview-img');
-    const input = card.querySelector('.t-image-file');
-    const imgEmpty = card.querySelector('.t-img-empty');
-    const imgFilled = card.querySelector('.t-img-filled');
-    const dropZone = card.querySelector('.t-image-drop-zone');
-    const delFlag = card.querySelector('.t-image-deleted');
-    
-    if (input) input.value = '';
-    if (preview) preview.src = '';
-    if (previewContainer) previewContainer.style.display = 'none';
-    if (wrapper) wrapper.style.gridTemplateColumns = '1fr';
-    if (imgEmpty) imgEmpty.style.display = 'flex';
-    if (imgFilled) imgFilled.style.display = 'none';
-    if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
-    if (delFlag) delFlag.value = 'true';
+window.clearToolImage = function (btn) {
+  const card = btn.closest('.upload-card');
+  const wrapper = card.querySelector('.t-image-wrapper');
+  const previewContainer = card.querySelector('.t-image-preview-container');
+  const preview = card.querySelector('.t-image-preview-img');
+  const input = card.querySelector('.t-image-file');
+  const imgEmpty = card.querySelector('.t-img-empty');
+  const imgFilled = card.querySelector('.t-img-filled');
+  const dropZone = card.querySelector('.t-image-drop-zone');
+  const delFlag = card.querySelector('.t-image-deleted');
+
+  if (input) input.value = '';
+  if (preview) preview.src = '';
+  if (previewContainer) previewContainer.style.display = 'none';
+  if (wrapper) wrapper.style.gridTemplateColumns = '1fr';
+  if (imgEmpty) imgEmpty.style.display = 'flex';
+  if (imgFilled) imgFilled.style.display = 'none';
+  if (dropZone) dropZone.style.borderColor = 'rgba(255,255,255,0.2)';
+  if (delFlag) delFlag.value = 'true';
 };

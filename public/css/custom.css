@@ -3,135 +3,180 @@
 /* ========================================= */
 /* SCROLLBAR                                 */
 /* ========================================= */
-::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: rgba(156, 163, 175, 0.4); border-radius: 3px; }
-.dark ::-webkit-scrollbar-thumb { background: rgba(75, 85, 99, 0.4); }
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(156, 163, 175, 0.4);
+  border-radius: 3px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(75, 85, 99, 0.4);
+}
 
 /* ========================================= */
 /* HERO SPLIT-TEXT ANIMATION                 */
 /* ========================================= */
-.split-word { 
-    margin-right: 0.3em;
-    padding-bottom: 0.25em; /* Beri ruang agar huruf g/p/y ke bawah tidak terpotong */
-    margin-bottom: -0.25em;
-    vertical-align: bottom;
+.split-word {
+  margin-right: 0.3em;
+  padding-bottom: 0.25em; /* Beri ruang agar huruf g/p/y ke bawah tidak terpotong */
+  margin-bottom: -0.25em;
+  vertical-align: bottom;
 }
 .split-inner {
-    transform: translateY(110%);
-    transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(110%);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .split-inner.active {
-    transform: translateY(0);
+  transform: translateY(0);
 }
 
 /* Animated gradient shimmer on text */
 @keyframes gradient-shift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 .animate-gradient-shift {
-    animation: gradient-shift 4s ease infinite;
+  animation: gradient-shift 4s ease infinite;
 }
 
 /* ========================================= */
 /* SCROLL INDICATOR DOT                      */
 /* ========================================= */
 @keyframes scroll-dot {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(16px); opacity: 0; }
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(16px);
+    opacity: 0;
+  }
 }
 .animate-scroll-dot {
-    animation: scroll-dot 1.5s ease-in-out infinite;
+  animation: scroll-dot 1.5s ease-in-out infinite;
 }
 
 .scroll-indicator {
-    opacity: 1;
-    transition: opacity 0.5s;
+  opacity: 1;
+  transition: opacity 0.5s;
 }
 
 /* ========================================= */
 /* MARQUEE BANDS                             */
 /* ========================================= */
 @keyframes marquee-left {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }
 @keyframes marquee-right {
-    0% { transform: translateX(-50%); }
-    100% { transform: translateX(0); }
+  0% {
+    transform: translateX(-50%);
+  }
+  100% {
+    transform: translateX(0);
+  }
 }
 .animate-marquee-left {
-    animation: marquee-left 30s linear infinite;
+  animation: marquee-left 30s linear infinite;
 }
 .animate-marquee-right {
-    animation: marquee-right 35s linear infinite;
+  animation: marquee-right 35s linear infinite;
 }
 
 /* ========================================= */
 /* GSAP REVEAL (Initial hidden state)        */
 /* ========================================= */
 .gsap-reveal {
-    opacity: 0;
-    transform: translateY(60px);
+  opacity: 0;
+  transform: translateY(60px);
 }
 
 /* ========================================= */
 /* STAT ITEMS                                */
 /* ========================================= */
 .stat-item {
-    opacity: 0;
-    transform: translateY(40px);
+  opacity: 0;
+  transform: translateY(40px);
 }
 
 /* ========================================= */
 /* 3D TILT CARDS                             */
 /* ========================================= */
 .tilt-card {
-    transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
-    transition: transform 0.4s ease-out, box-shadow 0.5s ease;
+  transform: perspective(1000px) rotateX(0deg) rotateY(0deg);
+  transition:
+    transform 0.4s ease-out,
+    box-shadow 0.5s ease;
 }
 
 /* ========================================= */
 /* BLOB ANIMATION                            */
 /* ========================================= */
 .animate-blob {
-    animation: blob 7s infinite;
+  animation: blob 7s infinite;
 }
-.animation-delay-2000 { animation-delay: 2s; }
-.animation-delay-4000 { animation-delay: 4s; }
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+.animation-delay-4000 {
+  animation-delay: 4s;
+}
 
 @keyframes blob {
-    0% { transform: translate(0px, 0px) scale(1); }
-    33% { transform: translate(30px, -50px) scale(1.1); }
-    66% { transform: translate(-20px, 20px) scale(0.9); }
-    100% { transform: translate(0px, 0px) scale(1); }
+  0% {
+    transform: translate(0px, 0px) scale(1);
+  }
+  33% {
+    transform: translate(30px, -50px) scale(1.1);
+  }
+  66% {
+    transform: translate(-20px, 20px) scale(0.9);
+  }
+  100% {
+    transform: translate(0px, 0px) scale(1);
+  }
 }
 
 /* ========================================= */
 /* GRADIENT TEXT                             */
 /* ========================================= */
 .bg-gradient-text {
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 /* ========================================= */
 /* CTA SHIMMER                               */
 /* ========================================= */
 @keyframes shimmer {
-    100% { transform: translateX(100%); }
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* ========================================= */
 /* GLASS NAV                                 */
 /* ========================================= */
 .glass-nav {
-    backdrop-filter: blur(16px) saturate(180%);
-    background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(16px) saturate(180%);
+  background: rgba(255, 255, 255, 0.7);
 }
 .dark .glass-nav {
-    background: rgba(5, 10, 20, 0.7);
+  background: rgba(5, 10, 20, 0.7);
 }
