@@ -3,368 +3,377 @@
 <head>
     <%- include('partials/head') %>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
     <style>
-        /* ============================================================
-           Material Page – Apple Glassmorphism Style
-        ============================================================ */
-        .glass-panel {
-            background: linear-gradient(135deg, rgba(255,255,255,0.12) 0%, rgba(255,255,255,0.03) 100%);
-            backdrop-filter: blur(40px) saturate(150%);
-            -webkit-backdrop-filter: blur(40px) saturate(150%);
-            border: 1px solid rgba(255,255,255,0.1);
-            border-top-color: rgba(255,255,255,0.3);
-            border-left-color: rgba(255,255,255,0.2);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.1);
-        }
+      /* ══════════════════════════════════
+         MATERIAL — V3 GLASS GRID PREMIUM
+      ══════════════════════════════════ */
+      :root {
+        --v3-yellow: #FFD700;
+        --v3-yellow-dim: rgba(255,215,0,0.12);
+        --v3-blue: #3B82F6;
+        --v3-blue-bright: #60A5FA;
+        --v3-bg0: #080808;
+        --v3-border: rgba(255,255,255,0.07);
+        --v3-text: #f0f0f0;
+        --v3-muted: rgba(255,255,255,0.38);
+      }
 
-        /* ---- Filter Pills ---- */
-        .filter-pill {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 7px 18px;
-            border-radius: 9999px;
-            font-size: 12px;
-            font-weight: 700;
-            letter-spacing: 0.06em;
-            cursor: pointer;
-            border: 1.5px solid rgba(255,255,255,0.1);
-            background: rgba(255,255,255,0.04);
-            color: rgba(255,255,255,0.5);
-            font-family: 'Inter', sans-serif;
-            transition: all 0.2s ease;
-        }
-        .filter-pill:hover {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-            border-color: rgba(255,255,255,0.3);
-        }
-        .filter-pill.active {
-            background: rgba(255, 213, 0, 0.15);
-            border-color: rgba(255, 213, 0, 0.6);
-            color: var(--color-pln-yellow);
-            box-shadow: 0 0 20px rgba(255,213,0,0.15);
-        }
+      body { background: var(--v3-bg0) !important; color: var(--v3-text); }
 
-        /* ---- Spec rows (modal info panel) ---- */
-        .mat-spec-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 11px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .mat-spec-row:last-child { border-bottom: none; }
-        .mat-spec-key { font-size: 13px; color: rgba(255,255,255,0.5); font-family: 'Inter', sans-serif; }
-        .mat-spec-val { font-size: 13px; font-weight: 700; color: #FFD500; font-family: monospace; }
-        .mat-spec-empty { font-size: 13px; color: rgba(255,255,255,0.3); font-style: italic; }
+      @keyframes v3-spin-slow { to { transform: rotate(360deg); } }
+      .v3-ring {
+        position: fixed; border-radius: 50%; pointer-events: none;
+        border: 1px solid; opacity: 0.08;
+        animation: v3-spin-slow 20s linear infinite; z-index: 0;
+      }
 
-        /* ---- Material Card ---- */
-        .mat-card {
-            transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
-                        box-shadow 0.4s ease,
-                        border-color 0.3s ease;
-        }
-        .mat-card:hover {
-            transform: translateY(-6px) scale(1.01);
-            box-shadow: 0 30px 60px rgba(0,0,0,0.35), 0 0 40px rgba(255,213,0,0.08);
-            border-color: rgba(255,255,255,0.3) !important;
-        }
+      /* Search bar */
+      .v3-search-wrap { position: relative; }
+      .v3-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--v3-muted); pointer-events: none; }
+      .v3-search-input {
+        width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px; padding: 9px 14px 9px 40px;
+        font-size: 13px; color: var(--v3-text); font-family: 'Inter', sans-serif;
+        outline: none; transition: border-color .2s, box-shadow .2s;
+      }
+      .v3-search-input:focus { border-color: rgba(255,215,0,0.4); box-shadow: 0 0 0 3px rgba(255,215,0,0.06); }
+      .v3-search-input::placeholder { color: var(--v3-muted); }
 
-        /* ---- Modal ---- */
-        #mat-modal-overlay {
-            background: rgba(0,0,0,0.75);
-            backdrop-filter: blur(24px) saturate(160%);
-            -webkit-backdrop-filter: blur(24px) saturate(160%);
-        }
-        #mat-modal-overlay.active { display: flex !important; }
+      /* Custom dropdown */
+      .v3-dropdown { position: relative; flex-shrink: 0; }
+      .v3-dropdown-btn {
+        display: flex; align-items: center; gap: 8px;
+        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 12px; padding: 10px 14px;
+        font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
+        color: rgba(255,255,255,0.55); font-family: 'Inter', sans-serif;
+        cursor: pointer; outline: none; white-space: nowrap;
+        transition: border-color .2s, background .2s, color .2s;
+      }
+      .v3-dropdown-btn:hover { border-color: rgba(255,215,0,0.35); color: #fff; background: rgba(255,255,255,0.07); }
+      .v3-dropdown.open .v3-dropdown-btn { border-color: rgba(255,215,0,0.45); color: #FFD700; background: rgba(255,215,0,0.06); }
+      .v3-chev { transition: transform .25s ease; color: rgba(255,255,255,0.35); }
+      .v3-dropdown.open .v3-chev { transform: rotate(180deg); color: #FFD700; }
+      .v3-dropdown-menu {
+        position: absolute; top: calc(100% + 8px); right: 0; min-width: 180px; border-radius: 14px;
+        background: rgba(18,18,18,0.95); backdrop-filter: blur(24px) saturate(160%);
+        border: 1px solid rgba(255,255,255,0.1); border-top-color: rgba(255,255,255,0.18);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,215,0,0.04);
+        padding: 6px; z-index: 200; display: none; flex-direction: column; gap: 2px;
+        animation: v3-dd-in .18s ease;
+      }
+      @keyframes v3-dd-in { from { opacity:0; transform: translateY(-6px) scale(0.97); } to { opacity:1; transform: none; } }
+      .v3-dropdown.open .v3-dropdown-menu { display: flex; }
+      .v3-dropdown-item {
+        padding: 9px 14px; border-radius: 9px; font-size: 12px; font-weight: 600;
+        color: rgba(255,255,255,0.55); cursor: pointer; font-family: 'Inter', sans-serif;
+        transition: background .15s, color .15s; letter-spacing: 0.02em;
+      }
+      .v3-dropdown-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
+      .v3-dropdown-item.selected { background: rgba(255,215,0,0.1); color: #FFD700; }
 
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.94) translateY(20px); }
-            to   { opacity: 1; transform: scale(1)    translateY(0);    }
-        }
-        #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+      /* Glass morphism */
+      .v3-glass {
+        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+        backdrop-filter: blur(24px) saturate(160%);
+        -webkit-backdrop-filter: blur(24px) saturate(160%);
+        border: 1px solid rgba(255,255,255,0.09) !important;
+        border-top-color: rgba(255,255,255,0.18) !important;
+        border-left-color: rgba(255,255,255,0.12) !important;
+      }
 
-        /* Responsive modal height: auto on mobile, fixed on desktop */
-        #mat-modal-card { height: auto; max-height: 90vh; }
-        @media (min-width: 768px) { #mat-modal-card { height: 560px; max-height: unset; } }
+      /* Glass card */
+      .v3-card {
+        border-radius: 28px; overflow: hidden; cursor: pointer;
+        position: relative; display: block;
+        transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s;
+      }
+      .v3-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(255,215,0,0.08);
+      }
+      .v3-card-img {
+        width: 100%; height: 190px;
+        position: relative; overflow: hidden; background: rgba(0,0,0,0.3);
+      }
+      .v3-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease-out; }
+      .v3-card:hover .v3-card-img img { transform: scale(1.05); }
+      .v3-card-img-placeholder {
+        width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+        background: repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 14px);
+      }
+      .v3-card-img-grad {
+        position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
+        background: linear-gradient(to top, rgba(5,5,15,0.9), transparent); pointer-events: none;
+      }
+      .v3-card-body {
+        padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px;
+        background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.015) 100%);
+      }
+      .v3-card-title {
+        font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+        font-size: 16px; color: #f0f0f0; line-height: 1.3;
+        letter-spacing: -0.3px; transition: color .2s;
+      }
+      .v3-card:hover .v3-card-title { color: #FFD700; }
+      .v3-card-desc {
+        font-size: 11.5px; color: rgba(255,255,255,0.38); line-height: 1.6;
+        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+      }
+      .v3-card-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
+      .v3-card-stats { display: flex; align-items: center; justify-content: space-between; }
+      .v3-card-stat { display: flex; flex-direction: column; gap: 2px; }
+      .v3-card-stat-label {
+        font-size: 9px; font-family: 'JetBrains Mono', monospace;
+        color: rgba(255,255,255,0.28); letter-spacing: 0.1em; text-transform: uppercase;
+      }
+      .v3-card-stat-val {
+        font-size: 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+        color: #FFD700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;
+      }
+      .v3-go-btn {
+        width: 36px; height: 36px; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        background: rgba(255,215,0,0.12); color: #FFD700;
+        border: 1px solid rgba(255,215,0,0.2);
+        transition: background .2s, transform .2s; flex-shrink: 0;
+      }
+      .v3-card:hover .v3-go-btn { background: #FFD700; color: #000; transform: rotate(-45deg) scale(1.1); }
+      .v3-electric-line {
+        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+        background: linear-gradient(90deg, transparent, #3B82F6, #FFD700, transparent);
+        opacity: 0; transition: opacity .3s;
+      }
+      .v3-card:hover .v3-electric-line { opacity: 1; }
 
-        /* ---- Modal 3D Viewer Area ---- */
-        #mat-canvas-wrap {
-            background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        #mat-canvas-wrap model-viewer {
-            width: 100%;
-            height: 100%;
-            display: block;
-        }
+      /* Hide card for filter */
+      .mat-card-item { transition: opacity 0.3s ease, transform 0.3s ease; }
+      .mat-card-item.hidden-card { opacity: 0; pointer-events: none; transform: scale(0.96); height: 0; overflow: hidden; margin: 0; padding: 0; }
 
-        /* ---- Modal Info Scrollbar ---- */
-        #mat-info-wrap { overflow-y: auto; }
-        #mat-info-wrap::-webkit-scrollbar { width: 4px; }
-        #mat-info-wrap::-webkit-scrollbar-track { background: transparent; }
-        #mat-info-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
-        #mat-info-wrap::-webkit-scrollbar-thumb:hover { background: rgba(255,213,0,0.3); }
+      /* Heading gradient */
+      .v3-heading-gradient {
+        background: linear-gradient(to right, #FFD700, #fef08a);
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+      }
 
-        /* ---- Spec Row ---- */
-        .spec-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 11px 0;
-            border-bottom: 1px solid rgba(255,255,255,0.06);
-        }
-        .spec-row:last-child { border-bottom: none; }
+      /* Responsive */
+      .v3-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px; }
+      @media (max-width: 1024px) { .v3-grid { grid-template-columns: repeat(3,1fr); } }
+      @media (max-width: 768px) {
+        .v3-grid { grid-template-columns: repeat(2,1fr); gap: 14px; }
+        .v3-page-main { padding-left: 20px !important; padding-right: 20px !important; }
+        .v3-header-row { flex-direction: column !important; align-items: flex-start !important; }
+        h1.v3-title { font-size: 36px !important; }
+      }
+      @media (max-width: 480px) { .v3-grid { grid-template-columns: 1fr; } }
 
-        /* ---- Hide Card Animation ---- */
-        .mat-card-item { transition: opacity 0.3s ease, transform 0.3s ease; }
-        .mat-card-item.hidden-card { opacity: 0; pointer-events: none; transform: scale(0.96); height: 0; overflow: hidden; margin: 0; padding: 0; }
+      /* ── Modal styles (preserved) ── */
+      #mat-modal-overlay { background: rgba(0,4,15,0.80); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%); }
+      #mat-modal-overlay.active { display: flex !important; }
+      @keyframes modalIn { from { opacity:0; transform:scale(0.94) translateY(20px); } to { opacity:1; transform:scale(1) translateY(0); } }
+      #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22,1,0.36,1) forwards; height: auto; max-height: 90vh; }
+      @media (min-width: 768px) { #mat-modal-card { height: 560px; max-height: unset; } }
+      #mat-canvas-wrap { background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%); position: relative; overflow: hidden; }
+      #mat-canvas-wrap model-viewer { width: 100%; height: 100%; display: block; }
+      #mat-info-wrap { overflow-y: auto; }
+      #mat-info-wrap::-webkit-scrollbar { width: 4px; }
+      #mat-info-wrap::-webkit-scrollbar-track { background: transparent; }
+      #mat-info-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+      .spec-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+      .spec-row:last-child { border-bottom: none; }
     </style>
 </head>
-<body class="bg-[var(--color-pln-darker)] text-white font-sans antialiased overflow-x-hidden">
+<body>
 
     <%- include('partials/navbar') %>
 
-    <main class="pt-32 pb-24 px-4 sm:px-6 bg-[var(--color-pln-darker)] min-h-screen relative overflow-x-hidden">
+    <!-- Decorative rings -->
+    <div class="v3-ring" style="width:600px; height:600px; top:-200px; right:-100px; border-color:#FFD700;"></div>
+    <div class="v3-ring" style="width:400px; height:400px; bottom:0; left:-100px; border-color:#60A5FA; animation-direction:reverse; animation-duration:28s;"></div>
 
-        <!-- Ambient Background Glow -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-w-[100vw] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
-        <div class="absolute top-[40%] left-[10%] w-[400px] h-[400px] bg-blue-500/3 rounded-full blur-[100px] pointer-events-none -z-10"></div>
+    <!-- Ambient glows -->
+    <div style="position:fixed; top:-150px; right:100px; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
+    <div style="position:fixed; bottom:100px; left:0; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
 
-        <div class="max-w-7xl mx-auto z-10 relative">
+    <main class="v3-page-main" style="padding-top:96px; padding-bottom:64px; padding-left:56px; padding-right:56px; position:relative; z-index:1; min-height:100vh;">
 
-            <!-- Page Hero -->
-            <div class="hero-content mb-14 text-left flex flex-col md:flex-row md:items-end justify-between gap-8 border-b border-white/5 pb-10">
-                <div class="max-w-2xl">
-                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-pln-yellow)]/10 text-[var(--color-pln-yellow)] text-[10px] font-bold tracking-[0.15em] uppercase mb-4 border border-[var(--color-pln-yellow)]/20 shadow-[0_0_15px_rgba(255,213,0,0.1)]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-pln-yellow)] animate-pulse"></span>
-                        Katalog Material
-                    </span>
-                    <h1 class="text-4xl md:text-6xl font-black mb-4 font-['Space_Grotesk'] tracking-tight leading-tight">
-                        Material <span class="text-transparent bg-clip-text bg-gradient-to-r from-[var(--color-pln-yellow)] to-yellow-200">Jaringan PLN</span>
-                    </h1>
-                    <p class="text-sm md:text-base text-white/50 leading-relaxed font-light">
-                        Klik pada material untuk menampilkan visualisasi 3D interaktif beserta spesifikasi teknis lengkap.
-                    </p>
+        <!-- Header -->
+        <div class="v3-header-row" style="display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,0.07);">
+            <!-- Left: Label + Title + Subtitle -->
+            <div>
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
+                    <div style="width:6px; height:6px; border-radius:50%; background:#FFD700; box-shadow:0 0 10px rgba(255,215,0,0.9);"></div>
+                    <span style="font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:600; letter-spacing:0.18em; color:#FFD700; text-transform:uppercase;">Katalog Material · PLN</span>
                 </div>
-
-                <!-- Filter Pills -->
-                <div class="flex flex-wrap gap-2.5" id="filter-container">
-                    <button class="filter-pill active" data-filter="all">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        Semua
-                    </button>
-                <%
-                const _validForFilter = materialData.filter(m => m.name && m.name.trim() !== '');
-                const categories = [...new Set(_validForFilter.map(m => m.category))];
-                %>
-                    <% categories.forEach(cat => { %>
-                    <button class="filter-pill" data-filter="<%= cat %>">
-                        <%= _validForFilter.find(m => m.category === cat)?.categoryLabel || cat %>
-                    </button>
-                    <% }); %>
-                </div>
+                <h1 class="v3-title" style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:52px; letter-spacing:-2px; line-height:1.05; margin-bottom:10px;">
+                    <span style="color:#f0f0f0;">Material </span><span class="v3-heading-gradient">Jaringan PLN</span>
+                </h1>
+                <p style="font-size:14px; color:rgba(255,255,255,0.38); line-height:1.65; max-width:480px; font-family:'Inter',sans-serif;">
+                    Klik pada material untuk menampilkan visualisasi 3D interaktif beserta spesifikasi teknis lengkap.
+                </p>
             </div>
 
-            <!-- Material Grid -->
-            <div id="material-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 lg:gap-8 grid-container">
-
-                <%
-                // Filter hanya material yang punya nama valid (hindari data kosong/rusak dari DB)
-                const validMaterials = materialData.filter(m => m.name && m.name.trim() !== '');
-                %>
-
-                <% if (validMaterials.length === 0) { %>
-                <div class="col-span-full text-center py-16 glass-panel rounded-3xl">
-                    <svg class="w-12 h-12 text-white/20 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                    <p class="text-white/40 font-medium">Belum ada material yang tersedia.</p>
+            <!-- Right: Search + Filter Dropdown -->
+            <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
+                <div class="v3-search-wrap" style="width:240px;">
+                    <div class="v3-search-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    </div>
+                    <input class="v3-search-input" id="mat-search" type="text" placeholder="Cari material..." oninput="v3MatFilter()">
                 </div>
-                <% } %>
+                <div class="v3-dropdown" id="mat-filter-dd">
+                    <button type="button" class="v3-dropdown-btn" onclick="v3ToggleMatFilter()">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+                        <span id="mat-filter-label">Semua</span>
+                        <svg class="v3-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    <div class="v3-dropdown-menu">
+                        <div class="v3-dropdown-item selected" onclick="v3SelectMatFilter('all','Semua')">Semua</div>
+                        <% categories.forEach(cat => { %>
+                        <div class="v3-dropdown-item" onclick="v3SelectMatFilter('<%= cat.id %>','<%= cat.name %>')"><%= cat.name %></div>
+                        <% }); %>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                <% validMaterials.forEach(mat => { %>
-                <div class="mat-card-item" data-category="<%= mat.category %>">
-                    <!-- App Store Style Card — identik Konstruksi -->
-                    <div class="mat-card gsap-card group flex flex-col apple-glass-light rounded-[2.5rem] overflow-hidden hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] hover:border-white/40 hover:-translate-y-2 transition-all duration-500 cursor-pointer relative"
-                         data-id="<%= mat.id %>">
+        <!-- 4-column Glass Grid -->
+        <%
+        const validMaterials = materialData.filter(m => m.name && m.name.trim() !== '');
+        %>
+        <div id="material-grid" class="v3-grid">
 
-                        <!-- Image Container (Top Half) — h-[220px] identik Konstruksi -->
-                        <div class="h-[220px] relative overflow-hidden bg-black/20">
-                            <% if (mat.image) { %>
-                                <img src="<%= mat.image %>" alt="<%= mat.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-                            <% } else { %>
-                                <!-- Gradient background -->
-                                <div class="absolute inset-0" style="background: <%= mat.bgGradient %>;"></div>
-                                <div class="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30"></div>
-                                <!-- Radial Glow -->
-                                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,213,0,0.12)_0%,transparent_65%)] group-hover:opacity-100 opacity-60 transition-opacity duration-500"></div>
-                                <!-- Icon -->
-                                <div class="w-full h-full flex items-center justify-center relative z-10">
-                                    <span class="text-6xl select-none group-hover:scale-110 transition-transform duration-500" style="filter:drop-shadow(0 6px 20px rgba(0,0,0,0.5));"><%= mat.icon %></span>
-                                </div>
-                            <% } %>
+            <% if (validMaterials.length === 0) { %>
+            <div style="grid-column:1/-1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px;">
+                <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                </div>
+                <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Belum ada material yang tersedia.</span>
+            </div>
+            <% } %>
 
-                            <!-- Category Badge (top-right) -->
-                            <div class="absolute top-4 right-4 z-20 flex flex-col gap-1.5 items-end">
-                                <span class="inline-block px-3 py-1 bg-black/40 text-white/80 border border-white/10 text-[10px] font-bold rounded-full uppercase tracking-wider backdrop-blur-md">
-                                    <%= mat.categoryLabel %>
-                                </span>
+            <% validMaterials.forEach((mat, i) => { %>
+            <div class="mat-card-item" data-category="<%= mat.category %>">
+                <div class="v3-card v3-glass gsap-card" data-id="<%= mat.id %>">
+                    <!-- Image -->
+                    <div class="v3-card-img">
+                        <% if (mat.image) { %>
+                            <img src="<%= mat.image %>" alt="<%= mat.name %>">
+                        <% } else { %>
+                            <div class="v3-card-img-placeholder" style="background:<%= mat.bgGradient || 'rgba(0,0,0,0.3)' %>;">
+                                <div style="position:absolute; inset:0; background:radial-gradient(ellipse at center, rgba(255,215,0,0.1) 0%, transparent 65%); pointer-events:none;"></div>
+                                <span style="font-size:52px; position:relative; z-index:1; filter:drop-shadow(0 6px 20px rgba(0,0,0,0.5));"><%= mat.icon %></span>
                             </div>
-
-                            <!-- 3D Badge (bottom-left, hover only) -->
-                            <div class="absolute bottom-4 left-4 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span class="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-[var(--color-pln-yellow)]/20 text-[var(--color-pln-yellow)] border border-[var(--color-pln-yellow)]/30 backdrop-blur-md">
-                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 10l-2 1m0 0l-2-1m2 1v2.5M20 7l-2 1m2-1l-2-1m2 1v2.5M14 4l-2-1-2 1M4 7l2-1M4 7l2 1M4 7v2.5M12 21l-2-1m2 1l2-1m-2 1v-2.5M6 18l-2-1v-2.5M18 18l2-1v-2.5"/></svg>
-                                    Lihat 3D
-                                </span>
-                            </div>
+                        <% } %>
+                        <!-- Category badge -->
+                        <div style="position:absolute; top:12px; right:12px; z-index:20;">
+                            <span style="display:inline-block; padding:3px 10px; background:rgba(0,0,0,0.5); color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.12); font-size:9px; font-weight:700; border-radius:9999px; text-transform:uppercase; letter-spacing:0.1em; backdrop-filter:blur(8px);">
+                                <%= mat.categoryLabel %>
+                            </span>
                         </div>
+                        <!-- 3D badge on hover -->
+                        <div style="position:absolute; bottom:12px; left:12px; z-index:20; opacity:0; transition:opacity .3s;" class="v3-3d-badge">
+                            <span style="display:inline-flex; align-items:center; gap:5px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:4px 10px; border-radius:9999px; background:rgba(255,215,0,0.15); color:#FFD700; border:1px solid rgba(255,215,0,0.3); backdrop-filter:blur(8px);">
+                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+                                Lihat 3D
+                            </span>
+                        </div>
+                        <div class="v3-card-img-grad"></div>
+                    </div>
 
-                        <!-- Content Area (Bottom Half) — identik Konstruksi -->
-                        <div class="p-6 md:p-8 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent">
-                            <h3 class="text-xl md:text-2xl font-bold mb-2 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight">
-                                <%= mat.name %>
-                            </h3>
-                            <p class="text-white/40 text-[13px] leading-relaxed mb-8 font-['Inter'] line-clamp-2">
-                                <%= mat.shortDesc %>
-                            </p>
-
-                            <div class="mt-auto flex justify-between items-end">
-                                <!-- Stats: Kategori & Kode -->
-                                <div class="flex items-center gap-5">
-                                    <div>
-                                        <p class="text-[10px] uppercase tracking-wider text-white/40 mb-1 font-semibold">Kategori</p>
-                                        <p class="text-base font-bold text-[var(--color-pln-yellow)] font-['Outfit']"><%= mat.categoryLabel %></p>
-                                    </div>
-                                    <div class="w-px h-8 bg-white/10"></div>
-                                    <div>
-                                        <p class="text-[10px] uppercase tracking-wider text-white/40 mb-1 font-semibold">Kode</p>
-                                        <p class="text-base font-bold text-[var(--color-pln-yellow)] font-['Outfit'] font-mono"><%= mat.code || '-' %></p>
-                                    </div>
+                    <!-- Body -->
+                    <div class="v3-card-body">
+                        <div class="v3-card-title"><%= mat.name %></div>
+                        <div class="v3-card-desc"><%= mat.shortDesc %></div>
+                        <div class="v3-card-divider"></div>
+                        <div class="v3-card-stats">
+                            <div style="display:flex; gap:18px; min-width:0; flex:1;">
+                                <div class="v3-card-stat" style="min-width:0;">
+                                    <span class="v3-card-stat-label">Kategori</span>
+                                    <span class="v3-card-stat-val"><%= mat.categoryLabel %></span>
                                 </div>
-
-                                <!-- Action Button — identik Konstruksi -->
-                                <div class="w-10 h-10 rounded-full bg-[var(--color-pln-yellow)]/10 flex items-center justify-center text-[var(--color-pln-yellow)] group-hover:bg-[var(--color-pln-yellow)] group-hover:text-black transition-colors">
-                                    <svg class="w-5 h-5 transition-transform group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                <div style="width:1px; background:rgba(255,255,255,0.07); flex-shrink:0;"></div>
+                                <div class="v3-card-stat" style="min-width:0;">
+                                    <span class="v3-card-stat-label">Kode</span>
+                                    <span class="v3-card-stat-val" style="color:#60A5FA;"><%= mat.code || '—' %></span>
                                 </div>
+                            </div>
+                            <div class="v3-go-btn" style="margin-left:12px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                             </div>
                         </div>
                     </div>
+
+                    <div class="v3-electric-line"></div>
                 </div>
-                <% }); %>
-
-
             </div>
-
-            <!-- Empty state after filter (hanya tampil via JS saat filter aktif) -->
-            <div id="no-results" class="hidden text-center py-16 glass-panel rounded-3xl mt-4">
-                <svg class="w-12 h-12 text-white/20 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-                <p class="text-white/40 font-medium">Tidak ada material untuk kategori ini.</p>
-            </div>
-
+            <% }); %>
         </div>
+
+        <!-- No results (after filter) -->
+        <div id="no-results" class="hidden" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px; margin-top:16px;">
+            <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </div>
+            <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Tidak ada material untuk kategori ini.</span>
+        </div>
+
     </main>
 
 
     <!-- ====================================================
-         MODAL – Material Detail & 3D Viewer (Apple Style)
+         MODAL – Material Detail & 3D Viewer (unchanged)
     ==================================================== -->
-    <div id="mat-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none; background: rgba(0,4,15,0.80); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);">
+    <div id="mat-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none;">
 
         <div id="mat-modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10" style="background: linear-gradient(160deg, rgba(12,22,42,0.98) 0%, rgba(6,12,26,0.98) 100%); backdrop-filter: blur(40px);">
 
-            <!-- ========== LEFT: 3D Viewer ========== -->
+            <!-- LEFT: 3D Viewer -->
             <div id="mat-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto"
                  style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
-
-                <!-- Ambient top glow -->
-                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-pln-yellow)]/8 blur-[60px] pointer-events-none"></div>
-
-                <!-- model-viewer -->
-                <model-viewer
-                    id="mat-model-viewer"
-                    src=""
-                    camera-controls
-                    auto-rotate
-                    rotation-per-second="25deg"
-                    interaction-prompt="none"
-                    shadow-intensity="1.5"
-                    environment-image="neutral"
-                    exposure="1.1"
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 blur-[60px] pointer-events-none" style="background:rgba(255,215,0,0.08);"></div>
+                <model-viewer id="mat-model-viewer" src="" camera-controls auto-rotate rotation-per-second="25deg"
+                    interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1.1"
                     class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
-                    <!-- Loading poster -->
                     <div slot="poster" class="absolute inset-0 flex flex-col items-center justify-center bg-[#030812]/60 backdrop-blur-sm">
                         <div id="mat-loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)]/50 border-b-transparent border-l-transparent mb-4"></div>
-                        <span id="mat-loading-text" class="text-[11px] uppercase tracking-[0.2em] font-semibold text-white/40">Memuat Model 3D...</span>
+                        <span class="text-[11px] uppercase tracking-[0.2em] font-semibold text-white/40">Memuat Model 3D...</span>
                     </div>
                 </model-viewer>
-
-                <!-- Empty state -->
                 <div id="mat-empty-state" class="absolute inset-0 flex-col items-center justify-center text-white/25 z-10 hidden" style="display:none;">
-                    <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                    <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                     <span class="text-sm font-medium tracking-wide font-['Space_Grotesk']">Belum ada file 3D</span>
                 </div>
-
-                <!-- Hint pill (bottom center) -->
-                <div id="mat-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-2xl border border-white/8 text-white/60 text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-xl">
-                    <svg class="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"></path></svg>
+                <div id="mat-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-2xl border border-white/10 text-white/60 text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-xl">
+                    <svg class="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
                     Rotasi 360° · Zoom via Scroll
                 </div>
-
-                <!-- Fullscreen button -->
                 <button id="mat-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 opacity-0 group-hover:opacity-100">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
                 </button>
             </div>
 
-            <!-- ========== RIGHT: Info Panel ========== -->
+            <!-- RIGHT: Info Panel -->
             <div id="mat-info-wrap" class="flex-1 flex flex-col min-h-0 relative" style="overflow-y: auto;">
-
-                <!-- STATIC HEADER: Badge, Icon, Name, Code (tidak ikut scroll) -->
                 <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
-
-                    <!-- Close button -->
                     <div class="absolute top-5 right-5 z-20">
-                        <button id="mat-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-white/10 hover:border-white/25"
-                                style="background: rgba(255,255,255,0.06); backdrop-filter: blur(12px);">
-                            <svg class="w-4 h-4 text-white/50 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-                            </svg>
+                        <button id="mat-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-white/10 hover:border-white/25" style="background: rgba(255,255,255,0.06); backdrop-filter: blur(12px);">
+                            <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
-
-                    <!-- Category Badge + Icon -->
                     <div class="flex items-center gap-3 mb-4 pr-12">
                         <span id="mat-modal-icon" class="text-3xl select-none shrink-0 leading-none"></span>
-                        <span id="mat-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5"
-                              style="background: rgba(255,213,0,0.1); border-color: rgba(255,213,0,0.25); color: #FFD500;">
-                            <span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>
+                        <span id="mat-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5" style="background: rgba(255,213,0,0.1); border-color: rgba(255,213,0,0.25); color: #FFD500;">
+                            <span class="w-1 h-1 rounded-full animate-pulse" style="background:#FFD700; opacity:.7;"></span>
                         </span>
                     </div>
-
-                    <!-- Name -->
                     <h2 id="mat-modal-name" class="text-2xl font-black text-white leading-tight mb-1 font-['Space_Grotesk'] tracking-tight"></h2>
-
-                    <!-- Code -->
-                    <p id="mat-modal-code" class="text-[11px] font-mono text-[var(--color-pln-yellow)]/50 tracking-wider"></p>
-
-                    <!-- Divider -->
+                    <p id="mat-modal-code" class="text-[11px] font-mono tracking-wider" style="color:rgba(255,215,0,0.5);"></p>
                     <div class="mt-3" style="height:1px; background: linear-gradient(to right, rgba(255,213,0,0.25), rgba(255,255,255,0.08), transparent);"></div>
                 </div>
-
-                <!-- SCROLLABLE BODY: Deskripsi + Spesifikasi -->
-                <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3"
-                     style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
-
-                    <!-- Description -->
+                <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3" style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
                     <p id="mat-modal-desc" class="text-[13px] text-white/50 leading-relaxed mb-5 font-['Inter']"></p>
-
-                    <!-- Specs title -->
-                    <p class="text-[9px] font-black uppercase tracking-[0.25em] text-white/25 mb-3 font-['Inter']">Spesifikasi Teknis</p>
-
-                    <!-- Specs list -->
-                    <div id="mat-modal-specs" class="flex flex-col gap-0"></div>
                 </div>
             </div>
         </div>
@@ -373,41 +382,64 @@
     <script>var __MATERIAL_DATA__ = <%- JSON.stringify(materialData) %>;</script>
     <%- include('partials/footer') %>
     <script src="/js/main.js"></script>
+    <script src="/js/catalog-modal.js"></script>
     <script src="/js/material.js"></script>
-
     <script>
-        // ---- GSAP Animations ----
-        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-            gsap.from(".hero-content > div", {
-                y: 40, opacity: 0, duration: 1.2, stagger: 0.2, ease: "power3.out", delay: 0.1
+        // Hover: show "Lihat 3D" badge
+        document.querySelectorAll('.v3-card').forEach(function(card) {
+            var badge = card.querySelector('.v3-3d-badge');
+            if (!badge) return;
+            card.addEventListener('mouseenter', function() { badge.style.opacity = '1'; });
+            card.addEventListener('mouseleave', function() { badge.style.opacity = '0'; });
+        });
+
+        var _matActiveFilter = 'all';
+
+        function v3ToggleMatFilter() {
+            document.getElementById('mat-filter-dd').classList.toggle('open');
+        }
+        function v3SelectMatFilter(value, label) {
+            _matActiveFilter = value;
+            document.getElementById('mat-filter-label').textContent = label;
+            document.querySelectorAll('#mat-filter-dd .v3-dropdown-item').forEach(function(el) {
+                el.classList.toggle('selected', el.textContent.trim() === label);
             });
-            gsap.from(".mat-card-item", {
-                scrollTrigger: { trigger: ".grid-container", start: "top 85%" },
-                y: 60, opacity: 0, duration: 1, stagger: 0.08, ease: "power4.out"
+            document.getElementById('mat-filter-dd').classList.remove('open');
+            v3MatFilter();
+        }
+        document.addEventListener('click', function(e) {
+            var dd = document.getElementById('mat-filter-dd');
+            if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+        });
+
+        function v3MatFilter() {
+            var q = (document.getElementById('mat-search').value || '').toLowerCase().trim();
+            var visible = 0;
+            document.querySelectorAll('.mat-card-item').forEach(function(item) {
+                var matchCat = _matActiveFilter === 'all' || item.dataset.category === _matActiveFilter;
+                var nameEl = item.querySelector('.v3-card-title');
+                var name = nameEl ? nameEl.textContent.toLowerCase() : '';
+                var matchQ = q === '' || name.includes(q);
+                var show = matchCat && matchQ;
+                item.classList.toggle('hidden-card', !show);
+                if (show) visible++;
             });
+            var noResults = document.getElementById('no-results');
+            if (noResults) {
+                noResults.style.display = visible === 0 ? 'flex' : 'none';
+                noResults.classList.toggle('hidden', visible > 0);
+            }
         }
 
-        // ---- Filter Logic ----
-        document.querySelectorAll('.filter-pill').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const filter = btn.dataset.filter;
-                document.querySelectorAll('.filter-pill').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-
-                let visible = 0;
-                document.querySelectorAll('.mat-card-item').forEach(card => {
-                    const show = filter === 'all' || card.dataset.category === filter;
-                    card.classList.toggle('hidden-card', !show);
-                    if (show) visible++;
-                });
-                // Truncate description max 200 chars
-                const rawDesc = mat.description || mat.shortDesc || '';
-                const truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
-                document.getElementById('mat-modal-desc').textContent = truncDesc;
-                document.getElementById('no-results').classList.toggle('hidden', visible > 0);
+        // GSAP animations
+        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+            gsap.from('.v3-header-row > div', { y: 30, opacity: 0, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.1 });
+            gsap.from('.gsap-card', {
+                scrollTrigger: { trigger: '#material-grid', start: 'top 85%' },
+                y: 50, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out'
             });
-        });
+        }
     </script>
 </body>
 </html>

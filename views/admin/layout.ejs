@@ -59,7 +59,11 @@
         </a>
         <a href="/admin/modules" class="rd-nav-item <%= page==='modules' ? 'active' : '' %>">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
-          <span class="nav-label">Kategori</span>
+          <span class="nav-label">Kategori / Modul</span>
+        </a>
+        <a href="/admin/categories" class="rd-nav-item <%= page==='categories' ? 'active' : '' %>">
+          <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          <span class="nav-label">Kategori Tag</span>
         </a>
       </div>
 
@@ -134,6 +138,21 @@
   </div><!-- /.rd-main -->
 </div><!-- /.rd-app -->
 
+<!-- Confirm Dialog Global -->
+<div id="confirm-dialog-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.72); z-index:999999; align-items:center; justify-content:center; backdrop-filter:blur(5px);">
+  <div style="background:#0D1B2A; border:1px solid rgba(255,255,255,0.1); border-radius:16px; padding:28px 28px 24px; max-width:400px; width:90%; box-shadow:0 24px 64px rgba(0,0,0,0.6); text-align:center;">
+    <div id="confirm-dialog-icon" style="width:48px; height:48px; border-radius:12px; background:rgba(239,68,68,0.13); display:flex; align-items:center; justify-content:center; margin:0 auto 16px;">
+      <svg width="22" height="22" fill="none" stroke="#EF4444" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+    </div>
+    <div id="confirm-dialog-title" style="font-size:15px; font-weight:700; color:#fff; line-height:1.3; margin-bottom:8px;"></div>
+    <div id="confirm-dialog-message" style="font-size:12.5px; color:rgba(255,255,255,0.48); line-height:1.6; margin-bottom:24px;"></div>
+    <div style="display:flex; gap:10px; justify-content:center;">
+      <button onclick="dismissConfirmDialog()" style="padding:9px 20px; border-radius:8px; border:1px solid rgba(255,255,255,0.12); background:rgba(255,255,255,0.05); color:rgba(255,255,255,0.6); font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;" onmouseover="this.style.background='rgba(255,255,255,0.09)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">Batal</button>
+      <button id="confirm-dialog-ok" style="padding:9px 20px; border-radius:8px; border:1px solid; font-size:13px; font-weight:600; cursor:pointer; transition:all .15s;"></button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast Notification Global -->
 <div id="toast" style="
   display:none;
@@ -184,6 +203,23 @@
   if (topbarDate) {
     topbarDate.textContent = new Date().toLocaleDateString('id-ID', { weekday:'short', day:'numeric', month:'short', year:'numeric' });
   }
+
+  /* ---- Shared dropdown utility for admin filter dropdowns ---- */
+  window.toggleAdminDropdown = function(id) {
+    const dd = document.getElementById(id);
+    if (!dd) return;
+    const isOpen = dd.classList.contains('open');
+    // Close all other dropdowns first
+    document.querySelectorAll('.rd-dropdown.open').forEach(el => el.classList.remove('open'));
+    if (!isOpen) dd.classList.add('open');
+  };
+
+  // Close dropdown when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.rd-dropdown')) {
+      document.querySelectorAll('.rd-dropdown.open').forEach(el => el.classList.remove('open'));
+    }
+  });
 </script>
 <%- scripts %>
 </body>

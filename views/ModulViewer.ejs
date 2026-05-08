@@ -12,13 +12,41 @@
         }
         .komponen-scroll-row::-webkit-scrollbar { display: none; }
         .komponen-scroll-row > * { scroll-snap-align: start; }
+
+        /* Component search */
+        .mv-search-wrap { position: relative; max-width: 340px; }
+        .mv-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.38); pointer-events: none; }
+        .mv-search-input {
+            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px; padding: 9px 14px 9px 40px;
+            font-size: 13px; color: #f0f0f0; font-family: 'Inter', sans-serif;
+            outline: none; transition: border-color .2s, box-shadow .2s;
+        }
+        .mv-search-input:focus { border-color: rgba(255,213,0,0.4); box-shadow: 0 0 0 3px rgba(255,213,0,0.06); }
+        .mv-search-input::placeholder { color: rgba(255,255,255,0.35); }
+        .mat-card.mv-hidden { display: none !important; }
+
+        /* ---- Modal Info Scrollbar ---- */
+        #mat-info-wrap { overflow-y: auto; }
+        #mat-info-wrap::-webkit-scrollbar { width: 4px; }
+        #mat-info-wrap::-webkit-scrollbar-track { background: transparent; }
+        #mat-info-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
+        #mat-info-wrap::-webkit-scrollbar-thumb:hover { background: rgba(255,213,0,0.3); }
+
+        /* ---- Modal Animation ---- */
+        @keyframes modalIn {
+            from { opacity: 0; transform: scale(0.94) translateY(20px); }
+            to   { opacity: 1; transform: scale(1)    translateY(0);    }
+        }
+        #mat-modal-overlay.active { display: flex !important; }
+        #mat-modal-overlay.active #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
     </style>
 </head>
-<body class="bg-[var(--color-pln-darker)] text-white font-sans antialiased overflow-x-hidden">
+<body class="text-white font-sans antialiased overflow-x-hidden" style="background:#080808;">
 
     <%- include('partials/navbar') %>
 
-    <main class="pt-32 pb-24 px-4 sm:px-8 bg-[var(--color-pln-darker)] min-h-screen relative overflow-x-hidden">
+    <main class="pt-32 pb-24 px-4 sm:px-8 min-h-screen relative overflow-x-hidden" style="background:#080808;">
         <!-- Spotlight Backdrop -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-w-[100vw] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
         
@@ -134,11 +162,19 @@
         <% if ((module.materials && module.materials.length > 0) || (module.tools && module.tools.length > 0)) { %>
         <div class="w-full mt-20">
 
-            <!-- Divider -->
-            <div class="flex items-center gap-4 mb-14">
-                <div class="flex-1 h-px bg-white/5"></div>
-                <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-white/20">Komponen Konstruksi</span>
-                <div class="flex-1 h-px bg-white/5"></div>
+            <!-- Divider + Search -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-14">
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <div class="flex-1 h-px bg-white/5"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-white/20 whitespace-nowrap">Komponen Konstruksi</span>
+                    <div class="flex-1 h-px bg-white/5"></div>
+                </div>
+                <div class="mv-search-wrap shrink-0">
+                    <div class="mv-search-icon">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    </div>
+                    <input class="mv-search-input" id="mv-search" type="text" placeholder="Cari komponen..." oninput="mvFilterComponents(this.value)">
+                </div>
             </div>
 
             <!-- ── MATERIAL ─────────────────────────────────── -->
@@ -157,7 +193,7 @@
                     <% module.materials.forEach(function(row) { %>
                     <% const m = row.material || {}; %>
 
-                    <div class="group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-default relative flex-shrink-0 w-[220px]">
+                    <div class="mat-card group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-pointer relative flex-shrink-0 w-[220px]" data-id="<%= m.id %>" data-type="material">
 
                         <!-- Image Top -->
                         <div class="h-[140px] relative overflow-hidden bg-black/20">
@@ -236,7 +272,7 @@
                             : 'bg-purple-500/15 text-purple-400 border-purple-500/30';
                     %>
 
-                    <div class="group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-default relative flex-shrink-0 w-[220px]">
+                    <div class="mat-card group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-pointer relative flex-shrink-0 w-[220px]" data-id="<%= t.id %>" data-type="tool">
 
                         <!-- Image Top -->
                         <div class="h-[140px] relative overflow-hidden bg-black/20">
@@ -297,12 +333,119 @@
         </div>
         <% } %>
 
+        <!-- ====================================================
+             MODAL – Component Detail & 3D Viewer (Apple Style)
+        ==================================================== -->
+        <div id="mat-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none; background: rgba(0,4,15,0.80); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);">
+
+            <div id="mat-modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10" style="background: linear-gradient(160deg, rgba(12,22,42,0.98) 0%, rgba(6,12,26,0.98) 100%); backdrop-filter: blur(40px); height: auto; max-height: 90vh;">
+
+                <!-- ========== LEFT: 3D Viewer ========== -->
+                <div id="mat-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-[560px]"
+                     style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
+
+                    <!-- Ambient top glow -->
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-pln-yellow)]/8 blur-[60px] pointer-events-none"></div>
+
+                    <!-- model-viewer -->
+                    <model-viewer
+                        id="mat-model-viewer"
+                        src=""
+                        camera-controls
+                        auto-rotate
+                        rotation-per-second="25deg"
+                        interaction-prompt="none"
+                        shadow-intensity="1.5"
+                        environment-image="neutral"
+                        exposure="1.1"
+                        class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+                        <!-- Loading poster -->
+                        <div slot="poster" class="absolute inset-0 flex flex-col items-center justify-center bg-[#030812]/60 backdrop-blur-sm">
+                            <div id="mat-loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)]/50 border-b-transparent border-l-transparent mb-4"></div>
+                            <span id="mat-loading-text" class="text-[11px] uppercase tracking-[0.2em] font-semibold text-white/40">Memuat Model 3D...</span>
+                        </div>
+                    </model-viewer>
+
+                    <!-- Empty state -->
+                    <div id="mat-empty-state" class="absolute inset-0 flex-col items-center justify-center text-white/25 z-10 hidden" style="display:none;">
+                        <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                        <span class="text-sm font-medium tracking-wide font-['Space_Grotesk']">Belum ada file 3D</span>
+                    </div>
+
+                    <!-- Hint pill (bottom center) -->
+                    <div id="mat-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-2xl border border-white/8 text-white/60 text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-xl">
+                        <svg class="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"></path></svg>
+                        Rotasi 360&deg; &middot; Zoom via Scroll
+                    </div>
+
+                    <!-- Fullscreen button -->
+                    <button id="mat-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 opacity-0 group-hover:opacity-100">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    </button>
+                </div>
+
+                <!-- ========== RIGHT: Info Panel ========== -->
+                <div id="mat-info-wrap" class="flex-1 flex flex-col min-h-0 relative h-auto md:h-[560px]" style="overflow-y: auto;">
+
+                    <!-- STATIC HEADER: Badge, Icon, Name, Code (tidak ikut scroll) -->
+                    <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
+
+                        <!-- Close button -->
+                        <div class="absolute top-5 right-5 z-20">
+                            <button id="mat-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-white/10 hover:border-white/25"
+                                    style="background: rgba(255,255,255,0.06); backdrop-filter: blur(12px);">
+                                <svg class="w-4 h-4 text-white/50 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Category Badge + Icon -->
+                        <div class="flex items-center gap-3 mb-4 pr-12">
+                            <span id="mat-modal-icon" class="text-3xl select-none shrink-0 leading-none"></span>
+                            <span id="mat-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5"
+                                  style="background: rgba(255,213,0,0.1); border-color: rgba(255,213,0,0.25); color: #FFD500;">
+                                <span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>
+                            </span>
+                        </div>
+
+                        <!-- Name -->
+                        <h2 id="mat-modal-name" class="text-2xl font-black text-white leading-tight mb-1 font-['Space_Grotesk'] tracking-tight"></h2>
+
+                        <!-- Code -->
+                        <p id="mat-modal-code" class="text-[11px] font-mono text-[var(--color-pln-yellow)]/50 tracking-wider"></p>
+
+                        <!-- Divider -->
+                        <div class="mt-3" style="height:1px; background: linear-gradient(to right, rgba(255,213,0,0.25), rgba(255,255,255,0.08), transparent);"></div>
+                    </div>
+
+                    <!-- SCROLLABLE BODY: Deskripsi + Spesifikasi -->
+                    <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3"
+                         style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
+
+                        <!-- Content -->
+                        <p id="mat-modal-desc" class="text-[13px] text-white/50 leading-relaxed mb-5 font-['Inter']"></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <%- include('partials/footer') %>
 
     <!-- Scripts -->
     <script src="/js/main.js"></script>
+    <script>
+        function mvFilterComponents(query) {
+            var q = (query || '').toLowerCase().trim();
+            document.querySelectorAll('.mat-card').forEach(function(card) {
+                var h3 = card.querySelector('h3');
+                var name = h3 ? h3.textContent.toLowerCase() : '';
+                card.classList.toggle('mv-hidden', q !== '' && !name.includes(q));
+            });
+        }
+    </script>
     <script>
         // Logistics Viewer
         let currentAssets = [];
@@ -403,14 +546,138 @@
         // Handle fullscreen change styling adaptions
         document.addEventListener('fullscreenchange', (event) => {
             const container = document.getElementById('viewer-container');
-            if (document.fullscreenElement) {
+            if (document.fullscreenElement === container) {
                 container.style.borderRadius = "0px";
                 container.style.border = "none";
-            } else {
+            } else if (container) {
                 container.style.borderRadius = "2.5rem";
                 container.style.border = "1px solid rgba(255, 255, 255, 0.1)";
             }
         });
+
+        // ==========================================
+        // Modal Logic for Material & Tool Cards
+        // ==========================================
+        const modalData = <%- JSON.stringify([
+            ...(module.materials || []).map(r => ({...(r.material || {}), type: 'material'})),
+            ...(module.tools || []).map(r => ({...(r.tool || {}), type: 'tool'}))
+        ]) %>;
+
+        const overlay = document.getElementById('mat-modal-overlay');
+        const btnClose = document.getElementById('mat-btn-close');
+        const btnFullscreen = document.getElementById('mat-fullscreen-btn');
+        const matModelViewer = document.getElementById('mat-model-viewer');
+        const canvasWrap = document.getElementById('mat-canvas-wrap');
+        const emptyState = document.getElementById('mat-empty-state');
+
+        function openModal(id, type) {
+            const item = modalData.find(m => m.id === id && m.type === type);
+            if (!item) return;
+
+            // Populate Header
+            const catEl = document.getElementById('mat-modal-category');
+            const catName = item.category?.name || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
+            catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${catName}`;
+
+            document.getElementById('mat-modal-name').textContent = item.name || '';
+            document.getElementById('mat-modal-code').textContent = item.code || item.standard || '';
+            document.getElementById('mat-modal-icon').textContent = item.icon || (type === 'tool' ? '🔧' : '📦');
+            
+            // Description
+            const rawDesc = item.description || '';
+            const truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
+            document.getElementById('mat-modal-desc').textContent = truncDesc;
+
+            // 3D Viewer
+            let file3d = item.file3d;
+            if (!file3d && item.assets && item.assets.length > 0) {
+                file3d = item.assets[0].file;
+            }
+            const hasGlb = file3d && file3d.trim() !== '';
+
+            const spinner = document.getElementById('mat-loading-spinner');
+            const txt = document.getElementById('mat-loading-text');
+            if (spinner) spinner.style.display = 'block';
+            if (txt) txt.textContent = 'Memuat Skema Spasial...';
+
+            if (hasGlb) {
+                emptyState.style.display = 'none';
+                matModelViewer.removeAttribute('src');
+                setTimeout(() => { matModelViewer.src = file3d; }, 50);
+
+                matModelViewer.addEventListener('error', () => {
+                    if (spinner) spinner.style.display = 'none';
+                    if (txt) txt.textContent = 'Objek 3D tidak tersedia.';
+                }, { once: true });
+            } else {
+                matModelViewer.removeAttribute('src');
+                emptyState.style.display = 'flex';
+                if (spinner) spinner.style.display = 'none';
+                if (txt) txt.textContent = '';
+            }
+
+            // Show overlay
+            overlay.style.display = 'flex';
+            // Slight delay to allow display flex to apply before adding class for opacity transition if any
+            setTimeout(() => {
+                overlay.classList.add('active');
+                // Basic fade in since we removed gsap dependency for this specific file, or add a simple CSS transition
+                overlay.style.opacity = '1'; 
+            }, 10);
+            document.body.style.overflow = 'hidden';
+            
+            // GSAP animation if available
+            if (typeof gsap !== 'undefined') {
+                gsap.fromTo('#mat-modal-card',
+                    { y: 50, opacity: 0, scale: 0.95 },
+                    { y: 0,  opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' }
+                );
+            }
+        }
+
+        function closeMatModal() {
+            if (matModelViewer) {
+                matModelViewer.removeAttribute('src');
+            }
+            overlay.classList.remove('active');
+            overlay.style.display = 'none';
+            document.body.style.overflow = '';
+        }
+
+        function toggleMatFullscreen() {
+            if (!document.fullscreenElement) {
+                const target = canvasWrap;
+                if (target.requestFullscreen) target.requestFullscreen().catch(err => console.error(err));
+                else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+                else if (target.msRequestFullscreen) target.msRequestFullscreen();
+            } else {
+                if (document.exitFullscreen) document.exitFullscreen();
+                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+                else if (document.msExitFullscreen) document.msExitFullscreen();
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement === canvasWrap) {
+                canvasWrap.style.borderRadius = '0px';
+                canvasWrap.style.border = 'none';
+            } else if (canvasWrap) {
+                canvasWrap.style.borderRadius = '';
+                canvasWrap.style.border = '';
+            }
+        });
+
+        document.querySelectorAll('.mat-card').forEach(card => {
+            card.addEventListener('click', () => {
+                openModal(card.dataset.id, card.dataset.type);
+            });
+        });
+
+        if (btnClose) btnClose.addEventListener('click', closeMatModal);
+        if (btnFullscreen) btnFullscreen.addEventListener('click', toggleMatFullscreen);
+
+        overlay.addEventListener('click', e => { if (e.target === overlay) closeMatModal(); });
+        document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.style.display === 'flex') closeMatModal(); });
     </script>
 </body>
 </html>

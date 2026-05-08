@@ -4,9 +4,9 @@
     <div class="admin-card">
         <h3 class="section-title">Profil Administrator</h3>
         <div style="display:flex; flex-direction:column; gap:14px;">
-            <div><label class="admin-label">Nama Lengkap</label><input id="s-name"  type="text"  class="admin-input" value="Admin PLN"></div>
-            <div><label class="admin-label">Email</label>        <input id="s-email" type="email" class="admin-input" value="admin@pln.co.id"></div>
-            <div><label class="admin-label">Unit</label>         <input id="s-unit"  type="text"  class="admin-input" value="PLN Pusdiklat Pusat"></div>
+            <div><label class="admin-label">Nama Lengkap</label><input id="s-name"  type="text"  class="admin-input" value="<%= adminProfile ? adminProfile.name : '' %>"></div>
+            <div><label class="admin-label">Email</label>        <input id="s-email" type="email" class="admin-input" value="<%= adminProfile ? adminProfile.email : '' %>"></div>
+            <div><label class="admin-label">Unit</label>         <input id="s-unit"  type="text"  class="admin-input" value="<%= adminProfile ? adminProfile.unit : '' %>"></div>
             <button class="btn-primary" style="align-self:flex-start;" onclick="saveProfile()">Simpan Perubahan</button>
         </div>
     </div>

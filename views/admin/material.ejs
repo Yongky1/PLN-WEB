@@ -20,18 +20,23 @@
   </div>
 </div>
 
-<!-- ======================== TOOLBAR ======================== -->
 <div class="rd-toolbar">
   <div class="rd-search">
     <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
     <input id="search-saved-material" placeholder="Cari material..." />
   </div>
   <div class="rd-divider-v"></div>
-  <button class="rd-filter-chip active" onclick="setMatFilter(this,'')">Semua</button>
-  <button class="rd-filter-chip" onclick="setMatFilter(this,'Pengencang')">Pengencang</button>
-  <button class="rd-filter-chip" onclick="setMatFilter(this,'Insulasi')">Insulasi</button>
-  <button class="rd-filter-chip" onclick="setMatFilter(this,'Kabel')">Kabel</button>
-  <button class="rd-filter-chip" onclick="setMatFilter(this,'Lainnya')">Lainnya</button>
+  <div class="rd-dropdown" id="mat-cat-dd">
+    <button type="button" class="rd-dropdown-btn" onclick="toggleAdminDropdown('mat-cat-dd')">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+      <span id="mat-cat-label">Semua</span>
+      <svg class="rd-dropdown-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+    </button>
+    <div class="rd-dropdown-menu">
+      <div class="rd-dropdown-item selected" data-cat-id="" onclick="setMatFilter('','Semua')">Semua</div>
+      <div id="mat-cat-dd-items"></div>
+    </div>
+  </div>
   <div class="rd-divider-v"></div>
   <div class="rd-view-toggle">
     <button id="m-view-table" class="active" onclick="setMatView('table')" title="Tabel">
@@ -104,11 +109,7 @@
           <div class="rd-field-group">
             <label class="rd-field-label">Kategori</label>
             <select id="mat-modul-cat" class="rd-select" style="max-width:60%;">
-              <option value="Pengencang">Pengencang</option>
-              <option value="Insulasi">Insulasi</option>
-              <option value="Kabel">Kabel</option>
-              <option value="Penyangga">Penyangga</option>
-              <option value="Lainnya">Lainnya</option>
+              <option value="">Memuat kategori...</option>
             </select>
           </div>
           <div class="rd-field-group">
@@ -258,11 +259,7 @@
         <div class="rd-field-group">
           <label class="rd-field-label">Kategori</label>
           <select id="edit-mat-modul-cat" class="rd-select" style="max-width:60%;">
-            <option value="Pengencang">Pengencang</option>
-            <option value="Insulasi">Insulasi</option>
-            <option value="Kabel">Kabel</option>
-            <option value="Penyangga">Penyangga</option>
-            <option value="Lainnya">Lainnya</option>
+            <option value="">Memuat kategori...</option>
           </select>
         </div>
         <div class="rd-field-group">
@@ -426,9 +423,18 @@ function addMStepNext() { if (_addMStep < _addMSteps.length - 1) { _addMStep++; 
 function addMStepPrev() { if (_addMStep > 0) { _addMStep--; renderAddMStep(); } }
 
 /* Filter & view */
-function setMatFilter(btn, val) {
-  document.querySelectorAll('.rd-toolbar .rd-filter-chip').forEach(b => b.classList.toggle('active', b === btn));
-  loadMaterialSaved(val);
+function setMatFilter(categoryId, label) {
+  // Update dropdown label
+  const labelEl = document.getElementById('mat-cat-label');
+  if (labelEl) labelEl.textContent = label || 'Semua';
+  // Update selected state using data attributes
+  document.querySelectorAll('#mat-cat-dd .rd-dropdown-item').forEach(el => {
+    const id = el.dataset.catId || '';
+    el.classList.toggle('selected', id === (categoryId || ''));
+  });
+  // Close dropdown
+  document.getElementById('mat-cat-dd')?.classList.remove('open');
+  loadMaterialSaved(categoryId);
 }
 function setMatView(view) {
   const saved = document.getElementById('material-saved');

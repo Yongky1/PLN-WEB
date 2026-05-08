@@ -4,7 +4,9 @@ const ejs         = require('ejs');
 const cookieParser = require('cookie-parser');
 const os          = require('os');
 const adminRouter = require('./routes/admin');
-
+const helmet = require('helmet');
+const morgan = require('morgan');
+const compression = require('compression');
 const app  = express();
 const PORT = process.env.PORT || 3000;
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
@@ -13,6 +15,49 @@ app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 app.use(cookieParser());
+app.use(helmet({
+    contentSecurityPolicy: {
+        useDefaults: true,
+        directives: {
+            "default-src": ["'self'"],
+            "script-src": [
+                "'self'", 
+                "'unsafe-inline'", 
+                "'unsafe-eval'", 
+                "https://ajax.googleapis.com", 
+                "https://cdnjs.cloudflare.com"
+            ],
+            "script-src-attr": ["'unsafe-inline'"],
+            "style-src": [
+                "'self'", 
+                "'unsafe-inline'", 
+                "https://fonts.googleapis.com"
+            ],
+            "font-src": [
+                "'self'", 
+                "https://fonts.gstatic.com",
+                "data:"
+            ],
+            "img-src": [
+                "'self'", 
+                "data:", 
+                "blob:", 
+                "*"
+            ],
+            "connect-src": [
+                "'self'",
+                "blob:",
+                "*"
+            ],
+            "worker-src": ["'self'", "blob:"],
+            "media-src": ["'self'", "blob:", "*"],
+            "object-src": ["'none'"],
+            "upgrade-insecure-requests": null,
+        },
+    }
+}));
+app.use(compression());
+app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
@@ -31,26 +76,33 @@ app.get('/tools', async (req, res) => {
         const fetchRes = await fetch(`${BACKEND_URL}/api/tools`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         const dbTools = await fetchRes.json();
+        
+        let categories = [];
+        try {
+            const catRes = await fetch(`${BACKEND_URL}/api/categories?type=tool`);
+            if (catRes.ok) categories = await catRes.json();
+        } catch (e) {
+            console.error('Gagal fetch kategori tools:', e.message);
+        }
 
         // Mapping kolom DB → field yang dibutuhkan tools.ejs
         const toolsData = dbTools.map(t => ({
             id:            t.id,
             name:          t.name,
-            category:      t.category      || 'teknis',
-            categoryLabel: t.categoryLabel  || t.category || 'Teknis',
-            icon:          t.icon           || '🔧',
+            category:      t.category?.id || 'teknis',
+            categoryLabel: t.category?.name  || 'Teknis',
             bgGradient:    t.bgGradient     || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
             description:   t.description   || '',
             standard:      t.standard      || '-',
             status:        t.status        || 'Wajib',
             file3d:        t.file3d        || null,
             image:         t.image         || null,
-            procedure:     t.procedure     || [],
         }));
 
         res.render('tools', {
             title: 'Tools & Alat K3 — PLN Pusdiklat',
             toolsData,
+            categories,
             currentPage: 'tools'
         });
     } catch (err) {
@@ -58,6 +110,7 @@ app.get('/tools', async (req, res) => {
         res.render('tools', {
             title: 'Tools & Alat K3 — PLN Pusdiklat',
             toolsData: [],
+            categories: [],
             currentPage: 'tools'
         });
     }
@@ -69,18 +122,23 @@ app.get('/material', async (req, res) => {
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         const dbMaterials = await fetchRes.json();
 
+        let categories = [];
+        try {
+            const catRes = await fetch(`${BACKEND_URL}/api/categories?type=material`);
+            if (catRes.ok) categories = await catRes.json();
+        } catch (e) {
+            console.error('Gagal fetch kategori materials:', e.message);
+        }
+
         // Mapping kolom DB → field yang dibutuhkan material.ejs
         const materialData = dbMaterials.map(m => ({
             id:            m.id,
             name:          m.name,
             code:          m.code          || '',
-            category:      (m.categoryLabel || 'lainnya').toLowerCase().replace(/\s+/g, '-'),
-            categoryLabel: m.categoryLabel  || 'Lainnya',
-            icon:          m.icon           || '📦',
+            category:      m.category?.id || 'lainnya',
+            categoryLabel: m.category?.name  || 'Lainnya',
             bgGradient:    m.bgGradient     || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
-            shortDesc:     m.shortDesc      || m.description || '',
             description:   m.description   || '',
-            specs:         m.specs         || {},
             image:         m.image         || null,
             // file3d: ambil asset pertama jika ada (material_assets)
             file3d:        (m.assets && m.assets.length > 0) ? m.assets[0].file : null,
@@ -89,6 +147,7 @@ app.get('/material', async (req, res) => {
         res.render('material', {
             title:        'Material Jaringan — PLN Pusdiklat',
             materialData,
+            categories,
             currentPage:  'material'
         });
     } catch (err) {
@@ -96,6 +155,7 @@ app.get('/material', async (req, res) => {
         res.render('material', {
             title:        'Material Jaringan — PLN Pusdiklat',
             materialData: [],
+            categories: [],
             currentPage:  'material'
         });
     }
@@ -104,7 +164,7 @@ app.get('/material', async (req, res) => {
 app.get('/ModulKonstruksi', async (req, res) => {
     try {
         const sort = req.query.sort || 'newest';
-        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?all=true&sort=${sort}`);
+        const fetchRes = await fetch(`${BACKEND_URL}/api/modules?sort=${sort}`);
         if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
         let dbModules = await fetchRes.json();
 
@@ -114,28 +174,20 @@ app.get('/ModulKonstruksi', async (req, res) => {
             dbModules = [];
         }
 
-        // Hitung material & eq count, lalu petakan
-        const mappedModules = dbModules.map(m => {
-            return {
-                id: m.id,
-                title: m.title,
-                description: m.description,
-                image: m.image,
-                status: m.status,
-                materialCount: m.materials ? m.materials.length : 0,
-                equipmentCount: m.tools ? m.tools.length : 0,
-                assets: m.assets || []
-            };
-        });
-
-        // Pisahkan yang aktif dan yang non-aktif/draft
-        const activeModules = mappedModules.filter(m => m.status === 'Aktif');
-        const inactiveModules = mappedModules.filter(m => m.status !== 'Aktif');
+        const activeModules = dbModules.map(m => ({
+            id: m.id,
+            title: m.title,
+            description: m.description,
+            image: m.image,
+            materialCount: (m.materials && m.materials[0]) ? (m.materials[0].count ?? 0) : 0,
+            equipmentCount: (m.tools && m.tools[0]) ? (m.tools[0].count ?? 0) : 0,
+            assets: m.assets || []
+        }));
 
         res.render('ModulKonstruksi', {
             title: 'Modul Pembelajaran — PLN Pusdiklat',
             activeModules,
-            inactiveModules,
+            inactiveModules: [],
             currentSort: sort,
             currentPage: 'konstruksi'
         });
@@ -204,6 +256,9 @@ const authGuard = async (req, res, next) => {
             return res.redirect('/login');
         }
 
+        const data = await verifyRes.json();
+        req.user = data.user; // Simpan data user (id, name, email, unit) di req.user
+
         next();
     } catch (err) {
         // Backend tidak bisa dihubungi → amankan dengan redirect login
@@ -238,6 +293,50 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
+// Proxy Change Password Route
+app.put('/api/change-password', async (req, res) => {
+    const token = req.cookies.auth_token;
+    if (!token) return res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+    
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/users/change-password`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(req.body)
+        });
+        const data = await response.json();
+        res.status(response.status).json(data);
+    } catch (err) {
+        console.error('Change password proxy error:', err);
+        res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+    }
+});
+
+// Proxy Update Profile Route
+app.put('/api/profile', async (req, res) => {
+    const token = req.cookies.auth_token;
+    if (!token) return res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+    
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/users/profile`, {
+            method: 'PUT',
+            headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(req.body)
+        });
+        const data = await response.json();
+        res.status(response.status).json(data);
+    } catch (err) {
+        console.error('Update profile proxy error:', err);
+        res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+    }
+});
+
 // Helper Route: Set Session (Cookie)
 app.post('/set-session', (req, res) => {
     const { token } = req.body;
@@ -259,13 +358,43 @@ app.get('/clear-session', (req, res) => {
     res.json({ success: true });
 });
 
-app.get('/admin-logout', (req, res) => {
+app.get('/admin-logout', async (req, res) => {
+    const token = req.cookies.auth_token;
+    if (token) {
+        try {
+            await fetch(`${BACKEND_URL}/api/auth/logout`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+        } catch (err) {
+            console.error('Gagal logout di backend:', err.message);
+        }
+    }
     res.clearCookie('auth_token');
     res.redirect('/login');
 });
 
 // Admin routes - Menggunakan authGuard
 app.use('/admin', authGuard, adminRouter);
+
+// ── Global Error Handler ──────────────────────────────────────────────────────
+app.use((err, req, res, next) => {
+    const status = err.status || err.statusCode || 500;
+    const isDev = process.env.NODE_ENV !== 'production';
+
+    console.error(`[ERROR] ${req.method} ${req.originalUrl} → ${status}: ${err.message}`);
+    if (isDev && err.stack) console.error(err.stack);
+
+    try {
+        res.status(status).render('error', {
+            title: `Error ${status} — PLN Pusdiklat`,
+            status,
+            message: isDev ? err.message : 'Terjadi kesalahan yang tidak terduga.',
+        });
+    } catch (_renderErr) {
+        res.status(status).send(`<h1>Error ${status}</h1><p>${err.message}</p>`);
+    }
+});
 
 app.listen(PORT, '0.0.0.0', () => {
     // Cari IP jaringan lokal

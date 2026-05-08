@@ -269,13 +269,17 @@
               </div>
             </div>
             <div class="rd-review-tile" style="padding:10px;">
-              <div class="label">Preview 3D (Varian Pertama)</div>
+              <div class="label">Preview 3D</div>
               <div id="review-k-3d-container" style="margin-top:8px; border-radius:8px; overflow:hidden; border:1px solid var(--border-default); aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; background:var(--bg-base); position:relative;">
                 <model-viewer id="review-k-3d" src="" auto-rotate camera-controls interaction-prompt="none" style="width:100%; height:100%; display:none; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);"></model-viewer>
                 <span id="review-k-3d-empty" class="rd-muted" style="font-size:12px; display:flex; align-items:center; gap:6px;">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
                   Tidak ada 3D Varian
                 </span>
+                <div id="review-k-variant-selector-wrap" style="position:absolute;bottom:8px;left:8px;right:8px;z-index:10;display:none;">
+                  <select id="review-k-variant-selector" onchange="changeReviewPreview()" class="rd-select" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
+                  </select>
+                </div>
               </div>
             </div>
           </div>
@@ -545,32 +549,58 @@ function populateKReview() {
     reviewImgEmpty.style.display = 'flex';
   }
 
-  // Preview 3D (first valid file)
+  // Preview 3D — populate variant selector
   const review3d = document.getElementById('review-k-3d');
   const review3dEmpty = document.getElementById('review-k-3d-empty');
-  let found3d = false;
-  
-  if (review3d._objectUrl) {
-    URL.revokeObjectURL(review3d._objectUrl);
-    review3d._objectUrl = null;
-  }
+  const reviewSelector = document.getElementById('review-k-variant-selector');
+  const reviewSelectorWrap = document.getElementById('review-k-variant-selector-wrap');
 
-  for (let i = 0; i < cards.length; i++) {
-    const fileInput = cards[i].querySelector('.k-file-3d');
+  if (review3d._objectUrls) {
+    review3d._objectUrls.forEach(u => URL.revokeObjectURL(u));
+  }
+  review3d._objectUrls = [];
+  reviewSelector.innerHTML = '';
+
+  cards.forEach((card, i) => {
+    const fileInput = card.querySelector('.k-file-3d');
     const selectedFile = fileInput && (fileInput._confirmedFile || (fileInput.files && fileInput.files[0]));
+    const nameEl = card.querySelector('.k-name');
+    const variantName = nameEl ? nameEl.value.trim() || `Varian ${i + 1}` : `Varian ${i + 1}`;
     if (selectedFile) {
       const url = URL.createObjectURL(selectedFile);
-      review3d._objectUrl = url;
-      review3d.src = url;
-      review3d.style.display = 'block';
-      review3dEmpty.style.display = 'none';
-      if(review3d.dismissPoster) review3d.dismissPoster();
-      found3d = true;
-      break;
+      review3d._objectUrls.push(url);
+      const opt = document.createElement('option');
+      opt.value = url;
+      opt.textContent = `Varian ${i + 1}: ${variantName}`;
+      reviewSelector.appendChild(opt);
     }
-  }
+  });
 
-  if (!found3d) {
+  if (reviewSelector.options.length > 0) {
+    reviewSelectorWrap.style.display = reviewSelector.options.length > 1 ? 'block' : 'none';
+    reviewSelector.selectedIndex = 0;
+    review3d.src = reviewSelector.options[0].value;
+    review3d.style.display = 'block';
+    review3dEmpty.style.display = 'none';
+    if (review3d.dismissPoster) review3d.dismissPoster();
+  } else {
+    reviewSelectorWrap.style.display = 'none';
+    review3d.removeAttribute('src');
+    review3d.style.display = 'none';
+    review3dEmpty.style.display = 'flex';
+  }
+}
+
+function changeReviewPreview() {
+  const selector = document.getElementById('review-k-variant-selector');
+  const review3d = document.getElementById('review-k-3d');
+  const review3dEmpty = document.getElementById('review-k-3d-empty');
+  if (selector.value) {
+    review3d.setAttribute('src', selector.value);
+    review3d.style.display = 'block';
+    review3dEmpty.style.display = 'none';
+    if (review3d.dismissPoster) review3d.dismissPoster();
+  } else {
     review3d.removeAttribute('src');
     review3d.style.display = 'none';
     review3dEmpty.style.display = 'flex';

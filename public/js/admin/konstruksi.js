@@ -256,11 +256,18 @@ async function loadKonstruksiSaved(filter = '') {
     }
 }
 
-function editKonstruksi(id) {
-    const m = window.allModules.find(x => x.id === id);
-    if (!m) return;
-    
+async function editKonstruksi(id) {
     window.currentEditingId = id;
+
+    let m;
+    try {
+        m = await fetchBackend(`/api/modules/${id}`);
+    } catch(e) {
+        showToast('Gagal memuat data modul', 'error');
+        window.currentEditingId = null;
+        return;
+    }
+    if (!m) return;
 
     // Populasikan Modal
     document.getElementById('edit-modul-name').value = m.title || '';
@@ -435,7 +442,7 @@ window.syncAdminPreviewDropdown = function() {
 
     if (hasValidOption) {
         // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama (index 1)
-        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        let found = currentValue && Array.from(selector.options).find(o => o.value === currentValue);
         selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[1].value : "");
     } else {
         selector.value = "";
@@ -445,7 +452,7 @@ window.syncAdminPreviewDropdown = function() {
 };
 
 window.previewLocalFile = function(file) {
-    if(file && file.name.endsWith('.glb')) {
+    if(file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
         window.syncAdminPreviewDropdown();
     }
 };
@@ -458,26 +465,26 @@ function closeEditModal() {
 }
 
 async function deleteKonstruksi(id, btn) {
-    if (!confirm('Apakah Anda yakin ingin menghapus module konstruksi ini permanen? File 3D juga akan ikut terhapus dari server.')) return;
-    
-    // Tampilkan loading di tombol
-    const originalText = btn.textContent;
-    btn.textContent = 'Menghapus...';
-    btn.disabled = true;
-
-    try {
-        await fetchBackend(`/api/modules/${id}`, { method: 'DELETE' });
-        showToast('Module berhasil dihapus!');
-        btn.closest('.item-row').remove();
-        
-        // Bersihkan edit state jika yg dihapus sedang di-edit
-        if (window.currentEditingId === id) resetKonstruksiForm();
-        
-    } catch (err) {
-        showToast(`Gagal menghapus: ${err.message}`, 'error');
-        btn.textContent = originalText;
-        btn.disabled = false;
-    }
+    showConfirmDialog({
+        title: 'Hapus Modul Konstruksi?',
+        message: 'Tindakan ini permanen dan tidak dapat dibatalkan. Semua varian dan file 3D terkait juga akan ikut terhapus dari server.',
+        confirmText: 'Ya, Hapus',
+        onConfirm: async () => {
+            const originalText = btn.textContent;
+            btn.textContent = 'Menghapus...';
+            btn.disabled = true;
+            try {
+                await fetchBackend(`/api/modules/${id}`, { method: 'DELETE' });
+                showToast('Module berhasil dihapus!');
+                btn.closest('.item-row').remove();
+                if (window.currentEditingId === id) resetKonstruksiForm();
+            } catch (err) {
+                showToast(`Gagal menghapus: ${err.message}`, 'error');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+    });
 }
 
 function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards') {
@@ -716,12 +723,13 @@ async function processKonstruksiSubmission(isEditing) {
             showToast('Konstruksi beserta varian berhasil disimpan!');
         }
 
+        window.allModules = null;
         if (isEditing) {
             closeEditModal();
         } else {
             closeAddKonstruksiModal();
         }
-        loadKonstruksiSaved();
+        await loadKonstruksiSaved();
 
     } catch(e) {
         console.error("DEBUG ERROR SIMPAN:", e);

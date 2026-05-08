@@ -19,6 +19,49 @@ function showToast(message, type = 'success') {
     }, 2800);
 }
 
+/* ---- Confirm Dialog ---- */
+function showConfirmDialog({ title, message, confirmText = 'Ya, Hapus', iconColor = '#EF4444', onConfirm }) {
+    const overlay = document.getElementById('confirm-dialog-overlay');
+    if (!overlay) return;
+
+    document.getElementById('confirm-dialog-title').textContent = title;
+    document.getElementById('confirm-dialog-message').textContent = message;
+
+    const icon = document.getElementById('confirm-dialog-icon');
+    if (icon) {
+        icon.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.13)`;
+        const svg = icon.querySelector('svg');
+        if (svg) svg.setAttribute('stroke', iconColor);
+    }
+
+    const okBtn = document.getElementById('confirm-dialog-ok');
+    okBtn.textContent = confirmText;
+    okBtn.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.13)`;
+    okBtn.style.color = iconColor;
+    okBtn.style.borderColor = iconColor;
+    okBtn.onmouseover = () => { okBtn.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.22)`; };
+    okBtn.onmouseout  = () => { okBtn.style.background = `rgba(${iconColor === '#EF4444' ? '239,68,68' : '245,158,11'}, 0.13)`; };
+
+    const fresh = okBtn.cloneNode(true);
+    fresh.style.cssText = okBtn.style.cssText;
+    fresh.onmouseover = okBtn.onmouseover;
+    fresh.onmouseout  = okBtn.onmouseout;
+    okBtn.parentNode.replaceChild(fresh, okBtn);
+    fresh.addEventListener('click', () => { dismissConfirmDialog(); if (onConfirm) onConfirm(); });
+
+    overlay.style.display = 'flex';
+    overlay.style.opacity = '0';
+    overlay.style.transition = 'opacity 0.15s';
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+}
+
+function dismissConfirmDialog() {
+    const overlay = document.getElementById('confirm-dialog-overlay');
+    if (!overlay) return;
+    overlay.style.opacity = '0';
+    setTimeout(() => { overlay.style.display = 'none'; }, 160);
+}
+
 /* ---- Fetch Backend (Sistem Otentikasi & Penghubung API) ---- */
 async function fetchBackend(endpoint, options = {}) {
     // Gunakan port 4000 untuk menembak node backend
@@ -111,16 +154,11 @@ function addProcRow(containerId) {
 }
 
 /* ---- Logout ---- */
-async function handleLogout() {
+function handleLogout() {
     if (confirm('Apakah Anda yakin ingin keluar?')) {
         localStorage.removeItem('auth_token');
-        // Hapus session di server (Cookie)
-        try {
-            await fetch('/clear-session');
-        } catch (e) {
-            console.error('Gagal menghapus sesi server:', e);
-        }
-        window.location.href = '/login';
+        // Arahkan ke rute proxy logout agar backend juga dikabari
+        window.location.href = '/admin-logout';
     }
 }
 
@@ -141,6 +179,68 @@ function getAdminSkeleton(count = 3) {
     }
     return html;
 }
+
+/* ---- Admin Edit Modal (shared: material & tools) ---- */
+function closeEditModal() {
+    window.currentEditingId = null;
+    const modal = document.getElementById('edit-modal');
+    if (modal) modal.classList.remove('active');
+}
+
+function refreshAdminPreviewSelector(assets) {
+    const selector   = document.getElementById('admin-preview-selector');
+    const viewer     = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if (!selector || !viewer || !emptyState) return;
+
+    selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
+
+    if (assets && assets.length > 0) {
+        assets.forEach((a, idx) => {
+            if (a.file && a.file !== '-') {
+                const opt = document.createElement('option');
+                opt.value       = a.file;
+                opt.textContent = a.name || `File ${idx + 1}`;
+                selector.appendChild(opt);
+            }
+        });
+
+        if (selector.options.length > 1) {
+            selector.selectedIndex = 1;
+            changeAdminPreview();
+        } else {
+            viewer.style.display     = 'none';
+            emptyState.style.display = 'flex';
+        }
+    } else {
+        viewer.style.display     = 'none';
+        emptyState.style.display = 'flex';
+    }
+}
+
+window.changeAdminPreview = function () {
+    const selector   = document.getElementById('admin-preview-selector');
+    const viewer     = document.getElementById('admin-preview-viewer');
+    const emptyState = document.getElementById('admin-preview-empty');
+    if (!selector || !viewer || !emptyState) return;
+
+    if (selector.value) {
+        viewer.setAttribute('src', selector.value);
+        viewer.style.display     = 'block';
+        emptyState.style.display = 'none';
+        viewer.dismissPoster && viewer.dismissPoster();
+    } else {
+        viewer.removeAttribute('src');
+        viewer.style.display     = 'none';
+        emptyState.style.display = 'flex';
+    }
+};
+
+window.previewLocalFile = function (file) {
+    if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
+        window.syncAdminPreviewDropdown();
+    }
+};
 
 /* ---- Init ---- */
 document.addEventListener('DOMContentLoaded', () => {

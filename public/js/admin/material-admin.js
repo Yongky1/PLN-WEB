@@ -6,27 +6,63 @@
 let mCardCount = 0;
 window.currentEditingId = null;
 window.allMaterials = [];
+window.matCategories = [];
+async function loadMatCategories() {
+    try {
+        const res = await fetchBackend('/api/categories?type=material');
+        window.matCategories = res;
+        
+        const opts = res.length > 0 ? res.map(c => `<option value="${c.id}">${c.name}</option>`).join('') : '<option value="">Belum ada kategori</option>';
+        const catSelect1 = document.getElementById('mat-modul-cat');
+        const catSelect2 = document.getElementById('edit-mat-modul-cat');
+        if (catSelect1) catSelect1.innerHTML = opts;
+        if (catSelect2) catSelect2.innerHTML = opts;
+
+        // Render dynamic dropdown items using data-attributes (avoids quote escaping issues)
+        const ddItems = document.getElementById('mat-cat-dd-items');
+        if (ddItems) {
+            ddItems.innerHTML = res.map(c =>
+                `<div class="rd-dropdown-item" data-cat-id="${c.id}" data-cat-name="${c.name.replace(/"/g, '&quot;')}">${c.name}</div>`
+            ).join('');
+            // Attach click handlers via JS (avoids all quoting issues)
+            ddItems.querySelectorAll('.rd-dropdown-item').forEach(el => {
+                el.addEventListener('click', function() {
+                    setMatFilter(this.dataset.catId, this.dataset.catName);
+                });
+            });
+        }
+    } catch (err) {
+        console.error('Gagal memuat kategori material:', err);
+    }
+}
 
 
 
-async function loadMaterialSaved() {
+
+async function loadMaterialSaved(categoryFilter = '') {
     const saved = document.getElementById('material-saved');
     if (!saved) return;
     
     saved.innerHTML = getAdminSkeleton(3);
     try {
-        const materials = await fetchBackend('/api/materials?all=true');
-        window.allMaterials = materials;
+        // Always fetch all data; filter client-side by category_id
+        if (!window.allMaterials || window.allMaterials.length === 0) {
+            window.allMaterials = await fetchBackend('/api/materials?all=true');
+        }
+        const materials = categoryFilter
+            ? window.allMaterials.filter(m => (m.category_id || m.category?.id) === categoryFilter)
+            : window.allMaterials;
+        
         saved.innerHTML = '';
         
         if (!materials || materials.length === 0) {
-            saved.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px;">Belum ada data tersimpan</div>';
+            saved.innerHTML = '<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding:20px 0;">Belum ada data tersimpan</div>';
             return;
         }
 
         materials.forEach(m => {
             const variantsCount = m.assets ? m.assets.length : 0;
-            const cat = m.categoryLabel || '-';
+            const cat = m.category?.name || '-';
 
             const row = document.createElement('div');
             row.className = 'item-row';
@@ -61,11 +97,18 @@ async function loadMaterialSaved() {
     }
 }
 
-function editMaterial(id) {
-    const m = window.allMaterials.find(x => x.id === id);
-    if (!m) return;
-    
+async function editMaterial(id) {
     window.currentEditingId = id;
+
+    let m;
+    try {
+        m = await fetchBackend(`/api/materials/${id}`);
+    } catch(e) {
+        showToast('Gagal memuat data material', 'error');
+        window.currentEditingId = null;
+        return;
+    }
+    if (!m) return;
 
     // Populasikan Modal Edit
     if(document.getElementById('edit-mat-modul-name')) document.getElementById('edit-mat-modul-name').value = m.name || '';
@@ -76,7 +119,7 @@ function editMaterial(id) {
         const counter = document.getElementById('desc-char-count');
         if (counter) counter.textContent = desc.length + '/200';
     }
-    if(document.getElementById('edit-mat-modul-cat')) document.getElementById('edit-mat-modul-cat').value = m.categoryLabel || 'Pengencang';
+    if(document.getElementById('edit-mat-modul-cat')) document.getElementById('edit-mat-modul-cat').value = m.category_id || (m.category ? m.category.id : '');
 
     const imgPreviewContainer = document.getElementById('edit-mat-modul-image-preview-container');
     const imgPreview = document.getElementById('edit-mat-modul-image-preview');
@@ -148,57 +191,6 @@ function editMaterial(id) {
 }
 
 // ================= LIVE PREVIEW LOGIC =================
-function refreshAdminPreviewSelector(assets) {
-    const selector = document.getElementById('admin-preview-selector');
-    const viewer = document.getElementById('admin-preview-viewer');
-    const emptyState = document.getElementById('admin-preview-empty');
-    if(!selector || !viewer || !emptyState) return;
-
-    // Bersihkan dropdown
-    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
-
-    if(assets && assets.length > 0) {
-        assets.forEach((a, idx) => {
-            if(a.file && a.file !== '-') {
-                const opt = document.createElement('option');
-                opt.value = a.file;
-                opt.textContent = `Varian ${idx+1}: ${a.name}`;
-                selector.appendChild(opt);
-            }
-        });
-        
-        // Auto select first file if available
-        if(selector.options.length > 1) {
-            selector.selectedIndex = 1;
-            changeAdminPreview();
-        } else {
-            viewer.style.display = 'none';
-            emptyState.style.display = 'flex';
-        }
-    } else {
-        viewer.style.display = 'none';
-        emptyState.style.display = 'flex';
-    }
-}
-
-window.changeAdminPreview = function() {
-    const selector = document.getElementById('admin-preview-selector');
-    const viewer = document.getElementById('admin-preview-viewer');
-    const emptyState = document.getElementById('admin-preview-empty');
-    if(!selector || !viewer || !emptyState) return;
-    
-    if(selector.value) {
-        viewer.setAttribute('src', selector.value);
-        viewer.style.display = 'block';
-        emptyState.style.display = 'none';
-        viewer.dismissPoster && viewer.dismissPoster();
-    } else {
-        viewer.removeAttribute('src');
-        viewer.style.display = 'none';
-        emptyState.style.display = 'flex';
-    }
-};
-
 window.syncAdminPreviewDropdown = function() {
     const selector = document.getElementById('admin-preview-selector');
     const viewer = document.getElementById('admin-preview-viewer');
@@ -238,8 +230,8 @@ window.syncAdminPreviewDropdown = function() {
     });
 
     if (hasValidOption) {
-        // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama/terakhir 
-        let found = Array.from(selector.options).find(o => o.value === currentValue);
+        // Jika opsi sebelumnya masih ada, pertahankan. Jika tidak, pilih yang pertama/terakhir
+        let found = currentValue && Array.from(selector.options).find(o => o.value === currentValue);
         selector.value = found ? currentValue : (selector.options.length > 1 ? selector.options[selector.options.length - 1].value : "");
     } else {
         selector.value = "";
@@ -248,36 +240,27 @@ window.syncAdminPreviewDropdown = function() {
     window.changeAdminPreview();
 }
 
-window.previewLocalFile = function(file) {
-    if(file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
-        window.syncAdminPreviewDropdown();
-    }
-};
-
-function closeEditModal() {
-    window.currentEditingId = null;
-    const modal = document.getElementById('edit-modal');
-    if (modal) modal.classList.remove('active');
-}
-
 async function deleteMaterial(id, btn) {
-    if (!confirm('Apakah Anda yakin ingin menghapus material ini permanen? File 3D juga akan ikut terhapus dari server.')) return;
-    
-    const originalText = btn.textContent;
-    btn.textContent = 'Menghapus...';
-    btn.disabled = true;
-
-    try {
-        await fetchBackend(`/api/materials/${id}`, { method: 'DELETE' });
-        showToast('Material berhasil dihapus!');
-        btn.closest('.item-row').remove();
-        
-        if (window.currentEditingId === id) resetMaterialForm();
-    } catch (err) {
-        showToast(`Gagal menghapus: ${err.message}`, 'error');
-        btn.textContent = originalText;
-        btn.disabled = false;
-    }
+    showConfirmDialog({
+        title: 'Hapus Material?',
+        message: 'Tindakan ini permanen dan tidak dapat dibatalkan. File 3D terkait juga akan ikut terhapus dari server.',
+        confirmText: 'Ya, Hapus',
+        onConfirm: async () => {
+            const originalText = btn.textContent;
+            btn.textContent = 'Menghapus...';
+            btn.disabled = true;
+            try {
+                await fetchBackend(`/api/materials/${id}`, { method: 'DELETE' });
+                showToast('Material berhasil dihapus!');
+                btn.closest('.item-row').remove();
+                if (window.currentEditingId === id) resetMaterialForm();
+            } catch (err) {
+                showToast(`Gagal menghapus: ${err.message}`, 'error');
+                btn.textContent = originalText;
+                btn.disabled = false;
+            }
+        }
+    });
 }
 
 function createMaterialCard(index, removable, containerId = 'material-cards') {
@@ -425,7 +408,7 @@ async function processMaterialSubmission(isEditing) {
             name: modulName,
             code: modulCode,
             description: modulDesc,
-            categoryLabel: category,
+            category_id: category,
         };
         
         if (uploadedImageUrl) {
@@ -501,7 +484,8 @@ async function processMaterialSubmission(isEditing) {
         } else {
             closeAddMatModal();
         }
-        loadMaterialSaved();
+        window.allMaterials = []; // invalidate cache
+        await loadMaterialSaved();
 
     } catch(e) {
         showToast(`Gagal menyimpan: ${e.message}`, 'error');
@@ -526,7 +510,7 @@ function resetMaterialForm() {
     if(document.getElementById('mat-modul-name')) document.getElementById('mat-modul-name').value = '';
     if(document.getElementById('mat-modul-code')) document.getElementById('mat-modul-code').value = '';
     if(document.getElementById('mat-modul-desc')) document.getElementById('mat-modul-desc').value = '';
-    if(document.getElementById('mat-modul-cat')) document.getElementById('mat-modul-cat').value = 'Pengencang';
+    if(document.getElementById('mat-modul-cat') && window.matCategories.length > 0) document.getElementById('mat-modul-cat').value = window.matCategories[0].id;
 
     const imgInput = document.getElementById('mat-modul-image');
     if (imgInput) {
@@ -555,7 +539,26 @@ function resetMaterialForm() {
     if (saveBtn) saveBtn.textContent = 'Simpan Semua';
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+    await loadMatCategories();
     addMaterialCard();
     loadMaterialSaved();
+
+    // Search bar — filter rendered rows by name/code
+    const searchInput = document.getElementById('search-saved-material');
+    if (searchInput) {
+        let debounceTimer;
+        searchInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+                const q = searchInput.value.trim().toLowerCase();
+                const saved = document.getElementById('material-saved');
+                if (!saved) return;
+                saved.querySelectorAll('.item-row').forEach(row => {
+                    const name = row.querySelector('div[style*="font-size:13px"]')?.textContent?.toLowerCase() || '';
+                    row.style.display = (!q || name.includes(q)) ? '' : 'none';
+                });
+            }, 200);
+        });
+    }
 });
