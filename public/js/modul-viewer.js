@@ -24,11 +24,11 @@ let currentModel = null;
 let selectedMesh = null;
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0x060d1c);
 
 const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
 
-const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ACESFilmicToneMapping;
