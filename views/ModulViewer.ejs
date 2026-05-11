@@ -67,17 +67,21 @@
             top: 72px;
             right: 16px;
             z-index: 30;
-            width: 220px;
+            width: 272px;
+            max-height: calc(100% - 96px);
+            display: flex;
+            flex-direction: column;
             border-radius: 1.25rem;
             border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(8, 16, 32, 0.92);
-            backdrop-filter: blur(24px);
-            -webkit-backdrop-filter: blur(24px);
-            box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+            background: rgba(6, 12, 26, 0.94);
+            backdrop-filter: blur(28px);
+            -webkit-backdrop-filter: blur(28px);
+            box-shadow: 0 24px 56px rgba(0,0,0,0.6);
             transform: translateX(calc(100% + 20px));
             opacity: 0;
             transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
             pointer-events: none;
+            overflow: hidden;
         }
         #mesh-info-panel.active {
             transform: translateX(0);
@@ -89,8 +93,9 @@
             align-items: flex-start;
             justify-content: space-between;
             gap: 8px;
-            padding: 14px 14px 10px;
+            padding: 13px 14px 10px;
             border-bottom: 1px solid rgba(255,255,255,0.07);
+            flex-shrink: 0;
         }
         #mesh-panel-name {
             font-family: 'Space Grotesk', sans-serif;
@@ -117,24 +122,113 @@
             line-height: 1;
         }
         #mesh-panel-close:hover { background: rgba(255,255,255,0.12); color: white; }
+        #panel-scroll {
+            flex: 1;
+            overflow-y: auto;
+            overflow-x: hidden;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255,255,255,0.1) transparent;
+        }
+        #panel-scroll::-webkit-scrollbar { width: 3px; }
+        #panel-scroll::-webkit-scrollbar-track { background: transparent; }
+        #panel-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
         #mesh-info-panel .panel-label {
             font-size: 9px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.15em;
-            color: rgba(255,213,0,0.7);
-            padding: 10px 14px 4px;
+            color: rgba(245,158,11,0.65);
+            padding: 10px 14px 5px;
         }
-        #mesh-panel-material {
-            padding: 0 14px 12px;
+        #panel-empty {
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px 14px;
+            gap: 8px;
         }
+        #panel-empty svg { color: rgba(255,255,255,0.12); }
+        #panel-empty p {
+            font-size: 12px;
+            color: rgba(255,255,255,0.3);
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 600;
+        }
+        /* ---- Panel Item Cards ---- */
+        .panel-item-card {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.06);
+            background: rgba(255,255,255,0.025);
+            cursor: pointer;
+            margin: 0 10px 6px;
+            transition: background 0.18s, border-color 0.18s, transform 0.14s;
+        }
+        .panel-item-card:hover {
+            background: rgba(255,255,255,0.07);
+            border-color: rgba(245,158,11,0.22);
+            transform: translateX(2px);
+        }
+        .card-thumb {
+            width: 36px;
+            height: 36px;
+            border-radius: 9px;
+            background: rgba(255,255,255,0.06);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            flex-shrink: 0;
+            font-size: 16px;
+        }
+        .card-info { flex: 1; min-width: 0; }
+        .card-name {
+            font-size: 12px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.88);
+            font-family: 'Space Grotesk', sans-serif;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.3;
+        }
+        .card-qty {
+            font-size: 9px;
+            font-weight: 700;
+            color: rgba(245,158,11,0.65);
+        }
+        .card-cat {
+            font-size: 8.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            padding: 1.5px 5px;
+            border-radius: 999px;
+            border: 1px solid;
+            display: inline-block;
+            margin-top: 2px;
+        }
+        .card-cat.k3 { color: rgb(248,113,113); border-color: rgba(248,113,113,0.28); background: rgba(248,113,113,0.09); }
+        .card-cat.teknis { color: rgb(96,165,250); border-color: rgba(96,165,250,0.28); background: rgba(96,165,250,0.09); }
+        .card-cat.other { color: rgba(167,139,250,0.9); border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.08); }
+        .card-arrow {
+            color: rgba(255,255,255,0.25);
+            flex-shrink: 0;
+            transition: color 0.18s, transform 0.18s;
+        }
+        .panel-item-card:hover .card-arrow { color: rgba(245,158,11,0.7); transform: translateX(2px); }
         #mesh-info-panel .click-hint {
             font-size: 10px;
-            color: rgba(255,255,255,0.28);
+            color: rgba(255,255,255,0.25);
             text-align: center;
-            padding: 8px 14px;
+            padding: 7px 14px;
             border-top: 1px solid rgba(255,255,255,0.05);
             font-family: 'Inter', sans-serif;
+            flex-shrink: 0;
         }
     </style>
 </head>
@@ -170,6 +264,9 @@
             <!-- Data tersembunyi untuk JS -->
             <script type="application/json" id="module-assets-data">
                 <%- JSON.stringify(module.assets || []) %>
+            </script>
+            <script type="application/json" id="module-data">
+                <%- JSON.stringify({ materials: module.materials || [], tools: module.tools || [] }) %>
             </script>
 
             <!-- Viewer and Info Grid layout -->
@@ -215,11 +312,36 @@
                     <!-- Mesh Info Panel -->
                     <div id="mesh-info-panel">
                         <div class="panel-header">
-                            <p id="mesh-panel-name">Nama Objek</p>
+                            <div style="min-width:0;">
+                                <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:rgba(245,158,11,0.55);margin-bottom:2px;">Komponen</p>
+                                <p id="mesh-panel-name" style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);line-height:1.3;word-break:break-word;">-</p>
+                            </div>
                             <button id="mesh-panel-close" title="Tutup">✕</button>
                         </div>
-                        <p class="panel-label">Informasi Material</p>
-                        <div id="mesh-panel-material"></div>
+
+                        <div id="panel-scroll">
+                            <!-- Empty state -->
+                            <div id="panel-empty" style="display:none;">
+                                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
+                                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4"/>
+                                </svg>
+                                <p>Tidak ada data untuk komponen ini</p>
+                            </div>
+
+                            <!-- Material section -->
+                            <div id="panel-mats-section" style="display:none;">
+                                <p class="panel-label">Material</p>
+                                <div id="panel-materials"></div>
+                            </div>
+
+                            <!-- Tools section -->
+                            <div id="panel-tools-section" style="display:none;">
+                                <p class="panel-label">Peralatan & APD</p>
+                                <div id="panel-tools" style="padding-bottom:8px;"></div>
+                            </div>
+                        </div>
+
                         <p class="click-hint">Klik area kosong untuk menutup</p>
                     </div>
                 </div>
@@ -557,7 +679,7 @@
         var emptyState = document.getElementById('mat-empty-state');
 
         function openModal(id, type) {
-            var item = modalData.find(function(m) { return m.id === id && m.type === type; });
+            var item = modalData.find(function(m) { return String(m.id) === String(id) && m.type === type; });
             if (!item) return;
 
             var catEl = document.getElementById('mat-modal-category');

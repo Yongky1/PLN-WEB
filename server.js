@@ -360,6 +360,41 @@ app.get('/admin-logout', async (req, res) => {
   res.redirect('/login');
 });
 
+// Proxy PATCH: mesh-name mapping
+app.patch('/api/module-materials/:id/mesh-name', async (req, res) => {
+  const token = req.cookies.auth_token;
+  if (!token) return res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/module-materials/${req.params.id}/mesh-name`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Mesh-name material proxy error:', err);
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+app.patch('/api/module-tools/:id/mesh-name', async (req, res) => {
+  const token = req.cookies.auth_token;
+  if (!token) return res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/module-tools/${req.params.id}/mesh-name`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Mesh-name tool proxy error:', err);
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
 // Admin routes - Menggunakan authGuard
 app.use('/admin', authGuard, adminRouter);
 

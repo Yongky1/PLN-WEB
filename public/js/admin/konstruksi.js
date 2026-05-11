@@ -251,8 +251,11 @@ async function loadKonstruksiSaved(filter = '') {
                 <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
                     ${eqCount}
                 </div>
-                <div style="width:130px; display:flex; gap:6px; justify-content:center;">
+                <div style="width:160px; display:flex; gap:6px; justify-content:center;">
                     <button class="btn-warning" onclick="editKonstruksi('${m.id}')">Edit</button>
+                    <button class="btn-warning" title="Mesh Mapping" style="padding:6px 9px;" onclick="event.stopPropagation(); window.location.href='/admin/konstruksi/${m.id}/mapping'">
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
+                    </button>
                     <button class="btn-danger" onclick="deleteKonstruksi('${m.id}', this)">Hapus</button>
                 </div>
             `;

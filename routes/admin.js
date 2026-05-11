@@ -129,6 +129,27 @@ router.get('/categories', (req, res) => {
   renderAdmin(res, 'categories', 'Manajemen Kategori', 'Kelola kategori material dan peralatan');
 });
 
+// Mesh Mapping — per modul
+router.get('/konstruksi/:id/mapping', async (req, res) => {
+  const base = process.env.BACKEND_URL || 'http://localhost:4000';
+  const { id } = req.params;
+  try {
+    const moduleRes = await fetch(`${base}/api/modules/${id}`);
+    if (!moduleRes.ok) return res.redirect('/admin/modules');
+    const moduleData = await moduleRes.json();
+    renderAdmin(
+      res,
+      'mapping',
+      `Mesh Mapping`,
+      `Hubungkan mesh 3D ke material & peralatan — ${moduleData.title}`,
+      { moduleData }
+    );
+  } catch (err) {
+    console.error('[Admin] Error loading mapping page:', err);
+    res.redirect('/admin/modules');
+  }
+});
+
 // Pengaturan
 router.get('/settings', (req, res) => {
   // req.user diset oleh authGuard di server.js

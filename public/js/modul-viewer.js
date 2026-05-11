@@ -6,37 +6,46 @@ import { RenderPass } from '/scripts/three/jsm/postprocessing/RenderPass.js';
 import { OutlinePass } from '/scripts/three/jsm/postprocessing/OutlinePass.js';
 import { OutputPass } from '/scripts/three/jsm/postprocessing/OutputPass.js';
 
-const canvas = document.getElementById('three-canvas');
-const container = document.getElementById('viewer-container');
-const spinnerEl = document.getElementById('loading-spinner');
-const loadingTextEl = document.getElementById('loading-text');
+// ── DOM refs ──────────────────────────────────────────────────────────────────
+const canvas          = document.getElementById('three-canvas');
+const container       = document.getElementById('viewer-container');
+const spinnerEl       = document.getElementById('loading-spinner');
+const loadingTextEl   = document.getElementById('loading-text');
 const posterContainer = document.getElementById('poster-container');
-const hintText = document.getElementById('hint-text');
-const variantNameEl = document.getElementById('viewer-variant-name');
-const meshPanel = document.getElementById('mesh-info-panel');
-const meshPanelName = document.getElementById('mesh-panel-name');
-const meshPanelMatEl = document.getElementById('mesh-panel-material');
-const meshPanelClose = document.getElementById('mesh-panel-close');
+const hintText        = document.getElementById('hint-text');
+const variantNameEl   = document.getElementById('viewer-variant-name');
+const meshPanel       = document.getElementById('mesh-info-panel');
+const meshPanelName   = document.getElementById('mesh-panel-name');
+const meshPanelClose  = document.getElementById('mesh-panel-close');
 
 let currentAssets = [];
-let currentIndex = 0;
-let currentModel = null;
-let selectedMesh = null;
+let currentIndex  = 0;
+let currentModel  = null;
+let selectedMesh  = null;
 
-const scene = new THREE.Scene();
+// ── Module data (mesh_name → DB materials/tools) ──────────────────────────────
+let moduleMaterials = [];
+let moduleTools     = [];
+try {
+    const _d    = JSON.parse(document.getElementById('module-data').textContent);
+    moduleMaterials = _d.materials || [];
+    moduleTools     = _d.tools     || [];
+} catch (_) {}
 
+// ── Three.js ──────────────────────────────────────────────────────────────────
+const scene  = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
 
 const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
 renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-renderer.outputColorSpace = THREE.SRGBColorSpace;
-renderer.toneMapping = THREE.ACESFilmicToneMapping;
+renderer.outputColorSpace    = THREE.SRGBColorSpace;
+renderer.toneMapping         = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.2;
-renderer.shadowMap.enabled = true;
-renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+renderer.shadowMap.enabled   = true;
+renderer.shadowMap.type      = THREE.PCFSoftShadowMap;
 
-const composer = new EffectComposer(renderer);
+const composer   = new EffectComposer(renderer);
 const renderPass = new RenderPass(scene, camera);
 composer.addPass(renderPass);
 
@@ -45,24 +54,24 @@ const outlinePass = new OutlinePass(
     scene,
     camera
 );
-outlinePass.visibleEdgeColor.set('#FFD500');
-outlinePass.hiddenEdgeColor.set('#FFD500');
-outlinePass.edgeStrength = 5.0;
+outlinePass.visibleEdgeColor.set('#f59e0b');
+outlinePass.hiddenEdgeColor.set('#f59e0b');
+outlinePass.edgeStrength  = 5.0;
 outlinePass.edgeThickness = 2.5;
-outlinePass.edgeGlow = 0.8;
-outlinePass.pulsePeriod = 2;
+outlinePass.edgeGlow      = 0.8;
+outlinePass.pulsePeriod   = 2;
 composer.addPass(outlinePass);
 
 const outputPass = new OutputPass();
 composer.addPass(outputPass);
 
 const controls = new OrbitControls(camera, canvas);
-controls.enableDamping = true;
-controls.dampingFactor = 0.05;
-controls.enablePan = true;
-controls.minDistance = 0.3;
-controls.maxDistance = 50;
-controls.autoRotate = true;
+controls.enableDamping   = true;
+controls.dampingFactor   = 0.05;
+controls.enablePan       = true;
+controls.minDistance     = 0.3;
+controls.maxDistance     = 50;
+controls.autoRotate      = true;
 controls.autoRotateSpeed = 0.8;
 
 const ambientLight = new THREE.AmbientLight(0xffffff, 1.5);
@@ -77,10 +86,11 @@ const fillLight = new THREE.DirectionalLight(0x8899cc, 0.6);
 fillLight.position.set(-2, -1, -3);
 scene.add(fillLight);
 
-const loader = new GLTFLoader();
+const loader    = new GLTFLoader();
 const raycaster = new THREE.Raycaster();
-const mouse = new THREE.Vector2();
+const mouse     = new THREE.Vector2();
 
+// ── Resize ────────────────────────────────────────────────────────────────────
 function updateSize() {
     if (!container || !canvas) return;
     const w = container.clientWidth;
@@ -99,6 +109,7 @@ function animate() {
     composer.render();
 }
 
+// ── Loading state ─────────────────────────────────────────────────────────────
 function setLoadingState(isLoading, message) {
     if (posterContainer) posterContainer.style.display = isLoading ? 'flex' : 'none';
     if (spinnerEl) spinnerEl.style.display = isLoading ? 'block' : 'none';
@@ -106,6 +117,7 @@ function setLoadingState(isLoading, message) {
     else if (loadingTextEl && isLoading) loadingTextEl.textContent = 'Memuat Skema Spasial...';
 }
 
+// ── Selection ─────────────────────────────────────────────────────────────────
 function clearSelection() {
     selectedMesh = null;
     outlinePass.selectedObjects = [];
@@ -115,60 +127,97 @@ function closeMeshPanel() {
     if (meshPanel) meshPanel.classList.remove('active');
 }
 
+// ── Panel card builders ───────────────────────────────────────────────────────
+function buildMatCard(row) {
+    const m   = row.material || {};
+    const qty = row.quantity  || 1;
+    const thumb = m.image
+        ? `<img src="${m.image}" alt="" style="width:100%;height:100%;object-fit:cover;">`
+        : `<span>📦</span>`;
+    const qtyBadge = qty > 1
+        ? `<span class="card-qty">× ${qty}</span>`
+        : '';
+    return `<div class="panel-item-card" data-item-id="${m.id}" data-item-type="material">
+        <div class="card-thumb">${thumb}</div>
+        <div class="card-info">
+            <p class="card-name">${m.name || '-'}</p>
+            ${qtyBadge}
+        </div>
+        <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+    </div>`;
+}
+
+function buildToolCard(row) {
+    const t        = row.tool || {};
+    const catClass = t.category === 'k3' ? 'k3' : t.category === 'teknis' ? 'teknis' : 'other';
+    const thumb    = t.image
+        ? `<img src="${t.image}" alt="" style="width:100%;height:100%;object-fit:cover;">`
+        : `<span>🔧</span>`;
+    return `<div class="panel-item-card" data-item-id="${t.id}" data-item-type="tool">
+        <div class="card-thumb">${thumb}</div>
+        <div class="card-info">
+            <p class="card-name">${t.name || '-'}</p>
+            <span class="card-cat ${catClass}">${t.category || ''}</span>
+        </div>
+        <svg class="card-arrow" fill="none" stroke="currentColor" viewBox="0 0 24 24" width="13" height="13">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+        </svg>
+    </div>`;
+}
+
+// ── Panel rendering ───────────────────────────────────────────────────────────
 function showMeshPanel(mesh) {
     if (!meshPanel) return;
 
-    if (meshPanelName) {
-        meshPanelName.textContent = mesh.name || 'Unnamed Object';
+    const meshName = mesh.name || '';
+    if (meshPanelName) meshPanelName.textContent = meshName || 'Unnamed Object';
+
+    const mats  = moduleMaterials.filter((r) => r.mesh_name === meshName);
+    const tools = moduleTools.filter((r) => r.mesh_name === meshName);
+
+    const panelEmpty        = document.getElementById('panel-empty');
+    const panelMatsSection  = document.getElementById('panel-mats-section');
+    const panelToolsSection = document.getElementById('panel-tools-section');
+    const panelMaterials    = document.getElementById('panel-materials');
+    const panelTools        = document.getElementById('panel-tools');
+
+    const hasData = mats.length > 0 || tools.length > 0;
+    if (panelEmpty)        panelEmpty.style.display        = hasData ? 'none' : 'flex';
+    if (panelMatsSection)  panelMatsSection.style.display  = mats.length  > 0 ? 'block' : 'none';
+    if (panelToolsSection) panelToolsSection.style.display = tools.length > 0 ? 'block' : 'none';
+
+    if (panelMaterials) {
+        panelMaterials.innerHTML = mats.map(buildMatCard).join('');
+        panelMaterials.querySelectorAll('.panel-item-card').forEach((card) => {
+            card.addEventListener('click', () => {
+                if (window.openModal) window.openModal(card.dataset.itemId, card.dataset.itemType);
+            });
+        });
     }
 
-    if (meshPanelMatEl) {
-        const mat = Array.isArray(mesh.material) ? mesh.material[0] : mesh.material;
-        if (!mat) {
-            meshPanelMatEl.innerHTML = '<p class="text-white/40 text-xs">Tidak ada material</p>';
-        } else {
-            const rows = [];
-            rows.push(matRow('Tipe', mat.type || 'Material'));
-            if (mat.color) {
-                const hex = '#' + mat.color.getHexString().toUpperCase();
-                rows.push(matRow('Warna', `<span class="inline-flex items-center gap-1.5"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${hex};border:1px solid rgba(255,255,255,0.2)"></span>${hex}</span>`));
-            }
-            if (mat.roughness !== undefined) rows.push(matRow('Roughness', mat.roughness.toFixed(2)));
-            if (mat.metalness !== undefined) rows.push(matRow('Metalness', mat.metalness.toFixed(2)));
-            if (mat.emissive) {
-                const emHex = '#' + mat.emissive.getHexString().toUpperCase();
-                const emInt = mat.emissiveIntensity !== undefined ? ` ×${mat.emissiveIntensity.toFixed(2)}` : '';
-                rows.push(matRow('Emissive', `<span class="inline-flex items-center gap-1.5"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:${emHex};border:1px solid rgba(255,255,255,0.2)"></span>${emHex}${emInt}</span>`));
-            }
-            if (mat.transparent && mat.opacity !== undefined && mat.opacity < 1) {
-                rows.push(matRow('Opacity', mat.opacity.toFixed(2)));
-            }
-            if (mat.side !== undefined) {
-                const sideMap = { 0: 'Front', 1: 'Back', 2: 'Double' };
-                rows.push(matRow('Side', sideMap[mat.side] ?? mat.side));
-            }
-            meshPanelMatEl.innerHTML = rows.join('');
-        }
+    if (panelTools) {
+        panelTools.innerHTML = tools.map(buildToolCard).join('');
+        panelTools.querySelectorAll('.panel-item-card').forEach((card) => {
+            card.addEventListener('click', () => {
+                if (window.openModal) window.openModal(card.dataset.itemId, card.dataset.itemType);
+            });
+        });
     }
 
     meshPanel.classList.add('active');
 }
 
-function matRow(label, value) {
-    return `<div class="flex items-start justify-between gap-2 py-2 border-b border-white/5 last:border-0">
-        <span class="text-[10px] font-semibold uppercase tracking-wider text-white/40 shrink-0 mt-0.5">${label}</span>
-        <span class="text-[12px] text-white/80 font-medium text-right leading-tight">${value}</span>
-    </div>`;
-}
-
+// ── Model disposal ────────────────────────────────────────────────────────────
 function disposeModel(model) {
-    model.traverse(obj => {
+    model.traverse((obj) => {
         if (!obj.isMesh) return;
         obj.geometry.dispose();
         const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
-        mats.forEach(m => {
-            if (m.map) m.map.dispose();
-            if (m.normalMap) m.normalMap.dispose();
+        mats.forEach((m) => {
+            if (m.map)          m.map.dispose();
+            if (m.normalMap)    m.normalMap.dispose();
             if (m.roughnessMap) m.roughnessMap.dispose();
             if (m.metalnessMap) m.metalnessMap.dispose();
             m.dispose();
@@ -176,6 +225,7 @@ function disposeModel(model) {
     });
 }
 
+// ── Variant loading ───────────────────────────────────────────────────────────
 function loadVariant(index) {
     if (index < 0 || index >= currentAssets.length) return;
     currentIndex = index;
@@ -185,7 +235,7 @@ function loadVariant(index) {
     controls.autoRotate = true;
 
     const asset = currentAssets[index];
-    const src = asset.file || '';
+    const src   = asset.file || '';
 
     if (variantNameEl) {
         variantNameEl.textContent = `Varian ${index + 1}/${currentAssets.length} : ${asset.name}`;
@@ -209,11 +259,11 @@ function loadVariant(index) {
         (gltf) => {
             currentModel = gltf.scene;
 
-            const box = new THREE.Box3().setFromObject(currentModel);
-            const size = box.getSize(new THREE.Vector3());
+            const box    = new THREE.Box3().setFromObject(currentModel);
+            const size   = box.getSize(new THREE.Vector3());
             const center = box.getCenter(new THREE.Vector3());
             const maxDim = Math.max(size.x, size.y, size.z);
-            const scale = 2.5 / maxDim;
+            const scale  = 2.5 / maxDim;
 
             currentModel.scale.setScalar(scale);
             currentModel.position.sub(center.multiplyScalar(scale));
@@ -236,18 +286,19 @@ function loadVariant(index) {
     );
 }
 
+// ── Click / raycasting ────────────────────────────────────────────────────────
 canvas.addEventListener('click', (e) => {
     if (controls.autoRotate === false && !currentModel) return;
 
     const rect = canvas.getBoundingClientRect();
-    mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
-    mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    mouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
+    mouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
 
     raycaster.setFromCamera(mouse, camera);
 
     const meshes = [];
     if (currentModel) {
-        currentModel.traverse(obj => { if (obj.isMesh) meshes.push(obj); });
+        currentModel.traverse((obj) => { if (obj.isMesh) meshes.push(obj); });
     }
 
     const hits = raycaster.intersectObjects(meshes, false);
@@ -279,6 +330,7 @@ if (meshPanelClose) {
     });
 }
 
+// ── Init ──────────────────────────────────────────────────────────────────────
 function init() {
     const assetsEl = document.getElementById('module-assets-data');
     if (assetsEl) {
