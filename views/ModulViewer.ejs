@@ -2,8 +2,16 @@
 <html lang="id" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('partials/head') %>
-    <!-- Tambahkan library model-viewer khusus untuk halaman ini -->
+    <!-- model-viewer hanya untuk modal komponen -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <!-- Import map agar Three.js ESM & jsm bisa saling resolve -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "/scripts/three/three.module.js"
+        }
+    }
+    </script>
     <style>
         .komponen-scroll-row {
             scroll-snap-type: x mandatory;
@@ -40,6 +48,94 @@
         }
         #mat-modal-overlay.active { display: flex !important; }
         #mat-modal-overlay.active #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+
+        /* ---- Three.js canvas fill ---- */
+        #three-canvas {
+            position: absolute;
+            inset: 0;
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+            outline: none;
+        }
+        #three-canvas:active { cursor: grabbing; }
+
+        /* ---- Mesh Info Panel ---- */
+        #mesh-info-panel {
+            position: absolute;
+            top: 72px;
+            right: 16px;
+            z-index: 30;
+            width: 220px;
+            border-radius: 1.25rem;
+            border: 1px solid rgba(255,255,255,0.1);
+            background: rgba(8, 16, 32, 0.92);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 20px 48px rgba(0,0,0,0.5);
+            transform: translateX(calc(100% + 20px));
+            opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+            pointer-events: none;
+        }
+        #mesh-info-panel.active {
+            transform: translateX(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #mesh-info-panel .panel-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 14px 14px 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.07);
+        }
+        #mesh-panel-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            color: rgba(255,255,255,0.9);
+            line-height: 1.3;
+            word-break: break-word;
+        }
+        #mesh-panel-close {
+            width: 22px;
+            height: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: background .2s, color .2s;
+            font-size: 12px;
+            line-height: 1;
+        }
+        #mesh-panel-close:hover { background: rgba(255,255,255,0.12); color: white; }
+        #mesh-info-panel .panel-label {
+            font-size: 9px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: rgba(255,213,0,0.7);
+            padding: 10px 14px 4px;
+        }
+        #mesh-panel-material {
+            padding: 0 14px 12px;
+        }
+        #mesh-info-panel .click-hint {
+            font-size: 10px;
+            color: rgba(255,255,255,0.28);
+            text-align: center;
+            padding: 8px 14px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-family: 'Inter', sans-serif;
+        }
     </style>
 </head>
 <body class="text-white font-sans antialiased overflow-x-hidden" style="background:#080808;">
@@ -49,9 +145,9 @@
     <main class="pt-32 pb-24 px-4 sm:px-8 min-h-screen relative overflow-x-hidden" style="background:#080808;">
         <!-- Spotlight Backdrop -->
         <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-w-[100vw] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
-        
+
         <div class="max-w-[1400px] mx-auto flex flex-col items-center">
-            
+
             <!-- Header area -->
             <div class="w-full flex flex-col md:flex-row items-center justify-between gap-6 mb-10 pb-8 border-b border-white/5">
                 <div class="flex flex-col items-start w-full md:w-auto">
@@ -60,7 +156,7 @@
                         Kembali
                     </a>
                     <h1 class="text-3xl md:text-5xl font-['Space_Grotesk'] font-bold tracking-tight text-white/90">
-                        <%= module.title %> 
+                        <%= module.title %>
                     </h1>
                 </div>
                 <div class="hidden md:flex flex-col items-end">
@@ -71,45 +167,34 @@
                 </div>
             </div>
 
-            <!-- Data tersembunyi untuk modal JS -->
+            <!-- Data tersembunyi untuk JS -->
             <script type="application/json" id="module-assets-data">
                 <%- JSON.stringify(module.assets || []) %>
             </script>
 
-            <!-- Viewer and Info Grid layout (Apple Style presentation) -->
+            <!-- Viewer and Info Grid layout -->
             <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
-                <!-- 3D Canvas (Mendasarkan 8 kolum) -->
+                <!-- 3D Canvas -->
                 <div id="viewer-container" class="lg:col-span-8 relative w-full rounded-[2.5rem] overflow-hidden flex items-center justify-center group transition-all duration-500 shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10 min-h-[280px] md:h-[75vh] md:min-h-[500px]" style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
                     <!-- Ambient top glow -->
                     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-pln-yellow)]/8 blur-[60px] pointer-events-none"></div>
-                    
-                    <!-- Hint Text (Minimalist Pill) -->
-                    <div id="hint-text" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#1d1d1f]/80 backdrop-blur-2xl border border-white/10 text-white/80 text-[11px] font-medium tracking-wide px-5 py-2.5 rounded-full pointer-events-none z-10 opacity-70 group-hover:opacity-100 transition-opacity flex items-center gap-2 shadow-2xl">
-                        <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
-                        <span>Rotasi 360&deg; | Zoom via Scroll</span>
+
+                    <!-- Three.js Canvas -->
+                    <canvas id="three-canvas" tabindex="-1"></canvas>
+
+                    <!-- Loading poster -->
+                    <div id="poster-container" class="absolute inset-0 flex flex-col items-center justify-center text-white/40 transition-all duration-500 bg-[#0A1929]/50 backdrop-blur-sm pointer-events-none" style="z-index:5;">
+                        <div id="loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)] border-b-transparent border-l-transparent mb-4"></div>
+                        <span id="loading-text" class="text-xs uppercase tracking-[0.15em] font-semibold">Memuat Skema Spasial...</span>
                     </div>
 
-                    <!-- Web Component Model Viewer -->
-                    <model-viewer 
-                        id="main-model-viewer"
-                        src="" 
-                        camera-controls 
-                        auto-rotate
-                        rotation-per-second="30deg"
-                        interaction-prompt="none"
-                        shadow-intensity="1.5"
-                        environment-image="neutral"
-                        exposure="1"
-                        class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
-                        
-                        <!-- Loading state custom -->
-                        <div slot="poster" id="poster-container" class="absolute inset-0 flex flex-col items-center justify-center text-white/40 transition-all duration-500 bg-[#0A1929]/50 backdrop-blur-sm">
-                            <div id="loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)] border-b-transparent border-l-transparent mb-4"></div>
-                            <span id="loading-text" class="text-xs uppercase tracking-[0.15em] font-semibold">Memuat Skema Spasial...</span>
-                        </div>
-                    </model-viewer>
+                    <!-- Hint Text -->
+                    <div id="hint-text" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#1d1d1f]/80 backdrop-blur-2xl border border-white/10 text-white/80 text-[11px] font-medium tracking-wide px-5 py-2.5 rounded-full pointer-events-none z-10 opacity-0 transition-opacity flex items-center gap-2 shadow-2xl" style="z-index:10;">
+                        <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                        <span>Rotasi 360&deg; | Zoom via Scroll | Klik Objek untuk Detail</span>
+                    </div>
 
-                    <!-- Navigation Arrows (Variant Carousel) -->
+                    <!-- Navigation Arrows -->
                     <button id="viewer-prev-btn" onclick="prevVariant()" class="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/5 backdrop-blur-2xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all hidden z-20 border border-white/5 shadow-lg group-hover:scale-105">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
@@ -119,16 +204,27 @@
 
                     <!-- Variant Display Name -->
                     <div id="viewer-variant-name" class="absolute top-6 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-[#1d1d1f]/80 backdrop-blur-2xl text-white/90 text-[10px] font-bold rounded-full pointer-events-none z-10 hidden shadow-xl border border-white/10 uppercase tracking-[0.2em]">
-                        Varian - 
+                        Varian -
                     </div>
 
-                    <!-- Fullscreen Toggle Button -->
+                    <!-- Fullscreen Toggle -->
                     <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Full Screen" class="absolute top-6 right-6 w-11 h-11 bg-[#1d1d1f]/60 backdrop-blur-2xl rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 shadow-xl group-hover:scale-105 opacity-100 md:opacity-0 md:group-hover:opacity-100">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                     </button>
+
+                    <!-- Mesh Info Panel -->
+                    <div id="mesh-info-panel">
+                        <div class="panel-header">
+                            <p id="mesh-panel-name">Nama Objek</p>
+                            <button id="mesh-panel-close" title="Tutup">✕</button>
+                        </div>
+                        <p class="panel-label">Informasi Material</p>
+                        <div id="mesh-panel-material"></div>
+                        <p class="click-hint">Klik area kosong untuk menutup</p>
+                    </div>
                 </div>
 
-                <!-- Info Cards (Mendasarkan 4 kolum sisi kanan) -->
+                <!-- Info Cards -->
                 <div class="lg:col-span-4 flex flex-col gap-6 h-[500px] lg:h-[75vh] lg:min-h-[500px] w-full">
                     <!-- Deskripsi Panel -->
                     <div class="apple-glass-light rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 flex-[2] flex flex-col min-h-0 w-full">
@@ -141,7 +237,7 @@
                     <!-- Spesifikasi Panel -->
                     <div class="apple-glass-dark rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:px-8 lg:pt-7 lg:pb-6 flex flex-col flex-1 min-h-0 overflow-hidden w-full">
                         <h3 class="text-xs font-bold mb-4 lg:mb-5 text-white/50 uppercase tracking-[0.2em] font-['Inter'] shrink-0">Spesifikasi Komponen</h3>
-                        
+
                         <div class="flex flex-col justify-center flex-1 min-h-0">
                             <div class="flex items-center justify-between border-b border-white/5 py-4">
                                 <span class="text-white/60 text-sm font-medium tracking-wide">Material</span>
@@ -188,14 +284,12 @@
                     <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.materials.length %> item</span>
                 </div>
 
-                <!-- Horizontal Scroll Row -->
                 <div class="komponen-scroll-row flex gap-5 overflow-x-auto pb-4">
                     <% module.materials.forEach(function(row) { %>
                     <% const m = row.material || {}; %>
 
                     <div class="mat-card group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-pointer relative flex-shrink-0 w-[220px]" data-id="<%= m.id %>" data-type="material">
 
-                        <!-- Image Top -->
                         <div class="h-[140px] relative overflow-hidden bg-black/20">
                             <% if (m.image) { %>
                                 <img src="<%= m.image %>" alt="<%= m.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
@@ -207,15 +301,11 @@
                                     <span class="text-5xl select-none group-hover:scale-110 transition-transform duration-500" style="filter:drop-shadow(0 6px 20px rgba(0,0,0,0.5));"><%= m.icon || '📦' %></span>
                                 </div>
                             <% } %>
-
-                            <!-- Category badge -->
                             <div class="absolute top-3 right-3 z-20">
                                 <span class="inline-block px-2.5 py-1 bg-black/40 text-white/80 border border-white/10 text-[9px] font-bold rounded-full uppercase tracking-wider backdrop-blur-md">
                                     <%= m.categoryLabel || m.category || '' %>
                                 </span>
                             </div>
-
-                            <!-- Qty badge -->
                             <% if (row.quantity && row.quantity > 1) { %>
                             <div class="absolute bottom-3 left-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                                 <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2.5 py-1 rounded-full bg-[var(--color-pln-yellow)]/20 text-[var(--color-pln-yellow)] border border-[var(--color-pln-yellow)]/30 backdrop-blur-md uppercase tracking-wider">
@@ -225,7 +315,6 @@
                             <% } %>
                         </div>
 
-                        <!-- Content -->
                         <div class="p-5 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent">
                             <h3 class="text-[15px] font-bold mb-1.5 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight line-clamp-2">
                                 <%= m.name || '-' %>
@@ -260,7 +349,6 @@
                     <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.tools.length %> item</span>
                 </div>
 
-                <!-- Horizontal Scroll Row -->
                 <div class="komponen-scroll-row flex gap-5 overflow-x-auto pb-4">
                     <% module.tools.forEach(function(row) { %>
                     <% const t = row.tool || {}; %>
@@ -274,7 +362,6 @@
 
                     <div class="mat-card group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-pointer relative flex-shrink-0 w-[220px]" data-id="<%= t.id %>" data-type="tool">
 
-                        <!-- Image Top -->
                         <div class="h-[140px] relative overflow-hidden bg-black/20">
                             <% if (t.image) { %>
                                 <img src="<%= t.image %>" alt="<%= t.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
@@ -290,8 +377,6 @@
                                     </svg>
                                 </div>
                             <% } %>
-
-                            <!-- Category badge -->
                             <div class="absolute top-3 right-3 flex flex-col gap-1.5 items-end z-10">
                                 <span class="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border backdrop-blur-md <%= catBadgeClass %>">
                                     <%= t.categoryLabel || t.category || '' %>
@@ -299,7 +384,6 @@
                             </div>
                         </div>
 
-                        <!-- Content -->
                         <div class="p-5 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent">
                             <h3 class="text-[15px] font-bold mb-1.5 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight line-clamp-2">
                                 <%= t.name || '-' %>
@@ -340,14 +424,12 @@
 
             <div id="mat-modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10" style="background: linear-gradient(160deg, rgba(12,22,42,0.98) 0%, rgba(6,12,26,0.98) 100%); backdrop-filter: blur(40px); height: auto; max-height: 90vh;">
 
-                <!-- ========== LEFT: 3D Viewer ========== -->
+                <!-- ========== LEFT: 3D Viewer (model-viewer) ========== -->
                 <div id="mat-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-[560px]"
                      style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
 
-                    <!-- Ambient top glow -->
                     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-pln-yellow)]/8 blur-[60px] pointer-events-none"></div>
 
-                    <!-- model-viewer -->
                     <model-viewer
                         id="mat-model-viewer"
                         src=""
@@ -359,26 +441,22 @@
                         environment-image="neutral"
                         exposure="1.1"
                         class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
-                        <!-- Loading poster -->
                         <div slot="poster" class="absolute inset-0 flex flex-col items-center justify-center bg-[#030812]/60 backdrop-blur-sm">
                             <div id="mat-loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)]/50 border-b-transparent border-l-transparent mb-4"></div>
                             <span id="mat-loading-text" class="text-[11px] uppercase tracking-[0.2em] font-semibold text-white/40">Memuat Model 3D...</span>
                         </div>
                     </model-viewer>
 
-                    <!-- Empty state -->
                     <div id="mat-empty-state" class="absolute inset-0 flex-col items-center justify-center text-white/25 z-10 hidden" style="display:none;">
                         <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                         <span class="text-sm font-medium tracking-wide font-['Space_Grotesk']">Belum ada file 3D</span>
                     </div>
 
-                    <!-- Hint pill (bottom center) -->
                     <div id="mat-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-2xl border border-white/8 text-white/60 text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-xl">
                         <svg class="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"></path></svg>
                         Rotasi 360&deg; &middot; Zoom via Scroll
                     </div>
 
-                    <!-- Fullscreen button -->
                     <button id="mat-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 opacity-0 group-hover:opacity-100">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                     </button>
@@ -387,10 +465,7 @@
                 <!-- ========== RIGHT: Info Panel ========== -->
                 <div id="mat-info-wrap" class="flex-1 flex flex-col min-h-0 relative h-auto md:h-[560px]" style="overflow-y: auto;">
 
-                    <!-- STATIC HEADER: Badge, Icon, Name, Code (tidak ikut scroll) -->
                     <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
-
-                        <!-- Close button -->
                         <div class="absolute top-5 right-5 z-20">
                             <button id="mat-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-white/10 hover:border-white/25"
                                     style="background: rgba(255,255,255,0.06); backdrop-filter: blur(12px);">
@@ -400,7 +475,6 @@
                             </button>
                         </div>
 
-                        <!-- Category Badge + Icon -->
                         <div class="flex items-center gap-3 mb-4 pr-12">
                             <span id="mat-modal-icon" class="text-3xl select-none shrink-0 leading-none"></span>
                             <span id="mat-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5"
@@ -409,21 +483,14 @@
                             </span>
                         </div>
 
-                        <!-- Name -->
                         <h2 id="mat-modal-name" class="text-2xl font-black text-white leading-tight mb-1 font-['Space_Grotesk'] tracking-tight"></h2>
-
-                        <!-- Code -->
                         <p id="mat-modal-code" class="text-[11px] font-mono text-[var(--color-pln-yellow)]/50 tracking-wider"></p>
 
-                        <!-- Divider -->
                         <div class="mt-3" style="height:1px; background: linear-gradient(to right, rgba(255,213,0,0.25), rgba(255,255,255,0.08), transparent);"></div>
                     </div>
 
-                    <!-- SCROLLABLE BODY: Deskripsi + Spesifikasi -->
                     <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3"
                          style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
-
-                        <!-- Content -->
                         <p id="mat-modal-desc" class="text-[13px] text-white/50 leading-relaxed mb-5 font-['Inter']"></p>
                     </div>
                 </div>
@@ -436,7 +503,12 @@
 
     <!-- Scripts -->
     <script src="/js/main.js"></script>
+
+    <!-- Three.js Viewer Module -->
+    <script type="module" src="/js/modul-viewer.js"></script>
+
     <script>
+        // Component search filter
         function mvFilterComponents(query) {
             var q = (query || '').toLowerCase().trim();
             document.querySelectorAll('.mat-card').forEach(function(card) {
@@ -445,167 +517,75 @@
                 card.classList.toggle('mv-hidden', q !== '' && !name.includes(q));
             });
         }
-    </script>
-    <script>
-        // Logistics Viewer
-        let currentAssets = [];
-        let currentIndex = 0;
 
-        document.addEventListener('DOMContentLoaded', () => {
-            const modelViewer = document.getElementById('main-model-viewer');
-            const spinner = document.getElementById('loading-spinner');
-            const loadingText = document.getElementById('loading-text');
-            const posterContainer = document.getElementById('poster-container');
-            const hintText = document.getElementById('hint-text');
-
-            // Hint text: ganti teks untuk pengguna touch
-            if (hintText && 'ontouchstart' in window) {
-                const span = hintText.querySelector('span');
-                if (span) span.textContent = 'Geser untuk Rotasi · Pinch to Zoom';
-            }
-
-            if (modelViewer) {
-                modelViewer.addEventListener('error', () => {
-                    if (spinner) spinner.style.display = 'none';
-                    if (hintText) hintText.style.display = 'none';
-                    if (loadingText) loadingText.textContent = 'Objek 3D Tidak Tersedia';
-                    if (posterContainer) {
-                        posterContainer.classList.add('backdrop-blur-md', 'bg-white/40', 'dark:bg-black/40');
-                    }
-                });
-            }
-
-            // Inisialisasi Assets
-            const assetsRaw = document.getElementById('module-assets-data').textContent;
-            currentAssets = JSON.parse(assetsRaw) || [];
-            
-            const prevBtn = document.getElementById('viewer-prev-btn');
-            const nextBtn = document.getElementById('viewer-next-btn');
-            const variantName = document.getElementById('viewer-variant-name');
-
-            if (currentAssets.length === 0) {
-                if (loadingText) loadingText.textContent = 'Belum ada file 3D yang diunggah.';
-                if (spinner) spinner.style.display = 'none';
-            } else {
-                loadVariant(0);
-                
-                if (currentAssets.length > 1) {
-                    prevBtn.style.display = 'flex';
-                    nextBtn.style.display = 'flex';
-                    variantName.style.display = 'block';
-                }
-            }
-        });
-
-        function loadVariant(index) {
-            if (index < 0 || index >= currentAssets.length) return;
-            const viewer = document.getElementById('main-model-viewer');
-            const variantName = document.getElementById('viewer-variant-name');
-            const asset = currentAssets[index];
-            
-            viewer.src = asset.file || '';
-            variantName.textContent = `Varian ${index + 1}/${currentAssets.length} : ${asset.name}`;
-        }
-
-        function nextVariant() {
-            if (currentAssets.length <= 1) return;
-            currentIndex = (currentIndex + 1) % currentAssets.length;
-            loadVariant(currentIndex);
-        }
-
-        function prevVariant() {
-            if (currentAssets.length <= 1) return;
-            currentIndex = (currentIndex - 1 + currentAssets.length) % currentAssets.length;
-            loadVariant(currentIndex);
-        }
-
-        // Fullscreen Toggle Interactivity
+        // Fullscreen toggle for main viewer
         function toggleFullscreen() {
-            const container = document.getElementById('viewer-container');
+            var container = document.getElementById('viewer-container');
             if (!document.fullscreenElement) {
-                if (container.requestFullscreen) {
-                    container.requestFullscreen().catch(err => {
-                        console.error(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
-                    });
-                } else if (container.webkitRequestFullscreen) { /* Safari */
-                    container.webkitRequestFullscreen();
-                } else if (container.msRequestFullscreen) { /* IE11 */
-                    container.msRequestFullscreen();
-                }
+                var req = container.requestFullscreen || container.webkitRequestFullscreen || container.msRequestFullscreen;
+                if (req) req.call(container).catch(function(err) { console.error(err); });
             } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) { /* Safari */
-                    document.webkitExitFullscreen();
-                } else if (document.msExitFullscreen) { /* IE11 */
-                    document.msExitFullscreen();
-                }
+                var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+                if (exit) exit.call(document);
             }
         }
-        
-        // Handle fullscreen change styling adaptions
-        document.addEventListener('fullscreenchange', (event) => {
-            const container = document.getElementById('viewer-container');
+
+        document.addEventListener('fullscreenchange', function() {
+            var container = document.getElementById('viewer-container');
             if (document.fullscreenElement === container) {
-                container.style.borderRadius = "0px";
-                container.style.border = "none";
+                container.style.borderRadius = '0px';
+                container.style.border = 'none';
             } else if (container) {
-                container.style.borderRadius = "2.5rem";
-                container.style.border = "1px solid rgba(255, 255, 255, 0.1)";
+                container.style.borderRadius = '2.5rem';
+                container.style.border = '1px solid rgba(255, 255, 255, 0.1)';
             }
         });
 
         // ==========================================
         // Modal Logic for Material & Tool Cards
         // ==========================================
-        const modalData = <%- JSON.stringify([
+        var modalData = <%- JSON.stringify([
             ...(module.materials || []).map(r => ({...(r.material || {}), type: 'material'})),
             ...(module.tools || []).map(r => ({...(r.tool || {}), type: 'tool'}))
         ]) %>;
 
-        const overlay = document.getElementById('mat-modal-overlay');
-        const btnClose = document.getElementById('mat-btn-close');
-        const btnFullscreen = document.getElementById('mat-fullscreen-btn');
-        const matModelViewer = document.getElementById('mat-model-viewer');
-        const canvasWrap = document.getElementById('mat-canvas-wrap');
-        const emptyState = document.getElementById('mat-empty-state');
+        var overlay = document.getElementById('mat-modal-overlay');
+        var btnClose = document.getElementById('mat-btn-close');
+        var btnFullscreen = document.getElementById('mat-fullscreen-btn');
+        var matModelViewer = document.getElementById('mat-model-viewer');
+        var canvasWrap = document.getElementById('mat-canvas-wrap');
+        var emptyState = document.getElementById('mat-empty-state');
 
         function openModal(id, type) {
-            const item = modalData.find(m => m.id === id && m.type === type);
+            var item = modalData.find(function(m) { return m.id === id && m.type === type; });
             if (!item) return;
 
-            // Populate Header
-            const catEl = document.getElementById('mat-modal-category');
-            const catName = item.category?.name || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
-            catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${catName}`;
+            var catEl = document.getElementById('mat-modal-category');
+            var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
+            catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>' + catName;
 
             document.getElementById('mat-modal-name').textContent = item.name || '';
             document.getElementById('mat-modal-code').textContent = item.code || item.standard || '';
             document.getElementById('mat-modal-icon').textContent = item.icon || (type === 'tool' ? '🔧' : '📦');
-            
-            // Description
-            const rawDesc = item.description || '';
-            const truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
+
+            var rawDesc = item.description || '';
+            var truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
             document.getElementById('mat-modal-desc').textContent = truncDesc;
 
-            // 3D Viewer
-            let file3d = item.file3d;
-            if (!file3d && item.assets && item.assets.length > 0) {
-                file3d = item.assets[0].file;
-            }
-            const hasGlb = file3d && file3d.trim() !== '';
+            var file3d = item.file3d;
+            if (!file3d && item.assets && item.assets.length > 0) file3d = item.assets[0].file;
+            var hasGlb = file3d && file3d.trim() !== '';
 
-            const spinner = document.getElementById('mat-loading-spinner');
-            const txt = document.getElementById('mat-loading-text');
+            var spinner = document.getElementById('mat-loading-spinner');
+            var txt = document.getElementById('mat-loading-text');
             if (spinner) spinner.style.display = 'block';
             if (txt) txt.textContent = 'Memuat Skema Spasial...';
 
             if (hasGlb) {
                 emptyState.style.display = 'none';
                 matModelViewer.removeAttribute('src');
-                setTimeout(() => { matModelViewer.src = file3d; }, 50);
-
-                matModelViewer.addEventListener('error', () => {
+                setTimeout(function() { matModelViewer.src = file3d; }, 50);
+                matModelViewer.addEventListener('error', function() {
                     if (spinner) spinner.style.display = 'none';
                     if (txt) txt.textContent = 'Objek 3D tidak tersedia.';
                 }, { once: true });
@@ -616,29 +596,20 @@
                 if (txt) txt.textContent = '';
             }
 
-            // Show overlay
             overlay.style.display = 'flex';
-            // Slight delay to allow display flex to apply before adding class for opacity transition if any
-            setTimeout(() => {
-                overlay.classList.add('active');
-                // Basic fade in since we removed gsap dependency for this specific file, or add a simple CSS transition
-                overlay.style.opacity = '1'; 
-            }, 10);
+            setTimeout(function() { overlay.classList.add('active'); overlay.style.opacity = '1'; }, 10);
             document.body.style.overflow = 'hidden';
-            
-            // GSAP animation if available
+
             if (typeof gsap !== 'undefined') {
                 gsap.fromTo('#mat-modal-card',
                     { y: 50, opacity: 0, scale: 0.95 },
-                    { y: 0,  opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' }
+                    { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' }
                 );
             }
         }
 
         function closeMatModal() {
-            if (matModelViewer) {
-                matModelViewer.removeAttribute('src');
-            }
+            if (matModelViewer) matModelViewer.removeAttribute('src');
             overlay.classList.remove('active');
             overlay.style.display = 'none';
             document.body.style.overflow = '';
@@ -646,18 +617,15 @@
 
         function toggleMatFullscreen() {
             if (!document.fullscreenElement) {
-                const target = canvasWrap;
-                if (target.requestFullscreen) target.requestFullscreen().catch(err => console.error(err));
-                else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
-                else if (target.msRequestFullscreen) target.msRequestFullscreen();
+                var req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
+                if (req) req.call(canvasWrap).catch(function(err) { console.error(err); });
             } else {
-                if (document.exitFullscreen) document.exitFullscreen();
-                else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
-                else if (document.msExitFullscreen) document.msExitFullscreen();
+                var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+                if (exit) exit.call(document);
             }
         }
 
-        document.addEventListener('fullscreenchange', () => {
+        document.addEventListener('fullscreenchange', function() {
             if (document.fullscreenElement === canvasWrap) {
                 canvasWrap.style.borderRadius = '0px';
                 canvasWrap.style.border = 'none';
@@ -667,17 +635,16 @@
             }
         });
 
-        document.querySelectorAll('.mat-card').forEach(card => {
-            card.addEventListener('click', () => {
+        document.querySelectorAll('.mat-card').forEach(function(card) {
+            card.addEventListener('click', function() {
                 openModal(card.dataset.id, card.dataset.type);
             });
         });
 
         if (btnClose) btnClose.addEventListener('click', closeMatModal);
         if (btnFullscreen) btnFullscreen.addEventListener('click', toggleMatFullscreen);
-
-        overlay.addEventListener('click', e => { if (e.target === overlay) closeMatModal(); });
-        document.addEventListener('keydown', e => { if (e.key === 'Escape' && overlay.style.display === 'flex') closeMatModal(); });
+        overlay.addEventListener('click', function(e) { if (e.target === overlay) closeMatModal(); });
+        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.style.display === 'flex') closeMatModal(); });
     </script>
 </body>
 </html>
