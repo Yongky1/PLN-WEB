@@ -117,16 +117,13 @@
 <!-- ===== Scripts ===== -->
 <script>
 (function() {
-  const BACKEND_URL = '<%= process.env.BACKEND_URL || "http://localhost:4000" %>';
   let usersData = [];
   let currentFilter = 'all';
   const avatarHues = ['245','270','155','55','25','200','280','320'];
 
   async function fetchUsers() {
     try {
-      const res = await fetch(`${BACKEND_URL}/api/users`);
-      if (!res.ok) throw new Error('Gagal mengambil data pengguna');
-      const data = await res.json();
+      const data = await fetchBackend('/api/users');
       usersData = data.users || [];
       renderUsers();
       
@@ -287,18 +284,13 @@
     }
     
     try {
-      const res = await fetch(`${BACKEND_URL}/api/users`, {
+      await fetchBackend('/api/users', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password, name, unit })
       });
-      
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal menambahkan pengguna');
-      
       closeAddUserModal();
       if (typeof showToast === 'function') showToast('Pengguna ' + name + ' berhasil ditambahkan.', 'success');
-      fetchUsers(); // Refresh data
+      fetchUsers();
     } catch (err) {
       if (typeof showToast === 'function') showToast(err.message, 'error');
     }
@@ -308,15 +300,9 @@
     if (!confirm('Yakin ingin menghapus pengguna ' + name + '?')) return;
     
     try {
-      const res = await fetch(`${BACKEND_URL}/api/users/${id}`, {
-        method: 'DELETE'
-      });
-      
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Gagal menghapus pengguna');
-      
+      await fetchBackend(`/api/users/${id}`, { method: 'DELETE' });
       if (typeof showToast === 'function') showToast('Pengguna ' + name + ' telah dihapus.', 'success');
-      fetchUsers(); // Refresh data
+      fetchUsers();
     } catch (err) {
       if (typeof showToast === 'function') showToast(err.message, 'error');
     }

@@ -83,25 +83,18 @@ function dismissConfirmDialog() {
 
 /* ---- Fetch Backend (Sistem Otentikasi & Penghubung API) ---- */
 async function fetchBackend(endpoint, options = {}) {
-  // Gunakan port 4000 untuk menembak node backend
-  const apiBase = `http://${window.location.hostname}:4000`;
-  const token = localStorage.getItem('auth_token');
-
-  // Siapkan headers
+  // Semua request admin diproksikan lewat frontend server (bukan langsung ke backend)
+  // sehingga token dikelola via HttpOnly cookie di sisi server.
   const headers = { ...options.headers };
-  if (token) {
-    headers['Authorization'] = `Bearer ${token}`;
-  }
 
   // Jangan set Content-Type jika body adalah FormData (agar browser auto-set boundary)
   if (!(options.body instanceof FormData) && !headers['Content-Type']) {
     headers['Content-Type'] = 'application/json';
   }
 
-  const res = await fetch(`${apiBase}${endpoint}`, { ...options, headers });
+  const res = await fetch(endpoint, { ...options, headers, credentials: 'same-origin' });
 
   if (res.status === 401 || res.status === 403) {
-    localStorage.removeItem('auth_token');
     window.location.href = '/login';
     throw new Error('Sesi Anda telah berakhir, silakan login kembali.');
   }
@@ -176,8 +169,6 @@ function addProcRow(containerId) {
 /* ---- Logout ---- */
 function handleLogout() {
   if (confirm('Apakah Anda yakin ingin keluar?')) {
-    localStorage.removeItem('auth_token');
-    // Arahkan ke rute proxy logout agar backend juga dikabari
     window.location.href = '/admin-logout';
   }
 }

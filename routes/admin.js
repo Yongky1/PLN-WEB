@@ -13,7 +13,7 @@ const ejs = require('ejs');
 const path = require('path');
 
 // Helper: render halaman admin dengan layout
-function renderAdmin(res, page, title, subtitle, extraData = {}) {
+function renderAdmin(res, page, title, subtitle, extraData = {}, currentUser = null) {
   const viewsDir = path.join(__dirname, '..', 'views', 'admin');
   const layoutPath = path.join(viewsDir, 'layout.ejs');
   const bodyPath = path.join(viewsDir, `${page}.ejs`);
@@ -31,7 +31,8 @@ function renderAdmin(res, page, title, subtitle, extraData = {}) {
         title,
         subtitle,
         body: bodyHtml,
-        scripts: '', // opsional: inject script tambahan per halaman
+        scripts: '',
+        currentUser,
         ...extraData,
       },
       (errLayout, html) => {
@@ -54,23 +55,17 @@ router.get('/', (req, res) => res.redirect('/admin/overview'));
 
 // Overview
 router.get('/overview', (req, res) => {
-  renderAdmin(res, 'overview', 'Overview', 'Selamat datang di panel administrator');
-  // TODO (back end): tambahkan data statistik dari DB:
-  // const stats = await db.getStats();
-  // renderAdmin(res, 'overview', 'Overview', '...', { stats });
+  renderAdmin(res, 'overview', 'Overview', 'Selamat datang di panel administrator', {}, req.user);
 });
 
 // Laporan
 router.get('/laporan', (req, res) => {
-  renderAdmin(res, 'laporan', 'Laporan', 'Statistik dan laporan penggunaan platform');
-  // TODO (back end): const reports = await db.getReports(req.query.period);
+  renderAdmin(res, 'laporan', 'Laporan', 'Statistik dan laporan penggunaan platform', {}, req.user);
 });
 
 // Manajemen User
 router.get('/users', (req, res) => {
-  renderAdmin(res, 'users', 'Manajemen User', 'Kelola akun dan akses pengguna');
-  // TODO (back end): const users = await db.getUsers();
-  // renderAdmin(res, 'users', ..., { users });
+  renderAdmin(res, 'users', 'Manajemen User', 'Kelola akun dan akses pengguna', {}, req.user);
 });
 
 // Modul Konten
@@ -91,42 +86,35 @@ router.get('/modules', async (req, res) => {
       modules,
       materials,
       tools,
-    });
+    }, req.user);
   } catch (err) {
     console.error(err);
     renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul, material, dan peralatan', {
       modules: [],
       materials: [],
       tools: [],
-    });
+    }, req.user);
   }
 });
 
 // Manajemen Konstruksi
 router.get('/konstruksi', (req, res) => {
-  renderAdmin(
-    res,
-    'konstruksi',
-    'Manajemen Konstruksi',
-    'Tambah dan kelola data konstruksi jaringan'
-  );
-  // TODO (back end): const konstruksiList = await db.getKonstruksi();
+  renderAdmin(res, 'konstruksi', 'Manajemen Konstruksi', 'Tambah dan kelola data konstruksi jaringan', {}, req.user);
 });
 
 // Manajemen Material
 router.get('/material', (req, res) => {
-  renderAdmin(res, 'material', 'Manajemen Material', 'Tambah dan kelola katalog material jaringan');
-  // TODO (back end): const materialList = await db.getMaterial();
+  renderAdmin(res, 'material', 'Manajemen Material', 'Tambah dan kelola katalog material jaringan', {}, req.user);
 });
 
 // Manajemen Peralatan (Tools)
 router.get('/tools', (req, res) => {
-  renderAdmin(res, 'tools', 'Manajemen Peralatan', 'Tambah dan kelola katalog alat lapangan');
+  renderAdmin(res, 'tools', 'Manajemen Peralatan', 'Tambah dan kelola katalog alat lapangan', {}, req.user);
 });
 
 // Manajemen Kategori
 router.get('/categories', (req, res) => {
-  renderAdmin(res, 'categories', 'Manajemen Kategori', 'Kelola kategori material dan peralatan');
+  renderAdmin(res, 'categories', 'Manajemen Kategori', 'Kelola kategori material dan peralatan', {}, req.user);
 });
 
 // Mesh Mapping — per modul
@@ -137,13 +125,7 @@ router.get('/konstruksi/:id/mapping', async (req, res) => {
     const moduleRes = await fetch(`${base}/api/modules/${id}`);
     if (!moduleRes.ok) return res.redirect('/admin/modules');
     const moduleData = await moduleRes.json();
-    renderAdmin(
-      res,
-      'mapping',
-      `Mesh Mapping`,
-      `Hubungkan mesh 3D ke material & peralatan — ${moduleData.title}`,
-      { moduleData }
-    );
+    renderAdmin(res, 'mapping', `Mesh Mapping`, `Hubungkan mesh 3D ke material & peralatan — ${moduleData.title}`, { moduleData }, req.user);
   } catch (err) {
     console.error('[Admin] Error loading mapping page:', err);
     res.redirect('/admin/modules');
@@ -152,10 +134,9 @@ router.get('/konstruksi/:id/mapping', async (req, res) => {
 
 // Pengaturan
 router.get('/settings', (req, res) => {
-  // req.user diset oleh authGuard di server.js
   renderAdmin(res, 'settings', 'Pengaturan', 'Konfigurasi sistem dan preferensi admin', {
     adminProfile: req.user,
-  });
+  }, req.user);
 });
 
 module.exports = router;

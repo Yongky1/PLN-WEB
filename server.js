@@ -14,6 +14,37 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+// ── In-memory cache dengan stale-while-revalidate ─────────────────────────────
+// Serve dari cache langsung jika ada, refresh ke backend di background.
+// Hanya untuk public pages (data katalog yang boleh sedikit stale).
+const _cache = new Map();
+const CACHE_FRESH_MS = 30_000;   // 30 detik: langsung dari cache
+const CACHE_STALE_MS = 120_000;  // 2 menit: serve stale, refresh background
+
+async function cachedFetch(url) {
+  const now = Date.now();
+  const hit = _cache.get(url);
+
+  const doFetch = async () => {
+    const res = await fetch(url);
+    if (!res.ok) throw new Error(`Backend error ${res.status}`);
+    const data = await res.json();
+    _cache.set(url, { data, ts: Date.now() });
+    return data;
+  };
+
+  if (hit) {
+    const age = now - hit.ts;
+    if (age < CACHE_FRESH_MS) return hit.data;                        // fresh → langsung
+    if (age < CACHE_STALE_MS) {
+      doFetch().catch(e => console.error('[cache] refresh error:', e.message)); // stale → background refresh
+      return hit.data;
+    }
+  }
+
+  return doFetch(); // cache kosong → tunggu (hanya request pertama)
+}
+
 app.use(cookieParser());
 app.use(
   helmet({
@@ -57,17 +88,10 @@ app.get('/', (req, res) => {
 
 app.get('/tools', async (req, res) => {
   try {
-    const fetchRes = await fetch(`${BACKEND_URL}/api/tools`);
-    if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
-    const dbTools = await fetchRes.json();
-
-    let categories = [];
-    try {
-      const catRes = await fetch(`${BACKEND_URL}/api/categories?type=tool`);
-      if (catRes.ok) categories = await catRes.json();
-    } catch (e) {
-      console.error('Gagal fetch kategori tools:', e.message);
-    }
+    const [dbTools, categories] = await Promise.all([
+      cachedFetch(`${BACKEND_URL}/api/tools`),
+      cachedFetch(`${BACKEND_URL}/api/categories?type=tool`).catch(() => []),
+    ]);
 
     // Mapping kolom DB → field yang dibutuhkan tools.ejs
     const toolsData = dbTools.map((t) => ({
@@ -102,17 +126,10 @@ app.get('/tools', async (req, res) => {
 
 app.get('/material', async (req, res) => {
   try {
-    const fetchRes = await fetch(`${BACKEND_URL}/api/materials`);
-    if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
-    const dbMaterials = await fetchRes.json();
-
-    let categories = [];
-    try {
-      const catRes = await fetch(`${BACKEND_URL}/api/categories?type=material`);
-      if (catRes.ok) categories = await catRes.json();
-    } catch (e) {
-      console.error('Gagal fetch kategori materials:', e.message);
-    }
+    const [dbMaterials, categories] = await Promise.all([
+      cachedFetch(`${BACKEND_URL}/api/materials`),
+      cachedFetch(`${BACKEND_URL}/api/categories?type=material`).catch(() => []),
+    ]);
 
     // Mapping kolom DB → field yang dibutuhkan material.ejs
     const materialData = dbMaterials.map((m) => ({
@@ -148,9 +165,7 @@ app.get('/material', async (req, res) => {
 app.get('/ModulKonstruksi', async (req, res) => {
   try {
     const sort = req.query.sort || 'newest';
-    const fetchRes = await fetch(`${BACKEND_URL}/api/modules?sort=${sort}`);
-    if (!fetchRes.ok) throw new Error(`Backend error: ${fetchRes.status}`);
-    let dbModules = await fetchRes.json();
+    let dbModules = await cachedFetch(`${BACKEND_URL}/api/modules?sort=${sort}`);
 
     // Pastikan yang diterima adalah array (bukan objek error)
     if (!Array.isArray(dbModules)) {
@@ -190,11 +205,7 @@ app.get('/ModulKonstruksi', async (req, res) => {
 app.get('/ModulKonstruksi/:id', async (req, res) => {
   const moduleId = req.params.id;
   try {
-    const fetchRes = await fetch(`${BACKEND_URL}/api/modules/${moduleId}`);
-    if (!fetchRes.ok) {
-      return res.redirect('/ModulKonstruksi');
-    }
-    const moduleItem = await fetchRes.json();
+    const moduleItem = await cachedFetch(`${BACKEND_URL}/api/modules/${moduleId}`);
 
     const mappedModule = {
       id: moduleItem.id,
@@ -433,6 +444,189 @@ app.post('/api/modules/:id/mesh-config', async (req, res) => {
     res.status(response.status).json(data);
   } catch (err) {
     console.error('Mesh-config post proxy error:', err);
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+// ── Proxy Routes: Users (admin only) ─────────────────────────────────────────
+const proxyAuthHeader = (req) => ({ Authorization: `Bearer ${req.cookies.auth_token}` });
+
+const requireCookie = (req, res) => {
+  if (!req.cookies.auth_token) {
+    res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+    return false;
+  }
+  return true;
+};
+
+app.get('/api/users', async (req, res) => {
+  if (!requireCookie(req, res)) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/users`, {
+      headers: proxyAuthHeader(req),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+app.post('/api/users', async (req, res) => {
+  if (!requireCookie(req, res)) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...proxyAuthHeader(req) },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+app.put('/api/users/:id', async (req, res) => {
+  if (!requireCookie(req, res)) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/users/${req.params.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...proxyAuthHeader(req) },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+app.delete('/api/users/:id', async (req, res) => {
+  if (!requireCookie(req, res)) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/users/${req.params.id}`, {
+      method: 'DELETE',
+      headers: proxyAuthHeader(req),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+// ── Proxy Routes: Categories ───────────────────────────────────────────────────
+app.get('/api/categories', async (req, res) => {
+  try {
+    const qs = req.query.type ? `?type=${req.query.type}` : '';
+    const response = await fetch(`${BACKEND_URL}/api/categories${qs}`);
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+app.post('/api/categories', async (req, res) => {
+  if (!requireCookie(req, res)) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/categories`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...proxyAuthHeader(req) },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+app.put('/api/categories/:id', async (req, res) => {
+  if (!requireCookie(req, res)) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/categories/${req.params.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', ...proxyAuthHeader(req) },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+app.delete('/api/categories/:id', async (req, res) => {
+  if (!requireCookie(req, res)) return;
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/categories/${req.params.id}`, {
+      method: 'DELETE',
+      headers: proxyAuthHeader(req),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+// ── Generic API Proxy (catch-all untuk endpoint yang belum ditangani route spesifik) ──
+// Semua /api/* yang tidak tertangkap route di atas akan di-proxy ke backend.
+// Token diambil dari HttpOnly cookie sehingga JS client tidak perlu menyimpan token.
+app.all('/api/*', async (req, res) => {
+  const token = req.cookies.auth_token;
+  const qs = Object.keys(req.query).length ? '?' + new URLSearchParams(req.query).toString() : '';
+  const targetUrl = `${BACKEND_URL}${req.path}${qs}`;
+
+  const forwardHeaders = {};
+  if (token) forwardHeaders['Authorization'] = `Bearer ${token}`;
+
+  const contentType = req.headers['content-type'] || '';
+  const isMultipart = contentType.includes('multipart/form-data');
+  const hasJsonBody = contentType.includes('application/json') && ['POST', 'PUT', 'PATCH'].includes(req.method);
+
+  let fetchOptions;
+  if (isMultipart) {
+    // Pipe stream langsung ke backend — body belum dibaca oleh express.json()
+    forwardHeaders['Content-Type'] = contentType;
+    if (req.headers['content-length']) forwardHeaders['Content-Length'] = req.headers['content-length'];
+    fetchOptions = { method: req.method, headers: forwardHeaders, body: req, duplex: 'half' };
+  } else if (hasJsonBody) {
+    forwardHeaders['Content-Type'] = 'application/json';
+    fetchOptions = { method: req.method, headers: forwardHeaders, body: JSON.stringify(req.body) };
+  } else {
+    fetchOptions = { method: req.method, headers: forwardHeaders };
+  }
+
+  try {
+    const response = await fetch(targetUrl, fetchOptions);
+    const responseContentType = response.headers.get('content-type') || '';
+
+    // Invalidate cache saat admin ubah data katalog
+    if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+      const path = req.path;
+      if (path.startsWith('/api/modules')) {
+        for (const key of _cache.keys()) if (key.includes('/api/modules')) _cache.delete(key);
+      } else if (path.startsWith('/api/materials') || path.startsWith('/api/material-assets')) {
+        for (const key of _cache.keys()) if (key.includes('/api/materials')) _cache.delete(key);
+      } else if (path.startsWith('/api/tools')) {
+        for (const key of _cache.keys()) if (key.includes('/api/tools')) _cache.delete(key);
+      } else if (path.startsWith('/api/categories')) {
+        for (const key of _cache.keys()) if (key.includes('/api/categories')) _cache.delete(key);
+      }
+    }
+
+    if (responseContentType.includes('application/json')) {
+      const data = await response.json();
+      res.status(response.status).json(data);
+    } else {
+      const text = await response.text();
+      res.status(response.status).send(text);
+    }
+  } catch (err) {
+    console.error(`[API Proxy] ${req.method} ${req.path} error:`, err.message);
     res.status(500).json({ error: 'Gagal terhubung ke backend server' });
   }
 });

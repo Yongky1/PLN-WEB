@@ -83,10 +83,10 @@
     <!-- Footer user card -->
     <div class="rd-sidebar-footer">
       <div class="rd-user-card">
-        <div class="rd-avatar">A</div>
+        <div class="rd-avatar"><%= typeof currentUser !== 'undefined' && currentUser ? (currentUser.name || currentUser.email || 'A')[0].toUpperCase() : 'A' %></div>
         <div class="rd-user-info">
-          <div class="uname">Admin PLN</div>
-          <div class="urole">Super Admin</div>
+          <div class="uname"><%= typeof currentUser !== 'undefined' && currentUser ? (currentUser.name || currentUser.email) : 'Admin PLN' %></div>
+          <div class="urole"><%= typeof currentUser !== 'undefined' && currentUser && currentUser.unit ? currentUser.unit : 'Administrator' %></div>
         </div>
       </div>
       <button class="rd-logout" onclick="handleLogout()">

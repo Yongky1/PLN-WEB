@@ -930,8 +930,6 @@
 
         if (!res.ok) throw new Error(result.error || result.message || 'Login gagal');
 
-        localStorage.setItem('auth_token', result.token);
-
         await fetch('/set-session', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
