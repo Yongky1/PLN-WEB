@@ -467,6 +467,86 @@
     pointer-events: none;
     white-space: nowrap;
   }
+
+  /* ── Mesh Overview ── */
+  .mp-overview-hint {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 2px 0 4px;
+  }
+
+  .mp-mesh-group-label {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    padding: 6px 0 3px;
+  }
+  .mp-mesh-group-label:first-child { padding-top: 0; }
+
+  .mp-mesh-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 5px 7px;
+    border-radius: var(--radius-sm);
+    margin-bottom: 2px;
+    border: 1px solid transparent;
+    transition: background .12s, border-color .12s;
+    scroll-margin-top: 8px;
+  }
+  .mp-mesh-row:hover { background: rgba(255,255,255,0.03); }
+  .mp-mesh-row.is-focused {
+    background: rgba(251,191,36,0.07);
+    border-color: rgba(251,191,36,0.22);
+  }
+  .mp-mesh-row.is-focused .mp-mesh-row-name { color: #fbbf24; }
+
+  .mp-mesh-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 3px;
+  }
+  .mp-mesh-dot.connected {
+    background: #4ade80;
+    box-shadow: 0 0 4px rgba(74,222,128,0.5);
+  }
+  .mp-mesh-dot.unconnected {
+    background: transparent;
+    border: 1.5px solid rgba(255,255,255,0.2);
+  }
+
+  .mp-mesh-row-info { flex: 1; min-width: 0; }
+  .mp-mesh-row-name {
+    font-size: 11.5px;
+    font-weight: 600;
+    font-family: var(--font-mono);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.35;
+  }
+  .mp-mesh-row-sub {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mp-mesh-row-sub.connected { color: rgba(74,222,128,0.65); }
+
+  .mp-cfg-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 0;
+  }
 </style>
 
 <!-- Embedded module data for JS -->
@@ -536,7 +616,7 @@
     <div class="mp-panel-header">
       <div>
         <h3 class="mp-panel-title">Mapping Mesh</h3>
-        <p class="mp-panel-subtitle">Hubungkan mesh ke material &amp; peralatan</p>
+        <p class="mp-panel-subtitle">Hubungkan mesh ke material</p>
       </div>
       <button class="mp-save-all-btn" id="mp-save-all-btn">
         <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -599,60 +679,29 @@
       </div>
       <% } %>
 
-      <!-- Tools section -->
-      <% if (hasTools) { %>
-      <div class="mp-section">
-        <div class="mp-section-header">
-          <span class="mp-section-label">Peralatan</span>
-          <span class="mp-section-count"><%= moduleData.tools.length %></span>
-        </div>
-
-        <% moduleData.tools.forEach(function(row) {
-          const tool = row.tool || {};
-          const hasMeshName = !!(row.mesh_name && row.mesh_name.trim());
-        %>
-        <div class="mp-item" data-id="<%= row.id %>" data-type="tool">
-          <div class="mp-item-header">
-            <% if (tool.image) { %>
-            <img class="mp-item-thumb" src="<%= tool.image %>" alt="">
-            <% } else { %>
-            <div class="mp-item-thumb-placeholder">🔧</div>
-            <% } %>
-            <div class="mp-item-meta">
-              <div class="mp-item-name"><%- tool.name || '-' %></div>
-              <div class="mp-item-sub"><%= tool.category || '' %><% if (tool.standard) { %> · <%= tool.standard %><% } %></div>
-            </div>
-            <span class="mp-status-badge <%= hasMeshName ? 'ok' : 'empty' %>" id="mp-status-<%= row.id %>">
-              <%= hasMeshName ? '✓' : '✗' %>
-            </span>
-          </div>
-          <div class="mp-item-control">
-            <input
-              type="text"
-              class="mp-mesh-input"
-              id="mp-input-<%= row.id %>"
-              list="mp-mesh-datalist"
-              value="<%= row.mesh_name || '' %>"
-              placeholder="Pilih atau ketik nama mesh..."
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button class="mp-save-item-btn" onclick="mpSaveItem(this)">Simpan</button>
-          </div>
-        </div>
-        <% }); %>
-      </div>
-      <% } %>
-
-      <% if (!hasMaterials && !hasTools) { %>
+      <% if (!hasMaterials) { %>
       <div class="mp-empty-state">
         <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted);opacity:0.5">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
         </svg>
-        <p>Belum ada material atau peralatan yang<br>terhubung ke modul ini.</p>
+        <p>Belum ada material yang<br>terhubung ke modul ini.</p>
         <a href="/admin/modules">Kelola di halaman Modul →</a>
       </div>
       <% } %>
+
+      <% if (hasMaterials) { %>
+      <div class="mp-cfg-divider"></div>
+      <% } %>
+
+      <!-- ── Mesh Overview Section (populated by JS after GLB load) ── -->
+      <div class="mp-section">
+        <div class="mp-section-header">
+          <span class="mp-section-label">Status Mesh</span>
+          <span class="mp-section-count" id="mp-mesh-overview-count">—</span>
+        </div>
+        <p class="mp-overview-hint" id="mp-overview-hint">Menunggu model 3D dimuat...</p>
+        <div id="mp-mesh-overview-body"></div>
+      </div>
 
     </div>
   </div>
@@ -695,7 +744,7 @@
     const item = btn.closest('.mp-item');
     const id   = item.dataset.id;
     const type = item.dataset.type;
-    const input = document.getElementById('mp-input-' + id);
+    const input = item.querySelector('.mp-mesh-input');
     const meshName = input ? input.value.trim() : '';
 
     btn.disabled = true;
@@ -718,6 +767,7 @@
       }
 
       mpUpdateStatus(id, !!meshName);
+      if (typeof window.mpRefreshMeshOverview === 'function') window.mpRefreshMeshOverview();
       mpToast('mesh_name berhasil disimpan', 'success');
     } catch (err) {
       mpToast('Gagal: ' + err.message, 'error');
@@ -739,7 +789,7 @@
     const results = await Promise.allSettled([...items].map(async item => {
       const id    = item.dataset.id;
       const type  = item.dataset.type;
-      const input = document.getElementById('mp-input-' + id);
+      const input = item.querySelector('.mp-mesh-input');
       const meshName = input ? input.value.trim() : '';
 
       const endpoint = type === 'material'
@@ -762,6 +812,7 @@
 
     const failed = results.filter(r => r.status === 'rejected').length;
     if (failed === 0) {
+      if (typeof window.mpRefreshMeshOverview === 'function') window.mpRefreshMeshOverview();
       mpToast(`Semua ${items.length} item berhasil disimpan`, 'success');
     } else {
       mpToast(`${failed} item gagal disimpan`, 'error');
@@ -789,6 +840,99 @@
     });
     mpToast(`"${meshName}" diisi ke ${emptyInputs.length} item kosong`, 'info');
   });
+
+  /* ── Mesh Overview ── */
+  let mpMeshNames = []; // semua nama mesh dari GLB
+
+  /* Baca assignment saat ini dari nilai input di DOM */
+  function mpBuildAssignmentMap() {
+    const map = {};
+    document.querySelectorAll('.mp-item[data-type="material"]').forEach(item => {
+      const input = item.querySelector('.mp-mesh-input');
+      const mn = input ? input.value.trim() : '';
+      if (!mn) return;
+      const name = (item.querySelector('.mp-item-name') || {}).textContent || '?';
+      if (!map[mn]) map[mn] = { materials: [] };
+      map[mn].materials.push(name.trim());
+    });
+    return map;
+  }
+
+  /* Render 2 grup mesh di panel kanan */
+  function mpRenderMeshOverview() {
+    const body  = document.getElementById('mp-mesh-overview-body');
+    const count = document.getElementById('mp-mesh-overview-count');
+    const hint  = document.getElementById('mp-overview-hint');
+    if (!body) return;
+
+    if (mpMeshNames.length === 0) {
+      if (hint) hint.textContent = 'Tidak ada mesh ditemukan.';
+      return;
+    }
+    if (hint) hint.style.display = 'none';
+    if (count) count.textContent = mpMeshNames.length;
+
+    const assignMap = mpBuildAssignmentMap();
+    const connected   = mpMeshNames.filter(n => assignMap[n]);
+    const unconnected = mpMeshNames.filter(n => !assignMap[n]);
+
+    let html = '';
+
+    if (connected.length > 0) {
+      html += `<div class="mp-mesh-group-label">Sudah Terhubung (${connected.length})</div>`;
+      connected.forEach(name => {
+        const conn = assignMap[name];
+        const subtitle = (conn.materials || []).join(', ');
+        const safe = name.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        html += `<div class="mp-mesh-row" data-mesh-overview="${safe}">
+          <span class="mp-mesh-dot connected"></span>
+          <div class="mp-mesh-row-info">
+            <div class="mp-mesh-row-name">${safe}</div>
+            <div class="mp-mesh-row-sub connected">${subtitle.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+          </div>
+        </div>`;
+      });
+    }
+
+    if (unconnected.length > 0) {
+      html += `<div class="mp-mesh-group-label" style="${connected.length ? 'margin-top:8px;' : ''}">Belum Terhubung (${unconnected.length})</div>`;
+      unconnected.forEach(name => {
+        const safe = name.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        html += `<div class="mp-mesh-row" data-mesh-overview="${safe}">
+          <span class="mp-mesh-dot unconnected"></span>
+          <div class="mp-mesh-row-info">
+            <div class="mp-mesh-row-name">${safe}</div>
+            <div class="mp-mesh-row-sub">Klik mesh di 3D untuk assign</div>
+          </div>
+        </div>`;
+      });
+    }
+
+    body.innerHTML = html;
+  }
+
+  /* Dipanggil dari module script saat GLB selesai dimuat */
+  window.mpOnMeshesLoaded = function(meshNames) {
+    mpMeshNames = meshNames;
+    mpRenderMeshOverview();
+  };
+
+  /* Dipanggil dari module script saat mesh diklik di 3D (atau dikosongkan) */
+  window.mpOnMeshClick = function(meshName) {
+    const body = document.getElementById('mp-mesh-overview-body');
+    if (!body) return;
+    body.querySelectorAll('.mp-mesh-row').forEach(r => r.classList.remove('is-focused'));
+    if (!meshName) return;
+    const row = [...body.querySelectorAll('.mp-mesh-row')]
+      .find(r => r.dataset.meshOverview === meshName);
+    if (row) {
+      row.classList.add('is-focused');
+      row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  };
+
+  /* Re-render overview setelah save berhasil */
+  window.mpRefreshMeshOverview = function() { mpRenderMeshOverview(); };
 </script>
 
 <!-- ═══════════════ THREE.JS — 3D VIEWER ═══════════════ -->
@@ -910,6 +1054,7 @@ function clearHighlight() {
   meshNameEl.classList.remove('has-selection');
   applyBtn.classList.remove('visible');
   window.mpSelectedMeshName = null;
+  if (typeof window.mpOnMeshClick === 'function') window.mpOnMeshClick('');
 }
 
 /* ── Mesh name datalist ── */
@@ -991,6 +1136,10 @@ function loadAsset(index) {
     });
     populateDatalist(names);
 
+    if (typeof window.mpOnMeshesLoaded === 'function') {
+      window.mpOnMeshesLoaded(names);
+    }
+
     loadingEl.style.display = 'none';
   }, undefined, () => {
     loadingTextEl.textContent = 'File 3D tidak tersedia.';
@@ -1037,6 +1186,7 @@ canvas.addEventListener('click', e => {
   meshNameEl.classList.toggle('has-selection', !!name);
 
   window.mpSelectedMeshName = name;
+  if (typeof window.mpOnMeshClick === 'function') window.mpOnMeshClick(name);
 
   /* Show "apply to empty" button if there are empty items */
   const hasEmpty = [...document.querySelectorAll('.mp-mesh-input')].some(i => !i.value.trim());

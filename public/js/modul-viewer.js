@@ -26,10 +26,13 @@ let selectedMesh  = null;
 // ── Module data (mesh_name → DB materials/tools) ──────────────────────────────
 let moduleMaterials = [];
 let moduleTools     = [];
+let moduleId        = null;
+let mappedMeshSet   = null; // null = belum di-fetch, Set = sudah (bisa kosong)
 try {
     const _d    = JSON.parse(document.getElementById('module-data').textContent);
     moduleMaterials = _d.materials || [];
     moduleTools     = _d.tools     || [];
+    moduleId        = _d.id        || null;
 } catch (_) {}
 
 // ── Three.js ──────────────────────────────────────────────────────────────────
@@ -209,6 +212,17 @@ function showMeshPanel(mesh) {
     meshPanel.classList.add('active');
 }
 
+// ── Mapped meshes ─────────────────────────────────────────────────────────────
+async function fetchMappedMeshes() {
+    if (!moduleId) return;
+    try {
+        const res = await fetch(`/api/modules/${moduleId}/mapped-meshes`);
+        if (!res.ok) return;
+        const names = await res.json();
+        mappedMeshSet = new Set(Array.isArray(names) ? names : []);
+    } catch (_) {}
+}
+
 // ── Model disposal ────────────────────────────────────────────────────────────
 function disposeModel(model) {
     model.traverse((obj) => {
@@ -298,7 +312,11 @@ canvas.addEventListener('click', (e) => {
 
     const meshes = [];
     if (currentModel) {
-        currentModel.traverse((obj) => { if (obj.isMesh) meshes.push(obj); });
+        currentModel.traverse((obj) => {
+            if (!obj.isMesh) return;
+            // null = belum ter-fetch (izinkan semua), Set = filter hanya yang terhubung
+            if (mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
+        });
     }
 
     const hits = raycaster.intersectObjects(meshes, false);
@@ -345,6 +363,8 @@ function init() {
 
     const ro = new ResizeObserver(updateSize);
     ro.observe(container);
+
+    fetchMappedMeshes();
 
     if (currentAssets.length === 0) {
         setLoadingState(false, 'Belum ada file 3D yang diunggah.');

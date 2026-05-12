@@ -266,7 +266,7 @@
                 <%- JSON.stringify(module.assets || []) %>
             </script>
             <script type="application/json" id="module-data">
-                <%- JSON.stringify({ materials: module.materials || [], tools: module.tools || [] }) %>
+                <%- JSON.stringify({ id: module.id, materials: module.materials || [], tools: module.tools || [] }) %>
             </script>
 
             <!-- Viewer and Info Grid layout -->

@@ -395,6 +395,48 @@ app.patch('/api/module-tools/:id/mesh-name', async (req, res) => {
   }
 });
 
+// Proxy GET: mapped mesh names (public — dipakai viewer publik)
+app.get('/api/modules/:id/mapped-meshes', async (req, res) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/modules/${req.params.id}/mapped-meshes`);
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Mapped-meshes proxy error:', err);
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+// Proxy GET: mesh config (public — dipakai viewer publik & admin)
+app.get('/api/modules/:id/mesh-config', async (req, res) => {
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/modules/${req.params.id}/mesh-config`);
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Mesh-config get proxy error:', err);
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
+// Proxy POST: mesh config upsert (auth required — hanya admin)
+app.post('/api/modules/:id/mesh-config', async (req, res) => {
+  const token = req.cookies.auth_token;
+  if (!token) return res.status(401).json({ error: 'Sesi anda telah berakhir. Silakan login ulang.' });
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/modules/${req.params.id}/mesh-config`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
+      body: JSON.stringify(req.body),
+    });
+    const data = await response.json();
+    res.status(response.status).json(data);
+  } catch (err) {
+    console.error('Mesh-config post proxy error:', err);
+    res.status(500).json({ error: 'Gagal terhubung ke backend server' });
+  }
+});
+
 // Admin routes - Menggunakan authGuard
 app.use('/admin', authGuard, adminRouter);
 
