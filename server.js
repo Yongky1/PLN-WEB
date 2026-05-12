@@ -7,43 +7,14 @@ const adminRouter = require('./routes/admin');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
+const { cachedFetch, invalidateCache } = require('./utils/cache');
+const { authGuard } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
-
-// ── In-memory cache dengan stale-while-revalidate ─────────────────────────────
-// Serve dari cache langsung jika ada, refresh ke backend di background.
-// Hanya untuk public pages (data katalog yang boleh sedikit stale).
-const _cache = new Map();
-const CACHE_FRESH_MS = 30_000;   // 30 detik: langsung dari cache
-const CACHE_STALE_MS = 120_000;  // 2 menit: serve stale, refresh background
-
-async function cachedFetch(url) {
-  const now = Date.now();
-  const hit = _cache.get(url);
-
-  const doFetch = async () => {
-    const res = await fetch(url);
-    if (!res.ok) throw new Error(`Backend error ${res.status}`);
-    const data = await res.json();
-    _cache.set(url, { data, ts: Date.now() });
-    return data;
-  };
-
-  if (hit) {
-    const age = now - hit.ts;
-    if (age < CACHE_FRESH_MS) return hit.data;                        // fresh → langsung
-    if (age < CACHE_STALE_MS) {
-      doFetch().catch(e => console.error('[cache] refresh error:', e.message)); // stale → background refresh
-      return hit.data;
-    }
-  }
-
-  return doFetch(); // cache kosong → tunggu (hanya request pertama)
-}
 
 app.use(cookieParser());
 app.use(
@@ -227,41 +198,6 @@ app.get('/ModulKonstruksi/:id', async (req, res) => {
     res.redirect('/ModulKonstruksi');
   }
 });
-
-// Middleware Proteksi Rute Admin
-// Verifikasi token ke backend — bukan hanya cek keberadaan cookie
-const authGuard = async (req, res, next) => {
-  const token = req.cookies.auth_token;
-
-  // 1. Cookie tidak ada → langsung lempar ke login
-  if (!token) {
-    return res.redirect('/login');
-  }
-
-  try {
-    // 2. Verifikasi token ke backend (Supabase)
-    const verifyRes = await fetch(`${BACKEND_URL}/api/auth/verify`, {
-      method: 'GET',
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!verifyRes.ok) {
-      // Token expired / tidak valid → hapus cookie & redirect login
-      res.clearCookie('auth_token');
-      return res.redirect('/login');
-    }
-
-    const data = await verifyRes.json();
-    req.user = data.user; // Simpan data user (id, name, email, unit) di req.user
-
-    next();
-  } catch (err) {
-    // Backend tidak bisa dihubungi → amankan dengan redirect login
-    console.error('authGuard: Gagal verifikasi token ke backend:', err.message);
-    res.clearCookie('auth_token');
-    return res.redirect('/login');
-  }
-};
 
 // Admin login route
 app.get('/login', (req, res) => {
@@ -608,13 +544,13 @@ app.all('/api/*', async (req, res) => {
     if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
       const path = req.path;
       if (path.startsWith('/api/modules')) {
-        for (const key of _cache.keys()) if (key.includes('/api/modules')) _cache.delete(key);
+        invalidateCache('/api/modules');
       } else if (path.startsWith('/api/materials') || path.startsWith('/api/material-assets')) {
-        for (const key of _cache.keys()) if (key.includes('/api/materials')) _cache.delete(key);
+        invalidateCache('/api/materials');
       } else if (path.startsWith('/api/tools')) {
-        for (const key of _cache.keys()) if (key.includes('/api/tools')) _cache.delete(key);
+        invalidateCache('/api/tools');
       } else if (path.startsWith('/api/categories')) {
-        for (const key of _cache.keys()) if (key.includes('/api/categories')) _cache.delete(key);
+        invalidateCache('/api/categories');
       }
     }
 
