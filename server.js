@@ -4,10 +4,11 @@ const ejs = require('ejs');
 const cookieParser = require('cookie-parser');
 const os = require('os');
 const adminRouter = require('./routes/admin');
+const pagesRouter = require('./routes/pages');
 const helmet = require('helmet');
 const morgan = require('morgan');
 const compression = require('compression');
-const { cachedFetch, invalidateCache } = require('./utils/cache');
+const { invalidateCache } = require('./utils/cache');
 const { authGuard } = require('./middleware/auth');
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -50,163 +51,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
 app.use('/scripts/three/jsm', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));
 
-app.get('/', (req, res) => {
-  res.render('index', {
-    title: 'PLN Pusdiklat — Ekosistem Pembelajaran Masa Depan',
-    currentPage: 'home',
-  });
-});
-
-app.get('/tools', async (req, res) => {
-  try {
-    const [dbTools, categories] = await Promise.all([
-      cachedFetch(`${BACKEND_URL}/api/tools`),
-      cachedFetch(`${BACKEND_URL}/api/categories?type=tool`).catch(() => []),
-    ]);
-
-    // Mapping kolom DB → field yang dibutuhkan tools.ejs
-    const toolsData = dbTools.map((t) => ({
-      id: t.id,
-      name: t.name,
-      category: t.category?.id || 'teknis',
-      categoryLabel: t.category?.name || 'Teknis',
-      bgGradient: t.bgGradient || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
-      description: t.description || '',
-      standard: t.standard || '-',
-      status: t.status || 'Wajib',
-      file3d: t.file3d || null,
-      image: t.image || null,
-    }));
-
-    res.render('tools', {
-      title: 'Tools & Alat K3 — PLN Pusdiklat',
-      toolsData,
-      categories,
-      currentPage: 'tools',
-    });
-  } catch (err) {
-    console.error('[/tools] Gagal fetch data dari backend:', err.message);
-    res.render('tools', {
-      title: 'Tools & Alat K3 — PLN Pusdiklat',
-      toolsData: [],
-      categories: [],
-      currentPage: 'tools',
-    });
-  }
-});
-
-app.get('/material', async (req, res) => {
-  try {
-    const [dbMaterials, categories] = await Promise.all([
-      cachedFetch(`${BACKEND_URL}/api/materials`),
-      cachedFetch(`${BACKEND_URL}/api/categories?type=material`).catch(() => []),
-    ]);
-
-    // Mapping kolom DB → field yang dibutuhkan material.ejs
-    const materialData = dbMaterials.map((m) => ({
-      id: m.id,
-      name: m.name,
-      code: m.code || '',
-      category: m.category?.id || 'lainnya',
-      categoryLabel: m.category?.name || 'Lainnya',
-      bgGradient: m.bgGradient || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
-      description: m.description || '',
-      image: m.image || null,
-      // file3d: ambil asset pertama jika ada (material_assets)
-      file3d: m.assets && m.assets.length > 0 ? m.assets[0].file : null,
-    }));
-
-    res.render('material', {
-      title: 'Material Jaringan — PLN Pusdiklat',
-      materialData,
-      categories,
-      currentPage: 'material',
-    });
-  } catch (err) {
-    console.error('[/material] Gagal fetch data dari backend:', err.message);
-    res.render('material', {
-      title: 'Material Jaringan — PLN Pusdiklat',
-      materialData: [],
-      categories: [],
-      currentPage: 'material',
-    });
-  }
-});
-
-app.get('/ModulKonstruksi', async (req, res) => {
-  try {
-    const sort = req.query.sort || 'newest';
-    let dbModules = await cachedFetch(`${BACKEND_URL}/api/modules?sort=${sort}`);
-
-    // Pastikan yang diterima adalah array (bukan objek error)
-    if (!Array.isArray(dbModules)) {
-      console.error('[/ModulKonstruksi] Backend tidak mengembalikan array:', dbModules);
-      dbModules = [];
-    }
-
-    const activeModules = dbModules.map((m) => ({
-      id: m.id,
-      title: m.title,
-      description: m.description,
-      image: m.image,
-      materialCount: m.materials && m.materials[0] ? (m.materials[0].count ?? 0) : 0,
-      equipmentCount: m.tools && m.tools[0] ? (m.tools[0].count ?? 0) : 0,
-      assets: m.assets || [],
-    }));
-
-    res.render('ModulKonstruksi', {
-      title: 'Modul Pembelajaran — PLN Pusdiklat',
-      activeModules,
-      inactiveModules: [],
-      currentSort: sort,
-      currentPage: 'konstruksi',
-    });
-  } catch (err) {
-    console.error(err);
-    res.render('ModulKonstruksi', {
-      title: 'Modul Pembelajaran — PLN Pusdiklat',
-      activeModules: [],
-      inactiveModules: [],
-      currentSort: 'newest',
-      currentPage: 'konstruksi',
-    });
-  }
-});
-
-app.get('/ModulKonstruksi/:id', async (req, res) => {
-  const moduleId = req.params.id;
-  try {
-    const moduleItem = await cachedFetch(`${BACKEND_URL}/api/modules/${moduleId}`);
-
-    const mappedModule = {
-      id: moduleItem.id,
-      title: moduleItem.title,
-      description: moduleItem.description,
-      materialCount: moduleItem.materials ? moduleItem.materials.length : 0,
-      equipmentCount: moduleItem.tools ? moduleItem.tools.length : 0,
-      assets: moduleItem.assets || [],
-      materials: moduleItem.materials || [],
-      tools: moduleItem.tools || [],
-    };
-
-    res.render('ModulViewer', {
-      title: `${mappedModule.title} - PLN Pusdiklat 3D`,
-      module: mappedModule,
-    });
-  } catch (err) {
-    console.error(err);
-    res.redirect('/ModulKonstruksi');
-  }
-});
-
-// Admin login route
-app.get('/login', (req, res) => {
-  // Jika sudah ada cookie token, jangan biarkan login lagi, lempar ke admin
-  if (req.cookies.auth_token) {
-    return res.redirect('/admin');
-  }
-  res.render('login', { title: 'Login Admin - PLN Pusdiklat' });
-});
+app.use('/', pagesRouter);
 
 // Proxy Login Route
 app.post('/api/login', async (req, res) => {
