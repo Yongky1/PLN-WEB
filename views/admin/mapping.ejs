@@ -497,6 +497,7 @@
     border: 1px solid transparent;
     transition: background .12s, border-color .12s;
     scroll-margin-top: 8px;
+    cursor: pointer;
   }
   .mp-mesh-row:hover { background: rgba(255,255,255,0.03); }
   .mp-mesh-row.is-focused {
@@ -546,6 +547,43 @@
     height: 1px;
     background: var(--border-subtle);
     margin: 4px 0;
+  }
+
+  /* ── Display name input inside mesh rows ── */
+  .mp-display-name-wrap {
+    margin-top: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .mp-display-name-label {
+    font-size: 9.5px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .mp-display-name-input {
+    height: 24px;
+    padding: 0 7px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 11px;
+    outline: none;
+    transition: border-color .15s;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  .mp-display-name-input:focus {
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 2px rgba(89,145,255,0.10);
+  }
+  .mp-display-name-input::placeholder {
+    color: var(--text-muted);
+    font-size: 10.5px;
+    font-style: italic;
   }
 </style>
 
@@ -811,6 +849,29 @@
     }));
 
     const failed = results.filter(r => r.status === 'rejected').length;
+
+    // Save display names
+    const displayInputs = [...document.querySelectorAll('.mp-display-name-input')];
+    if (displayInputs.length > 0) {
+      const modId = JSON.parse(document.getElementById('mapping-module-data').textContent).id;
+      const configItems = displayInputs.map(input => ({
+        mesh_original_name: input.dataset.meshName,
+        mesh_display_name: input.value.trim() || null,
+      }));
+      try {
+        const cfgRes = await fetch(`/api/modules/${modId}/mesh-config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(configItems),
+        });
+        if (cfgRes.ok) {
+          configItems.forEach(c => {
+            mpDisplayNameMap[c.mesh_original_name] = c.mesh_display_name || '';
+          });
+        }
+      } catch (_) {}
+    }
+
     if (failed === 0) {
       if (typeof window.mpRefreshMeshOverview === 'function') window.mpRefreshMeshOverview();
       mpToast(`Semua ${items.length} item berhasil disimpan`, 'success');
@@ -843,6 +904,22 @@
 
   /* ── Mesh Overview ── */
   let mpMeshNames = []; // semua nama mesh dari GLB
+  let mpDisplayNameMap = {}; // mesh_original_name → mesh_display_name
+
+  async function mpLoadMeshConfig() {
+    const modId = JSON.parse(document.getElementById('mapping-module-data').textContent).id;
+    try {
+      const res = await fetch(`/api/modules/${modId}/mesh-config`);
+      if (!res.ok) return;
+      const data = await res.json();
+      mpDisplayNameMap = {};
+      (data || []).forEach(row => {
+        if (row.mesh_original_name) mpDisplayNameMap[row.mesh_original_name] = row.mesh_display_name || '';
+      });
+      if (mpMeshNames.length > 0) mpRenderMeshOverview();
+    } catch (_) {}
+  }
+  mpLoadMeshConfig();
 
   /* Baca assignment saat ini dari nilai input di DOM */
   function mpBuildAssignmentMap() {
@@ -884,11 +961,16 @@
         const conn = assignMap[name];
         const subtitle = (conn.materials || []).join(', ');
         const safe = name.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        const displayVal = (mpDisplayNameMap[name] || '').replace(/"/g,'&quot;').replace(/</g,'&lt;');
         html += `<div class="mp-mesh-row" data-mesh-overview="${safe}">
           <span class="mp-mesh-dot connected"></span>
           <div class="mp-mesh-row-info">
             <div class="mp-mesh-row-name">${safe}</div>
             <div class="mp-mesh-row-sub connected">${subtitle.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
+            <div class="mp-display-name-wrap">
+              <span class="mp-display-name-label">Nama tampilan</span>
+              <input type="text" class="mp-display-name-input" data-mesh-name="${name.replace(/"/g,'&quot;')}" placeholder="${safe}" value="${displayVal}" autocomplete="off" spellcheck="false" />
+            </div>
           </div>
         </div>`;
       });
@@ -898,11 +980,16 @@
       html += `<div class="mp-mesh-group-label" style="${connected.length ? 'margin-top:8px;' : ''}">Belum Terhubung (${unconnected.length})</div>`;
       unconnected.forEach(name => {
         const safe = name.replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        const displayVal = (mpDisplayNameMap[name] || '').replace(/"/g,'&quot;').replace(/</g,'&lt;');
         html += `<div class="mp-mesh-row" data-mesh-overview="${safe}">
           <span class="mp-mesh-dot unconnected"></span>
           <div class="mp-mesh-row-info">
             <div class="mp-mesh-row-name">${safe}</div>
             <div class="mp-mesh-row-sub">Klik mesh di 3D untuk assign</div>
+            <div class="mp-display-name-wrap">
+              <span class="mp-display-name-label">Nama tampilan</span>
+              <input type="text" class="mp-display-name-input" data-mesh-name="${name.replace(/"/g,'&quot;')}" placeholder="${safe}" value="${displayVal}" autocomplete="off" spellcheck="false" />
+            </div>
           </div>
         </div>`;
       });
@@ -933,6 +1020,16 @@
 
   /* Re-render overview setelah save berhasil */
   window.mpRefreshMeshOverview = function() { mpRenderMeshOverview(); };
+
+  /* Klik mesh row → highlight di 3D viewer */
+  document.getElementById('mp-mesh-overview-body').addEventListener('click', function(e) {
+    if (e.target.classList.contains('mp-display-name-input')) return;
+    const row = e.target.closest('.mp-mesh-row');
+    if (!row) return;
+    if (typeof window.mpSelectMeshByName === 'function') {
+      window.mpSelectMeshByName(row.dataset.meshOverview);
+    }
+  });
 </script>
 
 <!-- ═══════════════ THREE.JS — 3D VIEWER ═══════════════ -->
@@ -1192,6 +1289,30 @@ canvas.addEventListener('click', e => {
   const hasEmpty = [...document.querySelectorAll('.mp-mesh-input')].some(i => !i.value.trim());
   applyBtn.classList.toggle('visible', !!name && hasEmpty);
 });
+
+/* ── Select mesh by name (dipanggil dari panel klik) ── */
+window.mpSelectMeshByName = function(name) {
+  if (!currentModel || !name) { clearHighlight(); return; }
+
+  let target = null;
+  currentModel.traverse(obj => { if (obj.isMesh && obj.name === name) target = obj; });
+  if (!target) return;
+
+  if (target === selectedMesh) { clearHighlight(); return; }
+
+  if (selectedMesh) restoreEmissive(selectedMesh);
+  selectedMesh = target;
+  controls.autoRotate = false;
+  setHighlight(target, 0xf59e0b, 0.7);
+
+  meshNameEl.textContent = name || '(tanpa nama)';
+  meshNameEl.classList.toggle('has-selection', !!name);
+  window.mpSelectedMeshName = name;
+  if (typeof window.mpOnMeshClick === 'function') window.mpOnMeshClick(name);
+
+  const hasEmpty = [...document.querySelectorAll('.mp-mesh-input')].some(i => !i.value.trim());
+  applyBtn.classList.toggle('visible', !!name && hasEmpty);
+};
 
 /* ── Asset navigation ── */
 window.mpPrevAsset = () => { loadAsset((currentIndex - 1 + assets.length) % assets.length); };

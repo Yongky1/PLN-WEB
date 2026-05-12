@@ -27,7 +27,8 @@ let selectedMesh  = null;
 let moduleMaterials = [];
 let moduleTools     = [];
 let moduleId        = null;
-let mappedMeshSet   = null; // null = belum di-fetch, Set = sudah (bisa kosong)
+let mappedMeshSet      = null; // null = belum di-fetch, Set = sudah (bisa kosong)
+let meshDisplayNameMap = {}; // mesh_original_name → mesh_display_name
 try {
     const _d    = JSON.parse(document.getElementById('module-data').textContent);
     moduleMaterials = _d.materials || [];
@@ -175,7 +176,8 @@ function showMeshPanel(mesh) {
     if (!meshPanel) return;
 
     const meshName = mesh.name || '';
-    if (meshPanelName) meshPanelName.textContent = meshName || 'Unnamed Object';
+    const displayName = (meshDisplayNameMap[meshName] || '').trim() || meshName;
+    if (meshPanelName) meshPanelName.textContent = displayName || 'Unnamed Object';
 
     const mats  = moduleMaterials.filter((r) => r.mesh_name === meshName);
     const tools = moduleTools.filter((r) => r.mesh_name === meshName);
@@ -212,14 +214,27 @@ function showMeshPanel(mesh) {
     meshPanel.classList.add('active');
 }
 
-// ── Mapped meshes ─────────────────────────────────────────────────────────────
+// ── Mapped meshes + display names ─────────────────────────────────────────────
 async function fetchMappedMeshes() {
     if (!moduleId) return;
     try {
-        const res = await fetch(`/api/modules/${moduleId}/mapped-meshes`);
-        if (!res.ok) return;
-        const names = await res.json();
-        mappedMeshSet = new Set(Array.isArray(names) ? names : []);
+        const [meshRes, configRes] = await Promise.all([
+            fetch(`/api/modules/${moduleId}/mapped-meshes`),
+            fetch(`/api/modules/${moduleId}/mesh-config`),
+        ]);
+        if (meshRes.ok) {
+            const names = await meshRes.json();
+            mappedMeshSet = new Set(Array.isArray(names) ? names : []);
+        }
+        if (configRes.ok) {
+            const configs = await configRes.json();
+            meshDisplayNameMap = {};
+            (configs || []).forEach(row => {
+                if (row.mesh_original_name) {
+                    meshDisplayNameMap[row.mesh_original_name] = row.mesh_display_name || '';
+                }
+            });
+        }
     } catch (_) {}
 }
 
