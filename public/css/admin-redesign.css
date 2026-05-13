@@ -324,6 +324,69 @@ select {
   padding: 10px;
 }
 
+/* =========================================================================
+   Sidebar Collapsed — Nav Tooltip
+   Only visible when sidebar is collapsed. Uses ::after pseudo-element to
+   read the data-tooltip attribute. Appears to the right of the icon after
+   a 0.45s hover delay (transition-delay on opacity/transform).
+
+   IMPORTANT: When collapsed, sidebar & nav overflow must be set to
+   visible so the tooltip (positioned outside the sidebar width) is
+   not clipped by overflow: hidden / overflow-y: auto.
+   ========================================================================= */
+
+/* Allow tooltip to escape the sidebar boundary when collapsed */
+.rd-app.sidebar-collapsed .rd-sidebar {
+  overflow: visible;
+}
+.rd-app.sidebar-collapsed .rd-nav {
+  overflow: visible;
+}
+
+/* Ensure the nav-item is the positioning anchor for ::after */
+.rd-app.sidebar-collapsed .rd-nav-item[data-tooltip] {
+  overflow: visible;
+}
+
+/* Tooltip bubble — reads text from data-tooltip attribute */
+.rd-app.sidebar-collapsed .rd-nav-item[data-tooltip]::after {
+  content: attr(data-tooltip);
+
+  /* Positioned to the right of the icon, vertically centred */
+  position: absolute;
+  left: calc(100% + 14px);
+  top: 50%;
+  transform: translateY(-50%) translateX(-4px);
+
+  /* Appearance — matches design system */
+  background: var(--bg-elevated);
+  color: var(--text-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  padding: 5px 11px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: var(--shadow-md);
+  pointer-events: none;
+  z-index: 9999;
+
+  /* Hidden by default */
+  opacity: 0;
+  transition:
+    opacity 0.15s ease,
+    transform 0.15s ease;
+  transition-delay: 0s; /* instant hide when cursor leaves */
+}
+
+/* Show tooltip after cursor dwells 0.45s */
+.rd-app.sidebar-collapsed .rd-nav-item[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+  transition-delay: 0.45s;
+}
+
+
 .rd-sidebar-footer {
   border-top: 1px solid var(--border-subtle);
   padding: 12px;

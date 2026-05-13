@@ -17,6 +17,30 @@
 <!-- ===================== APP SHELL ===================== -->
 <div id="rd-app" class="rd-app" data-module="<%= typeof page !== 'undefined' ? page : 'default' %>">
 
+<script>
+  /* ── Pre-render: apply sidebar collapsed state BEFORE sidebar is painted ──
+     Runs synchronously right after <div id="rd-app"> is opened, so the
+     collapsed class is present BEFORE the browser renders any child elements.
+
+     CRITICAL: inject the no-transition style FIRST, then add the class —
+     if the class is added first, the CSS transition fires before it is
+     suppressed, causing the expand→collapse flash. */
+  (function () {
+    if (localStorage.getItem('rd-sidebar-collapsed') === '1') {
+      /* 1. Kill transitions BEFORE touching classes */
+      var s = document.createElement('style');
+      s.id = '_sb-no-transition';
+      s.textContent =
+        '#rd-app, #rd-app .rd-sidebar, #rd-app .rd-main ' +
+        '{ transition: none !important; }';
+      document.head.appendChild(s);
+
+      /* 2. Now it is safe to add the class — no animation will fire */
+      document.getElementById('rd-app').classList.add('sidebar-collapsed');
+    }
+  })();
+</script>
+
   <!-- ===================== SIDEBAR ===================== -->
   <aside class="rd-sidebar">
 
@@ -33,11 +57,11 @@
     <nav class="rd-nav">
       <div>
         <div class="rd-nav-group-label">Overview</div>
-        <a href="/admin/overview" class="rd-nav-item <%= page==='overview' ? 'active' : '' %>">
+        <a href="/admin/overview" class="rd-nav-item <%= page==='overview' ? 'active' : '' %>" data-tooltip="Dashboard">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg>
           <span class="nav-label">Dashboard</span>
         </a>
-        <a href="/admin/laporan" class="rd-nav-item <%= page==='laporan' ? 'active' : '' %>">
+        <a href="/admin/laporan" class="rd-nav-item <%= page==='laporan' ? 'active' : '' %>" data-tooltip="Laporan">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
           <span class="nav-label">Laporan</span>
         </a>
@@ -45,23 +69,23 @@
 
       <div>
         <div class="rd-nav-group-label">Manajemen Modul</div>
-        <a href="/admin/konstruksi" class="rd-nav-item <%= page==='konstruksi' ? 'active' : '' %>">
+        <a href="/admin/konstruksi" class="rd-nav-item <%= page==='konstruksi' ? 'active' : '' %>" data-tooltip="Konstruksi">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
           <span class="nav-label">Konstruksi</span>
         </a>
-        <a href="/admin/material" class="rd-nav-item <%= page==='material' ? 'active' : '' %>">
+        <a href="/admin/material" class="rd-nav-item <%= page==='material' ? 'active' : '' %>" data-tooltip="Material">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
           <span class="nav-label">Material</span>
         </a>
-        <a href="/admin/tools" class="rd-nav-item <%= page==='tools' ? 'active' : '' %>">
+        <a href="/admin/tools" class="rd-nav-item <%= page==='tools' ? 'active' : '' %>" data-tooltip="Peralatan">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
           <span class="nav-label">Peralatan</span>
         </a>
-        <a href="/admin/modules" class="rd-nav-item <%= page==='modules' ? 'active' : '' %>">
+        <a href="/admin/modules" class="rd-nav-item <%= page==='modules' ? 'active' : '' %>" data-tooltip="Kategori / Modul">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
           <span class="nav-label">Kategori / Modul</span>
         </a>
-        <a href="/admin/categories" class="rd-nav-item <%= page==='categories' ? 'active' : '' %>">
+        <a href="/admin/categories" class="rd-nav-item <%= page==='categories' ? 'active' : '' %>" data-tooltip="Kategori Tag">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           <span class="nav-label">Kategori Tag</span>
         </a>
@@ -69,11 +93,11 @@
 
       <div>
         <div class="rd-nav-group-label">Pengaturan</div>
-        <a href="/admin/users" class="rd-nav-item <%= page==='users' ? 'active' : '' %>">
+        <a href="/admin/users" class="rd-nav-item <%= page==='users' ? 'active' : '' %>" data-tooltip="Pengguna">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
           <span class="nav-label">Pengguna</span>
         </a>
-        <a href="/admin/settings" class="rd-nav-item <%= page==='settings' ? 'active' : '' %>">
+        <a href="/admin/settings" class="rd-nav-item <%= page==='settings' ? 'active' : '' %>" data-tooltip="Settings">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 110 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
           <span class="nav-label">Settings</span>
         </a>
@@ -186,16 +210,21 @@
     btn.querySelector('svg polyline').setAttribute('points', collapsed ? '9 18 15 12 9 6' : '15 18 9 12 15 6');
   }
 
-  /* Restore saved state */
-  (function() {
+  /* Restore saved state – class already applied pre-render above;
+     here we only sync the chevron icon & re-enable transitions. */
+  (function () {
     if (localStorage.getItem('rd-sidebar-collapsed') === '1') {
-      const app = document.getElementById('rd-app');
-      if (app) {
-        app.classList.add('sidebar-collapsed');
-        const btn = document.getElementById('sidebar-collapse-btn');
-        if (btn) btn.querySelector('svg polyline').setAttribute('points', '9 18 15 12 9 6');
-      }
+      const btn = document.getElementById('sidebar-collapse-btn');
+      if (btn) btn.querySelector('svg polyline').setAttribute('points', '9 18 15 12 9 6');
     }
+    /* Re-enable transitions after the first paint so future
+       toggle animations work normally. */
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () {
+        var noTransStyle = document.getElementById('_sb-no-transition');
+        if (noTransStyle) noTransStyle.remove();
+      });
+    });
   })();
 
   /* Date in header (legacy compat) */
