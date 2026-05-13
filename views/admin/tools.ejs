@@ -305,6 +305,11 @@ function renderToolReview() {
   const itemsEl = document.getElementById('review-t-items');
   if (!countEl || !itemsEl) return;
 
+  if (renderToolReview._objectUrls) {
+    renderToolReview._objectUrls.forEach(u => URL.revokeObjectURL(u));
+  }
+  renderToolReview._objectUrls = [];
+
   countEl.textContent = `${cards.length} peralatan`;
 
   if (cards.length === 0) {
@@ -319,14 +324,9 @@ function renderToolReview() {
     const category = catEl ? catEl.options[catEl.selectedIndex].text : '-';
     const status = card.querySelector('.t-status')?.value || '-';
     const description = card.querySelector('.t-desc')?.value.trim() || '-';
-    const imageFile = card.querySelector('.t-image-file')?.files?.[0];
-    const modelFile = card.querySelector('.t-file-3d')?.files?.[0];
-    const hasImagePreview = !!card.querySelector('.t-image-preview-img')?.getAttribute('src');
-    const imageStatus = imageFile ? imageFile.name : (hasImagePreview ? 'Thumbnail terpasang' : 'Tidak ada');
-    const modelStatus = modelFile ? modelFile.name : 'Tidak ada';
 
     return `
-      <div class="rd-review-tile full" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+      <div class="rd-review-tile full" style="display:grid;grid-template-columns:1fr 1fr;gap:12px;" data-review-idx="${index}">
         <div style="grid-column:1 / -1;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border-default);padding-bottom:10px;">
           <div>
             <div class="label">Peralatan #${index + 1}</div>
@@ -337,11 +337,65 @@ function renderToolReview() {
         <div><div class="label">Kategori</div><div class="value">${escapeReviewText(category)}</div></div>
         <div><div class="label">Standar</div><div class="value rd-mono">${escapeReviewText(standard)}</div></div>
         <div style="grid-column:1 / -1;"><div class="label">Deskripsi</div><div class="value" style="font-size:13px;font-weight:400;color:var(--text-secondary);line-height:1.55;">${escapeReviewText(description)}</div></div>
-        <div><div class="label">Cover Gambar</div><div class="value" style="font-size:13px;">${escapeReviewText(imageStatus)}</div></div>
-        <div><div class="label">Model 3D</div><div class="value" style="font-size:13px;">${escapeReviewText(modelStatus)}</div></div>
+        <div>
+          <div class="label">Cover Gambar</div>
+          <div id="review-t-img-wrap-${index}" style="margin-top:8px;border-radius:8px;overflow:hidden;border:1px solid var(--border-default);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:var(--bg-base);">
+            <img id="review-t-img-${index}" src="" style="width:100%;height:100%;object-fit:cover;display:none;" />
+            <span id="review-t-img-empty-${index}" style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+              Tidak ada cover
+            </span>
+          </div>
+        </div>
+        <div>
+          <div class="label">Preview 3D</div>
+          <div id="review-t-3d-wrap-${index}" style="margin-top:8px;border-radius:8px;overflow:hidden;border:1px solid var(--border-default);aspect-ratio:16/9;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at center,#0F1E3A 0%,#030812 100%);position:relative;">
+            <span id="review-t-3d-empty-${index}" style="font-size:12px;color:var(--text-muted);display:flex;align-items:center;gap:6px;">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
+              Tidak ada 3D
+            </span>
+          </div>
+        </div>
       </div>
     `;
   }).join('');
+
+  // Populate image & 3D previews after HTML is rendered
+  cards.forEach((card, index) => {
+    // Image preview — use existing data URL from card's preview img
+    const previewContainer = card.querySelector('.t-image-preview-container');
+    const imageVisible = previewContainer && previewContainer.style.display !== 'none';
+    if (imageVisible) {
+      const imageSrc = card.querySelector('.t-image-preview-img')?.getAttribute('src');
+      if (imageSrc) {
+        const reviewImg = document.getElementById(`review-t-img-${index}`);
+        const reviewImgEmpty = document.getElementById(`review-t-img-empty-${index}`);
+        if (reviewImg) { reviewImg.src = imageSrc; reviewImg.style.display = 'block'; }
+        if (reviewImgEmpty) reviewImgEmpty.style.display = 'none';
+      }
+    }
+
+    // 3D preview — create object URL from file input
+    const fileInput = card.querySelector('.t-file-3d');
+    const modelFile = fileInput && (fileInput._confirmedFile || (fileInput.files && fileInput.files[0]));
+    if (modelFile) {
+      const url = URL.createObjectURL(modelFile);
+      renderToolReview._objectUrls.push(url);
+      const wrap = document.getElementById(`review-t-3d-wrap-${index}`);
+      const empty = document.getElementById(`review-t-3d-empty-${index}`);
+      if (wrap) {
+        const mv = document.createElement('model-viewer');
+        mv.setAttribute('src', url);
+        mv.setAttribute('auto-rotate', '');
+        mv.setAttribute('camera-controls', '');
+        mv.setAttribute('interaction-prompt', 'none');
+        mv.style.cssText = 'width:100%;height:100%;display:block;';
+        wrap.insertBefore(mv, empty);
+        if (empty) empty.style.display = 'none';
+        if (mv.dismissPoster) mv.dismissPoster();
+      }
+    }
+  });
 }
 
 /* Filter & view */
