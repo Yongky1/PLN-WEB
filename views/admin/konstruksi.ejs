@@ -129,9 +129,9 @@
           <div class="rd-field-group">
             <label class="rd-field-label" style="justify-content:space-between;">
               Deskripsi
-              <span class="rd-field-counter" id="modul-desc-counter">0/300</span>
+              <span class="rd-field-counter" id="modul-desc-counter">0/2000</span>
             </label>
-            <textarea id="modul-desc" class="rd-textarea" rows="3" maxlength="300" placeholder="Jelaskan tujuan dan cakupan modul..." oninput="document.getElementById('modul-desc-counter').textContent=this.value.length+'/300'"></textarea>
+            <textarea id="modul-desc" class="rd-textarea" rows="3" maxlength="2000" placeholder="Jelaskan tujuan dan cakupan modul..." oninput="document.getElementById('modul-desc-counter').textContent=this.value.length+'/2000'"></textarea>
           </div>
           <div class="rd-field-group">
             <label class="rd-field-label">Cover Gambar</label>
@@ -345,8 +345,8 @@
           </div>
         </div>
         <div class="rd-field-group">
-          <label class="rd-field-label">Deskripsi</label>
-          <textarea id="edit-modul-desc" class="rd-textarea" rows="2" style="resize:vertical;"></textarea>
+          <label class="rd-field-label" style="justify-content:space-between;">Deskripsi <span class="rd-field-counter" id="edit-modul-desc-counter">0/2000</span></label>
+          <textarea id="edit-modul-desc" class="rd-textarea" rows="2" maxlength="2000" style="resize:vertical;" oninput="document.getElementById('edit-modul-desc-counter').textContent=this.value.length+'/2000'"></textarea>
         </div>
 
         <!-- Cover image edit -->

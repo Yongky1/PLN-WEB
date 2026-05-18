@@ -282,6 +282,8 @@ async function editKonstruksi(id) {
   // Populasikan Modal
   document.getElementById('edit-modul-name').value = m.title || '';
   document.getElementById('edit-modul-desc').value = m.description || '';
+  const descCounter = document.getElementById('edit-modul-desc-counter');
+  if (descCounter) descCounter.textContent = (m.description || '').length + '/2000';
   document.getElementById('edit-modul-status').value = m.status || 'Aktif';
   // Render checklist dengan preselected based on current relasi
   renderMaterialList(

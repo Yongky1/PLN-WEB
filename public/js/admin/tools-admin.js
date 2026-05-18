@@ -118,10 +118,10 @@ function editTool(id) {
     card.querySelector('.t-standard').value = t.standard || '';
     card.querySelector('.t-cat').value = t.category_id || (t.category ? t.category.id : '');
     card.querySelector('.t-status').value = t.status || 'Wajib';
-    const rawToolDesc = (t.description || '').substring(0, 200);
+    const rawToolDesc = (t.description || '').substring(0, 2000);
     card.querySelector('.t-desc').value = rawToolDesc;
     const tCounter = card.querySelector('.t-desc-counter');
-    if (tCounter) tCounter.textContent = rawToolDesc.length + '/200';
+    if (tCounter) tCounter.textContent = rawToolDesc.length + '/2000';
 
     // Preview Image
     const wrapper = card.querySelector('.t-image-wrapper');
@@ -184,7 +184,7 @@ window.syncAdminPreviewDropdown = function () {
   cards.forEach((card, idx) => {
     const nameEl = card.querySelector('.t-name');
     const nameText = nameEl && nameEl.value.trim() ? nameEl.value.trim() : `Peralatan ${idx + 1}`;
-    const fileInput = card.querySelector('input[type="file"]');
+    const fileInput = card.querySelector('input.t-file-3d');
 
     let fileUrl = '';
     let isLocal = false;
@@ -295,8 +295,8 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 </div>
 
                 <div>
-                    <label class="admin-label">Deskripsi <span class="t-desc-counter" style="font-size:10px; color:rgba(255,255,255,0.3); font-weight:400;">0/200</span></label>
-                    <textarea class="admin-input t-desc" rows="2" maxlength="200" placeholder="Jelaskan fungsi alat..." style="resize:vertical;" oninput="this.closest('.upload-card').querySelector('.t-desc-counter').textContent = this.value.length + '/200'"></textarea>
+                    <label class="admin-label">Deskripsi <span class="t-desc-counter" style="font-size:10px; color:rgba(255,255,255,0.3); font-weight:400;">0/2000</span></label>
+                    <textarea class="admin-input t-desc" rows="2" maxlength="2000" placeholder="Jelaskan fungsi alat..." style="resize:vertical;" oninput="this.closest('.upload-card').querySelector('.t-desc-counter').textContent = this.value.length + '/2000'"></textarea>
                 </div>
 
                 <!-- Cover Gambar -->
