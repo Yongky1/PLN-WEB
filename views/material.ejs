@@ -235,6 +235,11 @@
                         <% }); %>
                     </div>
                 </div>
+                <button type="button" id="mat-sort-btn" onclick="v3ToggleMatSort()"
+                    style="display:flex; align-items:center; gap:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px 14px; font-size:12px; font-weight:600; letter-spacing:0.02em; color:rgba(255,255,255,0.55); font-family:'Inter',sans-serif; cursor:pointer; outline:none; white-space:nowrap; transition:border-color .2s, background .2s, color .2s; flex-shrink:0;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M16 18l3 3 3-3M19 9V21"/></svg>
+                    <span id="mat-sort-label">A→Z</span>
+                </button>
             </div>
         </div>
 
@@ -402,6 +407,45 @@
     <script src="/js/catalog-modal.js"></script>
     <script src="/js/material.js"></script>
     <script>
+        var _matSort = 'none'; // 'none' | 'asc' | 'desc'
+
+        // Store original order on load
+        (function() {
+            var items = document.getElementById('material-grid').querySelectorAll('.mat-card-item');
+            items.forEach(function(el, i) { el.dataset.origIdx = i; });
+        })();
+
+        function v3ToggleMatSort() {
+            var btn = document.getElementById('mat-sort-btn');
+            var lbl = document.getElementById('mat-sort-label');
+            if (_matSort === 'none' || _matSort === 'desc') {
+                _matSort = 'asc';
+                lbl.textContent = 'A→Z';
+                btn.style.borderColor = 'rgba(255,215,0,0.45)';
+                btn.style.color = '#FFD700';
+                btn.style.background = 'rgba(255,215,0,0.06)';
+            } else {
+                _matSort = 'desc';
+                lbl.textContent = 'Z→A';
+            }
+            v3SortMatGrid();
+        }
+
+        function v3SortMatGrid() {
+            var grid = document.getElementById('material-grid');
+            var items = Array.from(grid.querySelectorAll('.mat-card-item'));
+            if (_matSort === 'none') {
+                items.sort(function(a, b) { return a.dataset.origIdx - b.dataset.origIdx; });
+            } else {
+                items.sort(function(a, b) {
+                    var na = (a.querySelector('.v3-card-title') || {}).textContent || '';
+                    var nb = (b.querySelector('.v3-card-title') || {}).textContent || '';
+                    return _matSort === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
+                });
+            }
+            items.forEach(function(el) { grid.appendChild(el); });
+        }
+
         // Hover: show "Lihat 3D" badge
         document.querySelectorAll('.v3-card').forEach(function(card) {
             var badge = card.querySelector('.v3-3d-badge');

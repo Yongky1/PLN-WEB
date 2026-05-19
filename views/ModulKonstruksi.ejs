@@ -293,6 +293,11 @@
                         <div class="v3-dropdown-item <%= currentSort === 'name_desc' ? 'selected' : '' %>" onclick="v3SelectSort('name_desc','Abjad Z–A')">Abjad Z–A</div>
                     </div>
                 </div>
+                <button type="button" id="modul-sort-btn" onclick="v3ToggleModulSort()"
+                    style="display:flex; align-items:center; gap:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px 14px; font-size:12px; font-weight:600; letter-spacing:0.02em; color:rgba(255,255,255,0.55); font-family:'Inter',sans-serif; cursor:pointer; outline:none; white-space:nowrap; transition:border-color .2s, background .2s, color .2s; flex-shrink:0;">
+                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M16 18l3 3 3-3M19 9V21"/></svg>
+                    <span id="modul-sort-label">A→Z</span>
+                </button>
             </div>
         </div>
 
@@ -379,6 +384,45 @@
 
     <script src="/js/main.js"></script>
     <script>
+        var _modulSort = 'none'; // 'none' | 'asc' | 'desc'
+
+        // Store original card order on load
+        (function() {
+            var cards = document.getElementById('v3-grid').querySelectorAll('.v3-card');
+            cards.forEach(function(c, i) { c.dataset.origIdx = i; });
+        })();
+
+        function v3ToggleModulSort() {
+            var btn = document.getElementById('modul-sort-btn');
+            var lbl = document.getElementById('modul-sort-label');
+            if (_modulSort === 'none' || _modulSort === 'desc') {
+                _modulSort = 'asc';
+                lbl.textContent = 'A→Z';
+                btn.style.borderColor = 'rgba(255,215,0,0.45)';
+                btn.style.color = '#FFD700';
+                btn.style.background = 'rgba(255,215,0,0.06)';
+            } else {
+                _modulSort = 'desc';
+                lbl.textContent = 'Z→A';
+            }
+            v3SortModulGrid();
+        }
+
+        function v3SortModulGrid() {
+            var grid = document.getElementById('v3-grid');
+            var cards = Array.from(grid.querySelectorAll('.v3-card'));
+            if (_modulSort === 'none') {
+                cards.sort(function(a, b) { return a.dataset.origIdx - b.dataset.origIdx; });
+            } else {
+                cards.sort(function(a, b) {
+                    var na = (a.dataset.title || '').toLowerCase();
+                    var nb = (b.dataset.title || '').toLowerCase();
+                    return _modulSort === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
+                });
+            }
+            cards.forEach(function(c) { grid.appendChild(c); });
+        }
+
         // Custom dropdown
         function v3ToggleDropdown(id) {
             var dd = document.getElementById(id);
