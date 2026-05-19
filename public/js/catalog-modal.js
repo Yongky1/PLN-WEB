@@ -19,46 +19,26 @@
       background: #030812;
     }
     .pln-3d-loader {
-      position: relative; width: 64px; height: 64px;
-      display: flex; align-items: center; justify-content: center;
-      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 20px;
     }
-    .pln-3d-ring {
-      position: absolute; border-radius: 50%;
-      border: 1.5px solid transparent;
-    }
-    .pln-3d-ring.r1 {
-      width: 64px; height: 64px;
-      border-top-color: #FFD500;
-      border-right-color: rgba(255,213,0,0.2);
-      animation: pln3dSpin 1s ease-in-out infinite;
-    }
-    .pln-3d-ring.r2 {
-      width: 46px; height: 46px;
-      border-bottom-color: rgba(255,213,0,0.55);
-      border-left-color: rgba(255,213,0,0.15);
-      animation: pln3dSpin 1.5s linear infinite reverse;
-    }
-    .pln-3d-ring.r3 {
-      width: 28px; height: 28px;
-      border-top-color: rgba(0,229,255,0.45);
-      animation: pln3dSpin 0.75s linear infinite;
-    }
-    .pln-3d-core {
-      width: 6px; height: 6px; border-radius: 50%;
+    .pln-dot {
+      width: 11px; height: 11px; border-radius: 50%;
       background: #FFD500;
-      animation: pln3dPulse 1.2s ease-in-out infinite;
+      animation: plnDotWave 1.4s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
     }
+    .pln-dot:nth-child(2) { animation-delay: 0.18s; }
+    .pln-dot:nth-child(3) { animation-delay: 0.36s; }
     .pln-3d-label {
       font-size: 9.5px; text-transform: uppercase;
       letter-spacing: 0.2em; font-weight: 500;
       color: rgba(255,255,255,0.3);
       font-family: 'JetBrains Mono', monospace;
     }
-    @keyframes pln3dSpin { to { transform: rotate(360deg); } }
-    @keyframes pln3dPulse {
-      0%, 100% { opacity: 0.5; transform: scale(0.8); box-shadow: 0 0 6px #FFD500; }
-      50%       { opacity: 1;   transform: scale(1.4); box-shadow: 0 0 14px #FFD500, 0 0 28px rgba(255,213,0,0.45); }
+    @keyframes plnDotWave {
+      0%, 60%, 100% { transform: translateY(0) scale(0.75); opacity: 0.35; }
+      30%            { transform: translateY(-10px) scale(1.15); opacity: 1;
+                       box-shadow: 0 0 10px #FFD500, 0 0 22px rgba(255,213,0,0.35); }
     }
   `;
   document.head.appendChild(s);
