@@ -1044,6 +1044,7 @@
 import * as THREE from '/scripts/three/three.module.js';
 import { GLTFLoader }    from '/scripts/three/jsm/loaders/GLTFLoader.js';
 import { OrbitControls } from '/scripts/three/jsm/controls/OrbitControls.js';
+import { DRACOLoader }   from '/scripts/three/jsm/loaders/DRACOLoader.js';
 
 /* ── Parse module data ── */
 const moduleData = JSON.parse(document.getElementById('mapping-module-data').textContent);
@@ -1179,6 +1180,9 @@ function disposeModel(model) {
 
 /* ── Load GLB ── */
 const loader = new GLTFLoader();
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/scripts/three/jsm/libs/draco/gltf/');
+loader.setDRACOLoader(dracoLoader);
 
 function loadAsset(index) {
   if (index < 0 || index >= assets.length) return;
