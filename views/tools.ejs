@@ -329,11 +329,11 @@
                 <model-viewer id="modal-model-viewer" src="" camera-controls auto-rotate rotation-per-second="25deg"
                     interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1.1"
                     class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
-                    <div slot="poster" class="absolute inset-0 flex flex-col items-center justify-center bg-[#030812]/60 backdrop-blur-sm">
-                        <div id="modal-loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)]/50 border-b-transparent border-l-transparent mb-4"></div>
-                        <span class="text-[11px] uppercase tracking-[0.2em] font-semibold text-white/40">Memuat Model 3D...</span>
-                    </div>
                 </model-viewer>
+                <div id="modal-loading-overlay" class="absolute inset-0 flex flex-col items-center justify-center z-10" style="background:rgba(3,8,18,0.6); backdrop-filter:blur(4px);">
+                    <div id="modal-loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)]/50 border-b-transparent border-l-transparent mb-4"></div>
+                    <span id="modal-loading-text" class="text-[11px] uppercase tracking-[0.2em] font-semibold text-white/40"></span>
+                </div>
                 <div id="modal-empty-state" class="absolute inset-0 flex-col items-center justify-center text-white/25 z-10 hidden" style="display:none;">
                     <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                     <span class="text-sm font-medium tracking-wide font-['Space_Grotesk']">Belum ada file 3D</span>

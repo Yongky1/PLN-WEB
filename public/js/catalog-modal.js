@@ -11,33 +11,37 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
   const overlay = document.getElementById(ids.overlay);
   const modelViewer = document.getElementById(ids.modelViewer);
   const emptyState = document.getElementById(ids.emptyState);
+  const loadingOverlay = ids.loadingOverlay ? document.getElementById(ids.loadingOverlay) : null;
   const spinner = document.getElementById(ids.spinner);
   const loadingText = document.getElementById(ids.loadingText);
+
+  // Clear old model immediately before populating new data
+  modelViewer.removeAttribute('src');
 
   populate();
 
   const hasGlb = file3d && file3d.trim() !== '' && file3d !== '-';
 
-  if (spinner) spinner.style.display = 'block';
-  if (loadingText) loadingText.textContent = loadingMsg;
-
   if (hasGlb) {
     emptyState.style.display = 'none';
-    modelViewer.removeAttribute('src');
-    setTimeout(() => {
-      modelViewer.src = file3d;
-    }, 50);
-    modelViewer.addEventListener(
-      'error',
-      () => {
-        if (spinner) spinner.style.display = 'none';
-        if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
-      },
-      { once: true }
-    );
+    if (loadingOverlay) loadingOverlay.style.display = 'flex';
+    if (spinner) spinner.style.display = 'block';
+    if (loadingText) loadingText.textContent = loadingMsg;
+
+    setTimeout(() => { modelViewer.src = file3d; }, 50);
+
+    modelViewer.addEventListener('load', () => {
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
+    }, { once: true });
+
+    modelViewer.addEventListener('error', () => {
+      if (spinner) spinner.style.display = 'none';
+      if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
+    }, { once: true });
   } else {
     modelViewer.removeAttribute('src');
     emptyState.style.display = 'flex';
+    if (loadingOverlay) loadingOverlay.style.display = 'none';
     if (spinner) spinner.style.display = 'none';
     if (loadingText) loadingText.textContent = '';
   }

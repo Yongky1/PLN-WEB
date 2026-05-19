@@ -11,6 +11,7 @@ const MAT_IDS = {
   modelViewer: 'mat-model-viewer',
   canvasWrap: 'mat-canvas-wrap',
   emptyState: 'mat-empty-state',
+  loadingOverlay: 'mat-loading-overlay',
   spinner: 'mat-loading-spinner',
   loadingText: 'mat-loading-text',
 };

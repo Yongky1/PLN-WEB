@@ -11,6 +11,7 @@ const TOOLS_IDS = {
   modelViewer: 'modal-model-viewer',
   canvasWrap: 'modal-canvas-wrap',
   emptyState: 'modal-empty-state',
+  loadingOverlay: 'modal-loading-overlay',
   spinner: 'modal-loading-spinner',
   loadingText: 'modal-loading-text',
 };
