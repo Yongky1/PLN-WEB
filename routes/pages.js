@@ -65,6 +65,7 @@ router.get('/material', async (req, res) => {
       description: m.description || '',
       image: m.image || null,
       file3d: m.assets && m.assets.length > 0 ? m.assets[0].file : null,
+      assets: m.assets || [],
     }));
 
     res.render('material', {
