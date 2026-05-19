@@ -5,6 +5,7 @@ import { EffectComposer } from '/scripts/three/jsm/postprocessing/EffectComposer
 import { RenderPass } from '/scripts/three/jsm/postprocessing/RenderPass.js';
 import { OutlinePass } from '/scripts/three/jsm/postprocessing/OutlinePass.js';
 import { OutputPass } from '/scripts/three/jsm/postprocessing/OutputPass.js';
+import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const canvas          = document.getElementById('three-canvas');
@@ -91,6 +92,12 @@ fillLight.position.set(-2, -1, -3);
 scene.add(fillLight);
 
 const loader    = new GLTFLoader();
+
+// Konfigurasi DRACOLoader untuk decompresi file GLB yang dikompres (seperti buatan Google model-viewer/blender draco)
+const dracoLoader = new DRACOLoader();
+dracoLoader.setDecoderPath('/scripts/three/jsm/libs/draco/gltf/');
+loader.setDRACOLoader(dracoLoader);
+
 const raycaster = new THREE.Raycaster();
 const mouse     = new THREE.Vector2();
 
