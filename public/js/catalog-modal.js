@@ -23,6 +23,7 @@
       margin-bottom: 20px;
     }
     .pln-dot {
+      display: inline-block;
       width: 11px; height: 11px; border-radius: 50%;
       background: #FFD500;
       animation: plnDotWave 1.4s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
@@ -61,7 +62,7 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
   if (hasGlb) {
     emptyState.style.display = 'none';
     if (loadingOverlay) loadingOverlay.style.display = 'flex';
-    if (spinner) spinner.style.display = 'block';
+    if (spinner) spinner.style.display = 'flex';
     if (loadingText) loadingText.textContent = loadingMsg;
 
     setTimeout(() => { modelViewer.src = file3d; }, 50);
