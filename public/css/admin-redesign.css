@@ -828,13 +828,15 @@ select {
 /* Override .item-row for new table-style list */
 #konstruksi-saved,
 #material-saved,
-#tools-saved {
+#tools-saved,
+#categories-list {
   display: flex;
   flex-direction: column;
 }
 #konstruksi-saved .item-row,
 #material-saved .item-row,
-#tools-saved .item-row {
+#tools-saved .item-row,
+#categories-list .item-row {
   background: transparent;
   border: none;
   border-radius: 0;
@@ -847,12 +849,14 @@ select {
 }
 #konstruksi-saved .item-row:hover,
 #material-saved .item-row:hover,
-#tools-saved .item-row:hover {
+#tools-saved .item-row:hover,
+#categories-list .item-row:hover {
   background: rgba(255, 255, 255, 0.025);
 }
 #konstruksi-saved .item-row:last-child,
 #material-saved .item-row:last-child,
-#tools-saved .item-row:last-child {
+#tools-saved .item-row:last-child,
+#categories-list .item-row:last-child {
   border-bottom: none;
 }
 
