@@ -36,8 +36,7 @@ function openDetail(id) {
       'text-[11px] font-bold ' + (tool.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
 
     const rawDesc = tool.description || 'Deskripsi belum tersedia.';
-    document.getElementById('modal-desc').textContent =
-      rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
+    document.getElementById('modal-desc').textContent = rawDesc;
   });
 }
 

@@ -120,10 +120,10 @@ async function editMaterial(id) {
   if (document.getElementById('edit-mat-modul-code'))
     document.getElementById('edit-mat-modul-code').value = m.code || '';
   if (document.getElementById('edit-mat-modul-desc')) {
-    const desc = (m.description || '').substring(0, 200);
+    const desc = m.description || '';
     document.getElementById('edit-mat-modul-desc').value = desc;
     const counter = document.getElementById('desc-char-count');
-    if (counter) counter.textContent = desc.length + '/200';
+    if (counter) counter.textContent = desc.length + '/2000';
   }
   if (document.getElementById('edit-mat-modul-cat'))
     document.getElementById('edit-mat-modul-cat').value =

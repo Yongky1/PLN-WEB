@@ -34,8 +34,7 @@ function openModal(id) {
     document.getElementById('mat-modal-code').textContent = mat.code || '';
     document.getElementById('mat-modal-icon').textContent = mat.icon || '';
     const rawDesc = mat.description || mat.shortDesc || '';
-    document.getElementById('mat-modal-desc').textContent =
-      rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
+    document.getElementById('mat-modal-desc').textContent = rawDesc;
 
     // Toggle Variant UI
     const prevBtn = document.getElementById('mat-viewer-prev-btn');

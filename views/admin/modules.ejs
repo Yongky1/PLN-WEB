@@ -559,8 +559,7 @@
 
     // Description
     const rawDesc = data.description || '';
-    document.getElementById('amqv-modal-desc').textContent =
-      rawDesc.length > 250 ? rawDesc.substring(0, 250).trimEnd() + '...' : rawDesc || '—';
+    document.getElementById('amqv-modal-desc').textContent = rawDesc || '—';
 
     // File 3D: material ambil dari assets[0], tools langsung dari file3d
     const file3d = isMat
