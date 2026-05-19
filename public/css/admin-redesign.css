@@ -686,6 +686,65 @@ select {
   flex-shrink: 0;
 }
 
+.rd-section-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+}
+.rd-section-label--material {
+  color: var(--pln-green);
+}
+.rd-section-label--tool {
+  color: var(--pln-orange);
+}
+.rd-data-card--material {
+  border-left: 3px solid var(--pln-green);
+}
+.rd-data-card--tool {
+  border-left: 3px solid var(--pln-orange);
+}
+.rd-data-card--material .rd-table-head {
+  border-bottom-color: oklch(from var(--pln-green) l c h / 0.2);
+}
+.rd-data-card--tool .rd-table-head {
+  border-bottom-color: oklch(from var(--pln-orange) l c h / 0.2);
+}
+
+.rd-skeleton-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--border-subtle);
+}
+.rd-skeleton-row:last-child {
+  border-bottom: none;
+}
+.rd-skeleton-row .sk {
+  position: relative;
+  overflow: hidden;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  height: 14px;
+}
+.rd-skeleton-row .sk::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.07) 50%, transparent 100%);
+  animation: rd-shimmer 1.4s infinite linear;
+}
+@keyframes rd-shimmer {
+  from { transform: translateX(-100%); }
+  to   { transform: translateX(100%); }
+}
+
 .rd-filter-chip {
   display: inline-flex;
   align-items: center;
@@ -829,14 +888,18 @@ select {
 #konstruksi-saved,
 #material-saved,
 #tools-saved,
-#categories-list {
+#categories-list,
+#material-list,
+#tool-list {
   display: flex;
   flex-direction: column;
 }
 #konstruksi-saved .item-row,
 #material-saved .item-row,
 #tools-saved .item-row,
-#categories-list .item-row {
+#categories-list .item-row,
+#material-list .item-row,
+#tool-list .item-row {
   background: transparent;
   border: none;
   border-radius: 0;
@@ -856,7 +919,9 @@ select {
 #konstruksi-saved .item-row:last-child,
 #material-saved .item-row:last-child,
 #tools-saved .item-row:last-child,
-#categories-list .item-row:last-child {
+#categories-list .item-row:last-child,
+#material-list .item-row:last-child,
+#tool-list .item-row:last-child {
   border-bottom: none;
 }
 
