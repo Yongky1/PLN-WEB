@@ -23,6 +23,8 @@ let currentAssets = [];
 let currentIndex  = 0;
 let currentModel  = null;
 let selectedMesh  = null;
+let hoveredMesh   = null;
+let _focusAnim    = null; // { fromPos, fromTarget, toPos, toTarget, t, duration }
 
 // ── Module data (mesh_name → DB materials/tools) ──────────────────────────────
 let moduleMaterials = [];
@@ -114,8 +116,43 @@ function updateSize() {
     outlinePass.resolution.set(w, h);
 }
 
+function focusCameraOnMesh(mesh) {
+    const box    = new THREE.Box3().setFromObject(mesh);
+    const center = box.getCenter(new THREE.Vector3());
+    const size   = box.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z) || 0.5;
+
+    const fov      = camera.fov * (Math.PI / 180);
+    const distance = Math.max((maxDim / 2) / Math.tan(fov / 2) * 2.0, controls.minDistance + 0.1);
+
+    // Pertahankan arah kamera sekarang, cukup geser target & jarak
+    const dir    = camera.position.clone().sub(controls.target).normalize();
+    const toPos  = center.clone().add(dir.multiplyScalar(distance));
+
+    _focusAnim = {
+        fromPos:    camera.position.clone(),
+        fromTarget: controls.target.clone(),
+        toPos,
+        toTarget:   center,
+        t:          0,
+        duration:   55, // frames ≈ 0.9 detik @ 60fps
+    };
+}
+
 function animate() {
     requestAnimationFrame(animate);
+
+    if (_focusAnim) {
+        _focusAnim.t += 1;
+        const raw   = Math.min(_focusAnim.t / _focusAnim.duration, 1);
+        const eased = 1 - Math.pow(1 - raw, 3); // ease-out cubic
+
+        camera.position.lerpVectors(_focusAnim.fromPos, _focusAnim.toPos, eased);
+        controls.target.lerpVectors(_focusAnim.fromTarget, _focusAnim.toTarget, eased);
+
+        if (raw >= 1) _focusAnim = null;
+    }
+
     controls.update();
     composer.render();
 }
@@ -128,10 +165,19 @@ function setLoadingState(isLoading, message) {
     else if (loadingTextEl && isLoading) loadingTextEl.textContent = 'Memuat Skema Spasial...';
 }
 
+// ── Outline management ────────────────────────────────────────────────────────
+function updateOutlineObjects() {
+    const objs = [];
+    if (selectedMesh) objs.push(selectedMesh);
+    if (hoveredMesh && hoveredMesh !== selectedMesh) objs.push(hoveredMesh);
+    outlinePass.selectedObjects = objs;
+}
+
 // ── Selection ─────────────────────────────────────────────────────────────────
 function clearSelection() {
     selectedMesh = null;
-    outlinePass.selectedObjects = [];
+    _focusAnim = null;
+    updateOutlineObjects();
 }
 
 function closeMeshPanel() {
@@ -351,14 +397,47 @@ canvas.addEventListener('click', (e) => {
             controls.autoRotate = true;
         } else {
             selectedMesh = hit;
-            outlinePass.selectedObjects = [hit];
+            updateOutlineObjects();
             controls.autoRotate = false;
+            focusCameraOnMesh(hit);
             showMeshPanel(hit);
         }
     } else {
         clearSelection();
         closeMeshPanel();
         controls.autoRotate = true;
+    }
+});
+
+// ── Hover / pointer cursor ────────────────────────────────────────────────────
+canvas.addEventListener('mousemove', (e) => {
+    if (!currentModel) return;
+
+    const rect = canvas.getBoundingClientRect();
+    mouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
+    mouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    const meshes = [];
+    currentModel.traverse((obj) => {
+        if (!obj.isMesh) return;
+        if (mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
+    });
+
+    const hit = raycaster.intersectObjects(meshes, false)[0]?.object ?? null;
+    if (hit !== hoveredMesh) {
+        hoveredMesh = hit;
+        canvas.style.cursor = hoveredMesh ? 'pointer' : 'grab';
+        updateOutlineObjects();
+    }
+});
+
+canvas.addEventListener('mouseleave', () => {
+    if (hoveredMesh) {
+        hoveredMesh = null;
+        canvas.style.cursor = 'grab';
+        updateOutlineObjects();
     }
 });
 
