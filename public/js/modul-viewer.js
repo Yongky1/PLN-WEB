@@ -19,12 +19,14 @@ const meshPanel       = document.getElementById('mesh-info-panel');
 const meshPanelName   = document.getElementById('mesh-panel-name');
 const meshPanelClose  = document.getElementById('mesh-panel-close');
 
-let currentAssets = [];
-let currentIndex  = 0;
-let currentModel  = null;
-let selectedMesh  = null;
-let hoveredMesh   = null;
-let _focusAnim    = null; // { fromPos, fromTarget, toPos, toTarget, t, duration }
+let currentAssets    = [];
+let currentIndex     = 0;
+let currentModel     = null;
+let selectedMesh     = null;
+let hoveredMesh      = null;
+let _focusAnim       = null;   // { fromPos, fromTarget, toPos, toTarget, t, duration }
+let _savedCamPos     = null;   // camera position before focusing
+let _savedCamTarget  = null;   // controls.target before focusing
 
 // ── Module data (mesh_name → DB materials/tools) ──────────────────────────────
 let moduleMaterials = [];
@@ -125,18 +127,40 @@ function focusCameraOnMesh(mesh) {
     const fov      = camera.fov * (Math.PI / 180);
     const distance = Math.max((maxDim / 2) / Math.tan(fov / 2) * 2.0, controls.minDistance + 0.1);
 
-    // Pertahankan arah kamera sekarang, cukup geser target & jarak
-    const dir    = camera.position.clone().sub(controls.target).normalize();
-    const toPos  = center.clone().add(dir.multiplyScalar(distance));
+    const fromPos    = camera.position.clone();
+    const fromTarget = controls.target.clone();
 
+    // Simpan posisi sebelum fokus (hanya saat pertama kali, bukan saat pindah antar objek)
+    if (!_savedCamPos) {
+        _savedCamPos    = fromPos.clone();
+        _savedCamTarget = fromTarget.clone();
+    }
+
+    const dir   = fromPos.clone().sub(fromTarget).normalize();
+    const toPos = center.clone().add(dir.multiplyScalar(distance));
+
+    _focusAnim = {
+        fromPos,
+        fromTarget,
+        toPos,
+        toTarget:  center,
+        t:         0,
+        duration:  55,
+    };
+}
+
+function restoreCamera() {
+    if (!_savedCamPos) return;
     _focusAnim = {
         fromPos:    camera.position.clone(),
         fromTarget: controls.target.clone(),
-        toPos,
-        toTarget:   center,
+        toPos:      _savedCamPos.clone(),
+        toTarget:   _savedCamTarget.clone(),
         t:          0,
-        duration:   55, // frames ≈ 0.9 detik @ 60fps
+        duration:   55,
     };
+    _savedCamPos    = null;
+    _savedCamTarget = null;
 }
 
 function animate() {
@@ -176,8 +200,8 @@ function updateOutlineObjects() {
 // ── Selection ─────────────────────────────────────────────────────────────────
 function clearSelection() {
     selectedMesh = null;
-    _focusAnim = null;
     updateOutlineObjects();
+    restoreCamera();
 }
 
 function closeMeshPanel() {
@@ -313,7 +337,13 @@ function loadVariant(index) {
     currentIndex = index;
 
     closeMeshPanel();
-    clearSelection();
+    // Reset selection tanpa restore kamera — model baru akan set posisinya sendiri
+    selectedMesh    = null;
+    hoveredMesh     = null;
+    _focusAnim      = null;
+    _savedCamPos    = null;
+    _savedCamTarget = null;
+    updateOutlineObjects();
     controls.autoRotate = true;
 
     const asset = currentAssets[index];
