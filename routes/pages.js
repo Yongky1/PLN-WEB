@@ -143,6 +143,7 @@ router.get('/ModulKonstruksi/:id', async (req, res) => {
     res.render('ModulViewer', {
       title: `${mappedModule.title} - PLN Pusdiklat 3D`,
       module: mappedModule,
+      backUrl: req.query.back || '/ModulKonstruksi',
     });
   } catch (err) {
     console.error(err);

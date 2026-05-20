@@ -222,7 +222,7 @@
           else if (m.status === 'Draft') badgeClass = 'am-badge-yellow';
           const accentColor = i % 2 === 0 ? '#00E5FF' : '#FFD700';
       %>
-      <div class="am-card" onclick="window.location.href='/ModulKonstruksi/<%= m.id %>'" style="cursor:pointer;">
+      <div class="am-card" onclick="window.location.href='/ModulKonstruksi/<%= m.id %>?back=/admin/modules'" style="cursor:pointer;">
         <div class="am-card-img">
           <% if (m.image) { %><img src="<%= m.image %>" alt="<%= m.title %>">
           <% } else { %>
