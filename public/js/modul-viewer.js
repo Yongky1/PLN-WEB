@@ -399,7 +399,21 @@ function loadVariant(index) {
 }
 
 // ── Click / raycasting ────────────────────────────────────────────────────────
+let _pointerDownPos = null;
+const DRAG_THRESHOLD_PX = 5;
+
+canvas.addEventListener('pointerdown', (e) => {
+    _pointerDownPos = { x: e.clientX, y: e.clientY };
+});
+
 canvas.addEventListener('click', (e) => {
+    // Jika mouse bergerak melebihi threshold sejak pointerdown, itu drag (rotate/pan) — abaikan
+    if (_pointerDownPos) {
+        const dx = e.clientX - _pointerDownPos.x;
+        const dy = e.clientY - _pointerDownPos.y;
+        if (Math.sqrt(dx * dx + dy * dy) > DRAG_THRESHOLD_PX) return;
+    }
+
     if (controls.autoRotate === false && !currentModel) return;
 
     const rect = canvas.getBoundingClientRect();
