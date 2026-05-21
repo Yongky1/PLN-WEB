@@ -34,20 +34,7 @@
         .mv-search-input::placeholder { color: rgba(255,255,255,0.35); }
         .mat-card.mv-hidden { display: none !important; }
 
-        /* ---- Modal Info Scrollbar ---- */
-        #mat-info-wrap { overflow-y: auto; }
-        #mat-info-wrap::-webkit-scrollbar { width: 4px; }
-        #mat-info-wrap::-webkit-scrollbar-track { background: transparent; }
-        #mat-info-wrap::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 999px; }
-        #mat-info-wrap::-webkit-scrollbar-thumb:hover { background: rgba(255,213,0,0.3); }
-
-        /* ---- Modal Animation ---- */
-        @keyframes modalIn {
-            from { opacity: 0; transform: scale(0.94) translateY(20px); }
-            to   { opacity: 1; transform: scale(1)    translateY(0);    }
-        }
-        #mat-modal-overlay.active { display: flex !important; }
-        #mat-modal-overlay.active #mat-modal-card { animation: modalIn 0.3s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+        /* modal styles: see partials/catalog-modal-material.ejs and catalog-modal-tools.ejs */
 
         /* ---- Three.js canvas fill ---- */
         #three-canvas {
@@ -539,85 +526,8 @@
         </div>
         <% } %>
 
-        <!-- ====================================================
-             MODAL – Component Detail & 3D Viewer (Apple Style)
-        ==================================================== -->
-        <div id="mat-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none; background: rgba(0,4,15,0.80); backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);">
-
-            <div id="mat-modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10" style="background: linear-gradient(160deg, rgba(12,22,42,0.98) 0%, rgba(6,12,26,0.98) 100%); backdrop-filter: blur(40px); height: auto; max-height: 90vh;">
-
-                <!-- ========== LEFT: 3D Viewer (model-viewer) ========== -->
-                <div id="mat-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-[560px]"
-                     style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
-
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-pln-yellow)]/8 blur-[60px] pointer-events-none"></div>
-
-                    <model-viewer
-                        id="mat-model-viewer"
-                        src=""
-                        camera-controls
-                        auto-rotate
-                        rotation-per-second="25deg"
-                        interaction-prompt="none"
-                        shadow-intensity="1.5"
-                        environment-image="neutral"
-                        exposure="1.1"
-                        class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
-                        <div slot="poster" class="absolute inset-0 flex flex-col items-center justify-center bg-[#030812]/60 backdrop-blur-sm">
-                            <div id="mat-loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)]/50 border-b-transparent border-l-transparent mb-4"></div>
-                            <span id="mat-loading-text" class="text-[11px] uppercase tracking-[0.2em] font-semibold text-white/40">Memuat Model 3D...</span>
-                        </div>
-                    </model-viewer>
-
-                    <div id="mat-empty-state" class="absolute inset-0 flex-col items-center justify-center text-white/25 z-10 hidden" style="display:none;">
-                        <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
-                        <span class="text-sm font-medium tracking-wide font-['Space_Grotesk']">Belum ada file 3D</span>
-                    </div>
-
-                    <div id="mat-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-2xl border border-white/8 text-white/60 text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-xl">
-                        <svg class="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"></path></svg>
-                        Rotasi 360&deg; &middot; Zoom via Scroll
-                    </div>
-
-                    <button id="mat-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 opacity-0 group-hover:opacity-100">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
-                    </button>
-                </div>
-
-                <!-- ========== RIGHT: Info Panel ========== -->
-                <div id="mat-info-wrap" class="flex-1 flex flex-col min-h-0 relative h-auto md:h-[560px]" style="overflow-y: auto;">
-
-                    <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
-                        <div class="absolute top-5 right-5 z-20">
-                            <button id="mat-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-white/10 hover:border-white/25"
-                                    style="background: rgba(255,255,255,0.06); backdrop-filter: blur(12px);">
-                                <svg class="w-4 h-4 text-white/50 hover:text-white transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
-                                </svg>
-                            </button>
-                        </div>
-
-                        <div class="flex items-center gap-3 mb-4 pr-12">
-                            <span id="mat-modal-icon" class="text-3xl select-none shrink-0 leading-none"></span>
-                            <span id="mat-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5"
-                                  style="background: rgba(255,213,0,0.1); border-color: rgba(255,213,0,0.25); color: #FFD500;">
-                                <span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>
-                            </span>
-                        </div>
-
-                        <h2 id="mat-modal-name" class="text-2xl font-black text-white leading-tight mb-1 font-['Space_Grotesk'] tracking-tight"></h2>
-                        <p id="mat-modal-code" class="text-[11px] font-mono text-[var(--color-pln-yellow)]/50 tracking-wider"></p>
-
-                        <div class="mt-3" style="height:1px; background: linear-gradient(to right, rgba(255,213,0,0.25), rgba(255,255,255,0.08), transparent);"></div>
-                    </div>
-
-                    <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3"
-                         style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
-                        <p id="mat-modal-desc" class="text-[13px] text-white/50 leading-relaxed mb-5 font-['Inter']"></p>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <%- include('partials/catalog-modal-material') %>
+        <%- include('partials/catalog-modal-tools') %>
 
     </main>
 
@@ -625,6 +535,7 @@
 
     <!-- Scripts -->
     <script src="/js/main.js"></script>
+    <script src="/js/catalog-modal.js"></script>
 
     <!-- Three.js Viewer Module -->
     <script type="module" src="/js/modul-viewer.js"></script>
@@ -671,91 +582,106 @@
             ...(module.tools || []).map(r => ({...(r.tool || {}), type: 'tool'}))
         ]) %>;
 
-        var overlay = document.getElementById('mat-modal-overlay');
-        var btnClose = document.getElementById('mat-btn-close');
-        var btnFullscreen = document.getElementById('mat-fullscreen-btn');
-        var matModelViewer = document.getElementById('mat-model-viewer');
-        var canvasWrap = document.getElementById('mat-canvas-wrap');
-        var emptyState = document.getElementById('mat-empty-state');
+        var MAT_IDS = {
+            overlay: 'mat-modal-overlay',
+            card: 'mat-modal-card',
+            modelViewer: 'mat-model-viewer',
+            canvasWrap: 'mat-canvas-wrap',
+            emptyState: 'mat-empty-state',
+            loadingOverlay: 'mat-loading-overlay',
+            spinner: 'mat-loading-spinner',
+            loadingText: 'mat-loading-text',
+        };
+
+        var TOOLS_IDS = {
+            overlay: 'modal-overlay',
+            card: 'modal-card',
+            modelViewer: 'modal-model-viewer',
+            canvasWrap: 'modal-canvas-wrap',
+            emptyState: 'modal-empty-state',
+            loadingOverlay: 'modal-loading-overlay',
+            spinner: 'modal-loading-spinner',
+            loadingText: 'modal-loading-text',
+        };
+
+        var currentMatAssets = [];
+        var currentVarIdx = 0;
 
         function openModal(id, type) {
             var item = modalData.find(function(m) { return String(m.id) === String(id) && m.type === type; });
             if (!item) return;
 
-            var catEl = document.getElementById('mat-modal-category');
-            var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
-            catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>' + catName;
+            if (type === 'material') {
+                currentMatAssets = (item.assets && item.assets.length > 0) ? item.assets : [];
+                currentVarIdx = 0;
+                var file3d = item.file3d;
+                if (!file3d && currentMatAssets.length > 0) file3d = currentMatAssets[0].file;
 
-            document.getElementById('mat-modal-name').textContent = item.name || '';
-            document.getElementById('mat-modal-code').textContent = item.code || item.standard || '';
-            document.getElementById('mat-modal-icon').textContent = item.icon || (type === 'tool' ? '🔧' : '📦');
+                openCatalogModal(MAT_IDS, file3d, 'Memuat Skema Spasial...', function() {
+                    var catEl = document.getElementById('mat-modal-category');
+                    var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
+                    catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>' + catName;
+                    document.getElementById('mat-modal-name').textContent = item.name || '';
+                    document.getElementById('mat-modal-code').textContent = item.code || '';
+                    document.getElementById('mat-modal-icon').textContent = item.icon || '📦';
+                    document.getElementById('mat-modal-desc').textContent = item.description || item.shortDesc || '';
 
-            var rawDesc = item.description || '';
-            var truncDesc = rawDesc.length > 200 ? rawDesc.substring(0, 200).trimEnd() + '...' : rawDesc;
-            document.getElementById('mat-modal-desc').textContent = truncDesc;
-
-            var file3d = item.file3d;
-            if (!file3d && item.assets && item.assets.length > 0) file3d = item.assets[0].file;
-            var hasGlb = file3d && file3d.trim() !== '';
-
-            var spinner = document.getElementById('mat-loading-spinner');
-            var txt = document.getElementById('mat-loading-text');
-            if (spinner) spinner.style.display = 'block';
-            if (txt) txt.textContent = 'Memuat Skema Spasial...';
-
-            if (hasGlb) {
-                emptyState.style.display = 'none';
-                matModelViewer.removeAttribute('src');
-                setTimeout(function() { matModelViewer.src = file3d; }, 50);
-                matModelViewer.addEventListener('error', function() {
-                    if (spinner) spinner.style.display = 'none';
-                    if (txt) txt.textContent = 'Objek 3D tidak tersedia.';
-                }, { once: true });
+                    var prevBtn = document.getElementById('mat-viewer-prev-btn');
+                    var nextBtn = document.getElementById('mat-viewer-next-btn');
+                    var varName = document.getElementById('mat-viewer-variant-name');
+                    if (currentMatAssets.length > 1) {
+                        if (prevBtn) prevBtn.style.display = 'flex';
+                        if (nextBtn) nextBtn.style.display = 'flex';
+                        if (varName) {
+                            varName.style.display = 'block';
+                            varName.textContent = 'Varian 1/' + currentMatAssets.length + ': ' + (currentMatAssets[0].name || '-');
+                        }
+                    } else {
+                        if (prevBtn) prevBtn.style.display = 'none';
+                        if (nextBtn) nextBtn.style.display = 'none';
+                        if (varName) varName.style.display = 'none';
+                    }
+                });
             } else {
-                matModelViewer.removeAttribute('src');
-                emptyState.style.display = 'flex';
-                if (spinner) spinner.style.display = 'none';
-                if (txt) txt.textContent = '';
-            }
-
-            overlay.style.display = 'flex';
-            setTimeout(function() { overlay.classList.add('active'); overlay.style.opacity = '1'; }, 10);
-            document.body.style.overflow = 'hidden';
-
-            if (typeof gsap !== 'undefined') {
-                gsap.fromTo('#mat-modal-card',
-                    { y: 50, opacity: 0, scale: 0.95 },
-                    { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: 'power3.out' }
-                );
+                openCatalogModal(TOOLS_IDS, item.file3d, 'Memuat Model 3D...', function() {
+                    var catLabel = document.getElementById('modal-category-label');
+                    var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
+                    catLabel.className = 'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 cat-badge-teknis';
+                    catLabel.innerHTML = '<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>' + catName;
+                    document.getElementById('modal-icon').textContent = item.icon || '🔧';
+                    document.getElementById('modal-name').textContent = item.name || '';
+                    document.getElementById('modal-standard').textContent = item.standard || '-';
+                    var statusEl = document.getElementById('modal-status');
+                    statusEl.textContent = item.status || '-';
+                    statusEl.className = 'text-[11px] font-bold ' + (item.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
+                    document.getElementById('modal-desc').textContent = item.description || 'Deskripsi belum tersedia.';
+                });
             }
         }
 
-        function closeMatModal() {
-            if (matModelViewer) matModelViewer.removeAttribute('src');
-            overlay.classList.remove('active');
-            overlay.style.display = 'none';
-            document.body.style.overflow = '';
-        }
-
-        function toggleMatFullscreen() {
-            if (!document.fullscreenElement) {
-                var req = canvasWrap.requestFullscreen || canvasWrap.webkitRequestFullscreen || canvasWrap.msRequestFullscreen;
-                if (req) req.call(canvasWrap).catch(function(err) { console.error(err); });
-            } else {
-                var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
-                if (exit) exit.call(document);
+        function updateMatVariantUI() {
+            var varName = document.getElementById('mat-viewer-variant-name');
+            if (varName && currentMatAssets.length > 1) {
+                var asset = currentMatAssets[currentVarIdx];
+                varName.textContent = 'Varian ' + (currentVarIdx + 1) + '/' + currentMatAssets.length + ': ' + (asset.name || '-');
             }
         }
 
-        document.addEventListener('fullscreenchange', function() {
-            if (document.fullscreenElement === canvasWrap) {
-                canvasWrap.style.borderRadius = '0px';
-                canvasWrap.style.border = 'none';
-            } else if (canvasWrap) {
-                canvasWrap.style.borderRadius = '';
-                canvasWrap.style.border = '';
-            }
-        });
+        window.prevMatVariant = function() {
+            if (currentMatAssets.length <= 1) return;
+            currentVarIdx = (currentVarIdx - 1 + currentMatAssets.length) % currentMatAssets.length;
+            updateMatVariantUI();
+            var mv = document.getElementById(MAT_IDS.modelViewer);
+            if (mv) mv.src = currentMatAssets[currentVarIdx].file;
+        };
+
+        window.nextMatVariant = function() {
+            if (currentMatAssets.length <= 1) return;
+            currentVarIdx = (currentVarIdx + 1) % currentMatAssets.length;
+            updateMatVariantUI();
+            var mv = document.getElementById(MAT_IDS.modelViewer);
+            if (mv) mv.src = currentMatAssets[currentVarIdx].file;
+        };
 
         document.querySelectorAll('.mat-card').forEach(function(card) {
             card.addEventListener('click', function() {
@@ -763,10 +689,34 @@
             });
         });
 
-        if (btnClose) btnClose.addEventListener('click', closeMatModal);
-        if (btnFullscreen) btnFullscreen.addEventListener('click', toggleMatFullscreen);
-        overlay.addEventListener('click', function(e) { if (e.target === overlay) closeMatModal(); });
-        document.addEventListener('keydown', function(e) { if (e.key === 'Escape' && overlay.style.display === 'flex') closeMatModal(); });
+        // Material modal listeners
+        var _matBtnClose = document.getElementById('mat-btn-close');
+        var _matBtnFs = document.getElementById('mat-fullscreen-btn');
+        if (_matBtnClose) _matBtnClose.addEventListener('click', function() { closeCatalogModal(MAT_IDS); });
+        if (_matBtnFs) _matBtnFs.addEventListener('click', function() { toggleCatalogFullscreen('mat-canvas-wrap'); });
+        document.getElementById('mat-modal-overlay').addEventListener('click', function(e) {
+            if (e.target === document.getElementById('mat-modal-overlay')) closeCatalogModal(MAT_IDS);
+        });
+        initCatalogFullscreen('mat-canvas-wrap');
+
+        // Tools modal listeners
+        var _toolBtnClose = document.getElementById('modal-btn-close');
+        var _toolBtnFs = document.getElementById('modal-fullscreen-btn');
+        if (_toolBtnClose) _toolBtnClose.addEventListener('click', function() { closeCatalogModal(TOOLS_IDS); });
+        if (_toolBtnFs) _toolBtnFs.addEventListener('click', function() { toggleCatalogFullscreen('modal-canvas-wrap'); });
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === document.getElementById('modal-overlay')) closeCatalogModal(TOOLS_IDS);
+        });
+        initCatalogFullscreen('modal-canvas-wrap');
+
+        // Shared Escape handler
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape') return;
+            var matOv = document.getElementById('mat-modal-overlay');
+            var toolOv = document.getElementById('modal-overlay');
+            if (matOv && matOv.style.display === 'flex') closeCatalogModal(MAT_IDS);
+            if (toolOv && toolOv.style.display === 'flex') closeCatalogModal(TOOLS_IDS);
+        });
     </script>
 </body>
 </html>
