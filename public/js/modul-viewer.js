@@ -454,6 +454,26 @@ canvas.addEventListener('click', (e) => {
 });
 
 // ── Hover / pointer cursor ────────────────────────────────────────────────────
+let _isMouseDown = false;
+
+function updateCursor() {
+    if (_isMouseDown) {
+        canvas.style.cursor = 'grabbing';
+    } else {
+        canvas.style.cursor = hoveredMesh ? 'pointer' : 'grab';
+    }
+}
+
+canvas.addEventListener('mousedown', () => {
+    _isMouseDown = true;
+    updateCursor();
+});
+
+canvas.addEventListener('mouseup', () => {
+    _isMouseDown = false;
+    updateCursor();
+});
+
 canvas.addEventListener('mousemove', (e) => {
     if (!currentModel) return;
 
@@ -472,17 +492,18 @@ canvas.addEventListener('mousemove', (e) => {
     const hit = raycaster.intersectObjects(meshes, false)[0]?.object ?? null;
     if (hit !== hoveredMesh) {
         hoveredMesh = hit;
-        canvas.style.cursor = hoveredMesh ? 'pointer' : 'grab';
         updateOutlineObjects();
     }
+    updateCursor();
 });
 
 canvas.addEventListener('mouseleave', () => {
+    _isMouseDown = false;
     if (hoveredMesh) {
         hoveredMesh = null;
-        canvas.style.cursor = 'grab';
         updateOutlineObjects();
     }
+    updateCursor();
 });
 
 if (meshPanelClose) {
