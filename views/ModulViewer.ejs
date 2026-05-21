@@ -13,13 +13,82 @@
     }
     </script>
     <style>
-        .komponen-scroll-row {
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
-            scrollbar-width: none;
+        /* ── Katalog cards (v3-card style, scaled smaller) ── */
+        .mv-glass {
+            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
+            backdrop-filter: blur(24px) saturate(160%);
+            -webkit-backdrop-filter: blur(24px) saturate(160%);
+            border: 1px solid rgba(255,255,255,0.09) !important;
+            border-top-color: rgba(255,255,255,0.18) !important;
+            border-left-color: rgba(255,255,255,0.12) !important;
         }
-        .komponen-scroll-row::-webkit-scrollbar { display: none; }
-        .komponen-scroll-row > * { scroll-snap-align: start; }
+        .mv-card {
+            border-radius: 20px; overflow: hidden; cursor: pointer;
+            position: relative; display: block;
+            transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s;
+        }
+        .mv-card:hover {
+            transform: translateY(-7px) scale(1.02);
+            box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 40px rgba(255,215,0,0.07);
+        }
+        .mv-card-img {
+            width: 100%; height: 130px;
+            position: relative; overflow: hidden; background: rgba(0,0,0,0.3);
+        }
+        .mv-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease-out; }
+        .mv-card:hover .mv-card-img img { transform: scale(1.05); }
+        .mv-card-img-placeholder {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            background: repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 14px);
+        }
+        .mv-card-img-grad {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
+            background: linear-gradient(to top, rgba(5,5,15,0.9), transparent); pointer-events: none;
+        }
+        .mv-card-body {
+            padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px;
+            background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.015) 100%);
+        }
+        .mv-card-title {
+            font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+            font-size: 13px; color: #f0f0f0; line-height: 1.3;
+            letter-spacing: -0.2px; transition: color .2s;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .mv-card:hover .mv-card-title { color: #FFD700; }
+        .mv-card-desc {
+            font-size: 10px; color: rgba(255,255,255,0.38); line-height: 1.6;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .mv-card-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 2px 0; }
+        .mv-card-stats { display: flex; align-items: center; justify-content: space-between; }
+        .mv-card-stat { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+        .mv-card-stat-label {
+            font-size: 8px; font-family: 'JetBrains Mono', monospace;
+            color: rgba(255,255,255,0.28); letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .mv-card-stat-val {
+            font-size: 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+            color: #FFD700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;
+        }
+        .mv-go-btn {
+            width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(255,215,0,0.12); color: #FFD700;
+            border: 1px solid rgba(255,215,0,0.2);
+            transition: background .2s, transform .2s;
+        }
+        .mv-card:hover .mv-go-btn { background: #FFD700; color: #000; transform: rotate(-45deg) scale(1.1); }
+        .mv-electric-line {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, transparent, #3B82F6, #FFD700, transparent);
+            opacity: 0; transition: opacity .3s;
+        }
+        .mv-card:hover .mv-electric-line { opacity: 1; }
+        .mv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        @media (max-width: 1280px) { .mv-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 1024px) { .mv-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 640px) { .mv-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
 
         /* Component search */
         .mv-search-wrap { position: relative; max-width: 340px; }
@@ -393,54 +462,59 @@
                     <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.materials.length %> item</span>
                 </div>
 
-                <div class="komponen-scroll-row flex gap-5 overflow-x-auto pb-4">
+                <div class="mv-grid">
                     <% module.materials.forEach(function(row) { %>
                     <% const m = row.material || {}; %>
 
-                    <div class="mat-card group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-pointer relative flex-shrink-0 w-[220px]" data-id="<%= m.id %>" data-type="material">
-
-                        <div class="h-[140px] relative overflow-hidden bg-black/20">
+                    <div class="mat-card mv-card mv-glass" data-id="<%= m.id %>" data-type="material">
+                        <!-- Image -->
+                        <div class="mv-card-img">
                             <% if (m.image) { %>
-                                <img src="<%= m.image %>" alt="<%= m.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                                <img src="<%= m.image %>" alt="<%= m.name %>">
+                                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);pointer-events:none;"></div>
                             <% } else { %>
-                                <div class="absolute inset-0" style="background: <%= m.bgGradient || 'linear-gradient(135deg,#1a2030 0%,#0d1520 100%)' %>;"></div>
-                                <div class="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30"></div>
-                                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,213,0,0.12)_0%,transparent_65%)] opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <div class="w-full h-full flex items-center justify-center relative z-10">
-                                    <span class="text-5xl select-none group-hover:scale-110 transition-transform duration-500" style="filter:drop-shadow(0 6px 20px rgba(0,0,0,0.5));"><%= m.icon || '📦' %></span>
+                                <div class="mv-card-img-placeholder" style="background:<%= m.bgGradient || 'rgba(0,0,0,0.3)' %>;">
+                                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,213,0,0.1) 0%,transparent 65%);pointer-events:none;"></div>
+                                    <span style="font-size:2.5rem;position:relative;z-index:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5));"><%= m.icon || '📦' %></span>
                                 </div>
                             <% } %>
-                            <div class="absolute top-3 right-3 z-20">
-                                <span class="inline-block px-2.5 py-1 bg-black/40 text-white/80 border border-white/10 text-[9px] font-bold rounded-full uppercase tracking-wider backdrop-blur-md">
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:2px 8px;border-radius:9999px;background:rgba(0,0,0,0.45);color:rgba(255,255,255,0.78);border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(8px);">
                                     <%= m.categoryLabel || m.category || '' %>
                                 </span>
                             </div>
                             <% if (row.quantity && row.quantity > 1) { %>
-                            <div class="absolute bottom-3 left-3 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                <span class="inline-flex items-center gap-1 text-[9px] font-bold px-2.5 py-1 rounded-full bg-[var(--color-pln-yellow)]/20 text-[var(--color-pln-yellow)] border border-[var(--color-pln-yellow)]/30 backdrop-blur-md uppercase tracking-wider">
-                                    × <%= row.quantity %>
-                                </span>
+                            <div style="position:absolute;bottom:8px;left:8px;z-index:20;">
+                                <span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:9999px;background:rgba(255,213,0,0.18);color:#FFD700;border:1px solid rgba(255,213,0,0.3);">× <%= row.quantity %></span>
                             </div>
                             <% } %>
+                            <div class="mv-card-img-grad"></div>
                         </div>
-
-                        <div class="p-5 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent">
-                            <h3 class="text-[15px] font-bold mb-1.5 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight line-clamp-2">
-                                <%= m.name || '-' %>
-                            </h3>
-                            <p class="text-white/40 text-[11px] leading-relaxed mb-5 font-['Inter'] line-clamp-2">
-                                <%= m.shortDesc || m.description || '' %>
-                            </p>
-                            <div class="mt-auto flex justify-between items-end">
-                                <div>
-                                    <p class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5 font-semibold">Kategori</p>
-                                    <p class="text-[13px] font-bold text-[var(--color-pln-yellow)] font-['Outfit']"><%= m.categoryLabel || '-' %></p>
+                        <!-- Body -->
+                        <div class="mv-card-body">
+                            <div class="mv-card-title"><%= m.name || '-' %></div>
+                            <div class="mv-card-desc"><%= m.shortDesc || m.description || '' %></div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val"><%= m.categoryLabel || '-' %></span>
+                                    </div>
+                                    <% if (m.code) { %>
+                                    <div style="width:1px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:#60A5FA;"><%= m.code %></span>
+                                    </div>
+                                    <% } %>
                                 </div>
-                                <div class="w-8 h-8 rounded-full bg-[var(--color-pln-yellow)]/10 flex items-center justify-center text-[var(--color-pln-yellow)] group-hover:bg-[var(--color-pln-yellow)] group-hover:text-black transition-colors shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </div>
                             </div>
                         </div>
+                        <div class="mv-electric-line"></div>
                     </div>
                     <% }); %>
                 </div>
@@ -458,65 +532,62 @@
                     <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.tools.length %> item</span>
                 </div>
 
-                <div class="komponen-scroll-row flex gap-5 overflow-x-auto pb-4">
+                <div class="mv-grid">
                     <% module.tools.forEach(function(row) { %>
                     <% const t = row.tool || {}; %>
                     <%
-                        const catBadgeClass = t.category === 'k3'
-                            ? 'bg-red-500/15 text-red-400 border-red-500/30'
+                        const catBadgeStyle = t.category === 'k3'
+                            ? 'background:rgba(239,68,68,0.15);color:#F87171;border-color:rgba(239,68,68,0.3);'
                             : t.category === 'teknis'
-                            ? 'bg-blue-500/15 text-blue-400 border-blue-500/30'
-                            : 'bg-purple-500/15 text-purple-400 border-purple-500/30';
+                            ? 'background:rgba(59,130,246,0.15);color:#60A5FA;border-color:rgba(59,130,246,0.3);'
+                            : 'background:rgba(168,85,247,0.15);color:#C084FC;border-color:rgba(168,85,247,0.3);';
                     %>
 
-                    <div class="mat-card group flex flex-col apple-glass-light rounded-[2rem] overflow-hidden md:hover:shadow-[0_30px_60px_-15px_rgba(255,255,255,0.2)] md:hover:border-white/40 md:hover:-translate-y-2 transition-all duration-500 cursor-pointer relative flex-shrink-0 w-[220px]" data-id="<%= t.id %>" data-type="tool">
-
-                        <div class="h-[140px] relative overflow-hidden bg-black/20">
+                    <div class="mat-card mv-card mv-glass" data-id="<%= t.id %>" data-type="tool">
+                        <!-- Image -->
+                        <div class="mv-card-img">
                             <% if (t.image) { %>
-                                <img src="<%= t.image %>" alt="<%= t.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
-                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                                <img src="<%= t.image %>" alt="<%= t.name %>">
+                                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);pointer-events:none;"></div>
                             <% } else { %>
-                                <div class="absolute inset-0" style="background: <%= t.bgGradient || 'linear-gradient(135deg,#1a2030 0%,#0d1520 100%)' %>;"></div>
-                                <div class="absolute inset-0 bg-gradient-to-br from-black/10 to-black/30 group-hover:opacity-70 transition-opacity duration-500"></div>
-                                <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(245,158,11,0.12)_0%,transparent_65%)] opacity-60 group-hover:opacity-100 transition-opacity duration-500"></div>
-                                <div class="w-full h-full flex items-center justify-center opacity-20 group-hover:opacity-35 transition-opacity duration-500">
-                                    <svg class="w-14 h-14 text-[var(--color-pln-yellow)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <div class="mv-card-img-placeholder" style="background:<%= t.bgGradient || 'rgba(0,0,0,0.3)' %>;">
+                                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(245,158,11,0.1) 0%,transparent 65%);pointer-events:none;"></div>
+                                    <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="rgba(255,215,0,0.25)" stroke-width="1" style="position:relative;z-index:1;">
+                                        <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                        <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     </svg>
                                 </div>
                             <% } %>
-                            <div class="absolute top-3 right-3 flex flex-col gap-1.5 items-end z-10">
-                                <span class="text-[9px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full border backdrop-blur-md <%= catBadgeClass %>">
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:2px 8px;border-radius:9999px;border:1px solid;backdrop-filter:blur(8px);<%= catBadgeStyle %>">
                                     <%= t.categoryLabel || t.category || '' %>
                                 </span>
                             </div>
+                            <div class="mv-card-img-grad"></div>
                         </div>
-
-                        <div class="p-5 flex-grow flex flex-col relative z-10 bg-gradient-to-t from-black/60 via-black/10 to-transparent">
-                            <h3 class="text-[15px] font-bold mb-1.5 text-white/90 group-hover:text-[var(--color-pln-yellow)] transition-colors leading-snug font-['Space_Grotesk'] tracking-tight line-clamp-2">
-                                <%= t.name || '-' %>
-                            </h3>
-                            <p class="text-white/40 text-[11px] leading-relaxed mb-5 font-['Inter'] line-clamp-2">
-                                <%= t.description || '' %>
-                            </p>
-                            <div class="mt-auto flex justify-between items-end">
-                                <div class="flex items-center gap-3">
-                                    <div>
-                                        <p class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5 font-semibold">Standar</p>
-                                        <p class="text-[13px] font-bold text-[var(--color-pln-yellow)] font-['Outfit']"><%= t.standard || '-' %></p>
+                        <!-- Body -->
+                        <div class="mv-card-body">
+                            <div class="mv-card-title"><%= t.name || '-' %></div>
+                            <div class="mv-card-desc"><%= t.description || '' %></div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Standar</span>
+                                        <span class="mv-card-stat-val"><%= t.standard || '—' %></span>
                                     </div>
-                                    <div class="w-px h-6 bg-white/10"></div>
-                                    <div>
-                                        <p class="text-[9px] uppercase tracking-wider text-white/40 mb-0.5 font-semibold">Status</p>
-                                        <p class="text-[13px] font-bold font-['Outfit'] <%= t.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400' %>"><%= t.status || '-' %></p>
+                                    <div style="width:1px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Status</span>
+                                        <span class="mv-card-stat-val" style="color:<%= t.status === 'Wajib' ? '#F87171' : '#34d399' %>;"><%= t.status || '-' %></span>
                                     </div>
                                 </div>
-                                <div class="w-8 h-8 rounded-full bg-[var(--color-pln-yellow)]/10 flex items-center justify-center text-[var(--color-pln-yellow)] group-hover:bg-[var(--color-pln-yellow)] group-hover:text-black transition-colors shrink-0">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </div>
                             </div>
                         </div>
+                        <div class="mv-electric-line"></div>
                     </div>
                     <% }); %>
                 </div>
@@ -545,8 +616,8 @@
         function mvFilterComponents(query) {
             var q = (query || '').toLowerCase().trim();
             document.querySelectorAll('.mat-card').forEach(function(card) {
-                var h3 = card.querySelector('h3');
-                var name = h3 ? h3.textContent.toLowerCase() : '';
+                var titleEl = card.querySelector('.mv-card-title');
+                var name = titleEl ? titleEl.textContent.toLowerCase() : '';
                 card.classList.toggle('mv-hidden', q !== '' && !name.includes(q));
             });
         }
