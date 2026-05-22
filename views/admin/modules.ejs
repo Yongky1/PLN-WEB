@@ -755,7 +755,7 @@
     <div class="rd-modal-header">
       <div class="rd-modal-title-block">
         <div class="rd-modal-eyebrow">Edit · Peralatan</div>
-        <h2 class="rd-modal-title">Edit Peralatan</h2>
+        <h2 class="rd-modal-title">Edit Peralatan &amp; Live Preview</h2>
       </div>
       <button class="rd-modal-close" onclick="closeEditModal()">
         <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -763,8 +763,26 @@
     </div>
     <div class="rd-modal-body">
       <div class="rd-section-block">
-        <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Data Peralatan</div></div>
-        <div id="edit-tools-cards" style="display:flex;flex-direction:column;gap:14px;max-height:480px;overflow-y:auto;padding-right:4px;"></div>
+        <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Data Peralatan &amp; Preview 3D</div></div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;">
+            <div id="edit-tools-cards" style="display:flex;flex-direction:column;gap:14px;max-height:340px;overflow-y:auto;padding-right:4px;"></div>
+          </div>
+          <div style="flex:1;min-width:280px;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;border:1px solid var(--border-default);position:relative;min-height:320px;">
+            <model-viewer id="tool-preview-viewer" src="" camera-controls auto-rotate rotation-per-second="30deg"
+              interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1"
+              style="width:100%;height:100%;min-height:320px;outline:none;background:#0A1520;"></model-viewer>
+            <div id="tool-preview-empty" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);pointer-events:none;gap:8px;">
+              <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              <span style="font-size:12px;font-weight:600;">Belum ada file GLB terpilih</span>
+            </div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
+              <select id="tool-preview-selector" onchange="toolChangeAdminPreview()" class="rd-select" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
+                <option value="">-- Pilih File untuk Preview --</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="rd-modal-footer">
@@ -869,12 +887,30 @@
         </div>
       </div>
       <div class="rd-section-block" style="margin-top:14px;">
-        <div class="rd-section-head"><div class="rd-section-title"><span class="num">2</span> Varian 3D</div></div>
-        <div id="edit-konstruksi-cards" style="display:flex;flex-direction:column;gap:12px;max-height:320px;overflow-y:auto;padding-right:4px;"></div>
-        <button class="rd-btn rd-btn-ghost" style="border:1px dashed var(--border-strong);width:100%;justify-content:center;padding:10px;margin-top:12px;" onclick="addEditKonstruksiCard()">
-          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-          Tambah Varian
-        </button>
+        <div class="rd-section-head"><div class="rd-section-title"><span class="num">2</span> Varian &amp; Preview 3D</div></div>
+        <div style="display:flex;gap:20px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;">
+            <div id="edit-konstruksi-cards" style="display:flex;flex-direction:column;gap:12px;max-height:320px;overflow-y:auto;padding-right:4px;"></div>
+            <button class="rd-btn rd-btn-ghost" style="border:1px dashed var(--border-strong);width:100%;justify-content:center;padding:10px;" onclick="addEditKonstruksiCard()">
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Tambah Varian
+            </button>
+          </div>
+          <div style="flex:1;min-width:280px;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;border:1px solid var(--border-default);position:relative;min-height:320px;">
+            <model-viewer id="kon-preview-viewer" src="" camera-controls auto-rotate rotation-per-second="30deg"
+              interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1"
+              style="width:100%;height:100%;min-height:320px;outline:none;background:#0A1520;"></model-viewer>
+            <div id="kon-preview-empty" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);pointer-events:none;gap:8px;">
+              <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+              <span style="font-size:12px;font-weight:600;">Belum ada file GLB terpilih</span>
+            </div>
+            <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
+              <select id="kon-preview-selector" onchange="konChangeAdminPreview()" class="rd-select" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
+                <option value="">-- Pilih Varian untuk Preview --</option>
+              </select>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
     <div class="rd-modal-footer">
@@ -898,16 +934,71 @@
 <script src="/js/admin/konstruksi.js"></script>
 
 <script>
+  /* ── Preview helpers: changer dan refresher per modal type ── */
+  function _previewChanger(viewerId, selectorId, emptyId) {
+    var viewer   = document.getElementById(viewerId);
+    var selector = document.getElementById(selectorId);
+    var empty    = document.getElementById(emptyId);
+    if (!selector || !viewer || !empty) return;
+    if (selector.value) {
+      viewer.setAttribute('src', selector.value);
+      viewer.style.display = 'block';
+      empty.style.display  = 'none';
+      viewer.dismissPoster && viewer.dismissPoster();
+    } else {
+      viewer.removeAttribute('src');
+      viewer.style.display = 'none';
+      empty.style.display  = 'flex';
+    }
+  }
+
+  function toolChangeAdminPreview() { _previewChanger('tool-preview-viewer', 'tool-preview-selector', 'tool-preview-empty'); }
+  function konChangeAdminPreview()  { _previewChanger('kon-preview-viewer',  'kon-preview-selector',  'kon-preview-empty');  }
+
+  function _makePreviewRefresher(viewerId, selectorId, emptyId, changeFn) {
+    return function (assets) {
+      var viewer   = document.getElementById(viewerId);
+      var selector = document.getElementById(selectorId);
+      var empty    = document.getElementById(emptyId);
+      if (!selector || !viewer || !empty) return;
+      selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
+      if (assets && assets.length > 0) {
+        assets.forEach(function (a, idx) {
+          if (a.file && a.file !== '-') {
+            var opt = document.createElement('option');
+            opt.value = a.file;
+            opt.textContent = a.name || ('File ' + (idx + 1));
+            selector.appendChild(opt);
+          }
+        });
+        if (selector.options.length > 1) { selector.selectedIndex = 1; changeFn(); }
+        else { viewer.style.display = 'none'; empty.style.display = 'flex'; }
+      } else {
+        viewer.style.display = 'none';
+        empty.style.display  = 'flex';
+      }
+    };
+  }
+
+  var _toolRefresh = _makePreviewRefresher('tool-preview-viewer', 'tool-preview-selector', 'tool-preview-empty', toolChangeAdminPreview);
+  var _konRefresh  = _makePreviewRefresher('kon-preview-viewer',  'kon-preview-selector',  'kon-preview-empty',  konChangeAdminPreview);
+
   /* ── Wrapper: buka edit modal yang benar berdasarkan tipe ── */
   async function openItemEdit(type, id) {
+    var origRefresh = window.refreshAdminPreviewSelector;
+
     if (type === 'material') {
       await editMaterial(id);
       document.getElementById('mat-edit-modal').classList.add('active');
     } else if (type === 'tool') {
+      window.refreshAdminPreviewSelector = _toolRefresh;
       editTool(id);
+      window.refreshAdminPreviewSelector = origRefresh;
       document.getElementById('tool-edit-modal').classList.add('active');
     } else if (type === 'module') {
+      window.refreshAdminPreviewSelector = _konRefresh;
       await editKonstruksi(id);
+      window.refreshAdminPreviewSelector = origRefresh;
       document.getElementById('kon-edit-modal').classList.add('active');
     }
   }
@@ -923,13 +1014,106 @@
     if (m3) m3.classList.remove('active');
   };
 
+  /* ── Override syncAdminPreviewDropdown agar routing ke modal yang aktif ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var origSync = window.syncAdminPreviewDropdown;
+    window.syncAdminPreviewDropdown = function () {
+      var konActive  = document.getElementById('kon-edit-modal');
+      var toolActive = document.getElementById('tool-edit-modal');
+      if (konActive && konActive.classList.contains('active')) {
+        _konSyncFromCards();
+      } else if (toolActive && toolActive.classList.contains('active')) {
+        _toolSyncFromCards();
+      } else if (origSync) {
+        origSync.apply(this, arguments);
+      }
+    };
+  });
+
+  function _toolSyncFromCards() {
+    var selector = document.getElementById('tool-preview-selector');
+    var viewer   = document.getElementById('tool-preview-viewer');
+    var empty    = document.getElementById('tool-preview-empty');
+    if (!selector || !viewer || !empty) return;
+    var cards   = document.querySelectorAll('#edit-tools-cards .upload-card');
+    var current = selector.value;
+    selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
+    var hasValid = false;
+    cards.forEach(function (card, idx) {
+      var nameEl = card.querySelector('.t-name');
+      var name   = nameEl && nameEl.value.trim() ? nameEl.value.trim() : ('Peralatan ' + (idx + 1));
+      var fi     = card.querySelector('input.t-file-3d');
+      var url    = '';
+      var local  = fi && fi.files && fi.files[0];
+      if (local) { url = URL.createObjectURL(fi.files[0]); }
+      else if (card.dataset.oldFile && card.dataset.oldFile !== '-') { url = card.dataset.oldFile; }
+      if (url) {
+        var opt = document.createElement('option');
+        opt.value = url;
+        opt.textContent = local ? ('[Baru] ' + name) : name;
+        selector.appendChild(opt);
+        hasValid = true;
+      }
+    });
+    if (hasValid) {
+      var found = current && Array.from(selector.options).find(function (o) { return o.value === current; });
+      selector.value = found ? current : (selector.options.length > 1 ? selector.options[1].value : '');
+    } else { selector.value = ''; }
+    toolChangeAdminPreview();
+  }
+
+  function _konSyncFromCards() {
+    var selector = document.getElementById('kon-preview-selector');
+    var viewer   = document.getElementById('kon-preview-viewer');
+    var empty    = document.getElementById('kon-preview-empty');
+    if (!selector || !viewer || !empty) return;
+    var cards   = document.querySelectorAll('#edit-konstruksi-cards .upload-card');
+    var current = selector.value;
+    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
+    var hasValid = false;
+    cards.forEach(function (card, idx) {
+      var nameEl = card.querySelector('.k-name');
+      var name   = nameEl ? (nameEl.value.trim() || ('Varian ' + (idx + 1))) : ('Varian ' + (idx + 1));
+      var fi     = card.querySelector('input[type="file"]');
+      var url    = '';
+      var local  = fi && (fi._confirmedFile || (fi.files && fi.files[0]));
+      if (local) { url = URL.createObjectURL(local); }
+      else if (card.dataset.oldFile && card.dataset.oldFile !== '-') { url = card.dataset.oldFile; }
+      if (url) {
+        var opt = document.createElement('option');
+        opt.value = url;
+        opt.textContent = local ? ('[Baru] ' + name) : name;
+        if (url === current) opt.selected = true;
+        selector.appendChild(opt);
+        hasValid = true;
+      }
+    });
+    if (hasValid) {
+      if (!selector.value && selector.options.length > 1) selector.selectedIndex = 1;
+    } else { selector.value = ''; }
+    konChangeAdminPreview();
+  }
+
+  /* ── Reload halaman setelah save agar card terupdate ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var fns = ['submitEditMaterial', 'submitEditTool', 'submitEditKonstruksi'];
+    fns.forEach(function (name) {
+      var orig = window[name];
+      if (typeof orig !== 'function') return;
+      window[name] = async function () {
+        await orig.apply(this, arguments);
+        location.reload();
+      };
+    });
+  });
+
   /* ── Pre-fetch allTools (editTool butuh ini) ── */
   document.addEventListener('DOMContentLoaded', async () => {
     try {
       if (!window.allTools || !window.allTools.length) {
         window.allTools = await fetchBackend('/api/tools?all=true');
       }
-    } catch (e) { /* gagal silent, edit tool akan tampil pesan error */ }
+    } catch (e) { /* gagal silent */ }
   });
 
 </script>
