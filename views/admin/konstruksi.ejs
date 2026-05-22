@@ -663,6 +663,11 @@ function initImageDropZone(dropZoneId, inputId) {
 document.addEventListener('DOMContentLoaded', () => {
   initImageDropZone('modul-image-drop-zone', 'modul-image');
   initImageDropZone('edit-modul-image-drop-zone', 'edit-modul-image');
+
+  const _params = new URLSearchParams(location.search);
+  if (_params.get('openAdd')) openAddKonstruksiModal();
+  const _editId = _params.get('edit');
+  if (_editId) setTimeout(() => editKonstruksi(_editId), 800);
 });
 
 /* Filter chips */

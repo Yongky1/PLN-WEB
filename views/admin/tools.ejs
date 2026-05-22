@@ -420,4 +420,8 @@ function setToolView(view) {
   saved.classList.toggle('grid-view', view === 'grid');
   if (head) head.style.display = view === 'grid' ? 'none' : '';
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  if (new URLSearchParams(location.search).get('openAdd')) openAddToolModal();
+});
 </script>

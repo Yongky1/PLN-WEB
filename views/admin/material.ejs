@@ -479,5 +479,7 @@ function initImageDropZone(dropZoneId, inputId) {
 document.addEventListener('DOMContentLoaded', () => {
   initImageDropZone('mat-modul-image-drop-zone', 'mat-modul-image');
   initImageDropZone('edit-mat-modul-image-drop-zone', 'edit-mat-modul-image');
+
+  if (new URLSearchParams(location.search).get('openAdd')) openAddMatModal();
 });
 </script>
