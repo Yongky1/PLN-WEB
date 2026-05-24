@@ -197,59 +197,7 @@
   </div>
 </div>
 
-<!-- ======================== EDIT MODAL ======================== -->
-<div id="edit-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeEditModal()">
-  <div class="rd-modal">
-
-    <div class="rd-modal-header">
-      <div class="rd-modal-title-block">
-        <div class="rd-modal-eyebrow">Edit · Peralatan</div>
-        <h2 class="rd-modal-title">Edit Peralatan &amp; Live Preview</h2>
-      </div>
-      <button class="rd-modal-close" onclick="closeEditModal()">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </button>
-    </div>
-
-    <div class="rd-modal-body">
-      <div class="rd-section-block">
-        <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Data Peralatan &amp; Preview 3D</div></div>
-        <div style="display:flex;gap:20px;flex-wrap:wrap;">
-          <div style="flex:1;min-width:280px;display:flex;flex-direction:column;gap:12px;">
-            <div id="edit-tools-cards" style="display:flex;flex-direction:column;gap:14px;max-height:340px;overflow-y:auto;padding-right:4px;"></div>
-          </div>
-          <div style="flex:1;min-width:280px;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;border:1px solid var(--border-default);position:relative;min-height:320px;">
-            <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-            <model-viewer id="admin-preview-viewer" src="" camera-controls auto-rotate rotation-per-second="30deg"
-              interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1"
-              style="width:100%;height:100%;min-height:320px;outline:none;background:#0A1520;"></model-viewer>
-            <div id="admin-preview-empty" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);pointer-events:none;gap:8px;">
-              <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
-              <span style="font-size:12px;font-weight:600;">Belum ada file GLB terpilih</span>
-            </div>
-            <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
-              <select id="admin-preview-selector" onchange="changeAdminPreview()" class="rd-select" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
-                <option value="">-- Pilih File untuk Preview --</option>
-              </select>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="rd-modal-footer">
-      <div class="rd-footer-meta"></div>
-      <div class="rd-footer-actions">
-        <button class="rd-btn rd-btn-ghost" onclick="closeEditModal()">Batal</button>
-        <button class="rd-btn rd-btn-primary" onclick="submitEditTool()">
-          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
-          Simpan Perubahan
-        </button>
-      </div>
-    </div>
-
-  </div>
-</div>
+<%- include('../partials/edit-modal-tools') %>
 
 <script src="/js/admin/upload-card.js"></script>
 <script src="/js/admin/tools-admin.js"></script>
