@@ -50,18 +50,8 @@ function renderAdmin(res, page, title, subtitle, extraData = {}, currentUser = n
    ROUTES
    ===================================================== */
 
-// Redirect /admin → /admin/overview
-router.get('/', (req, res) => res.redirect('/admin/overview'));
-
-// Overview
-router.get('/overview', (req, res) => {
-  renderAdmin(res, 'overview', 'Overview', 'Selamat datang di panel administrator', {}, req.user);
-});
-
-// Laporan
-router.get('/laporan', (req, res) => {
-  renderAdmin(res, 'laporan', 'Laporan', 'Statistik dan laporan penggunaan platform', {}, req.user);
-});
+// Redirect /admin → /admin/konstruksi
+router.get('/', (req, res) => res.redirect('/admin/konstruksi'));
 
 // Manajemen User
 router.get('/users', (req, res) => {
