@@ -192,15 +192,19 @@ function collectSelectedTools(listId) {
   return result;
 }
 
-async function loadKonstruksiSaved(filter = '') {
+async function loadKonstruksiSaved(search = '', status = '') {
   const saved = document.getElementById('konstruksi-saved');
   if (!saved) return;
 
   saved.innerHTML = getAdminSkeleton(3);
   try {
     let modules;
-    if (filter) {
-      modules = await fetchBackend(`/api/modules?all=true&search=${encodeURIComponent(filter)}`);
+    const hasFilter = search || status;
+    if (hasFilter) {
+      const params = new URLSearchParams({ all: 'true' });
+      if (search) params.set('search', search);
+      if (status) params.set('status', status);
+      modules = await fetchBackend(`/api/modules?${params.toString()}`);
     } else {
       if (!window.allModules || window.allModules.length === 0) {
         window.allModules = await fetchBackend('/api/modules?all=true');
@@ -212,7 +216,7 @@ async function loadKonstruksiSaved(filter = '') {
 
     if (!modules || modules.length === 0) {
       saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">
-                ${filter ? 'Tidak ada konstruksi ditemukan' : 'Belum ada data tersimpan'}
+                ${search || status ? 'Tidak ada konstruksi ditemukan' : 'Belum ada data tersimpan'}
             </div>`;
       return;
     }
@@ -861,7 +865,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchSaved = document.getElementById('search-saved-konstruksi');
   if (searchSaved) {
     searchSaved.addEventListener('input', (e) => {
-      loadKonstruksiSaved(e.target.value);
+      const activeStatus = window._kFilter && window._kFilter !== 'all' ? window._kFilter : '';
+      loadKonstruksiSaved(e.target.value, activeStatus);
     });
   }
 });

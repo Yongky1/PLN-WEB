@@ -31,15 +31,6 @@
   <button class="rd-filter-chip" data-filter="Aktif" onclick="setKFilter(this,'Aktif')">Aktif</button>
   <button class="rd-filter-chip" data-filter="Draft" onclick="setKFilter(this,'Draft')">Draft</button>
   <button class="rd-filter-chip" data-filter="Arsip" onclick="setKFilter(this,'Arsip')">Arsip</button>
-  <div class="rd-divider-v"></div>
-  <div class="rd-view-toggle">
-    <button id="k-view-table" class="active" onclick="setKView('table')" title="Tampilan tabel">
-      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-    </button>
-    <button id="k-view-grid" onclick="setKView('grid')" title="Tampilan grid">
-      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
-    </button>
-  </div>
 </div>
 
 <!-- ======================== LIST ======================== -->
@@ -523,11 +514,12 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 /* Filter chips */
-let _kFilter = 'all';
+window._kFilter = 'all';
 function setKFilter(btn, val) {
-  _kFilter = val;
+  window._kFilter = val;
   document.querySelectorAll('.rd-toolbar .rd-filter-chip').forEach(b => b.classList.toggle('active', b === btn));
-  loadKonstruksiSaved(_kFilter === 'all' ? '' : _kFilter);
+  const searchVal = document.getElementById('search-saved-konstruksi')?.value || '';
+  loadKonstruksiSaved(searchVal, window._kFilter === 'all' ? '' : window._kFilter);
 }
 
 /* View toggle */
