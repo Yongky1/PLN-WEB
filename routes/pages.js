@@ -100,8 +100,8 @@ router.get('/ModulKonstruksi', async (req, res) => {
       title: m.title,
       description: m.description,
       image: m.image,
-      materialCount: m.materials && m.materials[0] ? (m.materials[0].count ?? 0) : 0,
-      equipmentCount: m.tools && m.tools[0] ? (m.tools[0].count ?? 0) : 0,
+      materialCount: m.materialCount || 0,
+      equipmentCount: m.equipmentCount || 0,
       assets: m.assets || [],
     }));
 
@@ -136,8 +136,20 @@ router.get('/ModulKonstruksi/:id', async (req, res) => {
       materialCount: moduleItem.materials ? moduleItem.materials.length : 0,
       equipmentCount: moduleItem.tools ? moduleItem.tools.length : 0,
       assets: moduleItem.assets || [],
-      materials: moduleItem.materials || [],
-      tools: moduleItem.tools || [],
+      materials: (moduleItem.materials || []).map(m => {
+        if (m.material) {
+          m.material.categoryLabel = m.material.category?.name || 'Lainnya';
+          m.material.category = m.material.category?.value || 'lainnya';
+        }
+        return m;
+      }),
+      tools: (moduleItem.tools || []).map(t => {
+        if (t.tool) {
+          t.tool.categoryLabel = t.tool.category?.name || 'Teknis';
+          t.tool.category = t.tool.category?.value || 'teknis';
+        }
+        return t;
+      }),
     };
 
     res.render('ModulViewer', {
