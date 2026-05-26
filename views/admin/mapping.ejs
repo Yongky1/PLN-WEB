@@ -118,7 +118,6 @@
     cursor: grab;
     outline: none;
   }
-  #mp-canvas:active { cursor: grabbing; }
 
   .mp-loading-overlay {
     position: absolute;
@@ -1094,6 +1093,8 @@ scene.add(fill);
 let currentModel   = null;
 let currentIndex   = 0;
 let selectedMesh   = null;
+let hoveredMesh    = null;
+let _isMouseDown   = false;
 const origEmissive = new Map(); // mesh → [{color, intensity}]
 
 /* ── Resize ── */
@@ -1144,8 +1145,25 @@ function setHighlight(mesh, colorHex, intensity) {
   });
 }
 
+function applyHoverHighlight(mesh) {
+  if (!mesh || mesh === selectedMesh) return;
+  setHighlight(mesh, 0x6699ff, 0.30);
+}
+
+function removeHoverHighlight(mesh) {
+  if (!mesh || mesh === selectedMesh) return;
+  restoreEmissive(mesh);
+}
+
+function updateCursor() {
+  canvas.style.cursor = _isMouseDown ? 'grabbing' : (hoveredMesh ? 'pointer' : 'grab');
+}
+
 function clearHighlight() {
-  if (selectedMesh) restoreEmissive(selectedMesh);
+  if (selectedMesh) {
+    restoreEmissive(selectedMesh);
+    if (selectedMesh === hoveredMesh) applyHoverHighlight(hoveredMesh);
+  }
   selectedMesh = null;
   controls.autoRotate = true;
   meshNameEl.textContent = 'Klik mesh untuk memilih';
@@ -1189,6 +1207,7 @@ function loadAsset(index) {
   currentIndex = index;
 
   clearHighlight();
+  hoveredMesh = null;
   origEmissive.clear();
 
   const asset = assets[index];
@@ -1233,6 +1252,19 @@ function loadAsset(index) {
     currentModel.traverse(obj => {
       if (!obj.isMesh) return;
       if (obj.name) names.push(obj.name);
+
+      const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
+      mats.forEach(m => {
+        // ── FIX: Tampilkan warna asli dengan menonaktifkan pantulan metalik ──
+        // Jika metalness = 1 dan tidak ada environment map (HDRI), 
+        // model akan memantulkan warna hitam (gelap/hilang warna aslinya).
+        if (m.isMeshStandardMaterial) {
+          m.metalness = 0.1;
+          m.roughness = 0.8;
+          m.needsUpdate = true;
+        }
+      });
+
       storeEmissive(obj);
     });
     populateDatalist(names);
@@ -1292,6 +1324,37 @@ canvas.addEventListener('click', e => {
   /* Show "apply to empty" button if there are empty items */
   const hasEmpty = [...document.querySelectorAll('.mp-mesh-input')].some(i => !i.value.trim());
   applyBtn.classList.toggle('visible', !!name && hasEmpty);
+});
+
+/* ── Hover highlighting ── */
+canvas.addEventListener('mousedown', () => { _isMouseDown = true;  updateCursor(); });
+canvas.addEventListener('mouseup',   () => { _isMouseDown = false; updateCursor(); });
+
+canvas.addEventListener('mousemove', e => {
+  if (!currentModel || _isMouseDown) return;
+
+  const rect = canvas.getBoundingClientRect();
+  mouse.x =  ((e.clientX - rect.left) / rect.width)  * 2 - 1;
+  mouse.y = -((e.clientY - rect.top)  / rect.height) * 2 + 1;
+  raycaster.setFromCamera(mouse, camera);
+
+  const meshes = [];
+  currentModel.traverse(obj => { if (obj.isMesh) meshes.push(obj); });
+  const hit = raycaster.intersectObjects(meshes, false)[0]?.object ?? null;
+
+  if (hit !== hoveredMesh) {
+    removeHoverHighlight(hoveredMesh);
+    hoveredMesh = hit;
+    applyHoverHighlight(hoveredMesh);
+    updateCursor();
+  }
+});
+
+canvas.addEventListener('mouseleave', () => {
+  _isMouseDown = false;
+  removeHoverHighlight(hoveredMesh);
+  hoveredMesh = null;
+  updateCursor();
 });
 
 /* ── Select mesh by name (dipanggil dari panel klik) ── */
