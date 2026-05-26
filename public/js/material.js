@@ -33,7 +33,7 @@ function openModal(id) {
     catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${mat.categoryLabel || ''}`;
     document.getElementById('mat-modal-name').textContent = mat.name || '';
     document.getElementById('mat-modal-code').textContent = mat.code || '';
-    document.getElementById('mat-modal-icon').textContent = mat.icon || '';
+    
     const rawDesc = mat.description || mat.shortDesc || '';
     document.getElementById('mat-modal-desc').textContent = rawDesc;
 
