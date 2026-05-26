@@ -15,7 +15,7 @@
   /* ── Split layout ── */
   .mp-layout {
     display: grid;
-    grid-template-columns: 1fr 420px;
+    grid-template-columns: 1fr 560px;
     height: calc(100vh - var(--header-height));
     overflow: hidden;
   }
@@ -584,6 +584,63 @@
     font-size: 10.5px;
     font-style: italic;
   }
+
+  /* ── Two-column panel layout ── */
+  .mp-panel-cols {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    overflow: hidden;
+    min-height: 0;
+  }
+
+  .mp-col {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    min-height: 0;
+  }
+  .mp-col:first-child {
+    border-right: 1px solid var(--border-subtle);
+  }
+
+  .mp-col-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(255,255,255,0.015);
+    flex-shrink: 0;
+  }
+
+  .mp-col-label {
+    font-size: 10.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-tertiary);
+    font-family: var(--font-mono);
+  }
+
+  .mp-col-count {
+    font-size: 10px;
+    font-family: var(--font-mono);
+    color: var(--text-muted);
+    background: rgba(255,255,255,0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 999px;
+    padding: 1px 7px;
+  }
+
+  .mp-col-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 12px;
+    min-height: 0;
+  }
+  .mp-col-body::-webkit-scrollbar { width: 4px; }
+  .mp-col-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
 </style>
 
 <!-- Embedded module data for JS -->
@@ -663,81 +720,77 @@
       </button>
     </div>
 
-    <!-- Panel body -->
-    <div class="mp-panel-body">
+    <!-- Two-column panel layout -->
+    <%
+      const hasMaterials = moduleData.materials && moduleData.materials.length > 0;
+      const hasTools = moduleData.tools && moduleData.tools.length > 0;
+    %>
+    <div class="mp-panel-cols">
 
-      <%
-        const hasMaterials = moduleData.materials && moduleData.materials.length > 0;
-        const hasTools = moduleData.tools && moduleData.tools.length > 0;
-      %>
-
-      <!-- Materials section -->
-      <% if (hasMaterials) { %>
-      <div class="mp-section">
-        <div class="mp-section-header">
-          <span class="mp-section-label">Material</span>
-          <span class="mp-section-count"><%= moduleData.materials.length %></span>
+      <!-- Left column: Material -->
+      <div class="mp-col">
+        <div class="mp-col-header">
+          <span class="mp-col-label">Material</span>
+          <span class="mp-col-count"><%= hasMaterials ? moduleData.materials.length : 0 %></span>
         </div>
-
-        <% moduleData.materials.forEach(function(row) {
-          const mat = row.material || {};
-          const hasMeshName = !!(row.mesh_name && row.mesh_name.trim());
-        %>
-        <div class="mp-item" data-id="<%= row.id %>" data-type="material">
-          <div class="mp-item-header">
-            <% if (mat.image) { %>
-            <img class="mp-item-thumb" src="<%= mat.image %>" alt="">
-            <% } else { %>
-            <div class="mp-item-thumb-placeholder">📦</div>
-            <% } %>
-            <div class="mp-item-meta">
-              <div class="mp-item-name"><%- mat.name || '-' %></div>
-              <div class="mp-item-sub">Qty: <%= row.quantity || 1 %><% if (mat.code) { %> · <%= mat.code %><% } %></div>
+        <div class="mp-col-body">
+          <% if (hasMaterials) { %>
+          <% moduleData.materials.forEach(function(row) {
+            const mat = row.material || {};
+            const hasMeshName = !!(row.mesh_name && row.mesh_name.trim());
+          %>
+          <div class="mp-item" data-id="<%= row.id %>" data-type="material">
+            <div class="mp-item-header">
+              <% if (mat.image) { %>
+              <img class="mp-item-thumb" src="<%= mat.image %>" alt="">
+              <% } else { %>
+              <div class="mp-item-thumb-placeholder">📦</div>
+              <% } %>
+              <div class="mp-item-meta">
+                <div class="mp-item-name"><%- mat.name || '-' %></div>
+                <div class="mp-item-sub">Qty: <%= row.quantity || 1 %><% if (mat.code) { %> · <%= mat.code %><% } %></div>
+              </div>
+              <span class="mp-status-badge <%= hasMeshName ? 'ok' : 'empty' %>" id="mp-status-<%= row.id %>">
+                <%= hasMeshName ? '✓' : '✗' %>
+              </span>
             </div>
-            <span class="mp-status-badge <%= hasMeshName ? 'ok' : 'empty' %>" id="mp-status-<%= row.id %>">
-              <%= hasMeshName ? '✓' : '✗' %>
-            </span>
+            <div class="mp-item-control">
+              <input
+                type="text"
+                class="mp-mesh-input"
+                id="mp-input-<%= row.id %>"
+                list="mp-mesh-datalist"
+                value="<%= row.mesh_name || '' %>"
+                placeholder="Pilih atau ketik nama mesh..."
+                autocomplete="off"
+                spellcheck="false"
+              />
+              <button class="mp-save-item-btn" onclick="mpSaveItem(this)">Simpan</button>
+            </div>
           </div>
-          <div class="mp-item-control">
-            <input
-              type="text"
-              class="mp-mesh-input"
-              id="mp-input-<%= row.id %>"
-              list="mp-mesh-datalist"
-              value="<%= row.mesh_name || '' %>"
-              placeholder="Pilih atau ketik nama mesh..."
-              autocomplete="off"
-              spellcheck="false"
-            />
-            <button class="mp-save-item-btn" onclick="mpSaveItem(this)">Simpan</button>
+          <% }); %>
+          <% } else { %>
+          <div class="mp-empty-state">
+            <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted);opacity:0.5">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+            </svg>
+            <p>Belum ada material yang<br>terhubung ke modul ini.</p>
+            <a href="/admin/modules">Kelola di halaman Modul →</a>
           </div>
+          <% } %>
         </div>
-        <% }); %>
       </div>
-      <% } %>
 
-      <% if (!hasMaterials) { %>
-      <div class="mp-empty-state">
-        <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="color:var(--text-muted);opacity:0.5">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-        </svg>
-        <p>Belum ada material yang<br>terhubung ke modul ini.</p>
-        <a href="/admin/modules">Kelola di halaman Modul →</a>
-      </div>
-      <% } %>
-
-      <% if (hasMaterials) { %>
-      <div class="mp-cfg-divider"></div>
-      <% } %>
-
-      <!-- ── Mesh Overview Section (populated by JS after GLB load) ── -->
-      <div class="mp-section">
-        <div class="mp-section-header">
-          <span class="mp-section-label">Status Mesh</span>
-          <span class="mp-section-count" id="mp-mesh-overview-count">—</span>
+      <!-- Right column: Mesh Status (populated by JS after GLB load) -->
+      <div class="mp-col">
+        <div class="mp-col-header">
+          <span class="mp-col-label">Status Mesh</span>
+          <span class="mp-col-count" id="mp-mesh-overview-count">—</span>
         </div>
-        <p class="mp-overview-hint" id="mp-overview-hint">Menunggu model 3D dimuat...</p>
-        <div id="mp-mesh-overview-body"></div>
+        <div class="mp-col-body">
+          <p class="mp-overview-hint" id="mp-overview-hint">Menunggu model 3D dimuat...</p>
+          <div id="mp-mesh-overview-body"></div>
+        </div>
       </div>
 
     </div>
