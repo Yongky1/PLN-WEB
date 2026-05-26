@@ -376,15 +376,21 @@
 
   .mp-item-control {
     display: flex;
-    align-items: center;
-    gap: 8px;
+    flex-direction: column;
+    gap: 6px;
     padding: 8px 12px 10px;
     border-top: 1px solid var(--border-subtle);
     background: rgba(0,0,0,0.1);
   }
 
+  .mp-item-actions {
+    display: flex;
+    gap: 6px;
+  }
+
   .mp-mesh-input {
-    flex: 1;
+    width: 100%;
+    box-sizing: border-box;
     height: 32px;
     padding: 0 10px;
     background: rgba(255,255,255,0.04);
@@ -408,6 +414,7 @@
   }
 
   .mp-save-item-btn {
+    flex: 1;
     height: 32px;
     padding: 0 12px;
     border-radius: var(--radius-md);
@@ -417,7 +424,6 @@
     font-size: 12px;
     font-weight: 600;
     transition: all .15s;
-    flex-shrink: 0;
     white-space: nowrap;
   }
   .mp-save-item-btn:hover {
@@ -428,6 +434,64 @@
   .mp-save-item-btn.saving {
     opacity: 0.6;
     cursor: default;
+  }
+
+  .mp-cancel-item-btn {
+    flex: 1;
+    height: 32px;
+    padding: 0 10px;
+    border-radius: var(--radius-md);
+    border: 1px solid rgba(248,113,113,0.2);
+    background: rgba(248,113,113,0.06);
+    color: rgba(248,113,113,0.7);
+    font-size: 12px;
+    font-weight: 600;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .mp-cancel-item-btn:hover {
+    background: rgba(248,113,113,0.12);
+    color: #f87171;
+    border-color: rgba(248,113,113,0.4);
+  }
+
+  .mp-display-name-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .mp-display-name-actions {
+    display: flex;
+    gap: 4px;
+  }
+  .mp-dn-save-btn, .mp-dn-cancel-btn {
+    flex: 1;
+    height: 24px;
+    padding: 0 7px;
+    border-radius: var(--radius-sm);
+    font-size: 10.5px;
+    font-weight: 600;
+    transition: all .15s;
+    white-space: nowrap;
+  }
+  .mp-dn-save-btn {
+    border: 1px solid var(--border-default);
+    background: rgba(255,255,255,0.05);
+    color: var(--text-secondary);
+  }
+  .mp-dn-save-btn:hover {
+    background: rgba(255,255,255,0.09);
+    color: var(--text-primary);
+  }
+  .mp-dn-cancel-btn {
+    border: 1px solid rgba(248,113,113,0.2);
+    background: rgba(248,113,113,0.06);
+    color: rgba(248,113,113,0.7);
+  }
+  .mp-dn-cancel-btn:hover {
+    background: rgba(248,113,113,0.12);
+    color: #f87171;
+    border-color: rgba(248,113,113,0.4);
   }
 
   /* ── Empty state ── */
@@ -761,11 +825,15 @@
                 id="mp-input-<%= row.id %>"
                 list="mp-mesh-datalist"
                 value="<%= row.mesh_name || '' %>"
+                data-original="<%= row.mesh_name || '' %>"
                 placeholder="Pilih atau ketik nama mesh..."
                 autocomplete="off"
                 spellcheck="false"
               />
-              <button class="mp-save-item-btn" onclick="mpSaveItem(this)">Simpan</button>
+              <div class="mp-item-actions">
+                <button class="mp-save-item-btn" onclick="mpSaveItem(this)">Simpan</button>
+                <button class="mp-cancel-item-btn" onclick="mpCancelItem(this)">Batal</button>
+              </div>
             </div>
           </div>
           <% }); %>
@@ -829,13 +897,61 @@
     badge.className = 'mp-status-badge ' + (hasMeshName ? 'ok' : 'empty');
   }
 
+  /* Cancel single item — reset mesh input to last saved value */
+  function mpCancelItem(btn) {
+    const item = btn.closest('.mp-item');
+    const input = item.querySelector('.mp-mesh-input');
+    if (input) input.value = input.dataset.original || '';
+  }
+
+  /* Save display name for a single mesh */
+  async function mpSaveDisplayName(btn) {
+    const wrap = btn.closest('.mp-display-name-wrap');
+    const input = wrap.querySelector('.mp-display-name-input');
+    const meshName = input.dataset.meshName;
+    const displayName = input.value.trim();
+
+    btn.disabled = true;
+    btn.textContent = '...';
+    const cancelBtn = wrap.querySelector('.mp-display-name-actions .mp-dn-cancel-btn');
+    if (cancelBtn) cancelBtn.disabled = true;
+
+    try {
+      const modId = JSON.parse(document.getElementById('mapping-module-data').textContent).id;
+      const res = await fetch(`/api/modules/${modId}/mesh-config`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify([{ mesh_original_name: meshName, mesh_display_name: displayName || null }]),
+      });
+      if (!res.ok) throw new Error('Gagal menyimpan');
+      mpDisplayNameMap[meshName] = displayName;
+      mpSyncDatalistWithDisplayNames();
+      input.dataset.original = displayName;
+      mpToast('Nama tampilan berhasil disimpan', 'success');
+    } catch (err) {
+      mpToast('Gagal: ' + err.message, 'error');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Simpan';
+      if (cancelBtn) cancelBtn.disabled = false;
+    }
+  }
+
+  /* Cancel display name — reset to last saved value */
+  function mpCancelDisplayName(btn) {
+    const wrap = btn.closest('.mp-display-name-wrap');
+    const input = wrap.querySelector('.mp-display-name-input');
+    if (input) input.value = input.dataset.original || '';
+  }
+
   /* Save single item */
   async function mpSaveItem(btn) {
     const item = btn.closest('.mp-item');
     const id   = item.dataset.id;
     const type = item.dataset.type;
     const input = item.querySelector('.mp-mesh-input');
-    const meshName = input ? input.value.trim() : '';
+    const meshName = mpResolveToOriginalMeshName(input ? input.value.trim() : '');
+    if (input && input.value.trim() !== meshName) input.value = meshName;
 
     btn.disabled = true;
     btn.textContent = '...';
@@ -857,6 +973,7 @@
       }
 
       mpUpdateStatus(id, !!meshName);
+      if (input) input.dataset.original = meshName;
       if (typeof window.mpRefreshMeshOverview === 'function') window.mpRefreshMeshOverview();
       mpToast('mesh_name berhasil disimpan', 'success');
     } catch (err) {
@@ -880,7 +997,8 @@
       const id    = item.dataset.id;
       const type  = item.dataset.type;
       const input = item.querySelector('.mp-mesh-input');
-      const meshName = input ? input.value.trim() : '';
+      const meshName = mpResolveToOriginalMeshName(input ? input.value.trim() : '');
+      if (input && input.value.trim() !== meshName) input.value = meshName;
 
       const endpoint = type === 'material'
         ? `/api/module-materials/${id}/mesh-name`
@@ -898,6 +1016,7 @@
       }
 
       mpUpdateStatus(id, !!meshName);
+      if (input) input.dataset.original = meshName;
     }));
 
     const failed = results.filter(r => r.status === 'rejected').length;
@@ -920,6 +1039,7 @@
           configItems.forEach(c => {
             mpDisplayNameMap[c.mesh_original_name] = c.mesh_display_name || '';
           });
+          mpSyncDatalistWithDisplayNames();
         }
       } catch (_) {}
     }
@@ -958,6 +1078,30 @@
   let mpMeshNames = []; // semua nama mesh dari GLB
   let mpDisplayNameMap = {}; // mesh_original_name → mesh_display_name
 
+  /* Resolve a value that may be a display name back to the original mesh name */
+  function mpResolveToOriginalMeshName(value) {
+    if (!value) return value;
+    // Check if value is already an original mesh name
+    if (mpMeshNames.includes(value)) return value;
+    // Otherwise search for a display name match
+    const entry = Object.entries(mpDisplayNameMap).find(([, disp]) => disp === value);
+    return entry ? entry[0] : value;
+  }
+
+  /* Add display names as datalist options so they appear as suggestions in material inputs */
+  function mpSyncDatalistWithDisplayNames() {
+    const datalist = document.getElementById('mp-mesh-datalist');
+    if (!datalist) return;
+    datalist.querySelectorAll('[data-dn]').forEach(o => o.remove());
+    Object.entries(mpDisplayNameMap).forEach(([orig, disp]) => {
+      if (!disp || disp === orig) return;
+      const opt = document.createElement('option');
+      opt.value = disp;
+      opt.dataset.dn = orig;
+      datalist.appendChild(opt);
+    });
+  }
+
   async function mpLoadMeshConfig() {
     const modId = JSON.parse(document.getElementById('mapping-module-data').textContent).id;
     try {
@@ -968,6 +1112,7 @@
       (data || []).forEach(row => {
         if (row.mesh_original_name) mpDisplayNameMap[row.mesh_original_name] = row.mesh_display_name || '';
       });
+      mpSyncDatalistWithDisplayNames();
       if (mpMeshNames.length > 0) mpRenderMeshOverview();
     } catch (_) {}
   }
@@ -993,6 +1138,11 @@
     const count = document.getElementById('mp-mesh-overview-count');
     const hint  = document.getElementById('mp-overview-hint');
     if (!body) return;
+
+    /* Preserve any unsaved display name values already typed in the DOM */
+    body.querySelectorAll('.mp-display-name-input').forEach(input => {
+      if (input.dataset.meshName) mpDisplayNameMap[input.dataset.meshName] = input.value.trim();
+    });
 
     if (mpMeshNames.length === 0) {
       if (hint) hint.textContent = 'Tidak ada mesh ditemukan.';
@@ -1021,7 +1171,13 @@
             <div class="mp-mesh-row-sub connected">${subtitle.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</div>
             <div class="mp-display-name-wrap">
               <span class="mp-display-name-label">Nama tampilan</span>
-              <input type="text" class="mp-display-name-input" data-mesh-name="${name.replace(/"/g,'&quot;')}" placeholder="${safe}" value="${displayVal}" autocomplete="off" spellcheck="false" />
+              <div class="mp-display-name-row">
+                <input type="text" class="mp-display-name-input" data-mesh-name="${name.replace(/"/g,'&quot;')}" data-original="${displayVal}" placeholder="${safe}" value="${displayVal}" autocomplete="off" spellcheck="false" />
+                <div class="mp-display-name-actions">
+                  <button class="mp-dn-save-btn" onclick="mpSaveDisplayName(this)">Simpan</button>
+                  <button class="mp-dn-cancel-btn" onclick="mpCancelDisplayName(this)">Batal</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>`;
@@ -1040,7 +1196,13 @@
             <div class="mp-mesh-row-sub">Klik mesh di 3D untuk assign</div>
             <div class="mp-display-name-wrap">
               <span class="mp-display-name-label">Nama tampilan</span>
-              <input type="text" class="mp-display-name-input" data-mesh-name="${name.replace(/"/g,'&quot;')}" placeholder="${safe}" value="${displayVal}" autocomplete="off" spellcheck="false" />
+              <div class="mp-display-name-row">
+                <input type="text" class="mp-display-name-input" data-mesh-name="${name.replace(/"/g,'&quot;')}" data-original="${displayVal}" placeholder="${safe}" value="${displayVal}" autocomplete="off" spellcheck="false" />
+                <div class="mp-display-name-actions">
+                  <button class="mp-dn-save-btn" onclick="mpSaveDisplayName(this)">Simpan</button>
+                  <button class="mp-dn-cancel-btn" onclick="mpCancelDisplayName(this)">Batal</button>
+                </div>
+              </div>
             </div>
           </div>
         </div>`;
@@ -1075,7 +1237,7 @@
 
   /* Klik mesh row → highlight di 3D viewer */
   document.getElementById('mp-mesh-overview-body').addEventListener('click', function(e) {
-    if (e.target.classList.contains('mp-display-name-input')) return;
+    if (e.target.closest('.mp-display-name-wrap')) return;
     const row = e.target.closest('.mp-mesh-row');
     if (!row) return;
     if (typeof window.mpSelectMeshByName === 'function') {
