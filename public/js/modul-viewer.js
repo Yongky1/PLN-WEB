@@ -21,6 +21,7 @@ const meshPanelClose  = document.getElementById('mesh-panel-close');
 const toggleRotateBtn = document.getElementById('toggle-rotate-btn');
 const iconPause       = document.getElementById('icon-pause');
 const iconPlay        = document.getElementById('icon-play');
+let isManuallyPaused  = false;
 
 let currentAssets    = [];
 let currentIndex     = 0;
@@ -355,7 +356,7 @@ function loadVariant(index) {
     _savedCamPos    = null;
     _savedCamTarget = null;
     updateOutlineObjects();
-    controls.autoRotate = true;
+    controls.autoRotate = !isManuallyPaused;
     if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
 
     const asset = currentAssets[index];
@@ -450,7 +451,7 @@ canvas.addEventListener('click', (e) => {
         if (hit === selectedMesh) {
             clearSelection();
             closeMeshPanel();
-            controls.autoRotate = true;
+            controls.autoRotate = !isManuallyPaused;
             if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
         } else {
             selectedMesh = hit;
@@ -463,7 +464,7 @@ canvas.addEventListener('click', (e) => {
     } else {
         clearSelection();
         closeMeshPanel();
-        controls.autoRotate = true;
+        controls.autoRotate = !isManuallyPaused;
         if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
     }
 });
@@ -533,14 +534,14 @@ if (meshPanelClose) {
         e.stopPropagation();
         clearSelection();
         closeMeshPanel();
-        controls.autoRotate = true;
+        controls.autoRotate = !isManuallyPaused;
         updateRotateButtonState();
     });
 }
 
 function updateRotateButtonState() {
     if (!iconPause || !iconPlay) return;
-    if (controls.autoRotate) {
+    if (!isManuallyPaused) {
         iconPause.classList.remove('hidden');
         iconPlay.classList.add('hidden');
     } else {
@@ -552,7 +553,10 @@ function updateRotateButtonState() {
 if (toggleRotateBtn) {
     toggleRotateBtn.addEventListener('click', (e) => {
         e.stopPropagation();
-        controls.autoRotate = !controls.autoRotate;
+        isManuallyPaused = !isManuallyPaused;
+        if (!selectedMesh) {
+            controls.autoRotate = !isManuallyPaused;
+        }
         updateRotateButtonState();
     });
 }

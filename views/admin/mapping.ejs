@@ -1452,6 +1452,7 @@ const toggleRotateBtn = document.getElementById('mp-toggle-rotate-btn');
 const iconPause       = document.getElementById('mp-icon-pause');
 const iconPlay        = document.getElementById('mp-icon-play');
 const rotateText      = document.getElementById('mp-rotate-text');
+let isManuallyPaused  = false;
 
 /* ── Scene setup ── */
 const scene  = new THREE.Scene();
@@ -1474,7 +1475,7 @@ controls.autoRotateSpeed = 0.8;
 
 function updateRotateButtonState() {
   if (!iconPause || !iconPlay || !rotateText) return;
-  if (controls.autoRotate) {
+  if (!isManuallyPaused) {
     iconPause.style.display = 'block';
     iconPlay.style.display = 'none';
     rotateText.textContent = 'Pause';
@@ -1487,7 +1488,10 @@ function updateRotateButtonState() {
 
 if (toggleRotateBtn) {
   toggleRotateBtn.addEventListener('click', () => {
-    controls.autoRotate = !controls.autoRotate;
+    isManuallyPaused = !isManuallyPaused;
+    if (!selectedMesh) {
+      controls.autoRotate = !isManuallyPaused;
+    }
     updateRotateButtonState();
   });
 }
@@ -1578,7 +1582,7 @@ function clearHighlight() {
     if (selectedMesh === hoveredMesh) applyHoverHighlight(hoveredMesh);
   }
   selectedMesh = null;
-  controls.autoRotate = true;
+  controls.autoRotate = !isManuallyPaused;
   updateRotateButtonState();
   meshNameEl.textContent = 'Klik mesh untuk memilih';
   meshNameEl.classList.remove('has-selection');
