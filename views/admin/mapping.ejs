@@ -789,6 +789,12 @@
           <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
+
+      <button class="mp-asset-nav-btn" id="mp-toggle-rotate-btn" style="margin-left:auto; display:flex; align-items:center; gap:4px; font-size:10px; font-weight:bold; background:rgba(255,213,0,0.1); color:#ffd700; border:1px solid rgba(255,213,0,0.3); border-radius:4px; padding:2px 6px;" title="Pause/Play Rotation">
+        <svg id="mp-icon-pause" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path></svg>
+        <svg id="mp-icon-play" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+        <span id="mp-rotate-text">Pause</span>
+      </button>
     </div>
 
     <!-- Canvas -->
@@ -1442,6 +1448,11 @@ const meshNameEl    = document.getElementById('mp-selected-mesh-name');
 const applyBtn      = document.getElementById('mp-apply-btn');
 const datalist      = document.getElementById('mp-mesh-datalist');
 
+const toggleRotateBtn = document.getElementById('mp-toggle-rotate-btn');
+const iconPause       = document.getElementById('mp-icon-pause');
+const iconPlay        = document.getElementById('mp-icon-play');
+const rotateText      = document.getElementById('mp-rotate-text');
+
 /* ── Scene setup ── */
 const scene  = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(45, 1, 0.01, 1000);
@@ -1460,6 +1471,26 @@ controls.enableDamping   = true;
 controls.dampingFactor   = 0.05;
 controls.autoRotate      = true;
 controls.autoRotateSpeed = 0.8;
+
+function updateRotateButtonState() {
+  if (!iconPause || !iconPlay || !rotateText) return;
+  if (controls.autoRotate) {
+    iconPause.style.display = 'block';
+    iconPlay.style.display = 'none';
+    rotateText.textContent = 'Pause';
+  } else {
+    iconPause.style.display = 'none';
+    iconPlay.style.display = 'block';
+    rotateText.textContent = 'Play';
+  }
+}
+
+if (toggleRotateBtn) {
+  toggleRotateBtn.addEventListener('click', () => {
+    controls.autoRotate = !controls.autoRotate;
+    updateRotateButtonState();
+  });
+}
 
 /* ── Lighting ── */
 scene.add(new THREE.AmbientLight(0xffffff, 1.5));
@@ -1548,6 +1579,7 @@ function clearHighlight() {
   }
   selectedMesh = null;
   controls.autoRotate = true;
+  updateRotateButtonState();
   meshNameEl.textContent = 'Klik mesh untuk memilih';
   meshNameEl.classList.remove('has-selection');
   applyBtn.classList.remove('visible');
@@ -1694,6 +1726,7 @@ canvas.addEventListener('click', e => {
   /* Select new */
   selectedMesh = hit;
   controls.autoRotate = false;
+  updateRotateButtonState();
   setHighlight(hit, 0xf59e0b, 0.7);
 
   const name = hit.name || '';
@@ -1752,6 +1785,7 @@ window.mpSelectMeshByName = function(name) {
   if (selectedMesh) restoreEmissive(selectedMesh);
   selectedMesh = target;
   controls.autoRotate = false;
+  updateRotateButtonState();
   setHighlight(target, 0xf59e0b, 0.7);
 
   meshNameEl.textContent = name || '(tanpa nama)';

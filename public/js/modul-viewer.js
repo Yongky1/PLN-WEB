@@ -18,6 +18,9 @@ const variantNameEl   = document.getElementById('viewer-variant-name');
 const meshPanel       = document.getElementById('mesh-info-panel');
 const meshPanelName   = document.getElementById('mesh-panel-name');
 const meshPanelClose  = document.getElementById('mesh-panel-close');
+const toggleRotateBtn = document.getElementById('toggle-rotate-btn');
+const iconPause       = document.getElementById('icon-pause');
+const iconPlay        = document.getElementById('icon-play');
 
 let currentAssets    = [];
 let currentIndex     = 0;
@@ -353,6 +356,7 @@ function loadVariant(index) {
     _savedCamTarget = null;
     updateOutlineObjects();
     controls.autoRotate = true;
+    if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
 
     const asset = currentAssets[index];
     const src   = asset.file || '';
@@ -447,10 +451,12 @@ canvas.addEventListener('click', (e) => {
             clearSelection();
             closeMeshPanel();
             controls.autoRotate = true;
+            if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
         } else {
             selectedMesh = hit;
             updateOutlineObjects();
             controls.autoRotate = false;
+            if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
             focusCameraOnMesh(hit);
             showMeshPanel(hit);
         }
@@ -458,6 +464,7 @@ canvas.addEventListener('click', (e) => {
         clearSelection();
         closeMeshPanel();
         controls.autoRotate = true;
+        if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
     }
 });
 
@@ -527,6 +534,26 @@ if (meshPanelClose) {
         clearSelection();
         closeMeshPanel();
         controls.autoRotate = true;
+        updateRotateButtonState();
+    });
+}
+
+function updateRotateButtonState() {
+    if (!iconPause || !iconPlay) return;
+    if (controls.autoRotate) {
+        iconPause.classList.remove('hidden');
+        iconPlay.classList.add('hidden');
+    } else {
+        iconPause.classList.add('hidden');
+        iconPlay.classList.remove('hidden');
+    }
+}
+
+if (toggleRotateBtn) {
+    toggleRotateBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        controls.autoRotate = !controls.autoRotate;
+        updateRotateButtonState();
     });
 }
 

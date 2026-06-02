@@ -360,6 +360,12 @@
                         Varian -
                     </div>
 
+                    <!-- Toggle Rotate -->
+                    <button id="toggle-rotate-btn" title="Pause/Play Rotation" class="absolute top-6 right-20 w-11 h-11 bg-[#1d1d1f]/60 backdrop-blur-2xl rounded-full flex items-center justify-center text-[var(--color-pln-yellow)] hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 shadow-xl group-hover:scale-105 opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                        <svg id="icon-pause" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path></svg>
+                        <svg id="icon-play" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                    </button>
+
                     <!-- Fullscreen Toggle -->
                     <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Full Screen" class="absolute top-6 right-6 w-11 h-11 bg-[#1d1d1f]/60 backdrop-blur-2xl rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 shadow-xl group-hover:scale-105 opacity-100 md:opacity-0 md:group-hover:opacity-100">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
