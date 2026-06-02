@@ -759,6 +759,47 @@
   }
   .mp-col-body::-webkit-scrollbar { width: 4px; }
   .mp-col-body::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.07); border-radius: 4px; }
+
+  /* ── Search bar ── */
+  .mp-col-search-wrap {
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    background: rgba(255,255,255,0.01);
+  }
+  .mp-col-search {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 6px 10px 6px 30px;
+    font-size: 11.5px;
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    box-sizing: border-box;
+  }
+  .mp-col-search::placeholder { color: var(--text-muted); }
+  .mp-col-search:focus {
+    border-color: rgba(255,215,0,0.35);
+    box-shadow: 0 0 0 3px rgba(255,215,0,0.06);
+  }
+  .mp-col-search-wrap-inner {
+    position: relative;
+  }
+  .mp-col-search-icon {
+    position: absolute;
+    left: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-muted);
+    pointer-events: none;
+    display: flex;
+    align-items: center;
+  }
+  .mp-item.mp-hidden { display: none !important; }
+  .mp-mesh-row-item.mp-hidden { display: none !important; }
 </style>
 
 <!-- Embedded module data for JS -->
@@ -856,6 +897,14 @@
           <span class="mp-col-label">Material</span>
           <span class="mp-col-count"><%= hasMaterials ? moduleData.materials.length : 0 %></span>
         </div>
+        <div class="mp-col-search-wrap">
+          <div class="mp-col-search-wrap-inner">
+            <span class="mp-col-search-icon">
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </span>
+            <input type="text" id="mp-material-search" class="mp-col-search" placeholder="Cari material..." oninput="mpFilterMaterials(this.value)" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
         <div class="mp-col-body">
           <% if (hasMaterials) { %>
           <% moduleData.materials.forEach(function(row) {
@@ -926,6 +975,14 @@
           <span class="mp-col-label">Status Mesh</span>
           <span class="mp-col-count" id="mp-mesh-overview-count">—</span>
         </div>
+        <div class="mp-col-search-wrap">
+          <div class="mp-col-search-wrap-inner">
+            <span class="mp-col-search-icon">
+              <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            </span>
+            <input type="text" id="mp-mesh-search" class="mp-col-search" placeholder="Cari nama mesh..." oninput="mpFilterMeshes(this.value)" autocomplete="off" spellcheck="false">
+          </div>
+        </div>
         <div class="mp-col-body">
           <p class="mp-overview-hint" id="mp-overview-hint">Menunggu model 3D dimuat...</p>
           <div id="mp-mesh-overview-body"></div>
@@ -941,6 +998,32 @@
 
 <!-- ═══════════════ API & UI LOGIC ═══════════════ -->
 <script>
+  /* ── Search / Filter ── */
+  function mpFilterMaterials(query) {
+    const q = (query || '').toLowerCase().trim();
+    document.querySelectorAll('.mp-col .mp-item[data-type="material"]').forEach(function(item) {
+      const nameEl = item.querySelector('.mp-item-name');
+      const name = nameEl ? nameEl.textContent.toLowerCase() : '';
+      const subEl = item.querySelector('.mp-item-sub');
+      const sub = subEl ? subEl.textContent.toLowerCase() : '';
+      item.classList.toggle('mp-hidden', q !== '' && !name.includes(q) && !sub.includes(q));
+    });
+  }
+
+  function mpFilterMeshes(query) {
+    const q = (query || '').toLowerCase().trim();
+    const body = document.getElementById('mp-mesh-overview-body');
+    if (!body) return;
+    body.querySelectorAll('.mp-mesh-row[data-mesh-overview]').forEach(function(row) {
+      const meshName = (row.dataset.meshOverview || '').toLowerCase();
+      const subEl = row.querySelector('.mp-mesh-row-sub');
+      const sub = subEl ? subEl.textContent.toLowerCase() : '';
+      const displayEl = row.querySelector('.mp-display-name-input');
+      const display = displayEl ? displayEl.value.toLowerCase() : '';
+      row.classList.toggle('mp-hidden', q !== '' && !meshName.includes(q) && !sub.includes(q) && !display.includes(q));
+    });
+  }
+
   /* Toast helper (pakai #toast dari layout) */
   function mpToast(message, type) {
     const el = document.getElementById('toast');
@@ -1397,6 +1480,12 @@
     }
 
     body.innerHTML = html;
+
+    // Re-apply mesh search filter jika sedang aktif
+    const meshSearchEl = document.getElementById('mp-mesh-search');
+    if (meshSearchEl && meshSearchEl.value.trim()) {
+      mpFilterMeshes(meshSearchEl.value);
+    }
   }
 
   /* Dipanggil dari module script saat GLB selesai dimuat */
