@@ -1714,6 +1714,8 @@
       datalist.appendChild(opt);
     });
   }
+  /* Expose to module script (Three.js) */
+  window.mpSyncDatalistWithDisplayNames = mpSyncDatalistWithDisplayNames;
 
   async function mpLoadMeshConfig() {
     const modId = JSON.parse(document.getElementById('mapping-module-data').textContent).id;
@@ -2044,12 +2046,17 @@
 
   /* ── Mesh name datalist ── */
   function populateDatalist(names) {
-    datalist.innerHTML = '';
+    // Hapus hanya opsi nama asli mesh; pertahankan opsi display name (data-dn)
+    [...datalist.options].filter(o => !o.dataset.dn).forEach(o => o.remove());
     [...new Set(names.filter(n => n && n.trim()))].sort().forEach(n => {
       const opt = document.createElement('option');
       opt.value = n;
       datalist.appendChild(opt);
     });
+    // Sync ulang display names agar nama rename langsung tersedia di input material
+    if (typeof window.mpSyncDatalistWithDisplayNames === 'function') {
+      window.mpSyncDatalistWithDisplayNames();
+    }
   }
 
   /* ── Dispose ── */
