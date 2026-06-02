@@ -256,7 +256,13 @@ function showMeshPanel(mesh) {
     const displayName = (meshDisplayNameMap[meshName] || '').trim() || meshName;
     if (meshPanelName) meshPanelName.textContent = displayName || 'Unnamed Object';
 
-    const mats  = moduleMaterials.filter((r) => r.mesh_name === meshName);
+    // Materials use many-to-many via r.meshes (array of {mesh_name})
+    const mats  = moduleMaterials.filter((r) =>
+        Array.isArray(r.meshes)
+            ? r.meshes.some((m) => m.mesh_name === meshName)
+            : r.mesh_name === meshName
+    );
+    // Tools use single r.mesh_name
     const tools = moduleTools.filter((r) => r.mesh_name === meshName);
 
     const panelEmpty        = document.getElementById('panel-empty');
@@ -273,7 +279,8 @@ function showMeshPanel(mesh) {
     if (panelMaterials) {
         panelMaterials.innerHTML = mats.map(buildMatCard).join('');
         panelMaterials.querySelectorAll('.panel-item-card').forEach((card) => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (window.openModal) window.openModal(card.dataset.itemId, card.dataset.itemType);
             });
         });
@@ -282,7 +289,8 @@ function showMeshPanel(mesh) {
     if (panelTools) {
         panelTools.innerHTML = tools.map(buildToolCard).join('');
         panelTools.querySelectorAll('.panel-item-card').forEach((card) => {
-            card.addEventListener('click', () => {
+            card.addEventListener('click', (e) => {
+                e.stopPropagation();
                 if (window.openModal) window.openModal(card.dataset.itemId, card.dataset.itemType);
             });
         });
@@ -506,8 +514,16 @@ canvas.addEventListener('mouseleave', () => {
     updateCursor();
 });
 
+// Stop all clicks inside the mesh panel from reaching the canvas raycaster
+if (meshPanel) {
+    meshPanel.addEventListener('click', (e) => {
+        e.stopPropagation();
+    });
+}
+
 if (meshPanelClose) {
-    meshPanelClose.addEventListener('click', () => {
+    meshPanelClose.addEventListener('click', (e) => {
+        e.stopPropagation();
         clearSelection();
         closeMeshPanel();
         controls.autoRotate = true;

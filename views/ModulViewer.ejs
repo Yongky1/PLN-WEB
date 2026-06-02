@@ -678,7 +678,7 @@
         var currentMatAssets = [];
         var currentVarIdx = 0;
 
-        function openModal(id, type) {
+        window.openModal = function openModal(id, type) {
             var item = modalData.find(function(m) { return String(m.id) === String(id) && m.type === type; });
             if (!item) return;
 
@@ -691,11 +691,13 @@
                 openCatalogModal(MAT_IDS, file3d, 'Memuat Skema Spasial...', function() {
                     var catEl = document.getElementById('mat-modal-category');
                     var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
-                    catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>' + catName;
-                    document.getElementById('mat-modal-name').textContent = item.name || '';
-                    document.getElementById('mat-modal-code').textContent = item.code || '';
-                    document.getElementById('mat-modal-icon').textContent = item.icon || '📦';
-                    document.getElementById('mat-modal-desc').textContent = item.description || item.shortDesc || '';
+                    if (catEl) catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>' + catName;
+                    var nameEl = document.getElementById('mat-modal-name');
+                    if (nameEl) nameEl.textContent = item.name || '';
+                    var codeEl = document.getElementById('mat-modal-code');
+                    if (codeEl) codeEl.textContent = item.code || '';
+                    var descEl = document.getElementById('mat-modal-desc');
+                    if (descEl) descEl.textContent = item.description || item.shortDesc || '';
 
                     var prevBtn = document.getElementById('mat-viewer-prev-btn');
                     var nextBtn = document.getElementById('mat-viewer-next-btn');
@@ -717,15 +719,21 @@
                 openCatalogModal(TOOLS_IDS, item.file3d, 'Memuat Model 3D...', function() {
                     var catLabel = document.getElementById('modal-category-label');
                     var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
-                    catLabel.className = 'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 cat-badge-teknis';
-                    catLabel.innerHTML = '<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>' + catName;
-                    document.getElementById('modal-icon').textContent = item.icon || '🔧';
-                    document.getElementById('modal-name').textContent = item.name || '';
-                    document.getElementById('modal-standard').textContent = item.standard || '-';
+                    if (catLabel) {
+                        catLabel.className = 'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 cat-badge-teknis';
+                        catLabel.innerHTML = '<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>' + catName;
+                    }
+                    var nameEl = document.getElementById('modal-name');
+                    if (nameEl) nameEl.textContent = item.name || '';
+                    var stdEl = document.getElementById('modal-standard');
+                    if (stdEl) stdEl.textContent = item.standard || '-';
                     var statusEl = document.getElementById('modal-status');
-                    statusEl.textContent = item.status || '-';
-                    statusEl.className = 'text-[11px] font-bold ' + (item.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
-                    document.getElementById('modal-desc').textContent = item.description || 'Deskripsi belum tersedia.';
+                    if (statusEl) {
+                        statusEl.textContent = item.status || '-';
+                        statusEl.className = 'text-[11px] font-bold ' + (item.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
+                    }
+                    var descEl = document.getElementById('modal-desc');
+                    if (descEl) descEl.textContent = item.description || 'Deskripsi belum tersedia.';
                 });
             }
         }
