@@ -789,16 +789,15 @@
           <svg width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
-
-      <button class="mp-asset-nav-btn" id="mp-toggle-rotate-btn" style="margin-left:auto; display:flex; align-items:center; gap:4px; font-size:10px; font-weight:bold; background:rgba(255,213,0,0.1); color:#ffd700; border:1px solid rgba(255,213,0,0.3); border-radius:4px; padding:2px 6px;" title="Pause/Play Rotation">
-        <svg id="mp-icon-pause" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path></svg>
-        <svg id="mp-icon-play" width="12" height="12" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="display:none;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
-        <span id="mp-rotate-text">Pause</span>
-      </button>
     </div>
 
     <!-- Canvas -->
     <div class="mp-canvas-wrap" id="mp-canvas-wrap">
+      <button id="mp-toggle-rotate-btn" title="Pause/Play Rotation" style="position: absolute; top: 1.5rem; right: 1.5rem; width: 2.75rem; height: 2.75rem; background-color: rgba(29, 29, 31, 0.6); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); border-radius: 9999px; display: flex; align-items: center; justify-content: center; color: var(--color-pln-yellow, #ffd700); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); transition: all 0.2s; z-index: 20; cursor: pointer;" onmouseover="this.style.transform='scale(1.05)'; this.style.backgroundColor='rgba(0,0,0,0.8)';" onmouseout="this.style.transform='scale(1)'; this.style.backgroundColor='rgba(29, 29, 31, 0.6)';">
+        <svg id="mp-icon-pause" style="width: 1.25rem; height: 1.25rem;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path></svg>
+        <svg id="mp-icon-play" style="width: 1.25rem; height: 1.25rem; display: none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+      </button>
+
       <canvas id="mp-canvas"></canvas>
       <div class="mp-hint">Drag untuk rotasi · Scroll untuk zoom · Klik mesh untuk memilih</div>
 
@@ -1451,7 +1450,6 @@ const datalist      = document.getElementById('mp-mesh-datalist');
 const toggleRotateBtn = document.getElementById('mp-toggle-rotate-btn');
 const iconPause       = document.getElementById('mp-icon-pause');
 const iconPlay        = document.getElementById('mp-icon-play');
-const rotateText      = document.getElementById('mp-rotate-text');
 let isManuallyPaused  = false;
 
 /* ── Scene setup ── */
@@ -1474,15 +1472,13 @@ controls.autoRotate      = true;
 controls.autoRotateSpeed = 0.8;
 
 function updateRotateButtonState() {
-  if (!iconPause || !iconPlay || !rotateText) return;
+  if (!iconPause || !iconPlay) return;
   if (!isManuallyPaused) {
     iconPause.style.display = 'block';
     iconPlay.style.display = 'none';
-    rotateText.textContent = 'Pause';
   } else {
     iconPause.style.display = 'none';
     iconPlay.style.display = 'block';
-    rotateText.textContent = 'Play';
   }
 }
 
