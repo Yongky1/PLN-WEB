@@ -909,7 +909,16 @@
   .mp-mesh-row-item.mp-hidden {
     display: none !important;
   }
+
+  .mp-mesh-row.mp-hidden {
+    display: none !important;
+  }
+
+  .mp-mesh-group-label.mp-hidden {
+    display: none !important;
+  }
 </style>
+
 
 <!-- Embedded module data for JS -->
 <script type="application/json" id="mapping-module-data"><%- JSON.stringify(moduleData) %></script>
@@ -1186,15 +1195,42 @@
     const q = (query || '').toLowerCase().trim();
     const body = document.getElementById('mp-mesh-overview-body');
     if (!body) return;
+
+    // Filter each mesh row
     body.querySelectorAll('.mp-mesh-row[data-mesh-overview]').forEach(function (row) {
       const meshName = (row.dataset.meshOverview || '').toLowerCase();
+
+      // Sub text (connected material names)
       const subEl = row.querySelector('.mp-mesh-row-sub');
       const sub = subEl ? subEl.textContent.toLowerCase() : '';
-      const displayEl = row.querySelector('.mp-display-name-input');
-      const display = displayEl ? displayEl.value.toLowerCase() : '';
-      row.classList.toggle('mp-hidden', q !== '' && !meshName.includes(q) && !sub.includes(q) && !display.includes(q));
+
+      // Display name / rename value
+      const displayInput = row.querySelector('.mp-display-name-input');
+      const displayName = displayInput ? (displayInput.value || displayInput.placeholder || '').toLowerCase() : '';
+
+      // Mesh name label text (catches escaped HTML edge cases)
+      const nameEl = row.querySelector('.mp-mesh-row-name');
+      const nameText = nameEl ? nameEl.textContent.toLowerCase() : '';
+
+      const matches = q === '' || meshName.includes(q) || sub.includes(q) || displayName.includes(q) || nameText.includes(q);
+      row.classList.toggle('mp-hidden', !matches);
+    });
+
+    // Hide group labels if ALL rows under them are hidden
+    body.querySelectorAll('.mp-mesh-group-label').forEach(function (label) {
+      let sibling = label.nextElementSibling;
+      let allHidden = true;
+      while (sibling && !sibling.classList.contains('mp-mesh-group-label')) {
+        if (sibling.classList.contains('mp-mesh-row') && !sibling.classList.contains('mp-hidden')) {
+          allHidden = false;
+          break;
+        }
+        sibling = sibling.nextElementSibling;
+      }
+      label.classList.toggle('mp-hidden', allHidden && q !== '');
     });
   }
+
 
   /* Toast helper (pakai #toast dari layout) */
   function mpToast(message, type) {
