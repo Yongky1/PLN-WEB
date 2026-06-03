@@ -29,6 +29,28 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
 app.use('/scripts/three/jsm', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));
 
+// Proxy /uploads/* → backend (untuk file GLB/GLTF/gambar)
+// Ini diperlukan agar Three.js bisa load file 3D lewat port 3000, bukan langsung ke port 4000
+const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
+app.use('/uploads', async (req, res) => {
+  try {
+    const targetUrl = `${BACKEND_URL}/uploads${req.path}`;
+    const response = await fetch(targetUrl);
+    if (!response.ok) return res.status(response.status).end();
+    const contentType = response.headers.get('content-type') || 'application/octet-stream';
+    res.setHeader('Content-Type', contentType);
+    const contentLength = response.headers.get('content-length');
+    if (contentLength) res.setHeader('Content-Length', contentLength);
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    // Stream body langsung ke client
+    const { Readable } = require('stream');
+    Readable.fromWeb(response.body).pipe(res);
+  } catch (err) {
+    console.error('[Upload Proxy] Error:', err.message);
+    res.status(502).end();
+  }
+});
+
 app.use('/', pagesRouter);
 app.use('/', proxyRouter);
 app.use('/', sessionRouter);

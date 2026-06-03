@@ -64,19 +64,24 @@ router.put('/api/profile', async (req, res) => {
   }
 });
 
-// PATCH mesh-name: material
-router.patch('/api/module-materials/:id/mesh-name', async (req, res) => {
+// PATCH mesh-names (plural): simpan array mesh ke satu material
+router.patch('/api/module-materials/:id/mesh-names', async (req, res) => {
   if (!requireCookie(req, res)) return;
   try {
-    const response = await fetch(`${BACKEND_URL}/api/module-materials/${req.params.id}/mesh-name`, {
+    const response = await fetch(`${BACKEND_URL}/api/module-materials/${req.params.id}/mesh-names`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json', ...proxyAuthHeader(req) },
       body: JSON.stringify(req.body),
     });
     const data = await response.json();
+    if (response.ok) {
+      // Invalidate cache agar viewer publik langsung melihat data terbaru
+      invalidateCache('/api/modules');
+      invalidateCache('/api/module-materials');
+    }
     res.status(response.status).json(data);
   } catch (err) {
-    console.error('Mesh-name material proxy error:', err);
+    console.error('Mesh-names material proxy error:', err);
     res.status(500).json({ error: 'Gagal terhubung ke backend server' });
   }
 });
@@ -91,6 +96,11 @@ router.patch('/api/module-tools/:id/mesh-name', async (req, res) => {
       body: JSON.stringify(req.body),
     });
     const data = await response.json();
+    if (response.ok) {
+      // Invalidate cache agar viewer publik langsung melihat data terbaru
+      invalidateCache('/api/modules');
+      invalidateCache('/api/module-tools');
+    }
     res.status(response.status).json(data);
   } catch (err) {
     console.error('Mesh-name tool proxy error:', err);
@@ -282,7 +292,7 @@ router.all('/api/*', async (req, res) => {
 
     if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
       const path = req.path;
-      if (path.startsWith('/api/modules')) {
+      if (path.startsWith('/api/modules') || path.startsWith('/api/module-materials') || path.startsWith('/api/module-tools')) {
         invalidateCache('/api/modules');
       } else if (path.startsWith('/api/materials') || path.startsWith('/api/material-assets')) {
         invalidateCache('/api/materials');

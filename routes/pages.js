@@ -4,6 +4,10 @@ const { cachedFetch } = require('../utils/cache');
 const router = express.Router();
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
+// Normalisasi URL: ganti absolute URL backend → relative path
+// agar browser tidak perlu akses langsung ke port 4000
+const normalizeUrl = (url) => url ? url.replace(/^https?:\/\/[^/]+/, '') : url;
+
 router.get('/', (req, res) => {
   res.render('index', {
     title: 'PLN Pusdiklat — Ekosistem Pembelajaran Masa Depan',
@@ -99,10 +103,10 @@ router.get('/ModulKonstruksi', async (req, res) => {
       id: m.id,
       title: m.title,
       description: m.description,
-      image: m.image,
+      image: normalizeUrl(m.image),
       materialCount: m.materialCount || 0,
       equipmentCount: m.equipmentCount || 0,
-      assets: m.assets || [],
+      assets: (m.assets || []).map(a => ({ ...a, file: normalizeUrl(a.file) })),
     }));
 
     res.render('ModulKonstruksi', {
@@ -135,7 +139,8 @@ router.get('/ModulKonstruksi/:id', async (req, res) => {
       description: moduleItem.description,
       materialCount: moduleItem.materials ? moduleItem.materials.length : 0,
       equipmentCount: moduleItem.tools ? moduleItem.tools.length : 0,
-      assets: moduleItem.assets || [],
+      // Normalisasi URL aset agar Three.js tidak akses langsung ke port 4000
+      assets: (moduleItem.assets || []).map(a => ({ ...a, file: normalizeUrl(a.file) })),
       materials: (moduleItem.materials || []).map(m => {
         if (m.material) {
           m.material.categoryLabel = m.material.category?.name || 'Lainnya';

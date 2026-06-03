@@ -115,6 +115,16 @@ router.get('/konstruksi/:id/mapping', async (req, res) => {
     const moduleRes = await fetch(`${base}/api/modules/${id}`);
     if (!moduleRes.ok) return res.redirect('/admin/modules');
     const moduleData = await moduleRes.json();
+
+    // Normalisasi URL aset: ganti absolute URL backend → relative path
+    // agar Three.js tidak request langsung ke port 4000 (CORS/403 error)
+    if (Array.isArray(moduleData.assets)) {
+      moduleData.assets = moduleData.assets.map(asset => ({
+        ...asset,
+        file: asset.file ? asset.file.replace(/^https?:\/\/[^/]+/, '') : asset.file,
+      }));
+    }
+
     renderAdmin(res, 'mapping', `Mesh Mapping`, `Hubungkan mesh 3D ke material & peralatan — ${moduleData.title}`, { moduleData }, req.user);
   } catch (err) {
     console.error('[Admin] Error loading mapping page:', err);

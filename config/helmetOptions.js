@@ -7,6 +7,14 @@ module.exports = {
         "'self'",
         "'unsafe-inline'",
         "'unsafe-eval'",
+        "'wasm-unsafe-eval'",
+        'https://ajax.googleapis.com',
+        'https://cdnjs.cloudflare.com',
+      ],
+      // Eksplisit izinkan 'self' untuk ES Module (type="module") dan importmap
+      'script-src-elem': [
+        "'self'",
+        "'unsafe-inline'",
         'https://ajax.googleapis.com',
         'https://cdnjs.cloudflare.com',
       ],
