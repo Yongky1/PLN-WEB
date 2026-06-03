@@ -1,4 +1,4 @@
-import * as THREE from '/scripts/three/three.module.js';
+
   import { GLTFLoader } from '/scripts/three/jsm/loaders/GLTFLoader.js';
   import { OrbitControls } from '/scripts/three/jsm/controls/OrbitControls.js';
   import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
