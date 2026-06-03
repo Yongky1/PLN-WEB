@@ -924,22 +924,19 @@
 
 <!-- Add Material Modal -->
 <div id="mp-add-mat-modal" class="rd-modal-overlay" style="z-index:9999;">
-  <div class="rd-modal"
-    style="background:#131824; border:1px solid rgba(255,255,255,0.1); border-radius:16px; width:400px; max-width:90%; padding:20px; box-shadow:0 20px 40px rgba(0,0,0,0.5);">
-    <h3 style="margin:0 0 16px; font-size:16px; font-weight:700; color:#fff;">Tambah Material ke Modul</h3>
-    <input type="text" id="mp-add-mat-search" placeholder="Cari material..." class="rd-input"
-      style="margin-bottom:12px; background:rgba(255,255,255,0.05); border-color:rgba(255,255,255,0.1);"
+  <div class="rd-modal mp-modal-box">
+    <h3 class="mp-modal-title">Tambah Material ke Modul</h3>
+    <input type="text" id="mp-add-mat-search" placeholder="Cari material..." class="rd-input mp-modal-search"
        autocomplete="off">
-    <div id="mp-add-mat-list"
-      style="max-height:260px; overflow-y:auto; display:flex; flex-direction:column; gap:6px; padding-right:4px; margin-bottom:16px;">
-      <div style="color:rgba(255,255,255,0.5); font-size:12px; text-align:center; padding:20px 0;">Memuat data
+    <div id="mp-add-mat-list" class="mp-modal-list">
+      <div class="mp-modal-list-empty">Memuat data
         material...</div>
     </div>
-    <div style="display:flex; justify-content:flex-end; gap:10px;">
+    <div class="mp-modal-footer">
       <button onclick="document.getElementById('mp-add-mat-modal').classList.remove('active')"
-        style="background:transparent; border:1px solid rgba(255,255,255,0.2); color:#fff; padding:8px 16px; border-radius:6px; cursor:pointer;">Batal</button>
+        class="mp-modal-btn-cancel">Batal</button>
       <button id="mp-add-mat-submit" 
-        style="background:#FFD700; border:none; color:#000; font-weight:600; padding:8px 16px; border-radius:6px; cursor:pointer;">Tambahkan</button>
+        class="mp-modal-btn-submit">Tambahkan</button>
     </div>
   </div>
 </div>

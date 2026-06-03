@@ -1,7 +1,7 @@
-
-  import { GLTFLoader } from '/scripts/three/jsm/loaders/GLTFLoader.js';
-  import { OrbitControls } from '/scripts/three/jsm/controls/OrbitControls.js';
-  import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
+import * as THREE from 'three';
+import { GLTFLoader } from '/scripts/three/jsm/loaders/GLTFLoader.js';
+import { OrbitControls } from '/scripts/three/jsm/controls/OrbitControls.js';
+import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
 
   /* ── Parse module data ── */
   const moduleData = JSON.parse(document.getElementById('mapping-module-data').textContent);

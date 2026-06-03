@@ -915,3 +915,77 @@
   .mp-mesh-group-label.mp-hidden {
     display: none !important;
   }
+
+  /* ── Modal Add Material ── */
+  .mp-modal-box {
+    background: #131824;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 16px;
+    width: 400px;
+    max-width: 90%;
+    padding: 20px;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+  }
+
+  .mp-modal-title {
+    margin: 0 0 16px;
+    font-size: 16px;
+    font-weight: 700;
+    color: #fff;
+  }
+
+  .mp-modal-search {
+    margin-bottom: 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .mp-modal-list {
+    max-height: 260px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding-right: 4px;
+    margin-bottom: 16px;
+  }
+
+  .mp-modal-list-empty {
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 12px;
+    text-align: center;
+    padding: 20px 0;
+  }
+
+  .mp-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+  }
+
+  .mp-modal-btn-cancel {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .mp-modal-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.05);
+  }
+
+  .mp-modal-btn-submit {
+    background: #FFD700;
+    border: none;
+    color: #000;
+    font-weight: 600;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+
+  .mp-modal-btn-submit:hover {
+    background: #e6c200;
+  }
