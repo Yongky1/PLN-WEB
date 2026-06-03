@@ -145,6 +145,11 @@ router.get('/ModulKonstruksi/:id', async (req, res) => {
         if (m.material) {
           m.material.categoryLabel = m.material.category?.name || 'Lainnya';
           m.material.category = m.material.category?.value || 'lainnya';
+          m.material.file3d = normalizeUrl(m.material.file3d);
+          m.material.image = normalizeUrl(m.material.image);
+          if (m.material.assets) {
+            m.material.assets = m.material.assets.map(a => ({ ...a, file: normalizeUrl(a.file) }));
+          }
         }
         return m;
       }),
@@ -152,6 +157,8 @@ router.get('/ModulKonstruksi/:id', async (req, res) => {
         if (t.tool) {
           t.tool.categoryLabel = t.tool.category?.name || 'Teknis';
           t.tool.category = t.tool.category?.value || 'teknis';
+          t.tool.file3d = normalizeUrl(t.tool.file3d);
+          t.tool.image = normalizeUrl(t.tool.image);
         }
         return t;
       }),
