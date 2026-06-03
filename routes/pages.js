@@ -31,8 +31,8 @@ router.get('/tools', async (req, res) => {
       description: t.description || '',
       standard: t.standard || '-',
       status: t.status || 'Wajib',
-      file3d: t.file3d || null,
-      image: t.image || null,
+      file3d: normalizeUrl(t.file3d),
+      image: normalizeUrl(t.image),
     }));
 
     res.render('tools', {
@@ -67,9 +67,9 @@ router.get('/material', async (req, res) => {
       categoryLabel: m.category?.name || 'Lainnya',
       bgGradient: m.bgGradient || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
       description: m.description || '',
-      image: m.image || null,
-      file3d: m.assets && m.assets.length > 0 ? m.assets[0].file : null,
-      assets: m.assets || [],
+      image: normalizeUrl(m.image),
+      file3d: m.assets && m.assets.length > 0 ? normalizeUrl(m.assets[0].file) : null,
+      assets: (m.assets || []).map(a => ({ ...a, file: normalizeUrl(a.file) })),
     }));
 
     res.render('material', {
