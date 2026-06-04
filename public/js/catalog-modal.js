@@ -60,7 +60,7 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
     emptyState.style.display = 'none';
     
     // Check if it's the exact same model URL (resolving relative to absolute for comparison)
-    const currentSrc = modelViewer.src || '';
+    const currentSrc = modelViewer.src ? new URL(modelViewer.src, window.location.origin).href : '';
     const targetSrc = new URL(file3d, window.location.origin).href;
     
     if (currentSrc !== targetSrc) {
