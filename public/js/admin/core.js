@@ -101,7 +101,7 @@ async function fetchBackend(endpoint, options = {}) {
 
   const result = await res.json();
   if (!res.ok) throw new Error(result.error || result.message || 'Error fetch backend');
-  
+
   // Normalisasi URL secara rekursif agar URL http://localhost:4000/uploads/... menjadi /uploads/...
   const normalizeUrls = (obj) => {
     if (typeof obj === 'string') {

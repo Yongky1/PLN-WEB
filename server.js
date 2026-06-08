@@ -27,7 +27,10 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/scripts/three', express.static(path.join(__dirname, 'node_modules/three/build')));
-app.use('/scripts/three/jsm', express.static(path.join(__dirname, 'node_modules/three/examples/jsm')));
+app.use(
+  '/scripts/three/jsm',
+  express.static(path.join(__dirname, 'node_modules/three/examples/jsm'))
+);
 
 // Proxy /uploads/* → backend (untuk file GLB/GLTF/gambar)
 // Ini diperlukan agar Three.js bisa load file 3D lewat port 3000, bukan langsung ke port 4000

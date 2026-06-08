@@ -1,73 +1,196 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-pln-yellow: #ffd500;
-  --color-pln-blue: #00a2e9;
-  --color-pln-dark: #121212;
-  --color-pln-darker: #0a0a0a;
-  --color-pln-gray: #333333;
+  /* ═══ PLN ELECTRA 3D — Light Theme Design System ═══ */
+  
+  /* Primary Brand */
+  --color-primary: #0052A3;
+  --color-primary-dark: #003D7A;
+  --color-primary-light: #1A6FC4;
+  
+  /* Accent */
+  --color-accent: #F5A623;
+  --color-accent-light: #FFD166;
+  --color-accent-dark: #E08D00;
+  
+  /* Cyan Interactive */
+  --color-cyan: #00B4D8;
+  --color-cyan-light: #48D1E8;
+  
+  /* Backgrounds */
+  --color-bg-main: #F5F9FF;
+  --color-bg-surface: #FFFFFF;
+  --color-bg-surface-alt: #EFF5FF;
+  --color-bg-3d: #EBF4FF;
+  
+  /* Text */
+  --color-text-primary: #1B2B4B;
+  --color-text-secondary: #526080;
+  --color-text-muted: #8B9DC3;
+  
+  /* Borders */
+  --color-border: #D6E4F7;
+  --color-border-light: #E8F0FB;
+  
+  /* Status */
+  --color-success: #06D6A0;
+  --color-warning: #FF8C42;
+  --color-error: #E53935;
+  
+  /* Legacy compat (for any remaining references) */
+  --color-pln-yellow: #F5A623;
+  --color-pln-blue: #0052A3;
 }
 
 @custom-variant hover (&:hover);
 
-/* Custom utilities */
-@layer components {
-  .btn-primary {
-    @apply bg-[var(--color-pln-yellow)] text-black px-6 py-3 font-semibold transition-transform hover:scale-105;
-  }
-
-  .apple-glass-light {
-    background: linear-gradient(
-      135deg,
-      rgba(255, 255, 255, 0.15) 0%,
-      rgba(255, 255, 255, 0.03) 100%
-    );
-    backdrop-filter: blur(40px) saturate(150%);
-    -webkit-backdrop-filter: blur(40px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-top-color: rgba(255, 255, 255, 0.3);
-    border-left-color: rgba(255, 255, 255, 0.2);
-    box-shadow:
-      0 8px 32px 0 rgba(0, 0, 0, 0.3),
-      inset 0 1px 0 rgba(255, 255, 255, 0.15);
-  }
-
-  .apple-glass-dark {
-    background: linear-gradient(135deg, rgba(40, 40, 50, 0.4) 0%, rgba(10, 10, 15, 0.3) 100%);
-    backdrop-filter: blur(40px) saturate(150%);
-    -webkit-backdrop-filter: blur(40px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.05);
-    border-top-color: rgba(255, 255, 255, 0.15);
-    border-left-color: rgba(255, 255, 255, 0.1);
-    box-shadow:
-      0 12px 40px 0 rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 rgba(255, 255, 255, 0.05);
-  }
-}
-
+/* ═══════════════════════════════════════════════ */
+/* BASE STYLES                                     */
+/* ═══════════════════════════════════════════════ */
 body {
-  background-color: var(--color-pln-dark);
-  color: white;
+  background-color: var(--color-bg-main);
+  color: var(--color-text-primary);
   margin: 0;
   padding: 0;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Base custom styles */
-.text-pln-yellow {
-  color: var(--color-pln-yellow);
-}
-.bg-pln-darker {
-  background-color: var(--color-pln-darker);
-}
-.bg-pln-dark {
-  background-color: var(--color-pln-dark);
+/* ═══════════════════════════════════════════════ */
+/* TYPOGRAPHY                                      */
+/* ═══════════════════════════════════════════════ */
+.brand-font {
+  font-family: 'Space Grotesk', sans-serif;
 }
 
-/* Animations */
+.gradient-text-blue {
+  background: linear-gradient(135deg, #0052A3 0%, #00B4D8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-accent {
+  background: linear-gradient(135deg, #F5A623 0%, #FF6B6B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ═══════════════════════════════════════════════ */
+/* GLASSMORPHISM — LIGHT THEME                     */
+/* ═══════════════════════════════════════════════ */
+@layer components {
+  .glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 
+      0 4px 30px rgba(0, 82, 163, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  }
+
+  .glass-blue {
+    background: linear-gradient(135deg, rgba(0, 82, 163, 0.08) 0%, rgba(0, 180, 216, 0.05) 100%);
+    backdrop-filter: blur(24px) saturate(160%);
+    -webkit-backdrop-filter: blur(24px) saturate(160%);
+    border: 1px solid rgba(0, 82, 163, 0.12);
+    box-shadow: 0 8px 32px rgba(0, 82, 163, 0.08);
+  }
+
+  /* Card elevation system */
+  .card-elevated {
+    background: var(--color-bg-surface);
+    border: 1px solid var(--color-border-light);
+    border-radius: 20px;
+    box-shadow: 
+      0 1px 3px rgba(0, 82, 163, 0.04),
+      0 4px 16px rgba(0, 82, 163, 0.04);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+
+  .card-elevated:hover {
+    box-shadow: 
+      0 8px 30px rgba(0, 82, 163, 0.1),
+      0 2px 8px rgba(0, 82, 163, 0.06);
+    transform: translateY(-6px);
+    border-color: var(--color-border);
+  }
+
+  /* CTA Buttons */
+  .btn-primary {
+    background: linear-gradient(135deg, #0052A3 0%, #1A6FC4 100%);
+    color: white;
+    padding: 14px 32px;
+    font-weight: 700;
+    border-radius: 14px;
+    letter-spacing: 0.02em;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 20px rgba(0, 82, 163, 0.3);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(0, 82, 163, 0.4);
+  }
+
+  .btn-primary::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-primary:hover::after {
+    left: 100%;
+  }
+
+  .btn-accent {
+    background: linear-gradient(135deg, #F5A623 0%, #FFD166 100%);
+    color: #1B2B4B;
+    padding: 14px 32px;
+    font-weight: 700;
+    border-radius: 14px;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 4px 20px rgba(245, 166, 35, 0.3);
+  }
+
+  .btn-accent:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 32px rgba(245, 166, 35, 0.4);
+  }
+
+  .btn-outline {
+    background: transparent;
+    color: var(--color-primary);
+    padding: 14px 32px;
+    font-weight: 700;
+    border-radius: 14px;
+    border: 2px solid var(--color-border);
+    transition: all 0.3s ease;
+  }
+
+  .btn-outline:hover {
+    border-color: var(--color-primary);
+    background: rgba(0, 82, 163, 0.04);
+    transform: translateY(-2px);
+  }
+}
+
+/* ═══════════════════════════════════════════════ */
+/* ANIMATIONS — SCROLL REVEAL                      */
+/* ═══════════════════════════════════════════════ */
 .fade-in-up {
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(30px);
   animation: fadeInUp 0.8s ease-out forwards;
 }
 
@@ -76,4 +199,12 @@ body {
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ═══════════════════════════════════════════════ */
+/* SECTION DIVIDER                                 */
+/* ═══════════════════════════════════════════════ */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--color-border), transparent);
 }

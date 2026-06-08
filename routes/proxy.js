@@ -68,11 +68,14 @@ router.put('/api/profile', async (req, res) => {
 router.patch('/api/module-materials/:id/mesh-names', async (req, res) => {
   if (!requireCookie(req, res)) return;
   try {
-    const response = await fetch(`${BACKEND_URL}/api/module-materials/${req.params.id}/mesh-names`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json', ...proxyAuthHeader(req) },
-      body: JSON.stringify(req.body),
-    });
+    const response = await fetch(
+      `${BACKEND_URL}/api/module-materials/${req.params.id}/mesh-names`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json', ...proxyAuthHeader(req) },
+        body: JSON.stringify(req.body),
+      }
+    );
     const data = await response.json();
     if (response.ok) {
       // Invalidate cache agar viewer publik langsung melihat data terbaru
@@ -272,12 +275,14 @@ router.all('/api/*', async (req, res) => {
 
   const contentType = req.headers['content-type'] || '';
   const isMultipart = contentType.includes('multipart/form-data');
-  const hasJsonBody = contentType.includes('application/json') && ['POST', 'PUT', 'PATCH'].includes(req.method);
+  const hasJsonBody =
+    contentType.includes('application/json') && ['POST', 'PUT', 'PATCH'].includes(req.method);
 
   let fetchOptions;
   if (isMultipart) {
     forwardHeaders['Content-Type'] = contentType;
-    if (req.headers['content-length']) forwardHeaders['Content-Length'] = req.headers['content-length'];
+    if (req.headers['content-length'])
+      forwardHeaders['Content-Length'] = req.headers['content-length'];
     fetchOptions = { method: req.method, headers: forwardHeaders, body: req, duplex: 'half' };
   } else if (hasJsonBody) {
     forwardHeaders['Content-Type'] = 'application/json';
@@ -292,7 +297,11 @@ router.all('/api/*', async (req, res) => {
 
     if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
       const path = req.path;
-      if (path.startsWith('/api/modules') || path.startsWith('/api/module-materials') || path.startsWith('/api/module-tools')) {
+      if (
+        path.startsWith('/api/modules') ||
+        path.startsWith('/api/module-materials') ||
+        path.startsWith('/api/module-tools')
+      ) {
         invalidateCache('/api/modules');
       } else if (path.startsWith('/api/materials') || path.startsWith('/api/material-assets')) {
         invalidateCache('/api/materials');

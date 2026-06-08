@@ -58,34 +58,34 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
 
   if (hasGlb) {
     emptyState.style.display = 'none';
-    
+
     // Check if it's the exact same model URL (resolving relative to absolute for comparison)
     const currentSrc = modelViewer.src ? new URL(modelViewer.src, window.location.origin).href : '';
     const targetSrc = new URL(file3d, window.location.origin).href;
-    
+
     if (currentSrc !== targetSrc) {
-        if (loadingOverlay) loadingOverlay.style.display = 'flex';
-        if (spinner) spinner.style.display = 'flex';
-        if (loadingText) loadingText.textContent = loadingMsg;
-        
-        // Use a named function to easily remove previous listeners if any
-        const onLoad = () => {
-            if (loadingOverlay) loadingOverlay.style.display = 'none';
-            modelViewer.removeEventListener('load', onLoad);
-        };
-        const onError = () => {
-            if (spinner) spinner.style.display = 'none';
-            if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
-            modelViewer.removeEventListener('error', onError);
-        };
-        
-        modelViewer.addEventListener('load', onLoad);
-        modelViewer.addEventListener('error', onError);
-        
-        modelViewer.src = file3d;
-    } else {
-        // Already loaded this exact model
+      if (loadingOverlay) loadingOverlay.style.display = 'flex';
+      if (spinner) spinner.style.display = 'flex';
+      if (loadingText) loadingText.textContent = loadingMsg;
+
+      // Use a named function to easily remove previous listeners if any
+      const onLoad = () => {
         if (loadingOverlay) loadingOverlay.style.display = 'none';
+        modelViewer.removeEventListener('load', onLoad);
+      };
+      const onError = () => {
+        if (spinner) spinner.style.display = 'none';
+        if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
+        modelViewer.removeEventListener('error', onError);
+      };
+
+      modelViewer.addEventListener('load', onLoad);
+      modelViewer.addEventListener('error', onError);
+
+      modelViewer.src = file3d;
+    } else {
+      // Already loaded this exact model
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
     }
   } else {
     modelViewer.removeAttribute('src');

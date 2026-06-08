@@ -1,39 +1,63 @@
-<nav id="main-navbar" class="fixed w-full z-50 bg-black/80 backdrop-blur-md border-b border-white/10 transition-transform duration-500">
+<nav id="main-navbar"
+  class="fixed w-full z-50 glass-nav transition-all duration-500">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-20">
-      
+
       <!-- Brand Logo -->
       <div class="flex-shrink-0">
-        <a href="/" class="flex items-center gap-3">
-          <!-- Stand-in PLN Logo -->
-          <div class="w-10 h-10 bg-[var(--color-pln-yellow)] flex items-center justify-center font-bold text-black brand-font text-xl rounded">
+        <a href="/" class="flex items-center gap-3 group">
+          <!-- PLN Logo Placeholder -->
+          <div
+            class="w-10 h-10 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-light)] flex items-center justify-center font-extrabold text-white brand-font text-sm rounded-xl shadow-lg shadow-[var(--color-primary)]/20 group-hover:shadow-[var(--color-primary)]/30 transition-shadow duration-300">
             PLN
           </div>
-          <span class="font-bold text-xl tracking-wider text-white brand-font">PUSDIKLAT</span>
+          <div class="flex flex-col">
+            <span class="font-extrabold text-lg tracking-wider text-[var(--color-text-primary)] brand-font leading-none">ELECTRA</span>
+            <span class="text-[10px] font-semibold tracking-[0.3em] text-[var(--color-primary)] uppercase leading-none mt-0.5">3D Platform</span>
+          </div>
         </a>
       </div>
-      
+
       <!-- Desktop Menu -->
       <div class="hidden md:block">
-        <div class="ml-10 flex items-baseline space-x-8">
-          <a href="/" class="<%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Home</a>
-          <a href="/tools" class="<%= typeof currentPage !== 'undefined' && currentPage === 'tools' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Alat</a>
-          <a href="/ModulKonstruksi" class="<%= typeof currentPage !== 'undefined' && currentPage === 'konstruksi' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Konstruksi</a>
-          <a href="/material" class="<%= typeof currentPage !== 'undefined' && currentPage === 'material' ? 'text-[var(--color-pln-yellow)] border-b-2 border-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> px-3 py-2 text-sm font-bold tracking-widest uppercase transition-colors">Material</a>
+        <div class="ml-10 flex items-center space-x-1">
+          <a href="/"
+            class="<%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Beranda</a>
+          <a href="/tools"
+            class="<%= typeof currentPage !== 'undefined' && currentPage === 'tools' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Peralatan</a>
+          <a href="/ModulKonstruksi"
+            class="<%= typeof currentPage !== 'undefined' && currentPage === 'konstruksi' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Konstruksi</a>
+          <a href="/material"
+            class="<%= typeof currentPage !== 'undefined' && currentPage === 'material' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Material</a>
         </div>
       </div>
-      
-      <!-- CTA / Contact -->
+
+      <!-- CTA Button -->
       <div class="hidden md:block">
-        <a href="#contact" class="bg-white/5 border border-white/10 hover:border-white text-white px-6 py-2 rounded text-xs font-bold tracking-widest uppercase transition-all duration-300 hover:bg-white hover:text-black shadow-[0_0_15px_rgba(255,255,255,0.05)]">Contact Us</a>
+        <a href="/ModulKonstruksi"
+          class="btn-primary text-sm px-6 py-2.5 inline-flex items-center gap-2 rounded-xl">
+          <span>Mulai Belajar</span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+          </svg>
+        </a>
       </div>
-      
+
       <!-- Mobile menu button -->
       <div class="-mr-2 flex md:hidden">
-        <button type="button" class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-white/10 focus:outline-none" aria-controls="mobile-menu" aria-expanded="false" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+        <button type="button" id="mobile-menu-btn"
+          class="inline-flex items-center justify-center p-2 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 focus:outline-none transition-colors"
+          aria-controls="mobile-menu" aria-expanded="false">
           <span class="sr-only">Open main menu</span>
-          <svg class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+          <!-- Hamburger icon -->
+          <svg id="menu-icon-open" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" aria-hidden="true">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+          <!-- Close icon -->
+          <svg id="menu-icon-close" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
@@ -41,38 +65,67 @@
   </div>
 
   <!-- Mobile Menu -->
-  <div class="md:hidden hidden bg-black/95 backdrop-blur-lg border-b border-white/10" id="mobile-menu">
-    <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-      <a href="/" class="<%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'text-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Home</a>
-      <a href="/tools" class="<%= typeof currentPage !== 'undefined' && currentPage === 'tools' ? 'text-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Alat</a>
-      <a href="/ModulKonstruksi" class="<%= typeof currentPage !== 'undefined' && currentPage === 'konstruksi' ? 'text-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Konstruksi</a>
-      <a href="/material" class="<%= typeof currentPage !== 'undefined' && currentPage === 'material' ? 'text-[var(--color-pln-yellow)]' : 'text-gray-300 hover:text-white' %> block px-3 py-2 rounded-md text-base font-medium">Material</a>
+  <div class="md:hidden hidden" id="mobile-menu">
+    <div class="bg-white/95 backdrop-blur-xl border-t border-[var(--color-border-light)] shadow-xl">
+      <div class="px-4 pt-4 pb-6 space-y-1">
+        <a href="/"
+          class="<%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Beranda</a>
+        <a href="/tools"
+          class="<%= typeof currentPage !== 'undefined' && currentPage === 'tools' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Peralatan</a>
+        <a href="/ModulKonstruksi"
+          class="<%= typeof currentPage !== 'undefined' && currentPage === 'konstruksi' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Konstruksi</a>
+        <a href="/material"
+          class="<%= typeof currentPage !== 'undefined' && currentPage === 'material' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Material</a>
+        <div class="pt-3">
+          <a href="/ModulKonstruksi"
+            class="btn-primary block text-center text-sm py-3 rounded-xl">Mulai Belajar</a>
+        </div>
+      </div>
     </div>
   </div>
 </nav>
 
-<!-- Auto-hide Navbar Script -->
+<!-- Navbar Scripts -->
 <script>
   document.addEventListener("DOMContentLoaded", () => {
     const navbar = document.getElementById("main-navbar");
+    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
+    const mobileMenu = document.getElementById("mobile-menu");
+    const iconOpen = document.getElementById("menu-icon-open");
+    const iconClose = document.getElementById("menu-icon-close");
     let lastScrollY = window.scrollY;
-    // Throttle ticking variable
     let ticking = false;
-    
+
+    // Mobile menu toggle
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener("click", () => {
+        const isHidden = mobileMenu.classList.contains("hidden");
+        mobileMenu.classList.toggle("hidden");
+        iconOpen.classList.toggle("hidden", !isHidden);
+        iconOpen.classList.toggle("block", isHidden);
+        iconClose.classList.toggle("hidden", isHidden);
+        iconClose.classList.toggle("block", !isHidden);
+      });
+    }
+
+    // Auto-hide navbar on scroll + shadow
     window.addEventListener("scroll", () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          if (window.scrollY > 80) {
+          if (window.scrollY > 20) {
+            navbar.classList.add("glass-nav-scrolled");
+          } else {
+            navbar.classList.remove("glass-nav-scrolled");
+          }
+          
+          if (window.scrollY > 100) {
             if (window.scrollY > lastScrollY) {
-              // Scrolling down
-              navbar.classList.add("-translate-y-full");
+              navbar.style.transform = "translateY(-100%)";
             } else {
-              // Scrolling up
-              navbar.classList.remove("-translate-y-full");
+              navbar.style.transform = "translateY(0)";
             }
           } else {
-            // Right at the top
-            navbar.classList.remove("-translate-y-full");
+            navbar.style.transform = "translateY(0)";
           }
           lastScrollY = window.scrollY;
           ticking = false;

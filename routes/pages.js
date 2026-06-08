@@ -6,7 +6,7 @@ const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
 // Normalisasi URL: ganti absolute URL backend → relative path
 // agar browser tidak perlu akses langsung ke port 4000
-const normalizeUrl = (url) => url ? url.replace(/^https?:\/\/[^/]+/, '') : url;
+const normalizeUrl = (url) => (url ? url.replace(/^https?:\/\/[^/]+/, '') : url);
 
 router.get('/', (req, res) => {
   res.render('index', {
@@ -69,7 +69,7 @@ router.get('/material', async (req, res) => {
       description: m.description || '',
       image: normalizeUrl(m.image),
       file3d: m.assets && m.assets.length > 0 ? normalizeUrl(m.assets[0].file) : null,
-      assets: (m.assets || []).map(a => ({ ...a, file: normalizeUrl(a.file) })),
+      assets: (m.assets || []).map((a) => ({ ...a, file: normalizeUrl(a.file) })),
     }));
 
     res.render('material', {
@@ -106,7 +106,7 @@ router.get('/ModulKonstruksi', async (req, res) => {
       image: normalizeUrl(m.image),
       materialCount: m.materialCount || 0,
       equipmentCount: m.equipmentCount || 0,
-      assets: (m.assets || []).map(a => ({ ...a, file: normalizeUrl(a.file) })),
+      assets: (m.assets || []).map((a) => ({ ...a, file: normalizeUrl(a.file) })),
     }));
 
     res.render('ModulKonstruksi', {
@@ -140,20 +140,23 @@ router.get('/ModulKonstruksi/:id', async (req, res) => {
       materialCount: moduleItem.materials ? moduleItem.materials.length : 0,
       equipmentCount: moduleItem.tools ? moduleItem.tools.length : 0,
       // Normalisasi URL aset agar Three.js tidak akses langsung ke port 4000
-      assets: (moduleItem.assets || []).map(a => ({ ...a, file: normalizeUrl(a.file) })),
-      materials: (moduleItem.materials || []).map(m => {
+      assets: (moduleItem.assets || []).map((a) => ({ ...a, file: normalizeUrl(a.file) })),
+      materials: (moduleItem.materials || []).map((m) => {
         if (m.material) {
           m.material.categoryLabel = m.material.category?.name || 'Lainnya';
           m.material.category = m.material.category?.value || 'lainnya';
           m.material.image = normalizeUrl(m.material.image);
           m.material.file3d = normalizeUrl(m.material.file3d);
           if (m.material.assets) {
-            m.material.assets = m.material.assets.map(a => ({ ...a, file: normalizeUrl(a.file) }));
+            m.material.assets = m.material.assets.map((a) => ({
+              ...a,
+              file: normalizeUrl(a.file),
+            }));
           }
         }
         return m;
       }),
-      tools: (moduleItem.tools || []).map(t => {
+      tools: (moduleItem.tools || []).map((t) => {
         if (t.tool) {
           t.tool.categoryLabel = t.tool.category?.name || 'Teknis';
           t.tool.category = t.tool.category?.value || 'teknis';

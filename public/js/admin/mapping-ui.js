@@ -87,17 +87,37 @@
     const el = document.getElementById('toast');
     if (!el) return;
     const styles = {
-      success: { bg: 'rgba(34,197,94,0.13)', border: '1px solid rgba(34,197,94,0.28)', color: '#4ade80' },
-      error:   { bg: 'rgba(239,68,68,0.13)',  border: '1px solid rgba(239,68,68,0.28)',  color: '#f87171' },
-      info:    { bg: 'rgba(96,165,250,0.13)', border: '1px solid rgba(96,165,250,0.28)', color: '#60a5fa' },
+      success: {
+        bg: 'rgba(34,197,94,0.13)',
+        border: '1px solid rgba(34,197,94,0.28)',
+        color: '#4ade80',
+      },
+      error: {
+        bg: 'rgba(239,68,68,0.13)',
+        border: '1px solid rgba(239,68,68,0.28)',
+        color: '#f87171',
+      },
+      info: {
+        bg: 'rgba(96,165,250,0.13)',
+        border: '1px solid rgba(96,165,250,0.28)',
+        color: '#60a5fa',
+      },
     };
     const s = styles[type] || styles.info;
-    Object.assign(el.style, { background: s.bg, border: s.border, color: s.color, display: 'block', opacity: '1' });
+    Object.assign(el.style, {
+      background: s.bg,
+      border: s.border,
+      color: s.color,
+      display: 'block',
+      opacity: '1',
+    });
     el.textContent = message;
     clearTimeout(el._t);
     el._t = setTimeout(() => {
       el.style.opacity = '0';
-      setTimeout(() => { el.style.display = 'none'; }, 280);
+      setTimeout(() => {
+        el.style.display = 'none';
+      }, 280);
     }, 3200);
   }
 
@@ -160,7 +180,9 @@
       const list = item.querySelector('.mp-mesh-list');
       if (!list) return;
       let originals = [];
-      try { originals = JSON.parse(list.dataset.originals || '[]'); } catch (_) { }
+      try {
+        originals = JSON.parse(list.dataset.originals || '[]');
+      } catch (_) {}
       list.innerHTML = '';
       const toRender = originals.length > 0 ? originals : [''];
       toRender.forEach(function (meshName) {
@@ -209,7 +231,9 @@
       const res = await fetch(`/api/modules/${modId}/mesh-config`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify([{ mesh_original_name: meshName, mesh_display_name: displayName || null }]),
+        body: JSON.stringify([
+          { mesh_original_name: meshName, mesh_display_name: displayName || null },
+        ]),
       });
       if (!res.ok) throw new Error('Gagal menyimpan');
       mpDisplayNameMap[meshName] = displayName;
@@ -247,9 +271,9 @@
       if (type === 'material') {
         const list = item.querySelector('.mp-mesh-list');
         const meshNames = [...list.querySelectorAll('.mp-mesh-input')]
-          .map(inp => mpResolveToOriginalMeshName(inp.value.trim()))
+          .map((inp) => mpResolveToOriginalMeshName(inp.value.trim()))
           .filter(Boolean);
-        list.querySelectorAll('.mp-mesh-input').forEach(inp => {
+        list.querySelectorAll('.mp-mesh-input').forEach((inp) => {
           const resolved = mpResolveToOriginalMeshName(inp.value.trim());
           if (inp.value.trim() !== resolved) inp.value = resolved;
         });
@@ -308,55 +332,57 @@
       self.disabled = true;
       self.textContent = 'Menyimpan...';
 
-      const results = await Promise.allSettled([...items].map(async item => {
-        const id = item.dataset.id;
-        const type = item.dataset.type;
+      const results = await Promise.allSettled(
+        [...items].map(async (item) => {
+          const id = item.dataset.id;
+          const type = item.dataset.type;
 
-        if (type === 'material') {
-          const list = item.querySelector('.mp-mesh-list');
-          const meshNames = [...list.querySelectorAll('.mp-mesh-input')]
-            .map(inp => mpResolveToOriginalMeshName(inp.value.trim()))
-            .filter(Boolean);
-          list.querySelectorAll('.mp-mesh-input').forEach(inp => {
-            const resolved = mpResolveToOriginalMeshName(inp.value.trim());
-            if (inp.value.trim() !== resolved) inp.value = resolved;
-          });
-          const res = await fetch(`/api/module-materials/${id}/mesh-names`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mesh_names: meshNames }),
-          });
-          if (!res.ok) {
-            const d = await res.json();
-            throw new Error(d.error || 'Gagal');
+          if (type === 'material') {
+            const list = item.querySelector('.mp-mesh-list');
+            const meshNames = [...list.querySelectorAll('.mp-mesh-input')]
+              .map((inp) => mpResolveToOriginalMeshName(inp.value.trim()))
+              .filter(Boolean);
+            list.querySelectorAll('.mp-mesh-input').forEach((inp) => {
+              const resolved = mpResolveToOriginalMeshName(inp.value.trim());
+              if (inp.value.trim() !== resolved) inp.value = resolved;
+            });
+            const res = await fetch(`/api/module-materials/${id}/mesh-names`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ mesh_names: meshNames }),
+            });
+            if (!res.ok) {
+              const d = await res.json();
+              throw new Error(d.error || 'Gagal');
+            }
+            list.dataset.originals = JSON.stringify(meshNames);
+            mpUpdateStatus(id, meshNames.length > 0);
+          } else {
+            const input = item.querySelector('.mp-mesh-input');
+            const meshName = mpResolveToOriginalMeshName(input ? input.value.trim() : '');
+            if (input && input.value.trim() !== meshName) input.value = meshName;
+            const res = await fetch(`/api/module-tools/${id}/mesh-name`, {
+              method: 'PATCH',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ mesh_name: meshName || null }),
+            });
+            if (!res.ok) {
+              const d = await res.json();
+              throw new Error(d.error || 'Gagal');
+            }
+            mpUpdateStatus(id, !!meshName);
+            if (input) input.dataset.original = meshName;
           }
-          list.dataset.originals = JSON.stringify(meshNames);
-          mpUpdateStatus(id, meshNames.length > 0);
-        } else {
-          const input = item.querySelector('.mp-mesh-input');
-          const meshName = mpResolveToOriginalMeshName(input ? input.value.trim() : '');
-          if (input && input.value.trim() !== meshName) input.value = meshName;
-          const res = await fetch(`/api/module-tools/${id}/mesh-name`, {
-            method: 'PATCH',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ mesh_name: meshName || null }),
-          });
-          if (!res.ok) {
-            const d = await res.json();
-            throw new Error(d.error || 'Gagal');
-          }
-          mpUpdateStatus(id, !!meshName);
-          if (input) input.dataset.original = meshName;
-        }
-      }));
+        })
+      );
 
-      const failed = results.filter(r => r.status === 'rejected').length;
+      const failed = results.filter((r) => r.status === 'rejected').length;
 
       // Save display names
       const displayInputs = [...document.querySelectorAll('.mp-display-name-input')];
       if (displayInputs.length > 0) {
         const modId = JSON.parse(document.getElementById('mapping-module-data').textContent).id;
-        const configItems = displayInputs.map(input => ({
+        const configItems = displayInputs.map((input) => ({
           mesh_original_name: input.dataset.meshName,
           mesh_display_name: input.value.trim() || null,
         }));
@@ -367,12 +393,12 @@
             body: JSON.stringify(configItems),
           });
           if (cfgRes.ok) {
-            configItems.forEach(c => {
+            configItems.forEach((c) => {
               mpDisplayNameMap[c.mesh_original_name] = c.mesh_display_name || '';
             });
             mpSyncDatalistWithDisplayNames();
           }
-        } catch (_) { }
+        } catch (_) {}
       }
 
       if (failed === 0) {
@@ -398,13 +424,15 @@
       const meshName = window.mpSelectedMeshName;
       if (!meshName) return;
 
-      const emptyInputs = [...document.querySelectorAll('.mp-mesh-input')].filter(i => !i.value.trim());
+      const emptyInputs = [...document.querySelectorAll('.mp-mesh-input')].filter(
+        (i) => !i.value.trim()
+      );
       if (emptyInputs.length === 0) {
         mpToast('Tidak ada item yang kosong', 'info');
         return;
       }
 
-      emptyInputs.forEach(input => {
+      emptyInputs.forEach((input) => {
         input.value = meshName;
         const parentItem = input.closest('.mp-item');
         if (parentItem) mpUpdateStatus(parentItem.dataset.id, true);
@@ -440,7 +468,9 @@
   function mpFilterAddMatList(query) {
     const q = (query || '').toLowerCase().trim();
     const filtered = q
-      ? mpAllMaterialsData.filter(m => m.name.toLowerCase().includes(q) || (m.code && m.code.toLowerCase().includes(q)))
+      ? mpAllMaterialsData.filter(
+          (m) => m.name.toLowerCase().includes(q) || (m.code && m.code.toLowerCase().includes(q))
+        )
       : mpAllMaterialsData;
     mpRenderAddMatList(filtered);
   }
@@ -448,13 +478,15 @@
   function mpRenderAddMatList(materials) {
     const list = document.getElementById('mp-add-mat-list');
     if (!materials || materials.length === 0) {
-      list.innerHTML = '<div style="color:rgba(255,255,255,0.5); font-size:12px; text-align:center; padding:20px 0;">Tidak ada hasil</div>';
+      list.innerHTML =
+        '<div style="color:rgba(255,255,255,0.5); font-size:12px; text-align:center; padding:20px 0;">Tidak ada hasil</div>';
       return;
     }
-    list.innerHTML = materials.map(m => {
-      const mid = m.id;
-      const icon = m.icon || '📦';
-      return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);cursor:pointer;transition:all .15s;" onclick="mpToggleMatItem(this)">
+    list.innerHTML = materials
+      .map((m) => {
+        const mid = m.id;
+        const icon = m.icon || '📦';
+        return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);cursor:pointer;transition:all .15s;" onclick="mpToggleMatItem(this)">
           <input type="checkbox" class="mat-checkbox" data-id="${mid}" style="display:none;">
           <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
           <span style="flex:1;font-size:12px;font-weight:500;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</span>
@@ -465,7 +497,8 @@
           </div>
           <span class="mat-check-badge" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;"></span>
       </div>`;
-    }).join('');
+      })
+      .join('');
   }
 
   /* Public: dipanggil dari onclick di template */
@@ -481,7 +514,8 @@
       nameEl.style.color = 'rgba(255,255,255,0.9)';
       badge.style.background = '#818CF8';
       badge.style.borderColor = '#818CF8';
-      badge.innerHTML = '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+      badge.innerHTML =
+        '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
       qtyWrap.style.display = 'flex';
     } else {
       el.style.background = 'rgba(255,255,255,0.03)';
@@ -516,7 +550,7 @@
     let successCount = 0;
 
     try {
-      const requests = Array.from(selectedCbs).map(cb => {
+      const requests = Array.from(selectedCbs).map((cb) => {
         const matId = cb.dataset.id;
         const qtyEl = cb.closest('.mat-item').querySelector('.mat-qty');
         const qty = qtyEl ? parseInt(qtyEl.value) || 1 : 1;
@@ -525,7 +559,7 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ module_id: modId, material_id: matId, quantity: qty }),
-        }).then(async res => {
+        }).then(async (res) => {
           if (!res.ok) {
             const data = await res.json();
             throw new Error(data.error || 'Gagal');
@@ -553,7 +587,7 @@
    * Mesh Overview
    * ══════════════════════════════════════════════ */
 
-  let mpMeshNames = [];      // semua nama mesh dari GLB
+  let mpMeshNames = []; // semua nama mesh dari GLB
   let mpDisplayNameMap = {}; // mesh_original_name → mesh_display_name
 
   /** Resolve a value that may be a display name back to the original mesh name */
@@ -567,7 +601,7 @@
     // Ensure we have the absolute latest display names from the right panel DOM
     const body = document.getElementById('mp-mesh-overview-body');
     if (body) {
-      body.querySelectorAll('.mp-display-name-input').forEach(input => {
+      body.querySelectorAll('.mp-display-name-input').forEach((input) => {
         if (input.dataset.meshName) {
           mpDisplayNameMap[input.dataset.meshName] = input.value.trim();
         }
@@ -576,7 +610,9 @@
 
     // Otherwise search for a display name match (case-insensitive)
     const lowerValue = valTrim.toLowerCase();
-    const entry = Object.entries(mpDisplayNameMap).find(([, disp]) => (disp || '').toLowerCase() === lowerValue);
+    const entry = Object.entries(mpDisplayNameMap).find(
+      ([, disp]) => (disp || '').toLowerCase() === lowerValue
+    );
 
     return entry ? entry[0] : valTrim;
   }
@@ -585,7 +621,7 @@
   function mpSyncDatalistWithDisplayNames() {
     const datalist = document.getElementById('mp-mesh-datalist');
     if (!datalist) return;
-    datalist.querySelectorAll('[data-dn]').forEach(o => o.remove());
+    datalist.querySelectorAll('[data-dn]').forEach((o) => o.remove());
     Object.entries(mpDisplayNameMap).forEach(([orig, disp]) => {
       if (!disp || disp === orig) return;
       const opt = document.createElement('option');
@@ -604,20 +640,21 @@
       if (!res.ok) return;
       const data = await res.json();
       mpDisplayNameMap = {};
-      (data || []).forEach(row => {
-        if (row.mesh_original_name) mpDisplayNameMap[row.mesh_original_name] = row.mesh_display_name || '';
+      (data || []).forEach((row) => {
+        if (row.mesh_original_name)
+          mpDisplayNameMap[row.mesh_original_name] = row.mesh_display_name || '';
       });
       mpSyncDatalistWithDisplayNames();
       if (mpMeshNames.length > 0) mpRenderMeshOverview();
-    } catch (_) { }
+    } catch (_) {}
   }
 
   /** Baca assignment saat ini dari nilai input di DOM */
   function mpBuildAssignmentMap() {
     const map = {};
-    document.querySelectorAll('.mp-item[data-type="material"]').forEach(item => {
+    document.querySelectorAll('.mp-item[data-type="material"]').forEach((item) => {
       const name = (item.querySelector('.mp-item-name') || {}).textContent || '?';
-      item.querySelectorAll('.mp-mesh-input').forEach(input => {
+      item.querySelectorAll('.mp-mesh-input').forEach((input) => {
         const mn = input.value.trim();
         if (!mn) return;
         if (!map[mn]) map[mn] = { materials: [] };
@@ -635,7 +672,7 @@
     if (!body) return;
 
     /* Preserve any unsaved display name values already typed in the DOM */
-    body.querySelectorAll('.mp-display-name-input').forEach(input => {
+    body.querySelectorAll('.mp-display-name-input').forEach((input) => {
       if (input.dataset.meshName) mpDisplayNameMap[input.dataset.meshName] = input.value.trim();
     });
 
@@ -647,18 +684,20 @@
     if (count) count.textContent = mpMeshNames.length;
 
     const assignMap = mpBuildAssignmentMap();
-    const connected = mpMeshNames.filter(n => assignMap[n]);
-    const unconnected = mpMeshNames.filter(n => !assignMap[n]);
+    const connected = mpMeshNames.filter((n) => assignMap[n]);
+    const unconnected = mpMeshNames.filter((n) => !assignMap[n]);
 
     let html = '';
 
     if (connected.length > 0) {
       html += `<div class="mp-mesh-group-label">Sudah Terhubung (${connected.length})</div>`;
-      connected.forEach(name => {
+      connected.forEach((name) => {
         const conn = assignMap[name];
         const subtitle = (conn.materials || []).join(', ');
         const safe = name.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-        const displayVal = (mpDisplayNameMap[name] || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const displayVal = (mpDisplayNameMap[name] || '')
+          .replace(/"/g, '&quot;')
+          .replace(/</g, '&lt;');
         html += `<div class="mp-mesh-row" data-mesh-overview="${safe}">
           <span class="mp-mesh-dot connected"></span>
           <div class="mp-mesh-row-info">
@@ -681,9 +720,11 @@
 
     if (unconnected.length > 0) {
       html += `<div class="mp-mesh-group-label" style="${connected.length ? 'margin-top:8px;' : ''}">Belum Terhubung (${unconnected.length})</div>`;
-      unconnected.forEach(name => {
+      unconnected.forEach((name) => {
         const safe = name.replace(/&/g, '&amp;').replace(/</g, '&lt;');
-        const displayVal = (mpDisplayNameMap[name] || '').replace(/"/g, '&quot;').replace(/</g, '&lt;');
+        const displayVal = (mpDisplayNameMap[name] || '')
+          .replace(/"/g, '&quot;')
+          .replace(/</g, '&lt;');
         html += `<div class="mp-mesh-row" data-mesh-overview="${safe}">
           <span class="mp-mesh-dot unconnected"></span>
           <div class="mp-mesh-row-info">
@@ -727,10 +768,11 @@
   window.mpOnMeshClick = function (meshName) {
     const body = document.getElementById('mp-mesh-overview-body');
     if (!body) return;
-    body.querySelectorAll('.mp-mesh-row').forEach(r => r.classList.remove('is-focused'));
+    body.querySelectorAll('.mp-mesh-row').forEach((r) => r.classList.remove('is-focused'));
     if (!meshName) return;
-    const row = [...body.querySelectorAll('.mp-mesh-row')]
-      .find(r => r.dataset.meshOverview === meshName);
+    const row = [...body.querySelectorAll('.mp-mesh-row')].find(
+      (r) => r.dataset.meshOverview === meshName
+    );
     if (row) {
       row.classList.add('is-focused');
       row.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -738,7 +780,9 @@
   };
 
   /** Re-render overview setelah save berhasil */
-  window.mpRefreshMeshOverview = function () { mpRenderMeshOverview(); };
+  window.mpRefreshMeshOverview = function () {
+    mpRenderMeshOverview();
+  };
 
   /*
    * window.mpPrevAsset / window.mpNextAsset
@@ -779,7 +823,7 @@
    * ══════════════════════════════════════════════ */
 
   function initEventDelegation() {
-    document.addEventListener('click', function(e) {
+    document.addEventListener('click', function (e) {
       const addMatBtn = e.target.closest('.mp-add-mat-btn');
       const addMatSubmit = e.target.closest('#mp-add-mat-submit');
       const meshRemoveBtn = e.target.closest('.mp-mesh-remove-btn');
@@ -789,20 +833,33 @@
       const dnSaveBtn = e.target.closest('.mp-dn-save-btn');
       const dnCancelBtn = e.target.closest('.mp-dn-cancel-btn');
 
-      if (addMatBtn) { mpOpenAddMaterialModal(); }
-      else if (addMatSubmit) { mpSubmitAddMaterial(); }
-      else if (meshRemoveBtn) { mpRemoveMeshRow(meshRemoveBtn); }
-      else if (meshAddBtn) { mpAddMeshRow(meshAddBtn); }
-      else if (saveItemBtn) { mpSaveItem(saveItemBtn); }
-      else if (cancelItemBtn) { mpCancelItem(cancelItemBtn); }
-      else if (dnSaveBtn) { mpSaveDisplayName(dnSaveBtn); }
-      else if (dnCancelBtn) { mpCancelDisplayName(dnCancelBtn); }
+      if (addMatBtn) {
+        mpOpenAddMaterialModal();
+      } else if (addMatSubmit) {
+        mpSubmitAddMaterial();
+      } else if (meshRemoveBtn) {
+        mpRemoveMeshRow(meshRemoveBtn);
+      } else if (meshAddBtn) {
+        mpAddMeshRow(meshAddBtn);
+      } else if (saveItemBtn) {
+        mpSaveItem(saveItemBtn);
+      } else if (cancelItemBtn) {
+        mpCancelItem(cancelItemBtn);
+      } else if (dnSaveBtn) {
+        mpSaveDisplayName(dnSaveBtn);
+      } else if (dnCancelBtn) {
+        mpCancelDisplayName(dnCancelBtn);
+      }
     });
 
-    document.addEventListener('input', function(e) {
-      if (e.target.id === 'mp-add-mat-search') { mpFilterAddMatList(e.target.value); }
-      else if (e.target.id === 'mp-material-search') { mpFilterMaterials(e.target.value); }
-      else if (e.target.id === 'mp-mesh-search') { mpFilterMeshes(e.target.value); }
+    document.addEventListener('input', function (e) {
+      if (e.target.id === 'mp-add-mat-search') {
+        mpFilterAddMatList(e.target.value);
+      } else if (e.target.id === 'mp-material-search') {
+        mpFilterMaterials(e.target.value);
+      } else if (e.target.id === 'mp-mesh-search') {
+        mpFilterMeshes(e.target.value);
+      }
     });
   }
   function init() {
@@ -814,17 +871,6 @@
 
     // Expose fungsi yang dipanggil lewat onclick="" di template
     // (diperlukan karena onclick="" mencari di scope global)
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
   }
 
   if (document.readyState === 'loading') {
@@ -832,5 +878,4 @@
   } else {
     init();
   }
-
 })();
