@@ -95,6 +95,12 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
     if (loadingText) loadingText.textContent = '';
   }
 
+  if (document.fullscreenElement && !document.fullscreenElement.contains(overlay)) {
+    document.fullscreenElement.appendChild(overlay);
+  } else if (!document.fullscreenElement && overlay.parentElement !== document.body) {
+    document.body.appendChild(overlay);
+  }
+
   overlay.style.display = 'flex';
   overlay.classList.add('active');
   document.body.style.overflow = 'hidden';
@@ -113,6 +119,10 @@ function closeCatalogModal(ids) {
   overlay.classList.remove('active');
   overlay.style.display = 'none';
   document.body.style.overflow = '';
+
+  if (overlay.parentElement !== document.body) {
+    document.body.appendChild(overlay);
+  }
 }
 
 function toggleCatalogFullscreen(canvasWrapId) {
@@ -142,3 +152,16 @@ function initCatalogFullscreen(canvasWrapId) {
     }
   });
 }
+
+// Global listener to return modals to body when exiting fullscreen
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    const knownOverlays = ['mat-modal-overlay', 'modal-overlay', 'amqv-modal-overlay'];
+    knownOverlays.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.parentElement !== document.body) {
+        document.body.appendChild(el);
+      }
+    });
+  }
+});
