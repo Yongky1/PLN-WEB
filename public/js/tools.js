@@ -40,7 +40,7 @@ function openDetail(id) {
   });
 }
 
-document.querySelectorAll('#tools-grid .v3-card[data-id]').forEach((card) => {
+document.querySelectorAll('#tools-grid .v3-card-item[data-id]').forEach((card) => {
   card.addEventListener('click', () => openDetail(card.dataset.id));
 });
 

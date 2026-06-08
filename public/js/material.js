@@ -81,7 +81,7 @@ window.nextMatVariant = function () {
   if (mv) mv.src = currentMatAssets[currentVarIdx].file;
 };
 
-document.querySelectorAll('#material-grid .v3-card[data-id]').forEach((card) => {
+document.querySelectorAll('#material-grid .card-elevated[data-id]').forEach((card) => {
   card.addEventListener('click', () => openModal(card.dataset.id));
 });
 
