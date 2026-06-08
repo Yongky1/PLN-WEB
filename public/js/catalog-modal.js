@@ -16,7 +16,7 @@
     .pln-3d-loading {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      background: #030812;
+      background: #FFFFFF;
     }
     .pln-3d-loader {
       display: flex; align-items: center; gap: 12px;
@@ -25,21 +25,21 @@
     .pln-dot {
       display: inline-block;
       width: 11px; height: 11px; border-radius: 50%;
-      background: #FFD500;
+      background: var(--color-primary, #0052A3);
       animation: plnDotWave 1.4s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
     }
     .pln-dot:nth-child(2) { animation-delay: 0.18s; }
     .pln-dot:nth-child(3) { animation-delay: 0.36s; }
     .pln-3d-label {
       font-size: 9.5px; text-transform: uppercase;
-      letter-spacing: 0.2em; font-weight: 500;
-      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.2em; font-weight: 600;
+      color: var(--color-text-secondary, #526080);
       font-family: 'JetBrains Mono', monospace;
     }
     @keyframes plnDotWave {
       0%, 60%, 100% { transform: translateY(0) scale(0.75); opacity: 0.35; }
       30%            { transform: translateY(-10px) scale(1.15); opacity: 1;
-                       box-shadow: 0 0 10px #FFD500, 0 0 22px rgba(255,213,0,0.35); }
+                       box-shadow: 0 0 10px rgba(0,82,163,0.5), 0 0 22px rgba(0,82,163,0.25); }
     }
   `;
   document.head.appendChild(s);
