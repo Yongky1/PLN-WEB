@@ -100,9 +100,15 @@
                                 <h3 class="text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors">
                                     <%= mod.title %>
                                 </h3>
-                                <p class="text-xs text-[var(--color-text-muted)] leading-relaxed line-clamp-2 mb-4">
-                                    <%= mod.description %>
-                                </p>
+                                <div class="relative flex-grow mb-4">
+                                    <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
+                                        <%= mod.description %><br>&nbsp;<br>&nbsp;
+                                    </p>
+                                    <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                                        <%= mod.description %>
+                                    </p>
+                                    <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                                </div>
                                 <div class="mt-auto">
                                     <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
                                     <div class="flex items-center justify-between">
