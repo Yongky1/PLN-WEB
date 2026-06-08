@@ -78,7 +78,7 @@
 
                 <% activeModules.forEach((mod, i) => { %>
                     <a href="/ModulKonstruksi/<%= mod.id %>" class="gsap-stagger-item group block" data-title="<%= mod.title.toLowerCase() %>">
-                        <div class="card-elevated overflow-hidden h-full">
+                        <div class="card-elevated overflow-hidden h-full flex flex-col">
                             <!-- Image -->
                             <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
                                 <% if (mod.image) { %>
@@ -96,29 +96,31 @@
                             </div>
 
                             <!-- Body -->
-                            <div class="p-5">
+                            <div class="p-5 flex flex-col flex-grow">
                                 <h3 class="text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors">
                                     <%= mod.title %>
                                 </h3>
                                 <p class="text-xs text-[var(--color-text-muted)] leading-relaxed line-clamp-2 mb-4">
                                     <%= mod.description %>
                                 </p>
-                                <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
-                                <div class="flex items-center justify-between">
-                                    <div class="flex gap-4">
-                                        <div class="flex flex-col">
-                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Material</span>
-                                            <span class="text-lg font-bold text-[var(--color-primary)] brand-font"><%= mod.materialCount %></span>
+                                <div class="mt-auto">
+                                    <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex gap-4">
+                                            <div class="flex flex-col">
+                                                <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Material</span>
+                                                <span class="text-lg font-bold text-[var(--color-primary)] brand-font"><%= mod.materialCount %></span>
+                                            </div>
+                                            <div class="w-px bg-[var(--color-border-light)]"></div>
+                                            <div class="flex flex-col">
+                                                <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Peralatan</span>
+                                                <span class="text-lg font-bold text-[var(--color-cyan)] brand-font"><%= mod.equipmentCount %></span>
+                                            </div>
                                         </div>
-                                        <div class="w-px bg-[var(--color-border-light)]"></div>
-                                        <div class="flex flex-col">
-                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Peralatan</span>
-                                            <span class="text-lg font-bold text-[var(--color-cyan)] brand-font"><%= mod.equipmentCount %></span>
+                                        <!-- Arrow button -->
+                                        <div class="w-9 h-9 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                         </div>
-                                    </div>
-                                    <!-- Arrow button -->
-                                    <div class="w-9 h-9 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                     </div>
                                 </div>
                             </div>
