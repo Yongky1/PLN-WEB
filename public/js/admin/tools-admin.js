@@ -76,7 +76,7 @@ async function loadToolsSaved(categoryFilter = '') {
                     </div>
                 </div>
                 <div style="width:130px;">
-                    <span class="badge ${catClass}">${catLabel}</span>
+                    <span style="font-size:12px; font-weight:500; color:var(--text-primary);">${catLabel}</span>
                 </div>
                 <div style="width:110px; text-align:center; font-size:12px; font-weight:500; color:var(--text-primary);">
                     ${t.standard || '-'}
