@@ -446,11 +446,22 @@
    * ══════════════════════════════════════════════ */
 
   let mpAllMaterialsData = [];
+  let mpExistingMatMap = {};
 
   async function mpOpenAddMaterialModal() {
     const modal = document.getElementById('mp-add-mat-modal');
     modal.classList.add('active');
     document.getElementById('mp-add-mat-search').value = '';
+
+    const moduleDataRaw = document.getElementById('mapping-module-data').textContent;
+    const moduleData = moduleDataRaw ? JSON.parse(moduleDataRaw) : {};
+    
+    mpExistingMatMap = {};
+    (moduleData.materials || []).forEach(m => {
+       if (m.material && m.material.id) {
+           mpExistingMatMap[m.material.id] = m.quantity || 1;
+       }
+    });
 
     if (mpAllMaterialsData.length === 0) {
       try {
@@ -486,16 +497,27 @@
       .map((m) => {
         const mid = m.id;
         const icon = m.icon || '📦';
-        return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);cursor:pointer;transition:all .15s;" onclick="mpToggleMatItem(this)">
-          <input type="checkbox" class="mat-checkbox" data-id="${mid}" style="display:none;">
+        const isExisting = (mid in mpExistingMatMap);
+        const qty = isExisting ? mpExistingMatMap[mid] : 1;
+        
+        const bg = isExisting ? 'var(--accent-soft)' : 'var(--bg-surface)';
+        const bd = isExisting ? 'var(--accent)' : 'transparent';
+        const badgeBg = isExisting ? 'var(--accent)' : 'var(--bg-surface-2)';
+        const badgeBd = isExisting ? 'var(--accent)' : 'var(--border-default)';
+        const badgeSvg = isExisting ? `<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>` : '';
+        const qtyDisp = isExisting ? 'flex' : 'none';
+        const chk = isExisting ? 'checked' : '';
+
+        return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:8px 12px;border-bottom:1px solid var(--border-subtle);background:${bg};border:1px solid ${bd};cursor:pointer;transition:all .15s;" onclick="mpToggleMatItem(this)">
+          <input type="checkbox" class="mat-checkbox" data-id="${mid}" style="display:none;" ${chk}>
           <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
-          <span style="flex:1;font-size:12px;font-weight:500;color:rgba(27,43,75,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</span>
-          <div class="mat-qty-wrap" style="display:none;align-items:center;gap:6px;flex-shrink:0;">
-              <button type="button" onclick="event.stopPropagation();mpStepQty(this,-1)" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">-</button>
-              <input type="number" class="mat-qty" value="1" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:rgba(0,0,0,0.3);border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">
-              <button type="button" onclick="event.stopPropagation();mpStepQty(this,1)" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">+</button>
+          <span style="flex:1;font-size:12px;font-weight:500;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</span>
+          <div class="mat-qty-wrap" style="display:${qtyDisp};align-items:center;gap:6px;flex-shrink:0;">
+              <button type="button" onclick="event.stopPropagation();mpStepQty(this,-1)" style="width:20px;height:20px;border-radius:50%;background:var(--bg-surface-3);border:none;color:var(--accent-strong);font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">-</button>
+              <input type="number" class="mat-qty" value="${qty}" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:var(--bg-surface);border:1px solid var(--border-default);border-radius:6px;color:var(--text-primary);font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">
+              <button type="button" onclick="event.stopPropagation();mpStepQty(this,1)" style="width:20px;height:20px;border-radius:50%;background:var(--bg-surface-3);border:none;color:var(--accent-strong);font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">+</button>
           </div>
-          <span class="mat-check-badge" style="width:18px;height:18px;border-radius:50%;background:rgba(255,255,255,0.08);border:1.5px solid rgba(255,255,255,0.15);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;"></span>
+          <span class="mat-check-badge" style="width:18px;height:18px;border-radius:50%;background:${badgeBg};border:1px solid ${badgeBd};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">${badgeSvg}</span>
       </div>`;
       })
       .join('');
@@ -509,20 +531,21 @@
     const qtyWrap = el.querySelector('.mat-qty-wrap');
     cb.checked = !cb.checked;
     if (cb.checked) {
-      el.style.background = 'rgba(129,140,248,0.12)';
-      el.style.borderColor = 'rgba(129,140,248,0.35)';
-      nameEl.style.color = 'rgba(255,255,255,0.9)';
-      badge.style.background = '#818CF8';
-      badge.style.borderColor = '#818CF8';
+      el.style.background = 'var(--accent-soft)';
+      el.style.borderColor = 'var(--accent)';
+      nameEl.style.color = 'var(--text-primary)';
+      badge.style.background = 'var(--accent)';
+      badge.style.borderColor = 'var(--accent)';
       badge.innerHTML =
         '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
       qtyWrap.style.display = 'flex';
     } else {
-      el.style.background = 'rgba(255,255,255,0.03)';
-      el.style.borderColor = 'rgba(255,255,255,0.07)';
-      nameEl.style.color = 'rgba(255,255,255,0.55)';
-      badge.style.background = 'rgba(255,255,255,0.08)';
-      badge.style.borderColor = 'rgba(255,255,255,0.15)';
+      el.style.background = 'var(--bg-surface)';
+      el.style.borderColor = 'transparent';
+      el.style.borderBottomColor = 'var(--border-subtle)';
+      nameEl.style.color = 'var(--text-secondary)';
+      badge.style.background = 'var(--bg-surface-2)';
+      badge.style.borderColor = 'var(--border-default)';
       badge.innerHTML = '';
       qtyWrap.style.display = 'none';
     }

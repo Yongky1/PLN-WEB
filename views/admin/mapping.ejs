@@ -58,8 +58,8 @@
 
   .mp-back-btn:hover {
     color: var(--text-primary);
-    border-color: var(--border-default);
-    background: rgba(255, 255, 255, 0.04);
+    border-color: var(--border-strong);
+    background: var(--bg-surface-2);
   }
 
   .mp-viewer-module-title {
@@ -93,7 +93,7 @@
   }
 
   .mp-asset-nav-btn:hover:not(:disabled) {
-    background: rgba(255, 255, 255, 0.05);
+    background: var(--bg-surface-2);
     color: var(--text-primary);
   }
 
@@ -133,17 +133,17 @@
     align-items: center;
     justify-content: center;
     gap: 12px;
-    background: rgba(10, 14, 20, 0.7);
+    background: rgba(255, 255, 255, 0.8);
     backdrop-filter: blur(4px);
     z-index: 10;
     font-size: 13px;
-    color: var(--text-secondary);
+    color: var(--text-primary);
   }
 
   .mp-spinner {
     width: 28px;
     height: 28px;
-    border: 2px solid rgba(255, 255, 255, 0.08);
+    border: 2px solid var(--border-default);
     border-top-color: var(--accent);
     border-radius: 50%;
     animation: mp-spin 0.7s linear infinite;
@@ -229,17 +229,20 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background: var(--bg-surface);
+    background: var(--bg-base);
   }
 
   .mp-panel-header {
     padding: 16px 20px;
     border-bottom: 1px solid var(--border-default);
+    background: var(--bg-surface);
     display: flex;
     align-items: center;
     justify-content: space-between;
     gap: 12px;
     flex-shrink: 0;
+    box-shadow: 0 1px 3px rgba(0, 82, 163, 0.02);
+    z-index: 2;
   }
 
   .mp-panel-title {
@@ -261,18 +264,20 @@
     gap: 6px;
     padding: 8px 16px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-strong);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-primary);
+    border: none;
+    background: var(--accent);
+    color: #fff;
     font-size: 12.5px;
     font-weight: 600;
     transition: all .15s;
     flex-shrink: 0;
+    box-shadow: 0 2px 8px oklch(from var(--accent) l c h / 0.25);
   }
 
   .mp-save-all-btn:hover {
-    background: rgba(255, 255, 255, 0.09);
-    border-color: rgba(255, 255, 255, 0.2);
+    filter: brightness(1.1);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px oklch(from var(--accent) l c h / 0.3);
   }
 
   .mp-save-all-btn:disabled {
@@ -294,7 +299,7 @@
   }
 
   .mp-panel-body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--border-default);
     border-radius: 4px;
   }
 
@@ -318,21 +323,22 @@
   .mp-section-count {
     font-size: 10px;
     font-family: var(--font-mono);
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-default);
     border-radius: 999px;
     padding: 1px 7px;
   }
 
   /* ── Item card ── */
   .mp-item {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
     border-radius: var(--radius-lg);
     overflow: hidden;
-    transition: border-color .15s;
-    margin-bottom: 8px;
+    transition: border-color .15s, box-shadow .15s;
+    margin-bottom: 12px;
+    box-shadow: var(--shadow-sm);
   }
 
   .mp-item:last-child {
@@ -340,7 +346,8 @@
   }
 
   .mp-item:hover {
-    border-color: var(--border-default);
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-md);
   }
 
   .mp-item-header {
@@ -356,15 +363,15 @@
     border-radius: var(--radius-sm);
     object-fit: cover;
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-surface-2);
   }
 
   .mp-item-thumb-placeholder {
     width: 36px;
     height: 36px;
     border-radius: var(--radius-sm);
-    background: rgba(255, 255, 255, 0.04);
-    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-default);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -419,10 +426,10 @@
   .mp-item-control {
     display: flex;
     flex-direction: column;
-    gap: 6px;
-    padding: 8px 12px 10px;
-    border-top: 1px solid var(--border-subtle);
-    background: rgba(0, 0, 0, 0.1);
+    gap: 8px;
+    padding: 12px;
+    border-top: 1px dashed var(--border-default);
+    background: var(--bg-surface);
   }
 
   .mp-item-actions {
@@ -435,7 +442,7 @@
     box-sizing: border-box;
     height: 32px;
     padding: 0 10px;
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--bg-surface);
     border: 1px solid var(--border-default);
     border-radius: var(--radius-md);
     color: var(--text-primary);
@@ -448,7 +455,7 @@
 
   .mp-mesh-input:focus {
     border-color: var(--border-focus);
-    box-shadow: 0 0 0 2px rgba(89, 145, 255, 0.12);
+    box-shadow: 0 0 0 2px var(--accent-soft);
   }
 
   .mp-mesh-input::placeholder {
@@ -462,19 +469,20 @@
     height: 32px;
     padding: 0 12px;
     border-radius: var(--radius-md);
-    border: 1px solid var(--border-default);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
+    border: none;
+    background: var(--accent);
+    color: #fff;
     font-size: 12px;
     font-weight: 600;
-    transition: all .15s;
+    transition: all .15s, transform .15s;
     white-space: nowrap;
+    box-shadow: 0 2px 6px oklch(from var(--accent) l c h / 0.2);
   }
 
   .mp-save-item-btn:hover {
-    background: rgba(255, 255, 255, 0.09);
-    color: var(--text-primary);
-    border-color: var(--border-strong);
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px oklch(from var(--accent) l c h / 0.3);
   }
 
   .mp-save-item-btn.saving {
@@ -487,19 +495,20 @@
     height: 32px;
     padding: 0 10px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(248, 113, 113, 0.2);
-    background: rgba(248, 113, 113, 0.06);
-    color: rgba(248, 113, 113, 0.7);
+    border: none;
+    background: var(--status-danger);
+    color: #fff;
     font-size: 12px;
     font-weight: 600;
-    transition: all .15s;
+    transition: all .15s, transform .15s;
     white-space: nowrap;
+    box-shadow: 0 2px 6px rgba(229, 57, 53, 0.2);
   }
 
   .mp-cancel-item-btn:hover {
-    background: rgba(248, 113, 113, 0.12);
-    color: #f87171;
-    border-color: rgba(248, 113, 113, 0.4);
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
   }
 
   .mp-mesh-list {
@@ -523,19 +532,20 @@
     width: 28px;
     height: 32px;
     border-radius: var(--radius-md);
-    border: 1px solid rgba(248, 113, 113, 0.25);
-    background: rgba(248, 113, 113, 0.07);
-    color: rgba(248, 113, 113, 0.7);
+    border: none;
+    background: var(--status-danger);
+    color: #fff;
     font-size: 16px;
     line-height: 1;
     cursor: pointer;
-    transition: all .15s;
+    transition: all .15s, transform .15s;
+    box-shadow: 0 2px 6px rgba(229, 57, 53, 0.2);
   }
 
   .mp-mesh-remove-btn:hover {
-    background: rgba(248, 113, 113, 0.15);
-    color: #f87171;
-    border-color: rgba(248, 113, 113, 0.45);
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px rgba(229, 57, 53, 0.3);
   }
 
   .mp-mesh-add-btn {
@@ -543,9 +553,9 @@
     height: 26px;
     padding: 0 10px;
     border-radius: var(--radius-md);
-    border: 1px dashed var(--border-default);
-    background: transparent;
-    color: var(--text-muted);
+    border: 1px dashed var(--border-focus);
+    background: var(--accent-soft);
+    color: var(--accent);
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
@@ -553,9 +563,9 @@
   }
 
   .mp-mesh-add-btn:hover {
-    border-color: var(--border-strong);
-    color: var(--text-secondary);
-    background: rgba(255, 255, 255, 0.04);
+    background: var(--accent);
+    color: #fff;
+    border-style: solid;
   }
 
   .mp-display-name-row {
@@ -582,14 +592,17 @@
   }
 
   .mp-dn-save-btn {
-    border: 1px solid var(--border-default);
-    background: rgba(255, 255, 255, 0.05);
-    color: var(--text-secondary);
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 2px 6px oklch(from var(--accent) l c h / 0.2);
+    transition: all .15s, transform .15s;
   }
 
   .mp-dn-save-btn:hover {
-    background: rgba(255, 255, 255, 0.09);
-    color: var(--text-primary);
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px oklch(from var(--accent) l c h / 0.3);
   }
 
   .mp-dn-cancel-btn {
@@ -671,29 +684,32 @@
     padding-top: 0;
   }
 
-  .mp-mesh-row {
+  #mp-mesh-overview-body .mp-mesh-row {
     display: flex;
     align-items: flex-start;
     gap: 8px;
-    padding: 5px 7px;
-    border-radius: var(--radius-sm);
-    margin-bottom: 2px;
-    border: 1px solid transparent;
-    transition: background .12s, border-color .12s;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+    margin-bottom: 6px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    box-shadow: 0 1px 2px rgba(0, 82, 163, 0.02);
+    transition: all .15s;
     scroll-margin-top: 8px;
     cursor: pointer;
   }
 
-  .mp-mesh-row:hover {
-    background: rgba(255, 255, 255, 0.03);
+  #mp-mesh-overview-body .mp-mesh-row:hover {
+    border-color: var(--border-strong);
+    box-shadow: var(--shadow-sm);
   }
 
-  .mp-mesh-row.is-focused {
+  #mp-mesh-overview-body .mp-mesh-row.is-focused {
     background: rgba(251, 191, 36, 0.07);
     border-color: rgba(251, 191, 36, 0.22);
   }
 
-  .mp-mesh-row.is-focused .mp-mesh-row-name {
+  #mp-mesh-overview-body .mp-mesh-row.is-focused .mp-mesh-row-name {
     color: #fbbf24;
   }
 
@@ -712,7 +728,7 @@
 
   .mp-mesh-dot.unconnected {
     background: transparent;
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    border: 1.5px solid var(--border-strong);
   }
 
   .mp-mesh-row-info {
@@ -769,10 +785,10 @@
   .mp-display-name-input {
     height: 24px;
     padding: 0 7px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
     border-radius: var(--radius-sm);
-    color: var(--text-secondary);
+    color: var(--text-primary);
     font-size: 11px;
     outline: none;
     transition: border-color .15s;
@@ -816,9 +832,11 @@
     align-items: center;
     justify-content: space-between;
     padding: 10px 14px;
-    border-bottom: 1px solid var(--border-subtle);
-    background: rgba(255, 255, 255, 0.015);
+    border-bottom: 1px solid var(--border-default);
+    background: var(--bg-surface);
     flex-shrink: 0;
+    height: 44px;
+    box-sizing: border-box;
   }
 
   .mp-col-label {
@@ -833,11 +851,31 @@
   .mp-col-count {
     font-size: 10px;
     font-family: var(--font-mono);
-    color: var(--text-muted);
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
     border-radius: 999px;
     padding: 1px 7px;
+  }
+
+  .mp-add-mat-btn {
+    background: var(--accent);
+    border: none;
+    color: #fff;
+    border-radius: 6px;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s, transform 0.2s;
+    box-shadow: 0 2px 6px oklch(from var(--accent) l c h / 0.2);
+  }
+  .mp-add-mat-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 10px oklch(from var(--accent) l c h / 0.3);
   }
 
   .mp-col-body {
@@ -852,7 +890,7 @@
   }
 
   .mp-col-body::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.07);
+    background: var(--border-default);
     border-radius: 4px;
   }
 
@@ -861,13 +899,13 @@
     padding: 8px 12px;
     border-bottom: 1px solid var(--border-subtle);
     flex-shrink: 0;
-    background: rgba(255, 255, 255, 0.01);
+    background: var(--bg-surface);
   }
 
   .mp-col-search {
     width: 100%;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--bg-surface-2);
+    border: 1px solid var(--border-default);
     border-radius: 8px;
     padding: 6px 10px 6px 30px;
     font-size: 11.5px;
@@ -916,6 +954,106 @@
 
   .mp-mesh-group-label.mp-hidden {
     display: none !important;
+  }
+
+  /* ── Add Material Modal ── */
+  .mp-modal-box {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 480px;
+    padding: 24px;
+    box-shadow: 0 10px 30px rgba(0, 82, 163, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .mp-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+
+  .mp-modal-search {
+    width: 100%;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-default);
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-size: 13px;
+    transition: all .15s;
+    box-sizing: border-box;
+  }
+
+  .mp-modal-search:focus {
+    border-color: var(--accent);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 2px var(--accent-soft);
+    outline: none;
+  }
+
+  .mp-modal-list {
+    max-height: 300px;
+    overflow-y: auto;
+    border: 1px solid var(--border-default);
+    border-radius: var(--radius-md);
+    background: var(--bg-surface);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .mp-modal-list-empty {
+    padding: 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 13px;
+  }
+
+  .mp-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .mp-modal-btn-cancel {
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: var(--bg-surface-2);
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+  }
+
+  .mp-modal-btn-cancel:hover {
+    background: var(--bg-surface-3);
+    color: var(--text-primary);
+  }
+
+  .mp-modal-btn-submit {
+    padding: 8px 16px;
+    border-radius: var(--radius-md);
+    border: none;
+    background: var(--accent);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all .15s;
+    box-shadow: 0 2px 6px oklch(from var(--accent) l c h / 0.2);
+  }
+
+  .mp-modal-btn-submit:hover {
+    filter: brightness(1.1);
+    box-shadow: 0 4px 10px oklch(from var(--accent) l c h / 0.3);
   }
 </style>
 
@@ -1054,10 +1192,7 @@
                 <%= hasMaterials ? moduleData.materials.length : 0 %>
               </span>
             </div>
-            <button class="mp-add-mat-btn"  title="Tambah Material ke Modul"
-              style="background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.25); color:#FFD700; border-radius:6px; width:24px; height:24px; display:flex; align-items:center; justify-content:center; cursor:pointer; transition:all 0.2s;"
-              onmouseover="this.style.background='rgba(255,215,0,0.2)'"
-              onmouseout="this.style.background='rgba(255,215,0,0.1)'">
+            <button class="mp-add-mat-btn" title="Tambah Material ke Modul">
               <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
               </svg>
@@ -1144,9 +1279,11 @@
 
         <!-- Right column: Mesh Status (populated by JS after GLB load) -->
         <div class="mp-col">
-          <div class="mp-col-header">
-            <span class="mp-col-label">Status Mesh</span>
-            <span class="mp-col-count" id="mp-mesh-overview-count">—</span>
+          <div class="mp-col-header" style="padding-right:8px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span class="mp-col-label">Status Mesh</span>
+              <span class="mp-col-count" id="mp-mesh-overview-count">—</span>
+            </div>
           </div>
           <div class="mp-col-search-wrap">
             <div class="mp-col-search-wrap-inner">
@@ -1173,8 +1310,7 @@
 <!-- Shared datalist — diisi oleh Three.js setelah GLB load -->
 <datalist id="mp-mesh-datalist"></datalist>
 
-<!-- ═══════════════ API & UI LOGIC ═══════════════ -->
-<script src="/js/admin/mapping-ui.js"></script>
+<script src="/js/admin/mapping-ui.js?v=4"></script>
 
 <!-- ═══════════════ THREE.JS — 3D VIEWER ═══════════════ -->
 <script type="importmap">
