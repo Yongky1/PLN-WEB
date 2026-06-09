@@ -50,7 +50,7 @@ async function loadToolsSaved(categoryFilter = '') {
     saved.innerHTML = '';
 
     if (!tools || tools.length === 0) {
-      saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">${categoryFilter ? 'Tidak ada peralatan untuk kategori ini' : 'Belum ada data tersimpan'}</div>`;
+      saved.innerHTML = `<div style="color:rgba(27,43,75,0.4); font-size:12px; text-align:center; padding: 20px 0;">${categoryFilter ? 'Tidak ada peralatan untuk kategori ini' : 'Belum ada data tersimpan'}</div>`;
       return;
     }
 
@@ -70,19 +70,19 @@ async function loadToolsSaved(categoryFilter = '') {
                     </svg>
                 </div>
                 <div style="flex:1; padding-right:16px;">
-                    <div style="font-size:13px;font-weight:600;color:#fff;">${t.name}</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);">${t.name}</div>
+                    <div style="font-size:11px;color:rgba(27,43,75,0.35);margin-top:2px;">
                         ${t.description ? t.description.substring(0, 45) + '...' : '-'}
                     </div>
                 </div>
                 <div style="width:130px;">
                     <span class="badge ${catClass}">${catLabel}</span>
                 </div>
-                <div style="width:110px; text-align:center; font-size:12px; font-weight:500; color:#fff;">
+                <div style="width:110px; text-align:center; font-size:12px; font-weight:500; color:var(--text-primary);">
                     ${t.standard || '-'}
                 </div>
                 <div style="width:100px; display:flex; justify-content:center;">
-                    <div style="font-size:12px; font-weight:500; color:#fff;">${t.status || 'Wajib'}</div>
+                    <div style="font-size:12px; font-weight:500; color:var(--text-primary);">${t.status || 'Wajib'}</div>
                 </div>
                 <div style="width:80px; text-align:center; font-size:12px; font-weight:500; color:${hasFile ? '#10B981' : 'rgba(255,255,255,0.4)'};">
                     ${hasFile ? 'Ada' : '-'}
@@ -295,7 +295,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 </div>
 
                 <div>
-                    <label class="admin-label">Deskripsi <span class="t-desc-counter" style="font-size:10px; color:rgba(255,255,255,0.3); font-weight:400;">0/2000</span></label>
+                    <label class="admin-label">Deskripsi <span class="t-desc-counter" style="font-size:10px; color:rgba(27,43,75,0.3); font-weight:400;">0/2000</span></label>
                     <textarea class="admin-input t-desc" rows="2" maxlength="2000" placeholder="Jelaskan fungsi alat..." style="resize:vertical;" oninput="this.closest('.upload-card').querySelector('.t-desc-counter').textContent = this.value.length + '/2000'"></textarea>
                 </div>
 
@@ -305,18 +305,18 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                     <div class="t-image-wrapper" style="display: grid; grid-template-columns: 1fr; gap: 12px; min-height: 140px;">
                         <div class="file-drop-zone t-image-drop-zone" onclick="this.parentElement.querySelector('.t-image-file').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                             <div class="t-img-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                                <svg class="drop-icon" style="width:24px;height:24px;color:rgba(255,255,255,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="drop-icon" style="width:24px;height:24px;color:rgba(27,43,75,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
-                                <div class="drop-label" style="font-size: 14px; color: rgba(255,255,255,0.6);">Pilih Foto Thumbnail</div>
-                                <span style="font-size:11px; color:rgba(255,255,255,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
+                                <div class="drop-label" style="font-size: 14px; color:rgba(27,43,75,0.6);">Pilih Foto Thumbnail</div>
+                                <span style="font-size:11px; color:rgba(27,43,75,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
                             </div>
                             <div class="t-img-filled" style="display:none; flex-direction:column; align-items:center; justify-content:center;">
                                 <svg style="width:28px;height:28px;color:#F59E0B; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
                                 <div style="font-size: 14px; color: #F59E0B; font-weight:600;">Thumbnail Terpasang</div>
-                                <div style="font-size:12px; color:rgba(255,255,255,0.5); margin-top:4px;">Klik untuk ganti foto</div>
+                                <div style="font-size:12px; color:rgba(27,43,75,0.5); margin-top:4px;">Klik untuk ganti foto</div>
                             </div>
                         </div>
 
@@ -341,15 +341,15 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                         <input type="file" class="t-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
-                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
+                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.25);"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        <span class="drop-label" style="font-size:12px;color:rgba(255,255,255,0.35);">
+                        <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.35);">
                             Drag & drop atau klik untuk upload (Timpa file lama)
                         </span>
-                        <span style="font-size:11px;color:rgba(255,255,255,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
+                        <span style="font-size:11px;color:rgba(27,43,75,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
                 </div>
 

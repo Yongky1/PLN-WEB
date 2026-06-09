@@ -178,7 +178,7 @@ function addProcRow(containerId) {
   row.style.cssText =
     'display:grid; grid-template-columns:24px 1fr 32px; gap:8px; align-items:center;';
   row.innerHTML = `
-        <span style="font-size:11px; font-weight:700; color:rgba(255,255,255,0.3); text-align:center;">${num}</span>
+        <span style="font-size:11px; font-weight:700; color:rgba(27,43,75,0.3); text-align:center;">${num}</span>
         <input type="text" placeholder="Langkah prosedur..." class="admin-input" style="padding:9px 12px; font-size:12px;">
         <button type="button" onclick="this.parentElement.remove()" class="btn-danger" style="width:32px; height:32px; display:flex; align-items:center; justify-content:center; font-size:16px;">×</button>
     `;

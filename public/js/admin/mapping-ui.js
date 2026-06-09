@@ -479,7 +479,7 @@
     const list = document.getElementById('mp-add-mat-list');
     if (!materials || materials.length === 0) {
       list.innerHTML =
-        '<div style="color:rgba(255,255,255,0.5); font-size:12px; text-align:center; padding:20px 0;">Tidak ada hasil</div>';
+        '<div style="color:rgba(27,43,75,0.5); font-size:12px; text-align:center; padding:20px 0;">Tidak ada hasil</div>';
       return;
     }
     list.innerHTML = materials
@@ -489,7 +489,7 @@
         return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid rgba(255,255,255,0.07);background:rgba(255,255,255,0.03);cursor:pointer;transition:all .15s;" onclick="mpToggleMatItem(this)">
           <input type="checkbox" class="mat-checkbox" data-id="${mid}" style="display:none;">
           <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
-          <span style="flex:1;font-size:12px;font-weight:500;color:rgba(255,255,255,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</span>
+          <span style="flex:1;font-size:12px;font-weight:500;color:rgba(27,43,75,0.55);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name}</span>
           <div class="mat-qty-wrap" style="display:none;align-items:center;gap:6px;flex-shrink:0;">
               <button type="button" onclick="event.stopPropagation();mpStepQty(this,-1)" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">-</button>
               <input type="number" class="mat-qty" value="1" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:rgba(0,0,0,0.3);border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">

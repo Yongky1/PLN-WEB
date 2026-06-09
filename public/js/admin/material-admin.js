@@ -60,7 +60,7 @@ async function loadMaterialSaved(categoryFilter = '') {
 
     if (!materials || materials.length === 0) {
       saved.innerHTML =
-        '<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding:20px 0;">Belum ada data tersimpan</div>';
+        '<div style="color:rgba(27,43,75,0.4); font-size:12px; text-align:center; padding:20px 0;">Belum ada data tersimpan</div>';
       return;
     }
 
@@ -78,15 +78,15 @@ async function loadMaterialSaved(categoryFilter = '') {
                     </svg>
                 </div>
                 <div style="flex:1; padding-right:16px;">
-                    <div style="font-size:13px;font-weight:600;color:#fff;">${m.name}</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.4);margin-top:2px;font-family:monospace;">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);">${m.name}</div>
+                    <div style="font-size:11px;color:rgba(27,43,75,0.4);margin-top:2px;font-family:monospace;">
                         ${m.code || '-'}
                     </div>
                 </div>
                 <div style="width:140px;">
-                    <span style="font-size:12px; font-weight:500; color:#fff;">${cat}</span>
+                    <span style="font-size:12px; font-weight:500; color:var(--text-primary);">${cat}</span>
                 </div>
-                <div style="width:100px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                <div style="width:100px; text-align:center; font-size:13px; font-weight:600; color:var(--text-primary);">
                     ${variantsCount}
                 </div>
                 <div style="width:130px; display:flex; gap:6px; justify-content:center;">
@@ -307,15 +307,15 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
                         <input type="file" class="m-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
-                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
+                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.25);"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        <span class="drop-label" style="font-size:12px;color:rgba(255,255,255,0.35);">
+                        <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.35);">
                             Drag & drop atau klik untuk upload
                         </span>
-                        <span style="font-size:11px;color:rgba(255,255,255,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
+                        <span style="font-size:11px;color:rgba(27,43,75,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
                 </div>
 

@@ -43,7 +43,7 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
   if (!filtered || filtered.length === 0) {
     el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;">
             <span style="font-size:22px;">📦</span>
-            <span style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada material<br>tersedia'}</span>
+            <span style="font-size:11px;color:rgba(27,43,75,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada material<br>tersedia'}</span>
         </div>`;
     return;
   }
@@ -61,11 +61,11 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
       const icon = m.icon || '📦';
       const activeStyle = isChecked
         ? 'background:rgba(129,140,248,0.12);border-color:rgba(129,140,248,0.35);'
-        : 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.07);';
+        : 'background:rgba(255,255,255,0.03);border-color:rgba(27,43,75,0.07);';
       return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;" onclick="toggleMatItem(this,'${mid}')">
             <input type="checkbox" class="mat-checkbox" data-id="${mid}" ${isChecked ? 'checked' : ''} style="display:none;">
             <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
-            <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(255,255,255,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name || mid}</span>
+            <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(27,43,75,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name || mid}</span>
             <div class="mat-qty-wrap" style="display:${isChecked ? 'flex' : 'none'};align-items:center;gap:6px;flex-shrink:0;">
                 <button type="button" onclick="event.stopPropagation();stepQty(this,-1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">-</button>
                 <input type="number" class="mat-qty" data-id="${mid}" value="${qty}" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:rgba(0,0,0,0.3);border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">
@@ -123,7 +123,7 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
   if (!filtered || filtered.length === 0) {
     el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;">
             <span style="font-size:22px;">🔧</span>
-            <span style="font-size:11px;color:rgba(255,255,255,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada peralatan<br>tersedia'}</span>
+            <span style="font-size:11px;color:rgba(27,43,75,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada peralatan<br>tersedia'}</span>
         </div>`;
     return;
   }
@@ -138,11 +138,11 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
       const icon = t.icon || '🔧';
       const activeStyle = isChecked
         ? 'background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.35);'
-        : 'background:rgba(255,255,255,0.03);border-color:rgba(255,255,255,0.07);';
+        : 'background:rgba(255,255,255,0.03);border-color:rgba(27,43,75,0.07);';
       return `<div class="tool-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;" onclick="toggleToolItem(this,'${tid}')">
             <input type="checkbox" class="tool-checkbox" data-id="${tid}" ${isChecked ? 'checked' : ''} style="display:none;">
             <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
-            <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(255,255,255,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.name || tid}</span>
+            <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(27,43,75,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.name || tid}</span>
             <span class="tool-check-badge" style="width:18px;height:18px;border-radius:50%;background:${isChecked ? '#F59E0B' : 'rgba(255,255,255,0.08)'};border:1.5px solid ${isChecked ? '#F59E0B' : 'rgba(255,255,255,0.15)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">
                 ${isChecked ? '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
             </span>
@@ -215,7 +215,7 @@ async function loadKonstruksiSaved(search = '', status = '') {
     saved.innerHTML = '';
 
     if (!modules || modules.length === 0) {
-      saved.innerHTML = `<div style="color:rgba(255,255,255,0.4); font-size:12px; text-align:center; padding: 20px 0;">
+      saved.innerHTML = `<div style="color:rgba(27,43,75,0.4); font-size:12px; text-align:center; padding: 20px 0;">
                 ${search || status ? 'Tidak ada konstruksi ditemukan' : 'Belum ada data tersimpan'}
             </div>`;
       return;
@@ -238,21 +238,21 @@ async function loadKonstruksiSaved(search = '', status = '') {
                     </svg>
                 </div>
                 <div style="flex:1; padding-right:16px;">
-                    <div style="font-size:13px;font-weight:600;color:#fff;">${m.title}</div>
-                    <div style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:2px;">
+                    <div style="font-size:13px;font-weight:600;color:var(--text-primary);">${m.title}</div>
+                    <div style="font-size:11px;color:rgba(27,43,75,0.35);margin-top:2px;">
                         ${variantsCount} varian · ${matCount} Material · ${eqCount} Peralatan
                     </div>
                 </div>
                 <div style="width:100px; display:flex; justify-content:center;">
                     <span class="badge ${badgeClass}">${m.status || 'Aktif'}</span>
                 </div>
-                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:var(--text-primary);">
                     ${variantsCount}
                 </div>
-                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:var(--text-primary);">
                     ${matCount}
                 </div>
-                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:#fff;">
+                <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:var(--text-primary);">
                     ${eqCount}
                 </div>
                 <div style="width:160px; display:flex; gap:6px; justify-content:center;">
@@ -544,15 +544,15 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                         <input type="file" class="k-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
-                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(255,255,255,0.25);"
+                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.25);"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        <span class="drop-label" style="font-size:12px;color:rgba(255,255,255,0.35);">
+                        <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.35);">
                             Drag & drop atau klik untuk upload (Timpa file lama)
                         </span>
-                        <span style="font-size:11px;color:rgba(255,255,255,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
+                        <span style="font-size:11px;color:rgba(27,43,75,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
                 </div>
                 
