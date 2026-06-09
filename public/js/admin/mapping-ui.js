@@ -559,21 +559,27 @@
   };
 
   async function mpSubmitAddMaterial() {
-    const selectedCbs = document.querySelectorAll('#mp-add-mat-list .mat-checkbox:checked');
-    if (selectedCbs.length === 0) {
-      mpToast('Pilih minimal satu material', 'error');
-      return;
-    }
-
     const btn = document.getElementById('mp-add-mat-submit');
     btn.disabled = true;
-    btn.textContent = 'Menambahkan...';
+    btn.textContent = 'Menyimpan...';
 
     const modId = JSON.parse(document.getElementById('mapping-module-data').textContent).id;
     let successCount = 0;
+    let failCount = 0;
 
     try {
-      const requests = Array.from(selectedCbs).map((cb) => {
+      const selectedCbs = document.querySelectorAll('#mp-add-mat-list .mat-checkbox:checked');
+      const selectedIds = Array.from(selectedCbs).map(cb => cb.dataset.id);
+      
+      // Deletions (Unchecked but exists in existing map)
+      const deleteRequests = Object.keys(mpExistingMatMap)
+        .filter(mid => !selectedIds.includes(mid))
+        .map(mid => fetch(`/api/module-materials/${modId}/${mid}`, { method: 'DELETE' }).then(res => {
+           if (res.ok) successCount++; else failCount++;
+        }));
+
+      // Upserts (Checked)
+      const upsertRequests = Array.from(selectedCbs).map((cb) => {
         const matId = cb.dataset.id;
         const qtyEl = cb.closest('.mat-item').querySelector('.mat-qty');
         const qty = qtyEl ? parseInt(qtyEl.value) || 1 : 1;
@@ -584,20 +590,28 @@
           body: JSON.stringify({ module_id: modId, material_id: matId, quantity: qty }),
         }).then(async (res) => {
           if (!res.ok) {
-            const data = await res.json();
-            throw new Error(data.error || 'Gagal');
+            failCount++;
+          } else {
+            successCount++;
           }
-          successCount++;
         });
       });
 
-      await Promise.allSettled(requests);
+      await Promise.allSettled([...deleteRequests, ...upsertRequests]);
 
-      if (successCount > 0) {
-        mpToast(`${successCount} material berhasil ditambahkan!`, 'success');
+      if (successCount > 0 && failCount === 0) {
+        mpToast('Material berhasil diperbarui!', 'success');
         setTimeout(() => location.reload(), 800);
+      } else if (successCount > 0 && failCount > 0) {
+        mpToast('Beberapa material gagal diperbarui', 'info');
+        setTimeout(() => location.reload(), 1500);
+      } else if (successCount === 0 && failCount === 0) {
+        // Jika tidak ada perubahan sama sekali (keduanya 0)
+        btn.closest('.mp-modal-box').parentElement.classList.remove('active');
+        btn.disabled = false;
+        btn.textContent = 'Tambahkan';
       } else {
-        throw new Error('Gagal menambahkan material');
+        throw new Error('Gagal memperbarui material');
       }
     } catch (err) {
       mpToast(err.message, 'error');

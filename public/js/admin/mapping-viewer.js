@@ -80,6 +80,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
   let hoveredMesh = null;
   let _isMouseDown = false;
   const origEmissive = new Map(); // mesh → [{color, intensity}]
+  let cachedMeshes = []; // Cache untuk raycasting agar tidak traverse tiap frame
 
   /* ── Resize ── */
   function updateSize() {
@@ -199,6 +200,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
     clearHighlight();
     hoveredMesh = null;
     origEmissive.clear();
+    cachedMeshes = [];
 
     const asset = assets[index];
     const url = asset.file || '';
@@ -241,6 +243,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
       const names = [];
       currentModel.traverse(obj => {
         if (!obj.isMesh) return;
+        cachedMeshes.push(obj);
         if (obj.name) names.push(obj.name);
 
         const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
@@ -280,9 +283,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    const meshes = [];
-    currentModel.traverse(obj => { if (obj.isMesh) meshes.push(obj); });
-    const hits = raycaster.intersectObjects(meshes, false);
+    const hits = raycaster.intersectObjects(cachedMeshes, false);
 
     if (hits.length === 0) {
       clearHighlight();
@@ -329,9 +330,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
     mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
     raycaster.setFromCamera(mouse, camera);
 
-    const meshes = [];
-    currentModel.traverse(obj => { if (obj.isMesh) meshes.push(obj); });
-    const hit = raycaster.intersectObjects(meshes, false)[0]?.object ?? null;
+    const hit = raycaster.intersectObjects(cachedMeshes, false)[0]?.object ?? null;
 
     if (hit !== hoveredMesh) {
       removeHoverHighlight(hoveredMesh);
