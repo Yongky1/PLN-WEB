@@ -520,40 +520,39 @@
 <script src="/js/catalog-modal.js"></script>
 
 <style>
-  #amqv-overlay { background: rgba(0,4,15,0.82); backdrop-filter: blur(28px) saturate(160%); }
+  #amqv-overlay { background: rgba(27,43,75,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
   #amqv-overlay.active { display: flex !important; }
   #amqv-card { height: auto; max-height: 90vh; }
   @media (min-width: 768px) { #amqv-card { height: 560px; max-height: unset; } }
 </style>
 
 <div id="amqv-overlay" class="fixed inset-0 z-[999] hidden items-center justify-center p-4 sm:p-6" style="display:none;">
-  <div id="amqv-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden border border-white/10 shadow-[0_40px_80px_rgba(0,0,0,0.6)]" style="background:linear-gradient(160deg,rgba(12,22,42,0.98) 0%,rgba(6,12,26,0.98) 100%); backdrop-filter:blur(40px);">
+  <div id="amqv-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
 
     <!-- LEFT: 3D Viewer -->
-    <div id="amqv-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto"
-         style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
-      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 blur-[60px] pointer-events-none" style="background:rgba(255,215,0,0.08);"></div>
+    <div id="amqv-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 blur-[60px] pointer-events-none bg-[var(--color-primary)]/5"></div>
       <model-viewer id="amqv-model-viewer" src="" camera-controls auto-rotate rotation-per-second="25deg"
-          interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1.1"
+          interaction-prompt="none" shadow-intensity="1" environment-image="neutral" exposure="1"
           class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
       </model-viewer>
       <div id="amqv-loading-overlay" class="pln-3d-loading absolute inset-0 z-10">
         <div id="amqv-loading-spinner" class="pln-3d-loader">
-          <span class="pln-dot"></span>
-          <span class="pln-dot"></span>
-          <span class="pln-dot"></span>
+          <span class="pln-dot bg-[var(--color-primary)]"></span>
+          <span class="pln-dot bg-[var(--color-primary)]"></span>
+          <span class="pln-dot bg-[var(--color-primary)]"></span>
         </div>
-        <span id="amqv-loading-text" class="pln-3d-label"></span>
+        <span id="amqv-loading-text" class="pln-3d-label text-[var(--color-text-secondary)]"></span>
       </div>
-      <div id="amqv-empty-state" class="absolute inset-0 flex-col items-center justify-center text-white/25 z-10 hidden" style="display:none;">
-        <svg class="w-16 h-16 mb-4 text-white/10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-        <span class="text-sm font-medium tracking-wide">Belum ada file 3D</span>
+      <div id="amqv-empty-state" class="absolute inset-0 flex-col items-center justify-center text-[var(--color-text-muted)] z-10 hidden" style="display:none;">
+        <svg class="w-16 h-16 mb-4 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span class="text-sm font-medium tracking-wide brand-font">Belum ada file 3D</span>
       </div>
-      <div class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-2xl border border-white/10 text-white/60 text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-xl">
-        <svg class="w-3.5 h-3.5 text-white/40" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
+      <div class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-lg">
+        <svg class="w-3.5 h-3.5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
         Rotasi 360° · Zoom via Scroll
       </div>
-      <button id="amqv-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-black/50 backdrop-blur-xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 opacity-0 group-hover:opacity-100">
+      <button id="amqv-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-sm opacity-0 group-hover:opacity-100">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
       </button>
     </div>
@@ -562,26 +561,29 @@
     <div class="flex-1 flex flex-col min-h-0 relative" style="overflow-y:auto;">
       <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
         <div class="absolute top-5 right-5 z-20">
-          <button id="amqv-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-white/10 hover:border-white/25" style="background:rgba(255,255,255,0.06); backdrop-filter:blur(12px);">
-            <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+          <button id="amqv-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-bg-surface-alt)] hover:bg-[var(--color-primary)]/5">
+            <svg class="w-4 h-4 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
           </button>
         </div>
         <div class="flex items-center gap-3 mb-4 pr-12">
           <span id="amqv-modal-icon" class="text-3xl select-none shrink-0 leading-none"></span>
-          <span id="amqv-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5">
+          <span id="amqv-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 bg-[var(--color-primary)]/10 border-[var(--color-primary)]/20 text-[var(--color-primary)]">
             <span class="w-1 h-1 rounded-full animate-pulse" style="background:currentColor; opacity:.7;"></span>
           </span>
         </div>
-        <h2 id="amqv-modal-name" class="text-2xl font-black text-white leading-tight mb-1 tracking-tight" style="font-family:'Space Grotesk',sans-serif;"></h2>
-        <p id="amqv-modal-sub" class="text-[11px] font-mono tracking-wider" style="color:rgba(255,215,0,0.5);"></p>
+        <h2 id="amqv-modal-name" class="text-2xl font-bold text-[var(--color-text-primary)] leading-tight mb-1 brand-font tracking-tight"></h2>
+        <p id="amqv-modal-sub" class="text-[11px] font-mono tracking-wider text-[var(--color-primary)]"></p>
         <!-- Tools-only fields -->
         <div id="amqv-tools-meta" class="mt-2 flex gap-4 hidden" style="display:none;">
-          <span id="amqv-modal-status" class="text-[11px] font-bold"></span>
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">Status:</span>
+            <span id="amqv-modal-status" class="text-[11px] font-bold text-[var(--color-success)]"></span>
+          </div>
         </div>
-        <div class="mt-3" style="height:1px; background:linear-gradient(to right,rgba(255,213,0,0.25),rgba(255,255,255,0.08),transparent);"></div>
+        <div class="mt-3 h-px bg-[var(--color-border-light)]"></div>
       </div>
-      <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3" style="scrollbar-width:thin; scrollbar-color:rgba(255,255,255,0.1) transparent;">
-        <p id="amqv-modal-desc" class="text-[13px] text-white/50 leading-relaxed" style="font-family:'Inter',sans-serif;"></p>
+      <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3" style="scrollbar-width:thin; scrollbar-color:rgba(var(--color-text-muted-rgb),0.2) transparent;">
+        <p id="amqv-modal-desc" class="text-[13px] text-[var(--color-text-secondary)] leading-relaxed mb-5" style="font-family:'Inter',sans-serif;"></p>
       </div>
     </div>
 
