@@ -711,10 +711,12 @@ select {
   border-left: 3px solid var(--pln-orange);
 }
 .rd-data-card--material .rd-table-head {
-  border-bottom-color: oklch(from var(--pln-green) l c h / 0.2);
+  background: var(--pln-green);
+  border-bottom-color: var(--pln-green-strong);
 }
 .rd-data-card--tool .rd-table-head {
-  border-bottom-color: oklch(from var(--pln-orange) l c h / 0.2);
+  background: var(--pln-orange);
+  border-bottom-color: var(--pln-orange-strong);
 }
 
 .rd-skeleton-row {
