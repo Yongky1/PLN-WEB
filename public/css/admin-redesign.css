@@ -605,6 +605,9 @@ select {
   font-weight: 700;
   box-shadow: 0 2px 8px oklch(from var(--accent) l c h / 0.25);
 }
+.rd-btn-primary svg {
+  stroke-width: 2.5;
+}
 .rd-btn-primary:hover {
   filter: brightness(1.1);
 }
