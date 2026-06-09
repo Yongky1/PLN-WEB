@@ -4,415 +4,199 @@
     <%- include('partials/head') %>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-      /* ══════════════════════════════════
-         TOOLS — V3 GLASS GRID PREMIUM
-      ══════════════════════════════════ */
-      :root {
-        --v3-yellow: #FFD700;
-        --v3-yellow-dim: rgba(255,215,0,0.12);
-        --v3-blue: #3B82F6;
-        --v3-blue-bright: #60A5FA;
-        --v3-bg0: #080808;
-        --v3-border: rgba(255,255,255,0.07);
-        --v3-text: #f0f0f0;
-        --v3-muted: rgba(255,255,255,0.38);
-      }
-
-      body { background: var(--v3-bg0) !important; color: var(--v3-text); }
-
-      @keyframes v3-spin-slow { to { transform: rotate(360deg); } }
-      .v3-ring {
-        position: fixed; border-radius: 50%; pointer-events: none;
-        border: 1px solid; opacity: 0.08;
-        animation: v3-spin-slow 20s linear infinite; z-index: 0;
-      }
-
-      /* Search bar */
-      .v3-search-wrap { flex: 1; position: relative; }
-      .v3-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--v3-muted); pointer-events: none; }
-      .v3-search-input {
-        width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px; padding: 10px 14px 10px 40px;
-        font-size: 13px; color: var(--v3-text); font-family: 'Inter', sans-serif;
-        outline: none; transition: border-color .2s, box-shadow .2s;
-      }
-      .v3-search-input:focus { border-color: rgba(255,215,0,0.4); box-shadow: 0 0 0 3px rgba(255,215,0,0.06); }
-      .v3-search-input::placeholder { color: var(--v3-muted); }
-
-      /* Glass morphism */
-      .v3-glass {
-        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-        backdrop-filter: blur(24px) saturate(160%);
-        -webkit-backdrop-filter: blur(24px) saturate(160%);
-        border: 1px solid rgba(255,255,255,0.09) !important;
-        border-top-color: rgba(255,255,255,0.18) !important;
-        border-left-color: rgba(255,255,255,0.12) !important;
-      }
-
-      /* Glass card */
-      .v3-card {
-        border-radius: 28px; overflow: hidden; cursor: pointer;
-        position: relative; display: block;
-        transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s;
-      }
-      .v3-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(255,215,0,0.08);
-      }
-      .v3-card-img {
-        width: 100%; height: 190px;
-        position: relative; overflow: hidden; background: rgba(0,0,0,0.3);
-      }
-      .v3-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease-out; }
-      .v3-card:hover .v3-card-img img { transform: scale(1.05); }
-      .v3-card-img-placeholder {
-        width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-        flex-direction: column; gap: 8px;
-        background: repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 14px);
-      }
-      .v3-card-img-grad {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
-        background: linear-gradient(to top, rgba(5,5,15,0.9), transparent); pointer-events: none;
-      }
-      .v3-card-body {
-        padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px;
-        background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.015) 100%);
-      }
-      .v3-card-title {
-        font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-        font-size: 16px; color: #f0f0f0; line-height: 1.3;
-        letter-spacing: -0.3px; transition: color .2s;
-      }
-      .v3-card:hover .v3-card-title { color: #FFD700; }
-      .v3-card-desc {
-        font-size: 11.5px; color: rgba(255,255,255,0.38); line-height: 1.6;
-        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      }
-      .v3-card-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
-      .v3-card-stats { display: flex; align-items: center; justify-content: space-between; }
-      .v3-card-stat { display: flex; flex-direction: column; gap: 2px; }
-      .v3-card-stat-label {
-        font-size: 9px; font-family: 'JetBrains Mono', monospace;
-        color: rgba(255,255,255,0.28); letter-spacing: 0.1em; text-transform: uppercase;
-      }
-      .v3-card-stat-val {
-        font-size: 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-        color: #FFD700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;
-      }
-      .v3-go-btn {
-        width: 36px; height: 36px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(255,215,0,0.12); color: #FFD700;
-        border: 1px solid rgba(255,215,0,0.2);
-        transition: background .2s, transform .2s; flex-shrink: 0;
-      }
-      .v3-card:hover .v3-go-btn { background: #FFD700; color: #000; transform: rotate(-45deg) scale(1.1); }
-      .v3-electric-line {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-        background: linear-gradient(90deg, transparent, #3B82F6, #FFD700, transparent);
-        opacity: 0; transition: opacity .3s;
-      }
-      .v3-card:hover .v3-electric-line { opacity: 1; }
-
-      /* Heading gradient */
-      .v3-heading-gradient {
-        background: linear-gradient(to right, #FFD700, #fef08a);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      }
-
-      /* Category badge colors */
-      .badge-k3 { background: rgba(239,68,68,0.15); color: #F87171; border-color: rgba(239,68,68,0.3); }
-      .badge-teknis { background: rgba(59,130,246,0.15); color: #60A5FA; border-color: rgba(59,130,246,0.3); }
-      .badge-pengukuran { background: rgba(168,85,247,0.15); color: #C084FC; border-color: rgba(168,85,247,0.3); }
-
-      /* Custom dropdown */
-      .v3-dropdown { position: relative; flex-shrink: 0; }
-      .v3-dropdown-btn {
-        display: flex; align-items: center; gap: 8px;
-        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px; padding: 10px 14px;
-        font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
-        color: rgba(255,255,255,0.55); font-family: 'Inter', sans-serif;
-        cursor: pointer; outline: none; white-space: nowrap;
-        transition: border-color .2s, background .2s, color .2s;
-      }
-      .v3-dropdown-btn:hover { border-color: rgba(255,215,0,0.35); color: #fff; background: rgba(255,255,255,0.07); }
-      .v3-dropdown.open .v3-dropdown-btn { border-color: rgba(255,215,0,0.45); color: #FFD700; background: rgba(255,215,0,0.06); }
-      .v3-chev { transition: transform .25s ease; color: rgba(255,255,255,0.35); }
-      .v3-dropdown.open .v3-chev { transform: rotate(180deg); color: #FFD700; }
-      .v3-dropdown-menu {
-        position: absolute; top: calc(100% + 8px); right: 0; min-width: 180px; border-radius: 14px;
-        background: rgba(18,18,18,0.95); backdrop-filter: blur(24px) saturate(160%);
-        border: 1px solid rgba(255,255,255,0.1); border-top-color: rgba(255,255,255,0.18);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,215,0,0.04);
-        padding: 6px; z-index: 200; display: none; flex-direction: column; gap: 2px;
-        animation: v3-dd-in .18s ease;
-      }
-      @keyframes v3-dd-in { from { opacity:0; transform: translateY(-6px) scale(0.97); } to { opacity:1; transform: none; } }
-      .v3-dropdown.open .v3-dropdown-menu { display: flex; }
-      .v3-dropdown-item {
-        padding: 9px 14px; border-radius: 9px; font-size: 12px; font-weight: 600;
-        color: rgba(255,255,255,0.55); cursor: pointer; font-family: 'Inter', sans-serif;
-        transition: background .15s, color .15s; letter-spacing: 0.02em;
-      }
-      .v3-dropdown-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
-      .v3-dropdown-item.selected { background: rgba(255,215,0,0.1); color: #FFD700; }
-
-      /* Responsive */
-      .v3-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px; }
-      @media (max-width: 1024px) { .v3-grid { grid-template-columns: repeat(3,1fr); } }
-      @media (max-width: 768px) {
-        .v3-grid { grid-template-columns: repeat(2,1fr); gap: 14px; }
-        .v3-page-main { padding-left: 20px !important; padding-right: 20px !important; }
-        .v3-header-row { flex-direction: column !important; align-items: flex-start !important; }
-        h1.v3-title { font-size: 36px !important; }
-      }
-      @media (max-width: 480px) { .v3-grid { grid-template-columns: 1fr; } }
-
-      /* modal styles: see partials/catalog-modal-tools.ejs */
-    </style>
 </head>
-<body>
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
 
     <%- include('partials/navbar') %>
 
-    <!-- Decorative rings -->
-    <div class="v3-ring" style="width:600px; height:600px; top:-200px; right:-100px; border-color:#FFD700;"></div>
-    <div class="v3-ring" style="width:400px; height:400px; bottom:0; left:-100px; border-color:#60A5FA; animation-direction:reverse; animation-duration:28s;"></div>
+    <main style="padding-top:96px; padding-bottom:64px; min-height:100vh;" class="relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <!-- Ambient glows -->
-    <div style="position:fixed; top:-150px; right:100px; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
-    <div style="position:fixed; bottom:100px; left:0; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
-
-    <main class="v3-page-main" style="padding-top:96px; padding-bottom:64px; padding-left:56px; padding-right:56px; position:relative; z-index:1; min-height:100vh;">
-
-        <!-- Header -->
-        <div class="v3-header-row" style="display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,0.07);">
-            <!-- Left: Label + Title + Subtitle -->
-            <div>
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                    <div style="width:6px; height:6px; border-radius:50%; background:#FFD700; box-shadow:0 0 10px rgba(255,215,0,0.9);"></div>
-                    <span style="font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:600; letter-spacing:0.18em; color:#FFD700; text-transform:uppercase;">Peralatan Lapangan · PLN</span>
-                </div>
-                <h1 class="v3-title" style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:52px; letter-spacing:-2px; line-height:1.05; margin-bottom:10px;">
-                    <span style="color:#f0f0f0;">Tools & </span><span class="v3-heading-gradient">Alat K3</span>
-                </h1>
-                <p style="font-size:14px; color:rgba(255,255,255,0.38); line-height:1.65; max-width:480px; font-family:'Inter',sans-serif;">
-                    Katalog lengkap peralatan keselamatan kerja dan alat teknis yang digunakan teknisi lapangan PLN dalam setiap pekerjaan konstruksi dan pemeliharaan jaringan.
-                </p>
-            </div>
-
-            <!-- Right: Search + Filter Dropdown -->
-            <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                <div class="v3-search-wrap" style="flex:1; min-width:220px;">
-                    <div class="v3-search-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <!-- Header -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 border-b border-[var(--color-border)]">
+                <div class="gsap-reveal">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/10 mb-4">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] shadow-sm shadow-[var(--color-accent)]"></div>
+                        <span class="text-[10px] font-bold tracking-[0.18em] text-[var(--color-primary)] uppercase">Peralatan Lapangan · PLN</span>
                     </div>
-                    <input class="v3-search-input" id="v3-tools-search" type="text" placeholder="Cari peralatan..." oninput="v3FilterTools()">
+                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight">
+                        <span class="text-[var(--color-text-primary)]">Tools & </span><span class="gradient-text-blue">Alat K3</span>
+                    </h1>
+                    <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-lg">
+                        Katalog lengkap peralatan keselamatan kerja dan alat teknis yang digunakan teknisi lapangan PLN.
+                    </p>
                 </div>
-                <div class="v3-dropdown" id="tools-filter-dd">
-                    <button type="button" class="v3-dropdown-btn" onclick="v3ToggleToolsFilter()">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
-                        <span id="tools-filter-label">Semua</span>
-                        <svg class="v3-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+
+                <!-- Search + Filter -->
+                <div class="flex items-center gap-3 flex-shrink-0 min-w-[300px] lg:min-w-[380px]">
+                    <div class="flex-1 relative">
+                        <div class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
+                        <input class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all"
+                            id="v3-tools-search" type="text" placeholder="Cari peralatan..." oninput="v3FilterTools()">
+                    </div>
+                    <div class="relative" id="tools-filter-dd">
+                        <button type="button" class="flex items-center gap-2 bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all cursor-pointer outline-none whitespace-nowrap" onclick="v3ToggleToolsFilter()">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+                            <span id="tools-filter-label">Semua</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" id="tools-filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        <div id="tools-filter-menu" class="absolute top-full right-0 mt-2 min-w-[160px] rounded-xl bg-white border border-[var(--color-border)] shadow-xl z-50 hidden overflow-hidden">
+                            <div class="p-1.5">
+                                <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] text-[var(--color-primary)] bg-[var(--color-primary)]/5" onclick="v3SelectToolsFilter('all','Semua')">Semua</div>
+                                <% categories.forEach(cat => { %>
+                                    <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] text-[var(--color-text-secondary)]" onclick="v3SelectToolsFilter('<%= cat.id %>','<%= cat.name %>')"><%= cat.name %></div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="tools-sort-btn" onclick="v3ToggleToolsSort()"
+                        class="flex items-center gap-2 bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all cursor-pointer outline-none whitespace-nowrap">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M16 18l3 3 3-3M19 9V21"/></svg>
+                        <span id="tools-sort-label">A→Z</span>
                     </button>
-                    <div class="v3-dropdown-menu">
-                        <div class="v3-dropdown-item selected" onclick="v3SelectToolsFilter('all','Semua')">Semua</div>
-                        <% categories.forEach(cat => { %>
-                            <div class="v3-dropdown-item" onclick="v3SelectToolsFilter('<%= cat.id %>','<%= cat.name %>')"><%= cat.name %></div>
-                        <% }); %>
-                    </div>
                 </div>
-                <button type="button" id="tools-sort-btn" onclick="v3ToggleToolsSort()"
-                    style="display:flex; align-items:center; gap:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px 14px; font-size:12px; font-weight:600; letter-spacing:0.02em; color:rgba(255,255,255,0.55); font-family:'Inter',sans-serif; cursor:pointer; outline:none; white-space:nowrap; transition:border-color .2s, background .2s, color .2s; flex-shrink:0;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M16 18l3 3 3-3M19 9V21"/></svg>
-                    <span id="tools-sort-label">A→Z</span>
-                </button>
             </div>
-        </div>
 
-        <!-- 4-column Glass Grid -->
-        <div id="tools-grid" class="v3-grid">
-
-            <% if (!toolsData || toolsData.length === 0) { %>
-            <div style="grid-column:1/-1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px;">
-                <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                </div>
-                <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Belum ada peralatan tersedia.</span>
-            </div>
-            <% } else { %>
-            <% toolsData.forEach(function(tool, i) { %>
-
-            <div class="v3-card v3-glass gsap-card"
-                 data-id="<%= tool.id %>"
-                 data-name="<%= tool.name.toLowerCase() %>"
-                 data-category="<%= tool.category %>">
-                <!-- Image -->
-                <div class="v3-card-img">
-                    <% if (tool.image) { %>
-                        <img src="<%= tool.image %>" alt="<%= tool.name %>">
-                        <div style="position:absolute; inset:0; background:linear-gradient(to top, rgba(0,0,0,0.6), transparent); pointer-events:none;"></div>
-                    <% } else { %>
-                        <div class="v3-card-img-placeholder">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                                 stroke="<%= i % 2 === 0 ? '#FFD700' : '#60A5FA' %>"
-                                 stroke-width="1.2" opacity=".5">
-                                <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
-                                <path d="M3 9l4-4 4 4 4-4 4 4"/>
-                                <circle cx="8.5" cy="14.5" r="1.5"/>
-                            </svg>
-                            <span style="font-size:9px; font-family:'JetBrains Mono',monospace; color:<%= i % 2 === 0 ? '#FFD700' : '#60A5FA' %>; opacity:.5; letter-spacing:0.1em;">PERALATAN</span>
-                        </div>
-                    <% } %>
-                    <!-- Category badge -->
-                    <div style="position:absolute; top:12px; right:12px; z-index:20; display:flex; flex-direction:column; gap:6px; align-items:flex-end;">
-                        <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:3px 10px; border-radius:9999px; border:1px solid; background:rgba(59,130,246,0.15); color:#60A5FA; border-color:rgba(59,130,246,0.3);">
-                            <%= tool.categoryLabel %>
-                        </span>
-                        <% if (tool.file3d) { %>
-                        <span style="font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:3px 10px; border-radius:9999px; background:rgba(6,182,212,0.15); color:#67e8f9; border:1px solid rgba(6,182,212,0.3);">3D</span>
-                        <% } %>
+            <!-- Grid -->
+            <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gsap-stagger-container">
+                <% if (!toolsData || toolsData.length === 0) { %>
+                <div class="col-span-full flex flex-col items-center justify-center py-20 gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                     </div>
-                    <div class="v3-card-img-grad"></div>
+                    <span class="text-sm text-[var(--color-text-muted)]">Belum ada peralatan tersedia.</span>
                 </div>
-
-                <!-- Body -->
-                <div class="v3-card-body">
-                    <div class="v3-card-title"><%= tool.name %></div>
-                    <div class="v3-card-desc"><%= tool.description || 'Deskripsi belum tersedia.' %></div>
-                    <div class="v3-card-divider"></div>
-                    <div class="v3-card-stats">
-                        <div style="display:flex; gap:18px; min-width:0; flex:1;">
-                            <div class="v3-card-stat" style="min-width:0;">
-                                <span class="v3-card-stat-label">Standar</span>
-                                <span class="v3-card-stat-val"><%= tool.standard || '—' %></span>
-                            </div>
-                            <div style="width:1px; background:rgba(255,255,255,0.07); flex-shrink:0;"></div>
-                            <div class="v3-card-stat" style="min-width:0;">
-                                <span class="v3-card-stat-label">Status</span>
-                                <span class="v3-card-stat-val" style="color:<%= tool.status === 'Wajib' ? '#F87171' : '#34d399' %>;">
-                                    <%= tool.status %>
+                <% } else { %>
+                <% toolsData.forEach(function(tool, i) { %>
+                <div class="gsap-stagger-item v3-card-item" data-id="<%= tool.id %>" data-name="<%= tool.name.toLowerCase() %>" data-category="<%= tool.category %>">
+                    <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col">
+                        <!-- Image -->
+                        <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                            <% if (tool.image) { %>
+                                <img src="<%= tool.image %>" alt="<%= tool.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <% } else { %>
+                                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-primary)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                                        <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="14.5" r="1.5"/>
+                                    </svg>
+                                    <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Peralatan</span>
+                                </div>
+                            <% } %>
+                            <!-- Category badge -->
+                            <div class="absolute top-3 right-3 z-20 flex flex-col gap-1.5 items-end">
+                                <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/15">
+                                    <%= tool.categoryLabel %>
                                 </span>
+                                <% if (tool.file3d) { %>
+                                <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-[var(--color-cyan)]/10 text-[var(--color-cyan)] border border-[var(--color-cyan)]/15">3D</span>
+                                <% } %>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= tool.name %></h3>
+                            <div class="relative flex-grow mb-4">
+                                <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
+                                    <%= tool.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                                </p>
+                                <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                                    <%= tool.description || 'Deskripsi belum tersedia.' %>
+                                </p>
+                                <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                            </div>
+                            <div class="mt-auto">
+                                <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex gap-4 min-w-0 flex-1">
+                                        <div class="flex flex-col min-w-0 flex-1 justify-center">
+                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Standar</span>
+                                            <span class="text-sm font-bold text-[var(--color-primary)] brand-font truncate" title="<%= tool.standard || '—' %>"><%= tool.standard || '—' %></span>
+                                        </div>
+                                        <div class="w-px bg-[var(--color-border-light)] shrink-0"></div>
+                                        <div class="flex flex-col shrink-0 justify-center">
+                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Status</span>
+                                            <span class="text-sm font-bold brand-font" style="color:<%= tool.status === 'Wajib' ? 'var(--color-error)' : 'var(--color-success)' %>;"><%= tool.status %></span>
+                                        </div>
+                                    </div>
+                                    <div class="w-9 h-9 shrink-0 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div class="v3-go-btn" style="margin-left:12px;">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                        </div>
+                        <div class="h-0.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-cyan)] to-[var(--color-accent)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                     </div>
                 </div>
-
-                <div class="v3-electric-line"></div>
+                <% }); %>
+                <% } %>
             </div>
 
-            <% }); %>
-            <% } %>
-        </div>
-
-        <!-- No search results -->
-        <div id="v3-tools-no-results" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px;">
-            <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <!-- No results -->
+            <div id="v3-tools-no-results" class="hidden flex-col items-center justify-center py-20 gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <span class="text-sm text-[var(--color-text-muted)]">Tidak ada peralatan yang cocok.</span>
             </div>
-            <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Tidak ada peralatan yang cocok.</span>
         </div>
-
     </main>
 
     <%- include('partials/catalog-modal-tools') %>
 
     <script>var __TOOLS_DATA__ = <%- JSON.stringify(toolsData) %>;</script>
+    <%- include('partials/footer') %>
     <script src="/js/main.js"></script>
     <script src="/js/catalog-modal.js"></script>
     <script src="/js/tools.js"></script>
     <script>
         var _toolsActiveFilter = 'all';
-        var _toolsSort = 'none'; // 'none' | 'asc' | 'desc'
-
-        // Store original card order on load
-        (function() {
-            var cards = document.getElementById('tools-grid').querySelectorAll('.v3-card');
-            cards.forEach(function(c, i) { c.dataset.origIdx = i; });
-        })();
+        var _toolsSort = 'none';
+        (function() { var cards = document.getElementById('tools-grid').querySelectorAll('.v3-card-item'); cards.forEach(function(c, i) { c.dataset.origIdx = i; }); })();
 
         function v3ToggleToolsSort() {
-            var btn = document.getElementById('tools-sort-btn');
             var lbl = document.getElementById('tools-sort-label');
-            if (_toolsSort === 'none' || _toolsSort === 'desc') {
-                _toolsSort = 'asc';
-                lbl.textContent = 'A→Z';
-                btn.style.borderColor = 'rgba(255,215,0,0.45)';
-                btn.style.color = '#FFD700';
-                btn.style.background = 'rgba(255,215,0,0.06)';
-            } else {
-                _toolsSort = 'desc';
-                lbl.textContent = 'Z→A';
-            }
+            if (_toolsSort === 'none' || _toolsSort === 'desc') { _toolsSort = 'asc'; lbl.textContent = 'A→Z'; } else { _toolsSort = 'desc'; lbl.textContent = 'Z→A'; }
             v3SortToolsGrid();
         }
-
         function v3SortToolsGrid() {
             var grid = document.getElementById('tools-grid');
-            var cards = Array.from(grid.querySelectorAll('.v3-card'));
-            if (_toolsSort === 'none') {
-                cards.sort(function(a, b) { return a.dataset.origIdx - b.dataset.origIdx; });
-            } else {
-                cards.sort(function(a, b) {
-                    var na = (a.dataset.name || '').toLowerCase();
-                    var nb = (b.dataset.name || '').toLowerCase();
-                    return _toolsSort === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
-                });
-            }
+            var cards = Array.from(grid.querySelectorAll('.v3-card-item'));
+            if (_toolsSort === 'none') { cards.sort(function(a, b) { return a.dataset.origIdx - b.dataset.origIdx; }); }
+            else { cards.sort(function(a, b) { var na = (a.dataset.name || ''); var nb = (b.dataset.name || ''); return _toolsSort === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id'); }); }
             cards.forEach(function(c) { grid.appendChild(c); });
         }
-
-        function v3ToggleToolsFilter() {
-            document.getElementById('tools-filter-dd').classList.toggle('open');
-        }
+        function v3ToggleToolsFilter() { document.getElementById('tools-filter-menu').classList.toggle('hidden'); }
         function v3SelectToolsFilter(value, label) {
             _toolsActiveFilter = value;
             document.getElementById('tools-filter-label').textContent = label;
-            document.querySelectorAll('#tools-filter-dd .v3-dropdown-item').forEach(function(el) {
-                el.classList.toggle('selected', el.textContent.trim() === label);
-            });
-            document.getElementById('tools-filter-dd').classList.remove('open');
+            document.getElementById('tools-filter-menu').classList.add('hidden');
             v3FilterTools();
         }
-        document.addEventListener('click', function(e) {
-            var dd = document.getElementById('tools-filter-dd');
-            if (dd && !dd.contains(e.target)) dd.classList.remove('open');
-        });
-
+        document.addEventListener('click', function(e) { var dd = document.getElementById('tools-filter-dd'); if (dd && !dd.contains(e.target)) document.getElementById('tools-filter-menu').classList.add('hidden'); });
         function v3FilterTools() {
             var q = (document.getElementById('v3-tools-search').value || '').toLowerCase().trim();
             var grid = document.getElementById('tools-grid');
-            var cards = grid.querySelectorAll('.v3-card');
+            var cards = grid.querySelectorAll('.v3-card-item');
             var noResults = document.getElementById('v3-tools-no-results');
             var visible = 0;
             cards.forEach(function(card) {
                 var matchCat = _toolsActiveFilter === 'all' || card.dataset.category === _toolsActiveFilter;
-                var name = (card.dataset.name || '');
-                var matchQ = q === '' || name.includes(q);
-                if (matchCat && matchQ) {
-                    card.style.display = '';
-                    visible++;
-                } else {
-                    card.style.display = 'none';
-                }
+                var matchQ = q === '' || (card.dataset.name || '').includes(q);
+                if (matchCat && matchQ) { card.style.display = ''; visible++; } else { card.style.display = 'none'; }
             });
             noResults.style.display = visible === 0 ? 'flex' : 'none';
         }
-
-        // GSAP animations
-        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-            gsap.from('.v3-header-row > div', { y: 30, opacity: 0, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.1 });
-            gsap.from('.gsap-card', {
-                scrollTrigger: { trigger: '#tools-grid', start: 'top 85%' },
-                y: 50, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out'
-            });
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+                gsap.to('.gsap-reveal', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.1 });
+                gsap.from('.gsap-stagger-item', { scrollTrigger: { trigger: '#tools-grid', start: 'top 85%' }, y: 50, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out' });
+            }
+        });
     </script>
 </body>
 </html>

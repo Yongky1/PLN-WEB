@@ -4,323 +4,144 @@
     <%- include('partials/head') %>
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-      /* ══════════════════════════════════
-         MATERIAL — V3 GLASS GRID PREMIUM
-      ══════════════════════════════════ */
-      :root {
-        --v3-yellow: #FFD700;
-        --v3-yellow-dim: rgba(255,215,0,0.12);
-        --v3-blue: #3B82F6;
-        --v3-blue-bright: #60A5FA;
-        --v3-bg0: #080808;
-        --v3-border: rgba(255,255,255,0.07);
-        --v3-text: #f0f0f0;
-        --v3-muted: rgba(255,255,255,0.38);
-      }
-
-      body { background: var(--v3-bg0) !important; color: var(--v3-text); }
-
-      @keyframes v3-spin-slow { to { transform: rotate(360deg); } }
-      .v3-ring {
-        position: fixed; border-radius: 50%; pointer-events: none;
-        border: 1px solid; opacity: 0.08;
-        animation: v3-spin-slow 20s linear infinite; z-index: 0;
-      }
-
-      /* Search bar */
-      .v3-search-wrap { position: relative; }
-      .v3-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: var(--v3-muted); pointer-events: none; }
-      .v3-search-input {
-        width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px; padding: 9px 14px 9px 40px;
-        font-size: 13px; color: var(--v3-text); font-family: 'Inter', sans-serif;
-        outline: none; transition: border-color .2s, box-shadow .2s;
-      }
-      .v3-search-input:focus { border-color: rgba(255,215,0,0.4); box-shadow: 0 0 0 3px rgba(255,215,0,0.06); }
-      .v3-search-input::placeholder { color: var(--v3-muted); }
-
-      /* Custom dropdown */
-      .v3-dropdown { position: relative; flex-shrink: 0; }
-      .v3-dropdown-btn {
-        display: flex; align-items: center; gap: 8px;
-        background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px; padding: 10px 14px;
-        font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
-        color: rgba(255,255,255,0.55); font-family: 'Inter', sans-serif;
-        cursor: pointer; outline: none; white-space: nowrap;
-        transition: border-color .2s, background .2s, color .2s;
-      }
-      .v3-dropdown-btn:hover { border-color: rgba(255,215,0,0.35); color: #fff; background: rgba(255,255,255,0.07); }
-      .v3-dropdown.open .v3-dropdown-btn { border-color: rgba(255,215,0,0.45); color: #FFD700; background: rgba(255,215,0,0.06); }
-      .v3-chev { transition: transform .25s ease; color: rgba(255,255,255,0.35); }
-      .v3-dropdown.open .v3-chev { transform: rotate(180deg); color: #FFD700; }
-      .v3-dropdown-menu {
-        position: absolute; top: calc(100% + 8px); right: 0; min-width: 180px; border-radius: 14px;
-        background: rgba(18,18,18,0.95); backdrop-filter: blur(24px) saturate(160%);
-        border: 1px solid rgba(255,255,255,0.1); border-top-color: rgba(255,255,255,0.18);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,215,0,0.04);
-        padding: 6px; z-index: 200; display: none; flex-direction: column; gap: 2px;
-        animation: v3-dd-in .18s ease;
-      }
-      @keyframes v3-dd-in { from { opacity:0; transform: translateY(-6px) scale(0.97); } to { opacity:1; transform: none; } }
-      .v3-dropdown.open .v3-dropdown-menu { display: flex; }
-      .v3-dropdown-item {
-        padding: 9px 14px; border-radius: 9px; font-size: 12px; font-weight: 600;
-        color: rgba(255,255,255,0.55); cursor: pointer; font-family: 'Inter', sans-serif;
-        transition: background .15s, color .15s; letter-spacing: 0.02em;
-      }
-      .v3-dropdown-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
-      .v3-dropdown-item.selected { background: rgba(255,215,0,0.1); color: #FFD700; }
-
-      /* Glass morphism */
-      .v3-glass {
-        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-        backdrop-filter: blur(24px) saturate(160%);
-        -webkit-backdrop-filter: blur(24px) saturate(160%);
-        border: 1px solid rgba(255,255,255,0.09) !important;
-        border-top-color: rgba(255,255,255,0.18) !important;
-        border-left-color: rgba(255,255,255,0.12) !important;
-      }
-
-      /* Glass card */
-      .v3-card {
-        border-radius: 28px; overflow: hidden; cursor: pointer;
-        position: relative; display: block;
-        transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s;
-      }
-      .v3-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(255,215,0,0.08);
-      }
-      .v3-card-img {
-        width: 100%; height: 190px;
-        position: relative; overflow: hidden; background: rgba(0,0,0,0.3);
-      }
-      .v3-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease-out; }
-      .v3-card:hover .v3-card-img img { transform: scale(1.05); }
-      .v3-card-img-placeholder {
-        width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-        flex-direction: column; gap: 8px;
-        background: repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 14px);
-      }
-      .v3-card-img-grad {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
-        background: linear-gradient(to top, rgba(5,5,15,0.9), transparent); pointer-events: none;
-      }
-      .v3-card-body {
-        padding: 20px 22px 22px; display: flex; flex-direction: column; gap: 8px;
-        background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.015) 100%);
-      }
-      .v3-card-title {
-        font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-        font-size: 16px; color: #f0f0f0; line-height: 1.3;
-        letter-spacing: -0.3px; transition: color .2s;
-      }
-      .v3-card:hover .v3-card-title { color: #FFD700; }
-      .v3-card-desc {
-        font-size: 11.5px; color: rgba(255,255,255,0.38); line-height: 1.6;
-        display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-      }
-      .v3-card-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
-      .v3-card-stats { display: flex; align-items: center; justify-content: space-between; }
-      .v3-card-stat { display: flex; flex-direction: column; gap: 2px; }
-      .v3-card-stat-label {
-        font-size: 9px; font-family: 'JetBrains Mono', monospace;
-        color: rgba(255,255,255,0.28); letter-spacing: 0.1em; text-transform: uppercase;
-      }
-      .v3-card-stat-val {
-        font-size: 14px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-        color: #FFD700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 90px;
-      }
-      .v3-go-btn {
-        width: 36px; height: 36px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(255,215,0,0.12); color: #FFD700;
-        border: 1px solid rgba(255,215,0,0.2);
-        transition: background .2s, transform .2s; flex-shrink: 0;
-      }
-      .v3-card:hover .v3-go-btn { background: #FFD700; color: #000; transform: rotate(-45deg) scale(1.1); }
-      .v3-electric-line {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-        background: linear-gradient(90deg, transparent, #3B82F6, #FFD700, transparent);
-        opacity: 0; transition: opacity .3s;
-      }
-      .v3-card:hover .v3-electric-line { opacity: 1; }
-
-      /* Hide card for filter */
-      .mat-card-item.hidden-card { display: none; }
-
-      /* Heading gradient */
-      .v3-heading-gradient {
-        background: linear-gradient(to right, #FFD700, #fef08a);
-        -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-      }
-
-      /* Responsive */
-      .v3-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 22px; }
-      @media (max-width: 1024px) { .v3-grid { grid-template-columns: repeat(3,1fr); } }
-      @media (max-width: 768px) {
-        .v3-grid { grid-template-columns: repeat(2,1fr); gap: 14px; }
-        .v3-page-main { padding-left: 20px !important; padding-right: 20px !important; }
-        .v3-header-row { flex-direction: column !important; align-items: flex-start !important; }
-        h1.v3-title { font-size: 36px !important; }
-      }
-      @media (max-width: 480px) { .v3-grid { grid-template-columns: 1fr; } }
-
-      /* modal styles: see partials/catalog-modal-material.ejs */
-      .spec-row { display: flex; justify-content: space-between; align-items: center; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
-      .spec-row:last-child { border-bottom: none; }
-    </style>
 </head>
-<body>
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
 
     <%- include('partials/navbar') %>
 
-    <!-- Decorative rings -->
-    <div class="v3-ring" style="width:600px; height:600px; top:-200px; right:-100px; border-color:#FFD700;"></div>
-    <div class="v3-ring" style="width:400px; height:400px; bottom:0; left:-100px; border-color:#60A5FA; animation-direction:reverse; animation-duration:28s;"></div>
+    <main style="padding-top:96px; padding-bottom:64px; min-height:100vh;" class="relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <!-- Ambient glows -->
-    <div style="position:fixed; top:-150px; right:100px; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
-    <div style="position:fixed; bottom:100px; left:0; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
-
-    <main class="v3-page-main" style="padding-top:96px; padding-bottom:64px; padding-left:56px; padding-right:56px; position:relative; z-index:1; min-height:100vh;">
-
-        <!-- Header -->
-        <div class="v3-header-row" style="display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,0.07);">
-            <!-- Left: Label + Title + Subtitle -->
-            <div>
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                    <div style="width:6px; height:6px; border-radius:50%; background:#FFD700; box-shadow:0 0 10px rgba(255,215,0,0.9);"></div>
-                    <span style="font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:600; letter-spacing:0.18em; color:#FFD700; text-transform:uppercase;">Katalog Material · PLN</span>
-                </div>
-                <h1 class="v3-title" style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:52px; letter-spacing:-2px; line-height:1.05; margin-bottom:10px;">
-                    <span style="color:#f0f0f0;">Material </span><span class="v3-heading-gradient">Jaringan PLN</span>
-                </h1>
-                <p style="font-size:14px; color:rgba(255,255,255,0.38); line-height:1.65; max-width:480px; font-family:'Inter',sans-serif;">
-                    Klik pada material untuk menampilkan visualisasi 3D interaktif beserta spesifikasi teknis lengkap.
-                </p>
-            </div>
-
-            <!-- Right: Search + Filter Dropdown -->
-            <div style="display:flex; align-items:center; gap:10px; flex-shrink:0;">
-                <div class="v3-search-wrap" style="width:240px;">
-                    <div class="v3-search-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <!-- Header -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 border-b border-[var(--color-border)]">
+                <div class="gsap-reveal">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-accent)]/8 border border-[var(--color-accent)]/15 mb-4">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] shadow-sm shadow-[var(--color-accent)]"></div>
+                        <span class="text-[10px] font-bold tracking-[0.18em] text-[var(--color-accent-dark)] uppercase">Katalog Material · PLN</span>
                     </div>
-                    <input class="v3-search-input" id="mat-search" type="text" placeholder="Cari material..." oninput="v3MatFilter()">
+                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight">
+                        <span class="text-[var(--color-text-primary)]">Material </span><span class="gradient-text-blue">Jaringan PLN</span>
+                    </h1>
+                    <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-lg">
+                        Klik pada material untuk menampilkan visualisasi 3D interaktif beserta spesifikasi teknis lengkap.
+                    </p>
                 </div>
-                <div class="v3-dropdown" id="mat-filter-dd">
-                    <button type="button" class="v3-dropdown-btn" onclick="v3ToggleMatFilter()">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
-                        <span id="mat-filter-label">Semua</span>
-                        <svg class="v3-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+
+                <!-- Search + Filter -->
+                <div class="flex items-center gap-3 flex-shrink-0 min-w-[300px] lg:min-w-[380px]">
+                    <div class="flex-1 relative">
+                        <div class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                        </div>
+                        <input class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all"
+                            id="mat-search" type="text" placeholder="Cari material..." oninput="v3MatFilter()">
+                    </div>
+                    <div class="relative" id="mat-filter-dd">
+                        <button type="button" class="flex items-center gap-2 bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all cursor-pointer outline-none whitespace-nowrap" onclick="v3ToggleMatFilter()">
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+                            <span id="mat-filter-label">Semua</span>
+                            <svg class="w-3 h-3 transition-transform duration-200" id="mat-filter-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        <div id="mat-filter-menu" class="absolute top-full right-0 mt-2 min-w-[160px] rounded-xl bg-white border border-[var(--color-border)] shadow-xl z-50 hidden overflow-hidden">
+                            <div class="p-1.5">
+                                <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] text-[var(--color-primary)] bg-[var(--color-primary)]/5" onclick="v3SelectMatFilter('all','Semua')">Semua</div>
+                                <% categories.forEach(cat => { %>
+                                    <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] text-[var(--color-text-secondary)]" onclick="v3SelectMatFilter('<%= cat.id %>','<%= cat.name %>')"><%= cat.name %></div>
+                                <% }); %>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="button" id="mat-sort-btn" onclick="v3ToggleMatSort()"
+                        class="flex items-center gap-2 bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all cursor-pointer outline-none whitespace-nowrap">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M16 18l3 3 3-3M19 9V21"/></svg>
+                        <span id="mat-sort-label">A→Z</span>
                     </button>
-                    <div class="v3-dropdown-menu">
-                        <div class="v3-dropdown-item selected" onclick="v3SelectMatFilter('all','Semua')">Semua</div>
-                        <% categories.forEach(cat => { %>
-                        <div class="v3-dropdown-item" onclick="v3SelectMatFilter('<%= cat.id %>','<%= cat.name %>')"><%= cat.name %></div>
-                        <% }); %>
-                    </div>
                 </div>
-                <button type="button" id="mat-sort-btn" onclick="v3ToggleMatSort()"
-                    style="display:flex; align-items:center; gap:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px 14px; font-size:12px; font-weight:600; letter-spacing:0.02em; color:rgba(255,255,255,0.55); font-family:'Inter',sans-serif; cursor:pointer; outline:none; white-space:nowrap; transition:border-color .2s, background .2s, color .2s; flex-shrink:0;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M16 18l3 3 3-3M19 9V21"/></svg>
-                    <span id="mat-sort-label">A→Z</span>
-                </button>
             </div>
-        </div>
 
-        <!-- 4-column Glass Grid -->
-        <%
-        const validMaterials = materialData.filter(m => m.name && m.name.trim() !== '');
-        %>
-        <div id="material-grid" class="v3-grid">
-
-            <% if (validMaterials.length === 0) { %>
-            <div style="grid-column:1/-1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px;">
-                <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
-                </div>
-                <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Belum ada material yang tersedia.</span>
-            </div>
-            <% } %>
-
-            <% validMaterials.forEach((mat, i) => { %>
-            <div class="mat-card-item" data-category="<%= mat.category %>">
-                <div class="v3-card v3-glass gsap-card" data-id="<%= mat.id %>">
-                    <!-- Image -->
-                    <div class="v3-card-img">
-                        <% if (mat.image) { %>
-                            <img src="<%= mat.image %>" alt="<%= mat.name %>">
-                        <% } else { %>
-                            <div class="v3-card-img-placeholder">
-                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                                     stroke="<%= i % 2 === 0 ? '#FFD700' : '#00E5FF' %>"
-                                     stroke-width="1.2" opacity=".5">
-                                    <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
-                                    <path d="M3 9l4-4 4 4 4-4 4 4"/>
-                                    <circle cx="8.5" cy="14.5" r="1.5"/>
-                                </svg>
-                                <span style="font-size:9px; font-family:'JetBrains Mono',monospace; color:<%= i % 2 === 0 ? '#FFD700' : '#00E5FF' %>; opacity:.5; letter-spacing:0.1em;">MATERIAL</span>
-                            </div>
-                        <% } %>
-                        <!-- Category badge -->
-                        <div style="position:absolute; top:12px; right:12px; z-index:20;">
-                            <span style="display:inline-block; padding:3px 10px; background:rgba(0,0,0,0.5); color:rgba(255,255,255,0.8); border:1px solid rgba(255,255,255,0.12); font-size:9px; font-weight:700; border-radius:9999px; text-transform:uppercase; letter-spacing:0.1em; backdrop-filter:blur(8px);">
-                                <%= mat.categoryLabel %>
-                            </span>
-                        </div>
-                        <!-- 3D badge on hover -->
-                        <div style="position:absolute; bottom:12px; left:12px; z-index:20; opacity:0; transition:opacity .3s;" class="v3-3d-badge">
-                            <span style="display:inline-flex; align-items:center; gap:5px; font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.1em; padding:4px 10px; border-radius:9999px; background:rgba(255,215,0,0.15); color:#FFD700; border:1px solid rgba(255,215,0,0.3); backdrop-filter:blur(8px);">
-                                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
-                                Lihat 3D
-                            </span>
-                        </div>
-                        <div class="v3-card-img-grad"></div>
+            <!-- Grid -->
+            <% const validMaterials = materialData.filter(m => m.name && m.name.trim() !== ''); %>
+            <div id="material-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gsap-stagger-container">
+                <% if (validMaterials.length === 0) { %>
+                <div class="col-span-full flex flex-col items-center justify-center py-20 gap-4">
+                    <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                     </div>
+                    <span class="text-sm text-[var(--color-text-muted)]">Belum ada material yang tersedia.</span>
+                </div>
+                <% } %>
 
-                    <!-- Body -->
-                    <div class="v3-card-body">
-                        <div class="v3-card-title"><%= mat.name %></div>
-                        <div class="v3-card-desc"><%= mat.description || 'Deskripsi belum tersedia.' %></div>
-                        <div class="v3-card-divider"></div>
-                        <div class="v3-card-stats">
-                            <div style="display:flex; gap:18px; min-width:0; flex:1;">
-                                <div class="v3-card-stat" style="min-width:0;">
-                                    <span class="v3-card-stat-label">Kategori</span>
-                                    <span class="v3-card-stat-val"><%= mat.categoryLabel %></span>
+                <% validMaterials.forEach((mat, i) => { %>
+                <div class="gsap-stagger-item mat-card-item" data-category="<%= mat.category %>">
+                    <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col" data-id="<%= mat.id %>">
+                        <!-- Image -->
+                        <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                            <% if (mat.image) { %>
+                                <img src="<%= mat.image %>" alt="<%= mat.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                            <% } else { %>
+                                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-accent)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                                        <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                                    </svg>
+                                    <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Material</span>
                                 </div>
-                                <div style="width:1px; background:rgba(255,255,255,0.07); flex-shrink:0;"></div>
-                                <div class="v3-card-stat" style="min-width:0;">
-                                    <span class="v3-card-stat-label">Kode</span>
-                                    <span class="v3-card-stat-val" style="color:#60A5FA;"><%= mat.code || '—' %></span>
+                            <% } %>
+                            <!-- Category badge -->
+                            <div class="absolute top-3 right-3 z-20">
+                                <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[var(--color-text-secondary)] border border-[var(--color-border)]">
+                                    <%= mat.categoryLabel %>
+                                </span>
+                            </div>
+                            <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+                        </div>
+
+                        <!-- Body -->
+                        <div class="p-5 flex flex-col flex-grow">
+                            <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= mat.name %></h3>
+                            <div class="relative flex-grow mb-4">
+                                <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
+                                    <%= mat.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                                </p>
+                                <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                                    <%= mat.description || 'Deskripsi belum tersedia.' %>
+                                </p>
+                                <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                            </div>
+                            <div class="mt-auto">
+                                <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
+                                <div class="flex items-center justify-between gap-3">
+                                    <div class="flex gap-4 min-w-0 flex-1">
+                                        <div class="flex flex-col min-w-0 flex-1 justify-center">
+                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Kategori</span>
+                                            <span class="text-sm font-bold text-[var(--color-accent)] brand-font truncate" title="<%= mat.categoryLabel %>"><%= mat.categoryLabel %></span>
+                                        </div>
+                                        <div class="w-px bg-[var(--color-border-light)] shrink-0"></div>
+                                        <div class="flex flex-col shrink-0 justify-center">
+                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Kode</span>
+                                            <span class="text-sm font-bold text-[var(--color-cyan)] brand-font truncate" title="<%= mat.code || '—' %>"><%= mat.code || '—' %></span>
+                                        </div>
+                                    </div>
+                                    <div class="w-9 h-9 shrink-0 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
+                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                    </div>
                                 </div>
                             </div>
-                            <div class="v3-go-btn" style="margin-left:12px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                            </div>
                         </div>
+                        <div class="h-0.5 bg-gradient-to-r from-[var(--color-accent)] via-[var(--color-cyan)] to-[var(--color-primary)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                     </div>
-
-                    <div class="v3-electric-line"></div>
                 </div>
+                <% }); %>
             </div>
-            <% }); %>
-        </div>
 
-        <!-- No results (after filter) -->
-        <div id="no-results" class="hidden" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px; margin-top:16px;">
-            <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+            <!-- No results -->
+            <div id="no-results" class="hidden flex-col items-center justify-center py-20 gap-4" style="display:none;">
+                <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <span class="text-sm text-[var(--color-text-muted)]">Tidak ada material untuk kategori ini.</span>
             </div>
-            <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Tidak ada material untuk kategori ini.</span>
         </div>
-
     </main>
-
 
     <%- include('partials/catalog-modal-material') %>
 
@@ -330,72 +151,30 @@
     <script src="/js/catalog-modal.js"></script>
     <script src="/js/material.js"></script>
     <script>
-        var _matSort = 'none'; // 'none' | 'asc' | 'desc'
-
-        // Store original order on load
-        (function() {
-            var items = document.getElementById('material-grid').querySelectorAll('.mat-card-item');
-            items.forEach(function(el, i) { el.dataset.origIdx = i; });
-        })();
+        var _matSort = 'none';
+        var _matActiveFilter = 'all';
+        (function() { var items = document.getElementById('material-grid').querySelectorAll('.mat-card-item'); items.forEach(function(el, i) { el.dataset.origIdx = i; }); })();
 
         function v3ToggleMatSort() {
-            var btn = document.getElementById('mat-sort-btn');
             var lbl = document.getElementById('mat-sort-label');
-            if (_matSort === 'none' || _matSort === 'desc') {
-                _matSort = 'asc';
-                lbl.textContent = 'A→Z';
-                btn.style.borderColor = 'rgba(255,215,0,0.45)';
-                btn.style.color = '#FFD700';
-                btn.style.background = 'rgba(255,215,0,0.06)';
-            } else {
-                _matSort = 'desc';
-                lbl.textContent = 'Z→A';
-            }
+            if (_matSort === 'none' || _matSort === 'desc') { _matSort = 'asc'; lbl.textContent = 'A→Z'; } else { _matSort = 'desc'; lbl.textContent = 'Z→A'; }
             v3SortMatGrid();
         }
-
         function v3SortMatGrid() {
             var grid = document.getElementById('material-grid');
             var items = Array.from(grid.querySelectorAll('.mat-card-item'));
-            if (_matSort === 'none') {
-                items.sort(function(a, b) { return a.dataset.origIdx - b.dataset.origIdx; });
-            } else {
-                items.sort(function(a, b) {
-                    var na = (a.querySelector('.v3-card-title') || {}).textContent || '';
-                    var nb = (b.querySelector('.v3-card-title') || {}).textContent || '';
-                    return _matSort === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
-                });
-            }
+            if (_matSort === 'none') { items.sort(function(a, b) { return a.dataset.origIdx - b.dataset.origIdx; }); }
+            else { items.sort(function(a, b) { var na = (a.querySelector('.v3-card-title') || {}).textContent || ''; var nb = (b.querySelector('.v3-card-title') || {}).textContent || ''; return _matSort === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id'); }); }
             items.forEach(function(el) { grid.appendChild(el); });
         }
-
-        // Hover: show "Lihat 3D" badge
-        document.querySelectorAll('.v3-card').forEach(function(card) {
-            var badge = card.querySelector('.v3-3d-badge');
-            if (!badge) return;
-            card.addEventListener('mouseenter', function() { badge.style.opacity = '1'; });
-            card.addEventListener('mouseleave', function() { badge.style.opacity = '0'; });
-        });
-
-        var _matActiveFilter = 'all';
-
-        function v3ToggleMatFilter() {
-            document.getElementById('mat-filter-dd').classList.toggle('open');
-        }
+        function v3ToggleMatFilter() { document.getElementById('mat-filter-menu').classList.toggle('hidden'); }
         function v3SelectMatFilter(value, label) {
             _matActiveFilter = value;
             document.getElementById('mat-filter-label').textContent = label;
-            document.querySelectorAll('#mat-filter-dd .v3-dropdown-item').forEach(function(el) {
-                el.classList.toggle('selected', el.textContent.trim() === label);
-            });
-            document.getElementById('mat-filter-dd').classList.remove('open');
+            document.getElementById('mat-filter-menu').classList.add('hidden');
             v3MatFilter();
         }
-        document.addEventListener('click', function(e) {
-            var dd = document.getElementById('mat-filter-dd');
-            if (dd && !dd.contains(e.target)) dd.classList.remove('open');
-        });
-
+        document.addEventListener('click', function(e) { var dd = document.getElementById('mat-filter-dd'); if (dd && !dd.contains(e.target)) { var menu = document.getElementById('mat-filter-menu'); if (menu) menu.classList.add('hidden'); } });
         function v3MatFilter() {
             var q = (document.getElementById('mat-search').value || '').toLowerCase().trim();
             var visible = 0;
@@ -405,25 +184,27 @@
                 var name = nameEl ? nameEl.textContent.toLowerCase() : '';
                 var matchQ = q === '' || name.includes(q);
                 var show = matchCat && matchQ;
-                item.classList.toggle('hidden-card', !show);
+                item.style.display = show ? '' : 'none';
                 if (show) visible++;
             });
             var noResults = document.getElementById('no-results');
-            if (noResults) {
-                noResults.style.display = visible === 0 ? 'flex' : 'none';
-                noResults.classList.toggle('hidden', visible > 0);
+            if (noResults) { noResults.style.display = visible === 0 ? 'flex' : 'none'; noResults.classList.toggle('hidden', visible > 0); }
+        }
+        // Hover 3D badge
+        document.querySelectorAll('.card-elevated[data-id]').forEach(function(card) {
+            var badge = card.querySelector('.v3-3d-badge');
+            if (!badge) return;
+            card.addEventListener('mouseenter', function() { badge.style.opacity = '1'; });
+            card.addEventListener('mouseleave', function() { badge.style.opacity = '0'; });
+        });
+        // GSAP
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+                gsap.to('.gsap-reveal', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.1 });
+                gsap.from('.gsap-stagger-item', { scrollTrigger: { trigger: '#material-grid', start: 'top 85%' }, y: 50, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out' });
             }
-        }
-
-        // GSAP animations
-        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-            gsap.from('.v3-header-row > div', { y: 30, opacity: 0, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.1 });
-            gsap.from('.gsap-card', {
-                scrollTrigger: { trigger: '#material-grid', start: 'top 85%' },
-                y: 50, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out'
-            });
-        }
+        });
     </script>
 </body>
 </html>

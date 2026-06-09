@@ -1,451 +1,186 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth overflow-x-hidden">
+<html lang="id" class="scroll-smooth">
+
 <head>
     <%- include('partials/head') %>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-    <style>
-      /* ══════════════════════════════════
-         VARIASI 3 — GLASS GRID PREMIUM
-      ══════════════════════════════════ */
-      :root {
-        --v3-yellow: #FFD700;
-        --v3-yellow-dim: rgba(255,215,0,0.12);
-        --v3-blue: #3B82F6;
-        --v3-blue-bright: #60A5FA;
-        --v3-bg0: #080808;
-        --v3-bg1: #0f0f0f;
-        --v3-bg2: #171717;
-        --v3-border: rgba(255,255,255,0.07);
-        --v3-text: #f0f0f0;
-        --v3-muted: rgba(255,255,255,0.38);
-      }
-
-      /* Force page background */
-      body { background: var(--v3-bg0) !important; color: var(--v3-text); }
-
-      /* Decorative spinning ring */
-      @keyframes v3-spin-slow { to { transform: rotate(360deg); } }
-      .v3-ring {
-        position: fixed; border-radius: 50%; pointer-events: none;
-        border: 1px solid; opacity: 0.08;
-        animation: v3-spin-slow 20s linear infinite;
-        z-index: 0;
-      }
-
-      /* Search bar */
-      .v3-search-wrap { flex: 1; position: relative; }
-      .v3-search-icon {
-        position: absolute; left: 14px; top: 50%;
-        transform: translateY(-50%); color: var(--v3-muted);
-        pointer-events: none;
-      }
-      .v3-search-input {
-        width: 100%; background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px; padding: 10px 14px 10px 40px;
-        font-size: 13px; color: var(--v3-text);
-        font-family: 'Inter', sans-serif;
-        outline: none; transition: border-color .2s, box-shadow .2s;
-      }
-      .v3-search-input:focus {
-        border-color: rgba(255,215,0,0.4);
-        box-shadow: 0 0 0 3px rgba(255,215,0,0.06);
-      }
-      .v3-search-input::placeholder { color: var(--v3-muted); }
-
-      /* Custom dropdown */
-      .v3-dropdown { position: relative; flex-shrink: 0; }
-      .v3-dropdown-btn {
-        display: flex; align-items: center; gap: 8px;
-        background: rgba(255,255,255,0.04);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-radius: 12px; padding: 10px 14px;
-        font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
-        color: rgba(255,255,255,0.55); font-family: 'Inter', sans-serif;
-        cursor: pointer; outline: none; white-space: nowrap;
-        transition: border-color .2s, background .2s, color .2s;
-      }
-      .v3-dropdown-btn:hover { border-color: rgba(255,215,0,0.35); color: #fff; background: rgba(255,255,255,0.07); }
-      .v3-dropdown.open .v3-dropdown-btn { border-color: rgba(255,215,0,0.45); color: #FFD700; background: rgba(255,215,0,0.06); }
-      .v3-chev { transition: transform .25s ease; color: rgba(255,255,255,0.35); }
-      .v3-dropdown.open .v3-chev { transform: rotate(180deg); color: #FFD700; }
-      .v3-dropdown-menu {
-        position: absolute; top: calc(100% + 8px); right: 0;
-        min-width: 160px; border-radius: 14px;
-        background: rgba(18,18,18,0.95);
-        backdrop-filter: blur(24px) saturate(160%);
-        border: 1px solid rgba(255,255,255,0.1);
-        border-top-color: rgba(255,255,255,0.18);
-        box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,215,0,0.04);
-        padding: 6px; z-index: 200;
-        display: none; flex-direction: column; gap: 2px;
-        animation: v3-dd-in .18s ease;
-      }
-      @keyframes v3-dd-in { from { opacity:0; transform: translateY(-6px) scale(0.97); } to { opacity:1; transform: none; } }
-      .v3-dropdown.open .v3-dropdown-menu { display: flex; }
-      .v3-dropdown-item {
-        padding: 9px 14px; border-radius: 9px; font-size: 12px; font-weight: 600;
-        color: rgba(255,255,255,0.55); cursor: pointer; font-family: 'Inter', sans-serif;
-        transition: background .15s, color .15s; letter-spacing: 0.02em;
-      }
-      .v3-dropdown-item:hover { background: rgba(255,255,255,0.07); color: #fff; }
-      .v3-dropdown-item.selected { background: rgba(255,215,0,0.1); color: #FFD700; }
-
-      /* Glass morphism */
-      .v3-glass {
-        background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-        backdrop-filter: blur(24px) saturate(160%);
-        -webkit-backdrop-filter: blur(24px) saturate(160%);
-        border: 1px solid rgba(255,255,255,0.09) !important;
-        border-top-color: rgba(255,255,255,0.18) !important;
-        border-left-color: rgba(255,255,255,0.12) !important;
-      }
-
-      /* Glass card */
-      .v3-card {
-        border-radius: 28px;
-        overflow: hidden;
-        cursor: pointer;
-        position: relative;
-        text-decoration: none;
-        display: block;
-        transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s;
-      }
-      .v3-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        box-shadow: 0 32px 80px rgba(0,0,0,0.7), 0 0 60px rgba(255,215,0,0.08);
-      }
-
-      /* Card image area */
-      .v3-card-img {
-        width: 100%; height: 190px;
-        position: relative; overflow: hidden;
-        background: rgba(0,0,0,0.3);
-      }
-      .v3-card-img img {
-        width: 100%; height: 100%; object-fit: cover;
-        transition: transform .5s ease-out;
-      }
-      .v3-card:hover .v3-card-img img { transform: scale(1.05); }
-      .v3-card-img-placeholder {
-        width: 100%; height: 100%;
-        display: flex; align-items: center; justify-content: center;
-        flex-direction: column; gap: 8px;
-        background: repeating-linear-gradient(
-          45deg,
-          rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px,
-          transparent 1px, transparent 14px
-        );
-      }
-      .v3-card-img-grad {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 80px;
-        background: linear-gradient(to top, rgba(5,5,15,0.9), transparent);
-        pointer-events: none;
-      }
-
-      /* Card body */
-      .v3-card-body {
-        padding: 20px 22px 22px;
-        display: flex; flex-direction: column; gap: 8px;
-        background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.015) 100%);
-      }
-      .v3-card-title {
-        font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-        font-size: 16px; color: #f0f0f0; line-height: 1.3;
-        letter-spacing: -0.3px; transition: color .2s;
-      }
-      .v3-card:hover .v3-card-title { color: #FFD700; }
-      .v3-card-desc {
-        font-size: 11.5px; color: rgba(255,255,255,0.38); line-height: 1.6;
-        display: -webkit-box; -webkit-line-clamp: 2;
-        -webkit-box-orient: vertical; overflow: hidden;
-      }
-      .v3-card-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 4px 0; }
-      .v3-card-stats {
-        display: flex; align-items: center; justify-content: space-between;
-      }
-      .v3-card-stat { display: flex; flex-direction: column; gap: 2px; }
-      .v3-card-stat-label {
-        font-size: 9px; font-family: 'JetBrains Mono', monospace;
-        color: rgba(255,255,255,0.28); letter-spacing: 0.1em; text-transform: uppercase;
-      }
-      .v3-card-stat-val {
-        font-size: 20px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-      }
-
-      /* Go button */
-      .v3-go-btn {
-        width: 36px; height: 36px; border-radius: 50%;
-        display: flex; align-items: center; justify-content: center;
-        background: rgba(255,215,0,0.12); color: #FFD700;
-        border: 1px solid rgba(255,215,0,0.2);
-        transition: background .2s, transform .2s;
-        flex-shrink: 0;
-      }
-      .v3-card:hover .v3-go-btn {
-        background: #FFD700; color: #000;
-        transform: rotate(-45deg) scale(1.1);
-      }
-
-      /* Electric accent line (bottom of card, shows on hover) */
-      .v3-electric-line {
-        position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-        background: linear-gradient(90deg, transparent, #3B82F6, #FFD700, transparent);
-        opacity: 0; transition: opacity .3s;
-      }
-      .v3-card:hover .v3-electric-line { opacity: 1; }
-
-      /* Skeleton shimmer */
-      @keyframes v3-shimmer {
-        0% { background-position: -400px 0; }
-        100% { background-position: 400px 0; }
-      }
-      .v3-skeleton {
-        background: linear-gradient(90deg, #171717 25%, #222 50%, #171717 75%);
-        background-size: 800px 100%;
-        animation: v3-shimmer 1.4s infinite linear;
-        border-radius: 8px;
-      }
-
-      /* Heading highlight box */
-      .v3-heading-highlight {
-        background: linear-gradient(to right, #FFD700, #fef08a);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      /* Responsive grid */
-      .v3-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 22px;
-      }
-      @media (max-width: 1024px) {
-        .v3-grid { grid-template-columns: repeat(3, 1fr); }
-      }
-      @media (max-width: 768px) {
-        .v3-grid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-        .v3-page-main { padding-left: 20px !important; padding-right: 20px !important; }
-        .v3-header-row { flex-direction: column !important; align-items: flex-start !important; }
-        .v3-search-row { min-width: unset !important; width: 100% !important; }
-        h1.v3-title { font-size: 36px !important; }
-      }
-      @media (max-width: 480px) {
-        .v3-grid { grid-template-columns: 1fr; }
-      }
-    </style>
 </head>
-<body>
+
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
 
     <%- include('partials/navbar') %>
 
-    <!-- Decorative spinning rings -->
-    <div class="v3-ring" style="width:600px; height:600px; top:-200px; right:-100px; border-color:#FFD700;"></div>
-    <div class="v3-ring" style="width:400px; height:400px; bottom:0; left:-100px; border-color:#60A5FA; animation-direction:reverse; animation-duration:28s;"></div>
+    <main style="padding-top: 96px; padding-bottom: 64px; min-height: 100vh;" class="relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-    <!-- Ambient glows -->
-    <div style="position:fixed; top:-150px; right:100px; width:500px; height:500px; border-radius:50%; background:radial-gradient(circle, rgba(255,215,0,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
-    <div style="position:fixed; bottom:100px; left:0; width:400px; height:400px; border-radius:50%; background:radial-gradient(circle, rgba(59,130,246,0.05) 0%, transparent 70%); filter:blur(60px); pointer-events:none; z-index:0;"></div>
-
-    <main class="v3-page-main" style="padding-top:96px; padding-bottom:64px; padding-left:56px; padding-right:56px; position:relative; z-index:1; min-height:100vh;">
-
-        <!-- Header -->
-        <div class="v3-header-row" style="display:flex; align-items:flex-end; justify-content:space-between; gap:32px; margin-bottom:36px; padding-bottom:28px; border-bottom:1px solid rgba(255,255,255,0.07);">
-            <!-- Left: Title + Subtitle -->
-            <div>
-                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px;">
-                    <div style="width:6px; height:6px; border-radius:50%; background:#FFD700; box-shadow:0 0 10px rgba(255,215,0,0.9);"></div>
-                    <span style="font-size:10px; font-family:'JetBrains Mono',monospace; font-weight:600; letter-spacing:0.18em; color:#FFD700; text-transform:uppercase;">Laboratorium 3D · PLN</span>
-                </div>
-                <h1 class="v3-title" style="font-family:'Space Grotesk',sans-serif; font-weight:800; font-size:52px; letter-spacing:-2px; line-height:1.05; margin-bottom:10px;">
-                    <span style="color:#f0f0f0;">Modul </span><span class="v3-heading-highlight">Konstruksi</span>
-                </h1>
-                <p style="font-size:14px; color:rgba(255,255,255,0.38); line-height:1.65; max-width:480px; font-family:'Inter',sans-serif;">
-                    Pilih modul standar konstruksi jaringan untuk memulai simulasi interaktif dalam ruang 3 dimensi.
-                </p>
-            </div>
-
-            <!-- Right: Search + Sort -->
-            <div class="v3-search-row" style="display:flex; align-items:center; gap:10px; flex-shrink:0; min-width:340px;">
-                <div class="v3-search-wrap">
-                    <div class="v3-search-icon">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                            <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                        </svg>
+            <!-- Header -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 border-b border-[var(--color-border)]">
+                <!-- Left: Title + Subtitle -->
+                <div class="gsap-reveal">
+                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/10 mb-4">
+                        <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shadow-sm shadow-[var(--color-primary)]"></div>
+                        <span class="text-[10px] font-bold tracking-[0.18em] text-[var(--color-primary)] uppercase">Laboratorium 3D · PLN</span>
                     </div>
-                    <input class="v3-search-input" id="v3-search" type="text"
-                           placeholder="Cari modul konstruksi..."
-                           oninput="v3FilterModules(this.value)"/>
+                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight">
+                        <span class="text-[var(--color-text-primary)]">Modul </span><span class="gradient-text-blue">Konstruksi</span>
+                    </h1>
+                    <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-lg">
+                        Pilih modul standar konstruksi jaringan untuk memulai simulasi interaktif dalam ruang 3 dimensi.
+                    </p>
                 </div>
-                <form id="v3-sort-form" method="GET" action="/ModulKonstruksi" style="display:none;">
-                    <input type="hidden" name="sort" id="v3-sort-hidden" value="<%= currentSort %>">
-                </form>
-                <div class="v3-dropdown" id="v3-sort-dd">
-                    <button type="button" class="v3-dropdown-btn" onclick="v3ToggleDropdown('v3-sort-dd')">
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="opacity:.5;flex-shrink:0;"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
-                        <span id="v3-sort-label"><%= currentSort === 'name_asc' ? 'Abjad A–Z' : currentSort === 'name_desc' ? 'Abjad Z–A' : 'Terbaru' %></span>
-                        <svg class="v3-chev" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
-                    </button>
-                    <div class="v3-dropdown-menu">
-                        <div class="v3-dropdown-item <%= currentSort === 'newest' ? 'selected' : '' %>" onclick="v3SelectSort('newest','Terbaru')">Terbaru</div>
-                        <div class="v3-dropdown-item <%= currentSort === 'name_asc' ? 'selected' : '' %>" onclick="v3SelectSort('name_asc','Abjad A–Z')">Abjad A–Z</div>
-                        <div class="v3-dropdown-item <%= currentSort === 'name_desc' ? 'selected' : '' %>" onclick="v3SelectSort('name_desc','Abjad Z–A')">Abjad Z–A</div>
-                    </div>
-                </div>
-                <button type="button" id="modul-sort-btn" onclick="v3ToggleModulSort()"
-                    style="display:flex; align-items:center; gap:7px; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:12px; padding:10px 14px; font-size:12px; font-weight:600; letter-spacing:0.02em; color:rgba(255,255,255,0.55); font-family:'Inter',sans-serif; cursor:pointer; outline:none; white-space:nowrap; transition:border-color .2s, background .2s, color .2s; flex-shrink:0;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink:0;"><path d="M3 6h13M3 12h9M3 18h5"/><path d="M16 18l3 3 3-3M19 9V21"/></svg>
-                    <span id="modul-sort-label">A→Z</span>
-                </button>
-            </div>
-        </div>
 
-        <!-- 4-column Glass Grid -->
-        <div id="v3-grid" class="v3-grid">
-            <% if (activeModules.length === 0) { %>
-            <div style="grid-column:1/-1; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px;">
-                <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5">
-                        <path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
-                    </svg>
-                </div>
-                <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Belum ada modul aktif yang dirilis ke publik.</span>
-            </div>
-            <% } %>
-
-            <% activeModules.forEach((mod, i) => { %>
-            <a href="/ModulKonstruksi/<%= mod.id %>"
-               class="v3-card v3-glass"
-               data-title="<%= mod.title.toLowerCase() %>">
-                <!-- Image -->
-                <div class="v3-card-img">
-                    <% if (mod.image) { %>
-                        <img src="<%= mod.image %>" alt="<%= mod.title %>">
-                    <% } else { %>
-                        <div class="v3-card-img-placeholder">
-                            <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
-                                 stroke="<%= i % 2 === 0 ? '#FFD700' : '#60A5FA' %>"
-                                 stroke-width="1.2" opacity=".5">
-                                <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/>
-                                <path d="M3 9l4-4 4 4 4-4 4 4"/>
-                                <circle cx="8.5" cy="14.5" r="1.5"/>
-                            </svg>
-                            <span style="font-size:9px; font-family:'JetBrains Mono',monospace; color:<%= i % 2 === 0 ? '#FFD700' : '#60A5FA' %>; opacity:.5; letter-spacing:0.1em;">3D MODEL</span>
+                <!-- Right: Search + Sort -->
+                <div class="flex items-center gap-3 flex-shrink-0 min-w-[300px] lg:min-w-[380px]">
+                    <!-- Search -->
+                    <div class="flex-1 relative">
+                        <div class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                         </div>
-                    <% } %>
-                    <div class="v3-card-img-grad"></div>
-                </div>
-
-                <!-- Body -->
-                <div class="v3-card-body">
-                    <div class="v3-card-title"><%= mod.title %></div>
-                    <div class="v3-card-desc"><%= mod.description %></div>
-                    <div class="v3-card-divider"></div>
-                    <div class="v3-card-stats">
-                        <div style="display:flex; gap:18px;">
-                            <div class="v3-card-stat">
-                                <span class="v3-card-stat-label">Material</span>
-                                <span class="v3-card-stat-val" style="color:#FFD700;"><%= mod.materialCount %></span>
-                            </div>
-                            <div style="width:1px; background:rgba(255,255,255,0.07);"></div>
-                            <div class="v3-card-stat">
-                                <span class="v3-card-stat-label">Peralatan</span>
-                                <span class="v3-card-stat-val" style="color:#60A5FA;"><%= mod.equipmentCount %></span>
+                        <input id="v3-search" type="text" placeholder="Cari modul konstruksi..."
+                            oninput="v3FilterModules(this.value)"
+                            class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all" />
+                    </div>
+                    <!-- Sort -->
+                    <form id="v3-sort-form" method="GET" action="/ModulKonstruksi" style="display:none;">
+                        <input type="hidden" name="sort" id="v3-sort-hidden" value="<%= currentSort %>">
+                    </form>
+                    <div class="relative" id="v3-sort-dd">
+                        <button type="button" onclick="v3ToggleDropdown('v3-sort-dd')"
+                            class="flex items-center gap-2 bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-xs font-semibold text-[var(--color-text-secondary)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)] transition-all cursor-pointer outline-none whitespace-nowrap">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="opacity-50"><path d="M3 6h18M6 12h12M10 18h4"/></svg>
+                            <span id="v3-sort-label"><%= currentSort==='name_asc' ? 'A–Z' : currentSort==='name_desc' ? 'Z–A' : 'Terbaru' %></span>
+                            <svg class="w-3 h-3 transition-transform duration-200" id="sort-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9l6 6 6-6"/></svg>
+                        </button>
+                        <div id="sort-dropdown-menu" class="absolute top-full right-0 mt-2 min-w-[140px] rounded-xl bg-white border border-[var(--color-border)] shadow-xl z-50 hidden overflow-hidden">
+                            <div class="p-1.5">
+                                <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] <%= currentSort === 'newest' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'text-[var(--color-text-secondary)]' %>"
+                                    onclick="v3SelectSort('newest','Terbaru')">Terbaru</div>
+                                <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] <%= currentSort === 'name_asc' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'text-[var(--color-text-secondary)]' %>"
+                                    onclick="v3SelectSort('name_asc','A–Z')">Abjad A–Z</div>
+                                <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] <%= currentSort === 'name_desc' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5' : 'text-[var(--color-text-secondary)]' %>"
+                                    onclick="v3SelectSort('name_desc','Z–A')">Abjad Z–A</div>
                             </div>
                         </div>
-                        <div class="v3-go-btn">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                                <path d="M5 12h14M12 5l7 7-7 7"/>
-                            </svg>
-                        </div>
                     </div>
                 </div>
-
-                <!-- Electric accent line -->
-                <div class="v3-electric-line"></div>
-            </a>
-            <% }) %>
-        </div>
-
-        <!-- No search results state -->
-        <div id="v3-no-results" style="display:none; flex-direction:column; align-items:center; justify-content:center; padding:64px 0; gap:16px;">
-            <div style="width:56px; height:56px; border-radius:50%; background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.07); display:flex; align-items:center; justify-content:center;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.38)" stroke-width="1.5">
-                    <circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/>
-                </svg>
             </div>
-            <span style="font-size:14px; color:rgba(255,255,255,0.38); font-family:'Inter',sans-serif;">Tidak ada modul yang cocok dengan pencarian.</span>
-        </div>
 
+            <!-- Module Grid -->
+            <div id="v3-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gsap-stagger-container">
+                <% if (activeModules.length===0) { %>
+                    <div class="col-span-full flex flex-col items-center justify-center py-20 gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                        </div>
+                        <span class="text-sm text-[var(--color-text-muted)]">Belum ada modul aktif yang dirilis ke publik.</span>
+                    </div>
+                <% } %>
+
+                <% activeModules.forEach((mod, i) => { %>
+                    <a href="/ModulKonstruksi/<%= mod.id %>" class="gsap-stagger-item group block" data-title="<%= mod.title.toLowerCase() %>">
+                        <div class="card-elevated overflow-hidden h-full flex flex-col">
+                            <!-- Image -->
+                            <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                                <% if (mod.image) { %>
+                                    <img src="<%= mod.image %>" alt="<%= mod.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <% } else { %>
+                                    <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-primary)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                                            <path d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75l2.25-1.313M12 21.75V19.5m0 2.25l-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25"/>
+                                        </svg>
+                                        <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">3D Model</span>
+                                    </div>
+                                <% } %>
+                                <!-- Gradient overlay -->
+                                <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+                            </div>
+
+                            <!-- Body -->
+                            <div class="p-5 flex flex-col flex-grow">
+                                <h3 class="text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors">
+                                    <%= mod.title %>
+                                </h3>
+                                <div class="relative flex-grow mb-4">
+                                    <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
+                                        <%= mod.description %><br>&nbsp;<br>&nbsp;
+                                    </p>
+                                    <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                                        <%= mod.description %>
+                                    </p>
+                                    <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+                                </div>
+                                <div class="mt-auto">
+                                    <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
+                                    <div class="flex items-center justify-between">
+                                        <div class="flex gap-4">
+                                            <div class="flex flex-col">
+                                                <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Material</span>
+                                                <span class="text-lg font-bold text-[var(--color-primary)] brand-font"><%= mod.materialCount %></span>
+                                            </div>
+                                            <div class="w-px bg-[var(--color-border-light)]"></div>
+                                            <div class="flex flex-col">
+                                                <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Peralatan</span>
+                                                <span class="text-lg font-bold text-[var(--color-cyan)] brand-font"><%= mod.equipmentCount %></span>
+                                            </div>
+                                        </div>
+                                        <!-- Arrow button -->
+                                        <div class="w-9 h-9 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Bottom accent line -->
+                            <div class="h-0.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-cyan)] to-[var(--color-accent)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+                        </div>
+                    </a>
+                <% }) %>
+            </div>
+
+            <!-- No search results -->
+            <div id="v3-no-results" class="hidden flex-col items-center justify-center py-20 gap-4">
+                <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                </div>
+                <span class="text-sm text-[var(--color-text-muted)]">Tidak ada modul yang cocok dengan pencarian.</span>
+            </div>
+
+        </div>
     </main>
 
     <%- include('partials/footer') %>
 
     <script src="/js/main.js"></script>
     <script>
-        var _modulSort = 'none'; // 'none' | 'asc' | 'desc'
-
-        // Store original card order on load
-        (function() {
-            var cards = document.getElementById('v3-grid').querySelectorAll('.v3-card');
-            cards.forEach(function(c, i) { c.dataset.origIdx = i; });
-        })();
-
-        function v3ToggleModulSort() {
-            var btn = document.getElementById('modul-sort-btn');
-            var lbl = document.getElementById('modul-sort-label');
-            if (_modulSort === 'none' || _modulSort === 'desc') {
-                _modulSort = 'asc';
-                lbl.textContent = 'A→Z';
-                btn.style.borderColor = 'rgba(255,215,0,0.45)';
-                btn.style.color = '#FFD700';
-                btn.style.background = 'rgba(255,215,0,0.06)';
-            } else {
-                _modulSort = 'desc';
-                lbl.textContent = 'Z→A';
-            }
-            v3SortModulGrid();
-        }
-
-        function v3SortModulGrid() {
-            var grid = document.getElementById('v3-grid');
-            var cards = Array.from(grid.querySelectorAll('.v3-card'));
-            if (_modulSort === 'none') {
-                cards.sort(function(a, b) { return a.dataset.origIdx - b.dataset.origIdx; });
-            } else {
-                cards.sort(function(a, b) {
-                    var na = (a.dataset.title || '').toLowerCase();
-                    var nb = (b.dataset.title || '').toLowerCase();
-                    return _modulSort === 'asc' ? na.localeCompare(nb, 'id') : nb.localeCompare(na, 'id');
-                });
-            }
-            cards.forEach(function(c) { grid.appendChild(c); });
-        }
-
-        // Custom dropdown
+        // Custom dropdown toggle
         function v3ToggleDropdown(id) {
-            var dd = document.getElementById(id);
-            dd.classList.toggle('open');
+            var menu = document.getElementById('sort-dropdown-menu');
+            var chevron = document.getElementById('sort-chevron');
+            menu.classList.toggle('hidden');
+            chevron.style.transform = menu.classList.contains('hidden') ? '' : 'rotate(180deg)';
         }
+        
         function v3SelectSort(value, label) {
             document.getElementById('v3-sort-hidden').value = value;
             document.getElementById('v3-sort-label').textContent = label;
-            document.querySelectorAll('#v3-sort-dd .v3-dropdown-item').forEach(function(el) {
-                el.classList.toggle('selected', el.getAttribute('onclick').includes("'" + value + "'"));
-            });
-            document.getElementById('v3-sort-dd').classList.remove('open');
+            document.getElementById('sort-dropdown-menu').classList.add('hidden');
             document.getElementById('v3-sort-form').submit();
         }
+        
+        // Close dropdown on outside click
         document.addEventListener('click', function(e) {
             var dd = document.getElementById('v3-sort-dd');
-            if (dd && !dd.contains(e.target)) dd.classList.remove('open');
+            if (dd && !dd.contains(e.target)) {
+                document.getElementById('sort-dropdown-menu').classList.add('hidden');
+                document.getElementById('sort-chevron').style.transform = '';
+            }
         });
 
         // Client-side search filter
         function v3FilterModules(query) {
             const grid = document.getElementById('v3-grid');
-            const cards = grid.querySelectorAll('.v3-card');
+            const cards = grid.querySelectorAll('a[data-title]');
             const noResults = document.getElementById('v3-no-results');
             const q = query.toLowerCase().trim();
             let visible = 0;
@@ -462,25 +197,17 @@
         }
 
         // GSAP entrance animations
-        if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
-
-            // Header entrance
-            gsap.from('.v3-header-row > div', {
-                y: 30, opacity: 0, duration: 1, stagger: 0.15,
-                ease: 'power3.out', delay: 0.1
-            });
-
-            // Cards entrance
-            gsap.from('.v3-card', {
-                scrollTrigger: {
-                    trigger: '#v3-grid',
-                    start: 'top 85%'
-                },
-                y: 50, opacity: 0, duration: 0.8,
-                stagger: 0.08, ease: 'power3.out'
-            });
-        }
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+                gsap.registerPlugin(ScrollTrigger);
+                gsap.to('.gsap-reveal', { y: 0, opacity: 1, duration: 1, stagger: 0.15, ease: 'power3.out', delay: 0.1 });
+                gsap.from('.gsap-stagger-item', {
+                    scrollTrigger: { trigger: '#v3-grid', start: 'top 85%' },
+                    y: 50, opacity: 0, duration: 0.8, stagger: 0.08, ease: 'power3.out'
+                });
+            }
+        });
     </script>
 </body>
+
 </html>

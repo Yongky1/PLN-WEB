@@ -26,7 +26,6 @@ function openDetail(id) {
       'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 cat-badge-teknis';
     catLabel.innerHTML = `<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>${tool.categoryLabel}`;
 
-    
     document.getElementById('modal-name').textContent = tool.name;
 
     document.getElementById('modal-standard').textContent = tool.standard || '-';
@@ -41,7 +40,7 @@ function openDetail(id) {
   });
 }
 
-document.querySelectorAll('#tools-grid .v3-card[data-id]').forEach((card) => {
+document.querySelectorAll('#tools-grid .v3-card-item[data-id]').forEach((card) => {
   card.addEventListener('click', () => openDetail(card.dataset.id));
 });
 

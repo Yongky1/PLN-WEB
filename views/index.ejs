@@ -1,46 +1,107 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PLN Pusdiklat | Premium Learning Center</title>
-  <link rel="stylesheet" href="/css/output.css">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+  <%- include('partials/head') %>
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    h1, h2, h3, h4, h5, h6, .brand-font { font-family: 'Space Grotesk', sans-serif; }
+    body {
+      font-family: 'Inter', sans-serif;
+    }
+    h1, h2, h3, h4, h5, h6, .brand-font {
+      font-family: 'Space Grotesk', sans-serif;
+    }
   </style>
 </head>
-<body class="bg-pln-darker text-white antialiased">
-  
-  <%- include('partials/navbar') %>
-  
-  <main>
-    <%- include('partials/hero') %>
-    <%- include('partials/intro') %>
-    <%- include('partials/categories') %>
-    <%- include('partials/showcase') %>
-    <%- include('partials/cta') %>
-  </main>
-  
-  <%- include('partials/footer') %>
 
-  <!-- Intersections observer for fade animation -->
-  <script>
-    document.addEventListener("DOMContentLoaded", function() {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if(entry.isIntersecting) {
-            entry.target.classList.add('fade-in-up');
-            observer.unobserve(entry.target);
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+
+  <%- include('partials/navbar') %>
+
+    <main>
+      <%- include('partials/hero') %>
+        <%- include('partials/intro') %>
+          <%- include('partials/categories') %>
+            <%- include('partials/showcase') %>
+              <%- include('partials/cta') %>
+    </main>
+
+    <%- include('partials/footer') %>
+
+      <!-- GSAP Scroll Animations -->
+      <script>
+        document.addEventListener("DOMContentLoaded", function () {
+          // CSS-only fallback for reveal on scroll
+          const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add('is-visible');
+              }
+            });
+          }, { threshold: 0.1 });
+
+          document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+
+          // GSAP animations (if loaded)
+          if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+            gsap.registerPlugin(ScrollTrigger);
+
+            // Fade in sections
+            gsap.utils.toArray('.gsap-reveal').forEach(el => {
+              gsap.to(el, {
+                scrollTrigger: {
+                  trigger: el,
+                  start: 'top 85%',
+                  toggleActions: 'play none none none'
+                },
+                y: 0,
+                opacity: 1,
+                duration: 1,
+                ease: 'power3.out'
+              });
+            });
+
+            // Stagger cards
+            gsap.utils.toArray('.gsap-stagger-container').forEach(container => {
+              const cards = container.querySelectorAll('.gsap-stagger-item');
+              gsap.from(cards, {
+                scrollTrigger: {
+                  trigger: container,
+                  start: 'top 80%'
+                },
+                y: 60,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: 'power3.out'
+              });
+            });
+
+            // Counter animation
+            document.querySelectorAll('.counter-value').forEach(counter => {
+              const target = parseInt(counter.getAttribute('data-target'));
+              const suffix = counter.getAttribute('data-suffix') || '';
+
+              ScrollTrigger.create({
+                trigger: counter,
+                start: 'top 85%',
+                once: true,
+                onEnter: () => {
+                  gsap.to({ val: 0 }, {
+                    val: target,
+                    duration: 2,
+                    ease: 'power2.out',
+                    onUpdate: function () {
+                      counter.textContent = Math.floor(this.targets()[0].val) + suffix;
+                    }
+                  });
+                }
+              });
+            });
           }
         });
-      }, { threshold: 0.1 });
-      
-      document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
-    });
-  </script>
+      </script>
+
+      <script src="/js/main.js"></script>
 </body>
+
 </html>

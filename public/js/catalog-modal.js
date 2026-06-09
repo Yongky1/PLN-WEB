@@ -16,7 +16,7 @@
     .pln-3d-loading {
       display: flex; flex-direction: column;
       align-items: center; justify-content: center;
-      background: #030812;
+      background: #FFFFFF;
     }
     .pln-3d-loader {
       display: flex; align-items: center; gap: 12px;
@@ -25,21 +25,21 @@
     .pln-dot {
       display: inline-block;
       width: 11px; height: 11px; border-radius: 50%;
-      background: #FFD500;
+      background: var(--color-primary, #0052A3);
       animation: plnDotWave 1.4s cubic-bezier(0.45,0.05,0.55,0.95) infinite;
     }
     .pln-dot:nth-child(2) { animation-delay: 0.18s; }
     .pln-dot:nth-child(3) { animation-delay: 0.36s; }
     .pln-3d-label {
       font-size: 9.5px; text-transform: uppercase;
-      letter-spacing: 0.2em; font-weight: 500;
-      color: rgba(255,255,255,0.3);
+      letter-spacing: 0.2em; font-weight: 600;
+      color: var(--color-text-secondary, #526080);
       font-family: 'JetBrains Mono', monospace;
     }
     @keyframes plnDotWave {
       0%, 60%, 100% { transform: translateY(0) scale(0.75); opacity: 0.35; }
       30%            { transform: translateY(-10px) scale(1.15); opacity: 1;
-                       box-shadow: 0 0 10px #FFD500, 0 0 22px rgba(255,213,0,0.35); }
+                       box-shadow: 0 0 10px rgba(0,82,163,0.5), 0 0 22px rgba(0,82,163,0.25); }
     }
   `;
   document.head.appendChild(s);
@@ -58,34 +58,34 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
 
   if (hasGlb) {
     emptyState.style.display = 'none';
-    
+
     // Check if it's the exact same model URL (resolving relative to absolute for comparison)
     const currentSrc = modelViewer.src ? new URL(modelViewer.src, window.location.origin).href : '';
     const targetSrc = new URL(file3d, window.location.origin).href;
-    
+
     if (currentSrc !== targetSrc) {
-        if (loadingOverlay) loadingOverlay.style.display = 'flex';
-        if (spinner) spinner.style.display = 'flex';
-        if (loadingText) loadingText.textContent = loadingMsg;
-        
-        // Use a named function to easily remove previous listeners if any
-        const onLoad = () => {
-            if (loadingOverlay) loadingOverlay.style.display = 'none';
-            modelViewer.removeEventListener('load', onLoad);
-        };
-        const onError = () => {
-            if (spinner) spinner.style.display = 'none';
-            if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
-            modelViewer.removeEventListener('error', onError);
-        };
-        
-        modelViewer.addEventListener('load', onLoad);
-        modelViewer.addEventListener('error', onError);
-        
-        modelViewer.src = file3d;
-    } else {
-        // Already loaded this exact model
+      if (loadingOverlay) loadingOverlay.style.display = 'flex';
+      if (spinner) spinner.style.display = 'flex';
+      if (loadingText) loadingText.textContent = loadingMsg;
+
+      // Use a named function to easily remove previous listeners if any
+      const onLoad = () => {
         if (loadingOverlay) loadingOverlay.style.display = 'none';
+        modelViewer.removeEventListener('load', onLoad);
+      };
+      const onError = () => {
+        if (spinner) spinner.style.display = 'none';
+        if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
+        modelViewer.removeEventListener('error', onError);
+      };
+
+      modelViewer.addEventListener('load', onLoad);
+      modelViewer.addEventListener('error', onError);
+
+      modelViewer.src = file3d;
+    } else {
+      // Already loaded this exact model
+      if (loadingOverlay) loadingOverlay.style.display = 'none';
     }
   } else {
     modelViewer.removeAttribute('src');
@@ -93,6 +93,12 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
     if (loadingOverlay) loadingOverlay.style.display = 'none';
     if (spinner) spinner.style.display = 'none';
     if (loadingText) loadingText.textContent = '';
+  }
+
+  if (document.fullscreenElement && !document.fullscreenElement.contains(overlay)) {
+    document.fullscreenElement.appendChild(overlay);
+  } else if (!document.fullscreenElement && overlay.parentElement !== document.body) {
+    document.body.appendChild(overlay);
   }
 
   overlay.style.display = 'flex';
@@ -113,6 +119,10 @@ function closeCatalogModal(ids) {
   overlay.classList.remove('active');
   overlay.style.display = 'none';
   document.body.style.overflow = '';
+
+  if (overlay.parentElement !== document.body) {
+    document.body.appendChild(overlay);
+  }
 }
 
 function toggleCatalogFullscreen(canvasWrapId) {
@@ -142,3 +152,16 @@ function initCatalogFullscreen(canvasWrapId) {
     }
   });
 }
+
+// Global listener to return modals to body when exiting fullscreen
+document.addEventListener('fullscreenchange', () => {
+  if (!document.fullscreenElement) {
+    const knownOverlays = ['mat-modal-overlay', 'modal-overlay', 'amqv-modal-overlay'];
+    knownOverlays.forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.parentElement !== document.body) {
+        document.body.appendChild(el);
+      }
+    });
+  }
+});

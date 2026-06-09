@@ -72,39 +72,81 @@ router.get('/modules', async (req, res) => {
       materialsRes.json(),
       toolsRes.json(),
     ]);
-    renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul, material, dan peralatan', {
-      modules,
-      materials,
-      tools,
-    }, req.user);
+    renderAdmin(
+      res,
+      'modules',
+      'Modul Konten',
+      'Kelola modul, material, dan peralatan',
+      {
+        modules,
+        materials,
+        tools,
+      },
+      req.user
+    );
   } catch (err) {
     console.error(err);
-    renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul, material, dan peralatan', {
-      modules: [],
-      materials: [],
-      tools: [],
-    }, req.user);
+    renderAdmin(
+      res,
+      'modules',
+      'Modul Konten',
+      'Kelola modul, material, dan peralatan',
+      {
+        modules: [],
+        materials: [],
+        tools: [],
+      },
+      req.user
+    );
   }
 });
 
 // Manajemen Konstruksi
 router.get('/konstruksi', (req, res) => {
-  renderAdmin(res, 'konstruksi', 'Manajemen Konstruksi', 'Tambah dan kelola data konstruksi jaringan', {}, req.user);
+  renderAdmin(
+    res,
+    'konstruksi',
+    'Manajemen Konstruksi',
+    'Tambah dan kelola data konstruksi jaringan',
+    {},
+    req.user
+  );
 });
 
 // Manajemen Material
 router.get('/material', (req, res) => {
-  renderAdmin(res, 'material', 'Manajemen Material', 'Tambah dan kelola katalog material jaringan', {}, req.user);
+  renderAdmin(
+    res,
+    'material',
+    'Manajemen Material',
+    'Tambah dan kelola katalog material jaringan',
+    {},
+    req.user
+  );
 });
 
 // Manajemen Peralatan (Tools)
 router.get('/tools', (req, res) => {
-  renderAdmin(res, 'tools', 'Manajemen Peralatan', 'Tambah dan kelola katalog alat lapangan', {}, req.user);
+  renderAdmin(
+    res,
+    'tools',
+    'Manajemen Peralatan',
+    'Tambah dan kelola katalog alat lapangan',
+    {},
+    req.user
+  );
 });
 
 // Manajemen Kategori
 router.get('/categories', (req, res) => {
-  renderAdmin(res, 'categories', 'Manajemen Kategori', 'Kelola kategori material dan peralatan', {}, req.user);
+  renderAdmin(
+    res,
+    'categories',
+    'Manajemen Kategori',
+    'Kelola kategori material dan peralatan',
+    {},
+    req.user
+  );
 });
 
 // Mesh Mapping — per modul
@@ -119,13 +161,20 @@ router.get('/konstruksi/:id/mapping', async (req, res) => {
     // Normalisasi URL aset: ganti absolute URL backend → relative path
     // agar Three.js tidak request langsung ke port 4000 (CORS/403 error)
     if (Array.isArray(moduleData.assets)) {
-      moduleData.assets = moduleData.assets.map(asset => ({
+      moduleData.assets = moduleData.assets.map((asset) => ({
         ...asset,
         file: asset.file ? asset.file.replace(/^https?:\/\/[^/]+/, '') : asset.file,
       }));
     }
 
-    renderAdmin(res, 'mapping', `Mesh Mapping`, `Hubungkan mesh 3D ke material & peralatan — ${moduleData.title}`, { moduleData }, req.user);
+    renderAdmin(
+      res,
+      'mapping',
+      `Mesh Mapping`,
+      `Hubungkan mesh 3D ke material & peralatan — ${moduleData.title}`,
+      { moduleData },
+      req.user
+    );
   } catch (err) {
     console.error('[Admin] Error loading mapping page:', err);
     res.redirect('/admin/modules');
@@ -134,9 +183,16 @@ router.get('/konstruksi/:id/mapping', async (req, res) => {
 
 // Pengaturan
 router.get('/settings', (req, res) => {
-  renderAdmin(res, 'settings', 'Pengaturan', 'Konfigurasi sistem dan preferensi admin', {
-    adminProfile: req.user,
-  }, req.user);
+  renderAdmin(
+    res,
+    'settings',
+    'Pengaturan',
+    'Konfigurasi sistem dan preferensi admin',
+    {
+      adminProfile: req.user,
+    },
+    req.user
+  );
 });
 
 module.exports = router;

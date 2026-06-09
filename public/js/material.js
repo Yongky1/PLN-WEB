@@ -25,7 +25,7 @@ function openModal(id) {
 
   currentMatAssets = mat.assets || [];
   currentVarIdx = 0;
-  
+
   const initialFile = currentMatAssets.length > 0 ? currentMatAssets[0].file : mat.file3d;
 
   openCatalogModal(MAT_IDS, initialFile, 'Memuat Skema Spasial...', () => {
@@ -33,7 +33,7 @@ function openModal(id) {
     catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${mat.categoryLabel || ''}`;
     document.getElementById('mat-modal-name').textContent = mat.name || '';
     document.getElementById('mat-modal-code').textContent = mat.code || '';
-    
+
     const rawDesc = mat.description || mat.shortDesc || '';
     document.getElementById('mat-modal-desc').textContent = rawDesc;
 
@@ -41,7 +41,7 @@ function openModal(id) {
     const prevBtn = document.getElementById('mat-viewer-prev-btn');
     const nextBtn = document.getElementById('mat-viewer-next-btn');
     const varName = document.getElementById('mat-viewer-variant-name');
-    
+
     if (currentMatAssets.length > 1) {
       if (prevBtn) prevBtn.style.display = 'flex';
       if (nextBtn) nextBtn.style.display = 'flex';
@@ -65,7 +65,7 @@ function updateMatVariantUI() {
   }
 }
 
-window.prevMatVariant = function() {
+window.prevMatVariant = function () {
   if (currentMatAssets.length <= 1) return;
   currentVarIdx = (currentVarIdx - 1 + currentMatAssets.length) % currentMatAssets.length;
   updateMatVariantUI();
@@ -73,7 +73,7 @@ window.prevMatVariant = function() {
   if (mv) mv.src = currentMatAssets[currentVarIdx].file;
 };
 
-window.nextMatVariant = function() {
+window.nextMatVariant = function () {
   if (currentMatAssets.length <= 1) return;
   currentVarIdx = (currentVarIdx + 1) % currentMatAssets.length;
   updateMatVariantUI();
@@ -81,7 +81,7 @@ window.nextMatVariant = function() {
   if (mv) mv.src = currentMatAssets[currentVarIdx].file;
 };
 
-document.querySelectorAll('#material-grid .v3-card[data-id]').forEach((card) => {
+document.querySelectorAll('#material-grid .card-elevated[data-id]').forEach((card) => {
   card.addEventListener('click', () => openModal(card.dataset.id));
 });
 

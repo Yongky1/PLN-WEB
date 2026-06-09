@@ -1,51 +1,117 @@
-<section id="about" class="py-24 bg-pln-darker relative">
-  <!-- Subtle grid pattern background -->
-  <div class="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGNpcmNsZSBjeD0iMSIgY3k9IjEiIHI9IjEiIGZpbGw9InJnYmEoMjU1LDI1NSwyNTUsMC4wNSkiLz48L3N2Zz4=')] opacity-50 z-0 pointer-events-none"></div>
-
+<!-- ═══ HOW IT WORKS + ABOUT SECTION ═══ -->
+<section id="about" class="py-24 relative overflow-hidden" style="background-color: var(--color-bg-surface);">
+  
+  <!-- Decorative background -->
+  <div class="absolute top-0 right-0 w-96 h-96 rounded-full bg-gradient-to-bl from-[var(--color-primary)]/5 to-transparent blur-3xl pointer-events-none"></div>
+  
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-      
+    
+    <!-- Section Header -->
+    <div class="text-center mb-20 gsap-reveal">
+      <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/10 mb-6">
+        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+        <span class="text-xs font-bold tracking-[0.15em] text-[var(--color-primary)] uppercase">Cara Kerja</span>
+      </div>
+      <h2 class="text-4xl md:text-5xl font-extrabold text-[var(--color-text-primary)] brand-font mb-6">
+        Belajar dalam <span class="gradient-text-blue">3 Langkah</span>
+      </h2>
+      <p class="text-lg text-[var(--color-text-secondary)] max-w-2xl mx-auto leading-relaxed">
+        Platform dirancang untuk pengalaman belajar yang intuitif dan interaktif bagi semua kalangan.
+      </p>
+    </div>
+
+    <!-- 3 Steps -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-24 gsap-stagger-container">
+      <!-- Step 1 -->
+      <div class="gsap-stagger-item group">
+        <div class="card-elevated p-8 text-center h-full relative">
+          <div class="absolute top-4 right-4 text-6xl font-extrabold text-[var(--color-primary)]/5 brand-font leading-none">01</div>
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-cyan)]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-8 h-8 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-[var(--color-text-primary)] brand-font mb-3">Pilih Kategori</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">Navigasi ke modul Peralatan, Konstruksi, atau Material sesuai kebutuhan pembelajaran Anda.</p>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="gsap-stagger-item group">
+        <div class="card-elevated p-8 text-center h-full relative">
+          <div class="absolute top-4 right-4 text-6xl font-extrabold text-[var(--color-cyan)]/5 brand-font leading-none">02</div>
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-cyan)]/10 to-[var(--color-primary)]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-8 h-8 text-[var(--color-cyan)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-2.25-1.313M21 7.5v2.25m0-2.25l-2.25 1.313M3 7.5l2.25-1.313M3 7.5l2.25 1.313M3 7.5v2.25m9 3l2.25-1.313M12 12.75l-2.25-1.313M12 12.75V15m0 6.75l2.25-1.313M12 21.75V19.5m0 2.25l-2.25-1.313m0-16.875L12 2.25l2.25 1.313M21 14.25v2.25l-2.25 1.313m-13.5 0L3 16.5v-2.25"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-[var(--color-text-primary)] brand-font mb-3">Eksplorasi 3D</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">Interaksi langsung dengan model 3D — putar, zoom, dan klik komponen untuk mempelajari setiap detail.</p>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="gsap-stagger-item group">
+        <div class="card-elevated p-8 text-center h-full relative">
+          <div class="absolute top-4 right-4 text-6xl font-extrabold text-[var(--color-accent)]/5 brand-font leading-none">03</div>
+          <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-[var(--color-accent)]/10 to-[var(--color-warning)]/10 flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-500">
+            <svg class="w-8 h-8 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6.042A8.967 8.967 0 006 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 016 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 016-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0018 18a8.967 8.967 0 00-6 2.292m0-14.25v14.25"/>
+            </svg>
+          </div>
+          <h3 class="text-xl font-bold text-[var(--color-text-primary)] brand-font mb-3">Pelajari Detail</h3>
+          <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed">Dapatkan spesifikasi teknis, cara pemasangan, dan standar keamanan dari setiap komponen kelistrikan.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- About / Intro Section -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center gsap-reveal">
       <!-- Text Side -->
-      <div class="animate-on-scroll">
-        <div class="w-16 h-1 bg-[var(--color-pln-yellow)] mb-8"></div>
-        <h2 class="text-3xl md:text-5xl font-bold text-white mb-6 brand-font leading-tight">
-          Infrastruktur<br>Pembelajaran Terapan
+      <div>
+        <div class="w-16 h-1 bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-cyan)] rounded-full mb-8"></div>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-[var(--color-text-primary)] mb-6 brand-font leading-tight">
+          Infrastruktur<br>Pembelajaran <span class="gradient-text-blue">Terapan</span>
         </h2>
-        <p class="text-gray-400 text-lg mb-6 leading-relaxed">
+        <p class="text-[var(--color-text-secondary)] text-lg mb-6 leading-relaxed">
           Fasilitas simulasi dan pelatihan teknis yang dirancang komprehensif untuk mereplikasi ekosistem ketenagalistrikan berskala nyata. Kami membangun fondasi keahlian teknis esensial untuk menjamin keandalan sistem energi nasional.
         </p>
-        <div class="grid grid-cols-2 gap-8 mt-12">
-          <div>
-            <h3 class="text-4xl font-bold text-[var(--color-pln-yellow)] mb-2 brand-font">15+</h3>
-            <p class="text-sm text-gray-500 uppercase tracking-wider">Fasilitas Praktik</p>
+        <div class="grid grid-cols-2 gap-8 mt-10">
+          <div class="p-4 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border-light)]">
+            <h3 class="text-3xl font-extrabold text-[var(--color-primary)] mb-1 brand-font counter-value" data-target="15" data-suffix="+">0</h3>
+            <p class="text-sm text-[var(--color-text-muted)] font-medium">Fasilitas Praktik</p>
           </div>
-          <div>
-            <h3 class="text-4xl font-bold text-[var(--color-pln-yellow)] mb-2 brand-font">10K+</h3>
-            <p class="text-sm text-gray-500 uppercase tracking-wider">Siswa Tersertifikasi</p>
+          <div class="p-4 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border-light)]">
+            <h3 class="text-3xl font-extrabold text-[var(--color-primary)] mb-1 brand-font counter-value" data-target="10" data-suffix="K+">0</h3>
+            <p class="text-sm text-[var(--color-text-muted)] font-medium">Siswa Tersertifikasi</p>
           </div>
         </div>
       </div>
 
-      <!-- Image/Visual Side -->
-      <div class="relative animate-on-scroll" style="animation-delay: 0.2s;">
-         <div class="aspect-square relative rounded-lg overflow-hidden glass-panel border border-white/10 bg-gradient-to-br from-white/5 to-transparent">
-            <!-- Decorative tech circle -->
-            <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] border-[0.5px] border-white/5 rounded-full animate-spin-slow" style="animation-duration: 20s; animation-iteration-count: infinite; animation-timing-function: linear;"></div>
-            
-            <div class="absolute inset-4 bg-black/40 backdrop-blur-sm border border-white/10 rounded flex items-center justify-center p-8 text-center group transition-all duration-500 hover:border-[var(--color-pln-yellow)]/50">
-               <div class="relative z-10">
-                 <div class="w-20 h-20 mx-auto border-2 border-[var(--color-pln-yellow)] rounded-full flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500">
-                    <svg class="w-8 h-8 text-[var(--color-pln-yellow)]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
-                    </svg>
-                 </div>
-                 <h4 class="text-xl font-bold text-white mb-2 tracking-wide">PENGEMBANGAN SDM TEPAT GUNA</h4>
-                 <p class="text-gray-400 text-sm">Infrastruktur pembelajaran canggih yang mereplikasi kondisi lapangan sebenarnya.</p>
-               </div>
+      <!-- Visual Side -->
+      <div class="relative">
+        <div class="aspect-square relative rounded-3xl overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)] border border-[var(--color-border-light)] shadow-lg">
+          <!-- Decorative ring -->
+          <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[85%] h-[85%] border border-[var(--color-primary)]/8 rounded-full" style="animation: spin 20s linear infinite;"></div>
+          
+          <div class="absolute inset-6 rounded-2xl bg-white/80 backdrop-blur-sm border border-[var(--color-border)] flex items-center justify-center p-8 text-center group transition-all duration-500 hover:border-[var(--color-primary)]/30 hover:shadow-xl">
+            <div class="relative z-10">
+              <div class="w-20 h-20 mx-auto rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-light)] flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-500 shadow-lg shadow-[var(--color-primary)]/20">
+                <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                </svg>
+              </div>
+              <h4 class="text-xl font-bold text-[var(--color-text-primary)] mb-2 tracking-wide brand-font">PENGEMBANGAN SDM</h4>
+              <p class="text-[var(--color-text-secondary)] text-sm leading-relaxed">Infrastruktur pembelajaran canggih yang mereplikasi kondisi lapangan sebenarnya.</p>
             </div>
-         </div>
+          </div>
+        </div>
       </div>
-
     </div>
+
   </div>
+
+  <style>
+    @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
+  </style>
 </section>

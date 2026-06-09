@@ -2,9 +2,7 @@
 <html lang="id" class="scroll-smooth overflow-x-hidden">
 <head>
     <%- include('partials/head') %>
-    <!-- model-viewer hanya untuk modal komponen -->
     <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
-    <!-- Import map agar Three.js ESM & jsm bisa saling resolve -->
     <script type="importmap">
     {
         "imports": {
@@ -13,311 +11,194 @@
     }
     </script>
     <style>
-        /* ── Katalog cards (v3-card style, scaled smaller) ── */
-        .mv-glass {
-            background: linear-gradient(135deg, rgba(255,255,255,0.06) 0%, rgba(255,255,255,0.02) 100%);
-            backdrop-filter: blur(24px) saturate(160%);
-            -webkit-backdrop-filter: blur(24px) saturate(160%);
-            border: 1px solid rgba(255,255,255,0.09) !important;
-            border-top-color: rgba(255,255,255,0.18) !important;
-            border-left-color: rgba(255,255,255,0.12) !important;
-        }
+        /* ── Component cards (light mode) ── */
         .mv-card {
             border-radius: 20px; overflow: hidden; cursor: pointer;
             position: relative; display: block;
-            transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s;
+            background: #fff;
+            border: 1px solid var(--color-border);
+            transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s, border-color .3s;
         }
         .mv-card:hover {
             transform: translateY(-7px) scale(1.02);
-            box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 40px rgba(255,215,0,0.07);
+            box-shadow: 0 24px 48px rgba(0,82,163,0.1);
+            border-color: var(--color-primary);
         }
         .mv-card-img {
             width: 100%; height: 130px;
-            position: relative; overflow: hidden; background: rgba(0,0,0,0.3);
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--color-bg-surface-alt), var(--color-bg-main));
         }
         .mv-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease-out; }
         .mv-card:hover .mv-card-img img { transform: scale(1.05); }
         .mv-card-img-placeholder {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            background: repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 14px);
-        }
-        .mv-card-img-grad {
-            position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
-            background: linear-gradient(to top, rgba(5,5,15,0.9), transparent); pointer-events: none;
+            flex-direction: column; gap: 6px;
         }
         .mv-card-body {
             padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px;
-            background: linear-gradient(160deg, rgba(255,255,255,0.055) 0%, rgba(255,255,255,0.015) 100%);
         }
         .mv-card-title {
             font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-            font-size: 13px; color: #f0f0f0; line-height: 1.3;
+            font-size: 13px; color: var(--color-text-primary); line-height: 1.3;
             letter-spacing: -0.2px; transition: color .2s;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .mv-card:hover .mv-card-title { color: #FFD700; }
+        .mv-card:hover .mv-card-title { color: var(--color-primary); }
         .mv-card-desc {
-            font-size: 10px; color: rgba(255,255,255,0.38); line-height: 1.6;
+            font-size: 10px; color: var(--color-text-muted); line-height: 1.6;
             display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
         }
-        .mv-card-divider { height: 1px; background: rgba(255,255,255,0.07); margin: 2px 0; }
+        .mv-card-divider { height: 1px; background: var(--color-border-light); margin: 2px 0; }
         .mv-card-stats { display: flex; align-items: center; justify-content: space-between; }
         .mv-card-stat { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
         .mv-card-stat-label {
-            font-size: 8px; font-family: 'JetBrains Mono', monospace;
-            color: rgba(255,255,255,0.28); letter-spacing: 0.1em; text-transform: uppercase;
+            font-size: 8px; font-weight: 700;
+            color: var(--color-text-muted); letter-spacing: 0.1em; text-transform: uppercase;
         }
         .mv-card-stat-val {
             font-size: 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
-            color: #FFD700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;
+            color: var(--color-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;
         }
         .mv-go-btn {
-            width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+            width: 28px; height: 28px; border-radius: 10px; flex-shrink: 0;
             display: flex; align-items: center; justify-content: center;
-            background: rgba(255,215,0,0.12); color: #FFD700;
-            border: 1px solid rgba(255,215,0,0.2);
-            transition: background .2s, transform .2s;
+            background: rgba(0,82,163,0.08); color: var(--color-primary);
+            transition: background .2s, transform .2s, color .2s;
         }
-        .mv-card:hover .mv-go-btn { background: #FFD700; color: #000; transform: rotate(-45deg) scale(1.1); }
-        .mv-electric-line {
+        .mv-card:hover .mv-go-btn { background: var(--color-primary); color: #fff; transform: rotate(-45deg) scale(1.1); }
+        .mv-accent-line {
             position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
-            background: linear-gradient(90deg, transparent, #3B82F6, #FFD700, transparent);
-            opacity: 0; transition: opacity .3s;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-cyan), var(--color-accent));
+            transform: scaleX(0); transition: transform .5s; transform-origin: left;
         }
-        .mv-card:hover .mv-electric-line { opacity: 1; }
+        .mv-card:hover .mv-accent-line { transform: scaleX(1); }
         .mv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
         @media (max-width: 1280px) { .mv-grid { grid-template-columns: repeat(4, 1fr); } }
         @media (max-width: 1024px) { .mv-grid { grid-template-columns: repeat(3, 1fr); } }
         @media (max-width: 640px) { .mv-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
-
-        /* Component search */
-        .mv-search-wrap { position: relative; max-width: 340px; }
-        .mv-search-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: rgba(255,255,255,0.38); pointer-events: none; }
-        .mv-search-input {
-            width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 9px 14px 9px 40px;
-            font-size: 13px; color: #f0f0f0; font-family: 'Inter', sans-serif;
-            outline: none; transition: border-color .2s, box-shadow .2s;
-        }
-        .mv-search-input:focus { border-color: rgba(255,213,0,0.4); box-shadow: 0 0 0 3px rgba(255,213,0,0.06); }
-        .mv-search-input::placeholder { color: rgba(255,255,255,0.35); }
         .mat-card.mv-hidden { display: none !important; }
 
-        /* modal styles: see partials/catalog-modal-material.ejs and catalog-modal-tools.ejs */
-
-        /* ---- Three.js canvas fill ---- */
+        /* ── Three.js canvas ── */
         #three-canvas {
-            position: absolute;
-            inset: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            cursor: grab;
-            outline: none;
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            display: block; cursor: grab; outline: none;
         }
         #three-canvas:active { cursor: grabbing; }
 
-        /* ---- Mesh Info Panel ---- */
+        /* ── Mesh Info Panel (light theme) ── */
         #mesh-info-panel {
-            position: absolute;
-            top: 72px;
-            right: 16px;
-            z-index: 30;
-            width: 272px;
-            max-height: calc(100% - 96px);
-            display: flex;
-            flex-direction: column;
+            position: absolute; top: 72px; right: 16px; z-index: 30;
+            width: 272px; max-height: calc(100% - 96px);
+            display: flex; flex-direction: column;
             border-radius: 1.25rem;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(6, 12, 26, 0.94);
-            backdrop-filter: blur(28px);
-            -webkit-backdrop-filter: blur(28px);
-            box-shadow: 0 24px 56px rgba(0,0,0,0.6);
-            transform: translateX(calc(100% + 20px));
-            opacity: 0;
+            border: 1px solid var(--color-border);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+            transform: translateX(calc(100% + 20px)); opacity: 0;
             transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
-            pointer-events: none;
-            overflow: hidden;
+            pointer-events: none; overflow: hidden;
         }
-        #mesh-info-panel.active {
-            transform: translateX(0);
-            opacity: 1;
-            pointer-events: auto;
-        }
+        #mesh-info-panel.active { transform: translateX(0); opacity: 1; pointer-events: auto; }
         #mesh-info-panel .panel-header {
-            display: flex;
-            align-items: flex-start;
-            justify-content: space-between;
-            gap: 8px;
-            padding: 13px 14px 10px;
-            border-bottom: 1px solid rgba(255,255,255,0.07);
-            flex-shrink: 0;
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 8px; padding: 13px 14px 10px;
+            border-bottom: 1px solid var(--color-border-light); flex-shrink: 0;
         }
         #mesh-panel-name {
-            font-family: 'Space Grotesk', sans-serif;
-            font-size: 13px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.9);
-            line-height: 1.3;
-            word-break: break-word;
+            font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
+            color: var(--color-text-primary); line-height: 1.3; word-break: break-word;
         }
         #mesh-panel-close {
-            width: 22px;
-            height: 22px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.1);
-            color: rgba(255,255,255,0.5);
-            cursor: pointer;
-            flex-shrink: 0;
-            transition: background .2s, color .2s;
-            font-size: 12px;
-            line-height: 1;
+            width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: var(--color-bg-surface-alt); border: 1px solid var(--color-border);
+            color: var(--color-text-secondary); cursor: pointer; flex-shrink: 0;
+            transition: background .2s, color .2s; font-size: 12px; line-height: 1;
         }
-        #mesh-panel-close:hover { background: rgba(255,255,255,0.12); color: white; }
+        #mesh-panel-close:hover { background: var(--color-primary); color: white; border-color: var(--color-primary); }
         #panel-scroll {
-            flex: 1;
-            overflow-y: auto;
-            overflow-x: hidden;
-            scrollbar-width: thin;
-            scrollbar-color: rgba(255,255,255,0.1) transparent;
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            scrollbar-width: thin; scrollbar-color: rgba(0,82,163,0.15) transparent;
         }
         #panel-scroll::-webkit-scrollbar { width: 3px; }
         #panel-scroll::-webkit-scrollbar-track { background: transparent; }
-        #panel-scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 999px; }
+        #panel-scroll::-webkit-scrollbar-thumb { background: rgba(0,82,163,0.15); border-radius: 999px; }
         #mesh-info-panel .panel-label {
-            font-size: 9px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: rgba(245,158,11,0.65);
-            padding: 10px 14px 5px;
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.15em; color: var(--color-primary); padding: 10px 14px 5px;
         }
         #panel-empty {
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 20px 14px;
-            gap: 8px;
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px 14px; gap: 8px;
         }
-        #panel-empty svg { color: rgba(255,255,255,0.12); }
-        #panel-empty p {
-            font-size: 12px;
-            color: rgba(255,255,255,0.3);
-            font-family: 'Space Grotesk', sans-serif;
-            font-weight: 600;
-        }
-        /* ---- Panel Item Cards ---- */
+        #panel-empty svg { color: var(--color-text-muted); }
+        #panel-empty p { font-size: 12px; color: var(--color-text-muted); font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
         .panel-item-card {
-            display: flex;
-            align-items: center;
-            gap: 9px;
-            padding: 8px 10px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.06);
-            background: rgba(255,255,255,0.025);
-            cursor: pointer;
-            margin: 0 10px 6px;
-            transition: background 0.18s, border-color 0.18s, transform 0.14s;
+            display: flex; align-items: center; gap: 9px;
+            padding: 8px 10px; border-radius: 12px;
+            border: 1px solid var(--color-border); background: var(--color-bg-surface);
+            cursor: pointer; margin: 0 10px 6px;
+            transition: background 0.18s, border-color 0.18s, transform 0.14s, box-shadow 0.18s;
         }
-        .panel-item-card:hover {
-            background: rgba(255,255,255,0.07);
-            border-color: rgba(245,158,11,0.22);
-            transform: translateX(2px);
-        }
+        .panel-item-card:hover { background: var(--color-bg-surface-alt); border-color: var(--color-primary); transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,82,163,0.08); }
         .card-thumb {
-            width: 36px;
-            height: 36px;
-            border-radius: 9px;
-            background: rgba(255,255,255,0.06);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-            flex-shrink: 0;
-            font-size: 16px;
+            width: 36px; height: 36px; border-radius: 9px;
+            background: var(--color-bg-main); border: 1px solid var(--color-border-light);
+            display: flex; align-items: center;
+            justify-content: center; overflow: hidden; flex-shrink: 0; font-size: 16px;
         }
         .card-info { flex: 1; min-width: 0; }
         .card-name {
-            font-size: 12px;
-            font-weight: 700;
-            color: rgba(255,255,255,0.88);
+            font-size: 12px; font-weight: 700; color: var(--color-text-primary);
             font-family: 'Space Grotesk', sans-serif;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            line-height: 1.3;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;
         }
-        .card-qty {
-            font-size: 9px;
-            font-weight: 700;
-            color: rgba(245,158,11,0.65);
-        }
+        .card-qty { font-size: 9px; font-weight: 700; color: var(--color-primary); }
         .card-cat {
-            font-size: 8.5px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            padding: 1.5px 5px;
-            border-radius: 999px;
-            border: 1px solid;
-            display: inline-block;
-            margin-top: 2px;
+            font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+            padding: 1.5px 5px; border-radius: 999px; border: 1px solid; display: inline-block; margin-top: 2px;
         }
-        .card-cat.k3 { color: rgb(248,113,113); border-color: rgba(248,113,113,0.28); background: rgba(248,113,113,0.09); }
-        .card-cat.teknis { color: rgb(96,165,250); border-color: rgba(96,165,250,0.28); background: rgba(96,165,250,0.09); }
-        .card-cat.other { color: rgba(167,139,250,0.9); border-color: rgba(167,139,250,0.25); background: rgba(167,139,250,0.08); }
-        .card-arrow {
-            color: rgba(255,255,255,0.25);
-            flex-shrink: 0;
-            transition: color 0.18s, transform 0.18s;
-        }
-        .panel-item-card:hover .card-arrow { color: rgba(245,158,11,0.7); transform: translateX(2px); }
+        .card-cat.k3 { color: rgb(220,38,38); border-color: rgba(220,38,38,0.28); background: rgba(220,38,38,0.09); }
+        .card-cat.teknis { color: rgb(37,99,235); border-color: rgba(37,99,235,0.28); background: rgba(37,99,235,0.09); }
+        .card-cat.other { color: rgba(139,92,246,0.9); border-color: rgba(139,92,246,0.25); background: rgba(139,92,246,0.08); }
+        .card-arrow { color: var(--color-text-muted); flex-shrink: 0; transition: color 0.18s, transform 0.18s; }
+        .panel-item-card:hover .card-arrow { color: var(--color-primary); transform: translateX(2px); }
         #mesh-info-panel .click-hint {
-            font-size: 10px;
-            color: rgba(255,255,255,0.25);
-            text-align: center;
-            padding: 7px 14px;
-            border-top: 1px solid rgba(255,255,255,0.05);
-            font-family: 'Inter', sans-serif;
-            flex-shrink: 0;
+            font-size: 10px; color: var(--color-text-muted); text-align: center;
+            padding: 7px 14px; border-top: 1px solid var(--color-border-light);
+            font-family: 'Inter', sans-serif; flex-shrink: 0;
         }
     </style>
 </head>
-<body class="text-white font-sans antialiased overflow-x-hidden" style="background:#080808;">
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
 
     <%- include('partials/navbar') %>
 
-    <main class="pt-32 pb-24 px-4 sm:px-8 min-h-screen relative overflow-x-hidden" style="background:#080808;">
-        <!-- Spotlight Backdrop -->
-        <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] max-w-[100vw] h-[500px] bg-[var(--color-pln-yellow)]/5 rounded-full blur-[140px] pointer-events-none -z-10"></div>
+    <main class="pt-32 pb-24 px-4 sm:px-8 min-h-screen relative overflow-x-hidden" style="background-color: var(--color-bg-main);">
 
         <div class="max-w-[1400px] mx-auto flex flex-col items-center">
 
             <!-- Header area -->
-            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-6 mb-10 pb-8 border-b border-white/5">
+            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-6 mb-10 pb-8 border-b border-[var(--color-border)]">
                 <div class="flex flex-col items-start w-full md:w-auto">
-                    <a href="<%= backUrl %>" class="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.15em] text-white/50 hover:text-white transition-colors mb-4 group">
+                    <a href="<%= backUrl %>" class="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors mb-4 group">
                         <svg class="w-4 h-4 mr-1.5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                         Kembali
                     </a>
-                    <h1 class="text-3xl md:text-5xl font-['Space_Grotesk'] font-bold tracking-tight text-white/90">
+                    <h1 class="text-3xl md:text-5xl font-extrabold brand-font tracking-tight text-[var(--color-text-primary)]">
                         <%= module.title %>
                     </h1>
                 </div>
                 <div class="hidden md:flex flex-col items-end">
-                    <span class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-white/5 text-white/70 text-[10px] font-bold tracking-[0.2em] uppercase border border-white/10 shadow-sm backdrop-blur-md">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-pln-yellow)] animate-pulse"></span>
+                    <span class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[var(--color-primary)]/5 text-[var(--color-primary)] text-[10px] font-bold tracking-[0.2em] uppercase border border-[var(--color-primary)]/10">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
                         Viewer Interaktif
                     </span>
                 </div>
             </div>
 
-            <!-- Data tersembunyi untuk JS -->
+            <!-- Data for JS -->
             <script type="application/json" id="module-assets-data">
                 <%- JSON.stringify(module.assets || []) %>
             </script>
@@ -325,49 +206,48 @@
                 <%- JSON.stringify({ id: module.id, materials: module.materials || [], tools: module.tools || [] }) %>
             </script>
 
-            <!-- Viewer and Info Grid layout -->
+            <!-- Viewer and Info Grid -->
             <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
                 <!-- 3D Canvas -->
-                <div id="viewer-container" class="lg:col-span-8 relative w-full rounded-[2.5rem] overflow-hidden flex items-center justify-center group transition-all duration-500 shadow-[0_40px_80px_rgba(0,0,0,0.6),0_0_0_1px_rgba(255,255,255,0.08)] border border-white/10 min-h-[280px] md:h-[75vh] md:min-h-[500px]" style="background: radial-gradient(circle at 40% 40%, #0A2045 0%, #030812 100%);">
+                <div id="viewer-container" class="lg:col-span-8 relative w-full rounded-3xl overflow-hidden flex items-center justify-center group transition-all duration-500 shadow-xl border border-[var(--color-border)] min-h-[280px] md:h-[75vh] md:min-h-[500px] bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
                     <!-- Ambient top glow -->
-                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-pln-yellow)]/8 blur-[60px] pointer-events-none"></div>
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-primary)]/5 blur-[60px] pointer-events-none"></div>
 
-                    <!-- Three.js Canvas -->
                     <canvas id="three-canvas" tabindex="-1"></canvas>
 
                     <!-- Loading poster -->
-                    <div id="poster-container" class="absolute inset-0 flex flex-col items-center justify-center text-white/40 transition-all duration-500 bg-[#0A1929]/50 backdrop-blur-sm pointer-events-none" style="z-index:5;">
-                        <div id="loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-pln-yellow)] border-r-[var(--color-pln-yellow)] border-b-transparent border-l-transparent mb-4"></div>
-                        <span id="loading-text" class="text-xs uppercase tracking-[0.15em] font-semibold">Memuat Skema Spasial...</span>
+                    <div id="poster-container" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 bg-[#FFFFFF] pointer-events-none" style="z-index:5;">
+                        <div id="loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-primary)] border-r-[var(--color-primary)] border-b-transparent border-l-transparent mb-4"></div>
+                        <span id="loading-text" class="text-xs uppercase tracking-[0.15em] font-semibold text-[var(--color-text-secondary)]">Memuat Skema Spasial...</span>
                     </div>
 
                     <!-- Hint Text -->
-                    <div id="hint-text" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-[#1d1d1f]/80 backdrop-blur-2xl border border-white/10 text-white/80 text-[11px] font-medium tracking-wide px-5 py-2.5 rounded-full pointer-events-none z-10 opacity-0 transition-opacity flex items-center gap-2 shadow-2xl" style="z-index:10;">
-                        <svg class="w-4 h-4 text-white/50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                    <div id="hint-text" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-medium tracking-wide px-5 py-2.5 rounded-full pointer-events-none z-10 opacity-0 transition-opacity flex items-center gap-2 shadow-lg" style="z-index:10;">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
                         <span>Rotasi 360&deg; | Zoom via Scroll | Klik Objek untuk Detail</span>
                     </div>
 
                     <!-- Navigation Arrows -->
-                    <button id="viewer-prev-btn" onclick="prevVariant()" class="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/5 backdrop-blur-2xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all hidden z-20 border border-white/5 shadow-lg group-hover:scale-105">
+                    <button id="viewer-prev-btn" onclick="prevVariant()" class="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all hidden z-20 border border-[var(--color-border)] shadow-md group-hover:scale-105">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                     </button>
-                    <button id="viewer-next-btn" onclick="nextVariant()" class="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/5 backdrop-blur-2xl rounded-full flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-all hidden z-20 border border-white/5 shadow-lg group-hover:scale-105">
+                    <button id="viewer-next-btn" onclick="nextVariant()" class="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all hidden z-20 border border-[var(--color-border)] shadow-md group-hover:scale-105">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </button>
 
-                    <!-- Variant Display Name -->
-                    <div id="viewer-variant-name" class="absolute top-6 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-[#1d1d1f]/80 backdrop-blur-2xl text-white/90 text-[10px] font-bold rounded-full pointer-events-none z-10 hidden shadow-xl border border-white/10 uppercase tracking-[0.2em]">
+                    <!-- Variant Name -->
+                    <div id="viewer-variant-name" class="absolute top-6 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-white/90 backdrop-blur-md text-[var(--color-text-primary)] text-[10px] font-bold rounded-full pointer-events-none z-10 hidden shadow-md border border-[var(--color-border)] uppercase tracking-[0.2em]">
                         Varian -
                     </div>
 
                     <!-- Toggle Rotate -->
-                    <button id="toggle-rotate-btn" title="Pause/Play Rotation" class="absolute top-6 right-20 w-11 h-11 bg-[#1d1d1f]/60 backdrop-blur-2xl rounded-full flex items-center justify-center text-[var(--color-pln-yellow)] hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 shadow-xl group-hover:scale-105 opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                    <button id="toggle-rotate-btn" title="Pause/Play Rotation" class="absolute top-6 right-20 w-11 h-11 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100">
                         <svg id="icon-pause" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path></svg>
                         <svg id="icon-play" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
                     </button>
 
                     <!-- Fullscreen Toggle -->
-                    <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Full Screen" class="absolute top-6 right-6 w-11 h-11 bg-[#1d1d1f]/60 backdrop-blur-2xl rounded-full flex items-center justify-center text-white/70 hover:text-white hover:bg-black/80 transition-all z-20 border border-white/10 shadow-xl group-hover:scale-105 opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                    <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Full Screen" class="absolute top-6 right-6 w-11 h-11 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
                     </button>
 
@@ -375,61 +255,52 @@
                     <div id="mesh-info-panel">
                         <div class="panel-header">
                             <div style="min-width:0;">
-                                <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:rgba(245,158,11,0.55);margin-bottom:2px;">Komponen</p>
-                                <p id="mesh-panel-name" style="font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:700;color:rgba(255,255,255,0.9);line-height:1.3;word-break:break-word;">-</p>
+                                <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:var(--color-primary);margin-bottom:2px;">Komponen</p>
+                                <p id="mesh-panel-name">-</p>
                             </div>
                             <button id="mesh-panel-close" title="Tutup">✕</button>
                         </div>
-
                         <div id="panel-scroll">
-                            <!-- Empty state -->
                             <div id="panel-empty" style="display:none;">
                                 <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2"
-                                          d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4"/>
                                 </svg>
                                 <p>Tidak ada data untuk komponen ini</p>
                             </div>
-
-                            <!-- Material section -->
                             <div id="panel-mats-section" style="display:none;">
                                 <p class="panel-label">Material</p>
                                 <div id="panel-materials"></div>
                             </div>
-
-                            <!-- Tools section -->
                             <div id="panel-tools-section" style="display:none;">
                                 <p class="panel-label">Peralatan & APD</p>
                                 <div id="panel-tools" style="padding-bottom:8px;"></div>
                             </div>
                         </div>
-
                         <p class="click-hint">Klik area kosong untuk menutup</p>
                     </div>
                 </div>
 
-                <!-- Info Cards -->
+                <!-- Info Cards (light theme) -->
                 <div class="lg:col-span-4 flex flex-col gap-6 h-[500px] lg:h-[75vh] lg:min-h-[500px] w-full">
-                    <!-- Deskripsi Panel -->
-                    <div class="apple-glass-light rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:p-8 flex-[2] flex flex-col min-h-0 w-full">
-                        <h3 class="text-xs font-bold mb-4 text-[var(--color-pln-yellow)] uppercase tracking-[0.2em] font-['Inter'] shrink-0">Deskripsi Konstruksi</h3>
-                        <div class="overflow-y-auto pr-2 custom-scrollbar flex-1 min-h-0">
-                            <p class="text-white/80 text-sm leading-relaxed font-light font-['Inter'] break-words whitespace-pre-wrap"><%= module.description %></p>
+                    <!-- Description Panel -->
+                    <div class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] shadow-sm rounded-3xl p-6 lg:p-8 flex-[2] flex flex-col min-h-0 w-full">
+                        <h3 class="text-xs font-bold mb-4 text-[var(--color-primary)] uppercase tracking-[0.2em] shrink-0">Deskripsi Konstruksi</h3>
+                        <div class="overflow-y-auto pr-2 flex-1 min-h-0" style="scrollbar-width:thin;">
+                            <p class="text-[var(--color-text-secondary)] text-sm leading-relaxed break-words whitespace-pre-wrap"><%= module.description %></p>
                         </div>
                     </div>
 
-                    <!-- Spesifikasi Panel -->
-                    <div class="apple-glass-dark rounded-[2rem] lg:rounded-[2.5rem] p-6 lg:px-8 lg:pt-7 lg:pb-6 flex flex-col flex-1 min-h-0 overflow-hidden w-full">
-                        <h3 class="text-xs font-bold mb-4 lg:mb-5 text-white/50 uppercase tracking-[0.2em] font-['Inter'] shrink-0">Spesifikasi Komponen</h3>
-
+                    <!-- Spec Panel -->
+                    <div class="rounded-3xl p-6 lg:px-8 lg:pt-7 lg:pb-6 flex flex-col flex-1 min-h-0 overflow-hidden w-full" style="background: linear-gradient(135deg, #0052A3, #003D7A); color: #fff; border: 1px solid rgba(255,255,255,0.3);">
+                        <h3 class="text-xs font-bold mb-4 lg:mb-5 text-white uppercase tracking-[0.2em] shrink-0">Spesifikasi Komponen</h3>
                         <div class="flex flex-col justify-center flex-1 min-h-0">
-                            <div class="flex items-center justify-between border-b border-white/5 py-4">
-                                <span class="text-white/60 text-sm font-medium tracking-wide">Material</span>
-                                <span class="font-['Space_Grotesk'] font-black text-3xl text-white"><%= module.materialCount %></span>
+                            <div class="flex items-center justify-between border-b border-white/50 py-4">
+                                <span class="text-white text-sm font-medium tracking-wide">Material</span>
+                                <span class="font-extrabold text-3xl text-white brand-font"><%= module.materialCount %></span>
                             </div>
                             <div class="flex items-center justify-between py-4">
-                                <span class="text-white/60 text-sm font-medium tracking-wide">Alat Pendukung</span>
-                                <span class="font-['Space_Grotesk'] font-black text-3xl text-white"><%= module.equipmentCount %></span>
+                                <span class="text-white text-sm font-medium tracking-wide">Alat Pendukung</span>
+                                <span class="font-extrabold text-3xl text-white brand-font"><%= module.equipmentCount %></span>
                             </div>
                         </div>
                     </div>
@@ -440,63 +311,57 @@
 
         <!-- ===== SECTION: MATERIAL & PERALATAN ===== -->
         <% if ((module.materials && module.materials.length > 0) || (module.tools && module.tools.length > 0)) { %>
-        <div class="w-full mt-20">
+        <div class="w-full max-w-[1400px] mx-auto mt-20">
 
             <!-- Divider + Search -->
             <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-14">
                 <div class="flex items-center gap-4 flex-1 min-w-0">
-                    <div class="flex-1 h-px bg-white/5"></div>
-                    <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-white/20 whitespace-nowrap">Komponen Konstruksi</span>
-                    <div class="flex-1 h-px bg-white/5"></div>
+                    <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-text-muted)] whitespace-nowrap">Komponen Konstruksi</span>
+                    <div class="flex-1 h-px bg-[var(--color-border)]"></div>
                 </div>
-                <div class="mv-search-wrap shrink-0">
-                    <div class="mv-search-icon">
+                <div class="relative shrink-0 max-w-[340px]">
+                    <div class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                     </div>
-                    <input class="mv-search-input" id="mv-search" type="text" placeholder="Cari komponen..." oninput="mvFilterComponents(this.value)">
+                    <input class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all" id="mv-search" type="text" placeholder="Cari komponen..." oninput="mvFilterComponents(this.value)">
                 </div>
             </div>
 
-            <!-- ── MATERIAL ─────────────────────────────────── -->
+            <!-- MATERIAL -->
             <% if (module.materials && module.materials.length > 0) { %>
             <div class="mb-16">
                 <div class="flex flex-wrap items-center gap-3 mb-6">
-                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-pln-yellow)]/10 text-[var(--color-pln-yellow)] text-[10px] font-bold tracking-[0.15em] uppercase border border-[var(--color-pln-yellow)]/20 shadow-[0_0_15px_rgba(255,213,0,0.1)]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-pln-yellow)] animate-pulse"></span>
+                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-accent)]/8 text-[var(--color-accent-dark)] text-[10px] font-bold tracking-[0.15em] uppercase border border-[var(--color-accent)]/15">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-pulse"></span>
                         Katalog Material
                     </span>
-                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.materials.length %> item</span>
+                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-accent)]/8 text-[var(--color-accent-dark)] border border-[var(--color-accent)]/10"><%= module.materials.length %> item</span>
                 </div>
 
                 <div class="mv-grid">
                     <% module.materials.forEach(function(row) { %>
                     <% const m = row.material || {}; %>
-
-                    <div class="mat-card mv-card mv-glass" data-id="<%= m.id %>" data-type="material">
-                        <!-- Image -->
+                    <div class="mat-card mv-card" data-id="<%= m.id %>" data-type="material">
                         <div class="mv-card-img">
                             <% if (m.image) { %>
                                 <img src="<%= m.image %>" alt="<%= m.name %>">
-                                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);pointer-events:none;"></div>
                             <% } else { %>
-                                <div class="mv-card-img-placeholder" style="background:<%= m.bgGradient || 'rgba(0,0,0,0.3)' %>;">
-                                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(255,213,0,0.1) 0%,transparent 65%);pointer-events:none;"></div>
-                                    <span style="font-size:2.5rem;position:relative;z-index:1;filter:drop-shadow(0 4px 12px rgba(0,0,0,0.5));"><%= m.icon || '📦' %></span>
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;"><%= m.icon || '📦' %></span>
                                 </div>
                             <% } %>
                             <div style="position:absolute;top:8px;right:8px;z-index:20;">
-                                <span style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:2px 8px;border-radius:9999px;background:rgba(0,0,0,0.45);color:rgba(255,255,255,0.78);border:1px solid rgba(255,255,255,0.14);backdrop-filter:blur(8px);">
+                                <span class="text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]">
                                     <%= m.categoryLabel || m.category || '' %>
                                 </span>
                             </div>
                             <% if (row.quantity && row.quantity > 1) { %>
                             <div style="position:absolute;bottom:8px;left:8px;z-index:20;">
-                                <span style="font-size:8px;font-weight:700;padding:2px 7px;border-radius:9999px;background:rgba(255,213,0,0.18);color:#FFD700;border:1px solid rgba(255,213,0,0.3);">× <%= row.quantity %></span>
+                                <span class="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/15">× <%= row.quantity %></span>
                             </div>
                             <% } %>
-                            <div class="mv-card-img-grad"></div>
                         </div>
-                        <!-- Body -->
                         <div class="mv-card-body">
                             <div class="mv-card-title"><%= m.name || '-' %></div>
                             <div class="mv-card-desc"><%= m.shortDesc || m.description || '' %></div>
@@ -508,10 +373,10 @@
                                         <span class="mv-card-stat-val"><%= m.categoryLabel || '-' %></span>
                                     </div>
                                     <% if (m.code) { %>
-                                    <div style="width:1px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
                                     <div class="mv-card-stat">
                                         <span class="mv-card-stat-label">Kode</span>
-                                        <span class="mv-card-stat-val" style="color:#60A5FA;"><%= m.code %></span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);"><%= m.code %></span>
                                     </div>
                                     <% } %>
                                 </div>
@@ -520,58 +385,45 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mv-electric-line"></div>
+                        <div class="mv-accent-line"></div>
                     </div>
                     <% }); %>
                 </div>
             </div>
             <% } %>
 
-            <!-- ── PERALATAN ────────────────────────────────── -->
+            <!-- PERALATAN -->
             <% if (module.tools && module.tools.length > 0) { %>
             <div>
                 <div class="flex flex-wrap items-center gap-3 mb-6">
-                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-pln-yellow)]/10 text-[var(--color-pln-yellow)] text-[10px] font-bold tracking-[0.15em] uppercase border border-[var(--color-pln-yellow)]/20 shadow-[0_0_15px_rgba(255,213,0,0.1)]">
-                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-pln-yellow)] animate-pulse"></span>
+                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-primary)]/5 text-[var(--color-primary)] text-[10px] font-bold tracking-[0.15em] uppercase border border-[var(--color-primary)]/10">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
                         Peralatan Lapangan
                     </span>
-                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-pln-yellow)]/8 text-[var(--color-pln-yellow)]/60 border border-[var(--color-pln-yellow)]/15"><%= module.tools.length %> item</span>
+                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-primary)]/5 text-[var(--color-primary)] border border-[var(--color-primary)]/10"><%= module.tools.length %> item</span>
                 </div>
 
                 <div class="mv-grid">
                     <% module.tools.forEach(function(row) { %>
                     <% const t = row.tool || {}; %>
-                    <%
-                        const catBadgeStyle = t.category === 'k3'
-                            ? 'background:rgba(239,68,68,0.15);color:#F87171;border-color:rgba(239,68,68,0.3);'
-                            : t.category === 'teknis'
-                            ? 'background:rgba(59,130,246,0.15);color:#60A5FA;border-color:rgba(59,130,246,0.3);'
-                            : 'background:rgba(168,85,247,0.15);color:#C084FC;border-color:rgba(168,85,247,0.3);';
-                    %>
-
-                    <div class="mat-card mv-card mv-glass" data-id="<%= t.id %>" data-type="tool">
-                        <!-- Image -->
+                    <div class="mat-card mv-card" data-id="<%= t.id %>" data-type="tool">
                         <div class="mv-card-img">
                             <% if (t.image) { %>
                                 <img src="<%= t.image %>" alt="<%= t.name %>">
-                                <div style="position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.6),transparent);pointer-events:none;"></div>
                             <% } else { %>
-                                <div class="mv-card-img-placeholder" style="background:<%= t.bgGradient || 'rgba(0,0,0,0.3)' %>;">
-                                    <div style="position:absolute;inset:0;background:radial-gradient(ellipse at center,rgba(245,158,11,0.1) 0%,transparent 65%);pointer-events:none;"></div>
-                                    <svg width="42" height="42" viewBox="0 0 24 24" fill="none" stroke="rgba(255,215,0,0.25)" stroke-width="1" style="position:relative;z-index:1;">
+                                <div class="mv-card-img-placeholder">
+                                    <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" stroke-width="1" opacity="0.25">
                                         <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
                                         <path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                     </svg>
                                 </div>
                             <% } %>
                             <div style="position:absolute;top:8px;right:8px;z-index:20;">
-                                <span style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;padding:2px 8px;border-radius:9999px;border:1px solid;backdrop-filter:blur(8px);<%= catBadgeStyle %>">
+                                <span class="text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]">
                                     <%= t.categoryLabel || t.category || '' %>
                                 </span>
                             </div>
-                            <div class="mv-card-img-grad"></div>
                         </div>
-                        <!-- Body -->
                         <div class="mv-card-body">
                             <div class="mv-card-title"><%= t.name || '-' %></div>
                             <div class="mv-card-desc"><%= t.description || '' %></div>
@@ -582,10 +434,10 @@
                                         <span class="mv-card-stat-label">Standar</span>
                                         <span class="mv-card-stat-val"><%= t.standard || '—' %></span>
                                     </div>
-                                    <div style="width:1px;background:rgba(255,255,255,0.07);flex-shrink:0;"></div>
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
                                     <div class="mv-card-stat">
                                         <span class="mv-card-stat-label">Status</span>
-                                        <span class="mv-card-stat-val" style="color:<%= t.status === 'Wajib' ? '#F87171' : '#34d399' %>;"><%= t.status || '-' %></span>
+                                        <span class="mv-card-stat-val" style="color:<%= t.status === 'Wajib' ? 'var(--color-error)' : 'var(--color-success)' %>;"><%= t.status || '-' %></span>
                                     </div>
                                 </div>
                                 <div class="mv-go-btn" style="margin-left:8px;">
@@ -593,7 +445,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="mv-electric-line"></div>
+                        <div class="mv-accent-line"></div>
                     </div>
                     <% }); %>
                 </div>
@@ -610,15 +462,11 @@
 
     <%- include('partials/footer') %>
 
-    <!-- Scripts -->
     <script src="/js/main.js"></script>
     <script src="/js/catalog-modal.js"></script>
-
-    <!-- Three.js Viewer Module -->
     <script type="module" src="/js/modul-viewer.js"></script>
 
     <script>
-        // Component search filter
         function mvFilterComponents(query) {
             var q = (query || '').toLowerCase().trim();
             document.querySelectorAll('.mat-card').forEach(function(card) {
@@ -628,7 +476,6 @@
             });
         }
 
-        // Fullscreen toggle for main viewer
         function toggleFullscreen() {
             var container = document.getElementById('viewer-container');
             if (!document.fullscreenElement) {
@@ -646,39 +493,27 @@
                 container.style.borderRadius = '0px';
                 container.style.border = 'none';
             } else if (container) {
-                container.style.borderRadius = '2.5rem';
-                container.style.border = '1px solid rgba(255, 255, 255, 0.1)';
+                container.style.borderRadius = '1.5rem';
+                container.style.border = '1px solid var(--color-border)';
             }
         });
 
-        // ==========================================
-        // Modal Logic for Material & Tool Cards
-        // ==========================================
         var modalData = <%- JSON.stringify([
             ...(module.materials || []).map(r => ({...(r.material || {}), type: 'material'})),
             ...(module.tools || []).map(r => ({...(r.tool || {}), type: 'tool'}))
         ]) %>;
 
         var MAT_IDS = {
-            overlay: 'mat-modal-overlay',
-            card: 'mat-modal-card',
-            modelViewer: 'mat-model-viewer',
-            canvasWrap: 'mat-canvas-wrap',
-            emptyState: 'mat-empty-state',
-            loadingOverlay: 'mat-loading-overlay',
-            spinner: 'mat-loading-spinner',
-            loadingText: 'mat-loading-text',
+            overlay: 'mat-modal-overlay', card: 'mat-modal-card',
+            modelViewer: 'mat-model-viewer', canvasWrap: 'mat-canvas-wrap',
+            emptyState: 'mat-empty-state', loadingOverlay: 'mat-loading-overlay',
+            spinner: 'mat-loading-spinner', loadingText: 'mat-loading-text',
         };
-
         var TOOLS_IDS = {
-            overlay: 'modal-overlay',
-            card: 'modal-card',
-            modelViewer: 'modal-model-viewer',
-            canvasWrap: 'modal-canvas-wrap',
-            emptyState: 'modal-empty-state',
-            loadingOverlay: 'modal-loading-overlay',
-            spinner: 'modal-loading-spinner',
-            loadingText: 'modal-loading-text',
+            overlay: 'modal-overlay', card: 'modal-card',
+            modelViewer: 'modal-model-viewer', canvasWrap: 'modal-canvas-wrap',
+            emptyState: 'modal-empty-state', loadingOverlay: 'modal-loading-overlay',
+            spinner: 'modal-loading-spinner', loadingText: 'modal-loading-text',
         };
 
         var currentMatAssets = [];
@@ -697,7 +532,7 @@
                 openCatalogModal(MAT_IDS, file3d, 'Memuat Skema Spasial...', function() {
                     var catEl = document.getElementById('mat-modal-category');
                     var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
-                    if (catEl) catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>' + catName;
+                    if (catEl) catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-primary)] opacity-70 animate-pulse"></span>' + catName;
                     var nameEl = document.getElementById('mat-modal-name');
                     if (nameEl) nameEl.textContent = item.name || '';
                     var codeEl = document.getElementById('mat-modal-code');
@@ -711,10 +546,7 @@
                     if (currentMatAssets.length > 1) {
                         if (prevBtn) prevBtn.style.display = 'flex';
                         if (nextBtn) nextBtn.style.display = 'flex';
-                        if (varName) {
-                            varName.style.display = 'block';
-                            varName.textContent = 'Varian 1/' + currentMatAssets.length + ': ' + (currentMatAssets[0].name || '-');
-                        }
+                        if (varName) { varName.style.display = 'block'; varName.textContent = 'Varian 1/' + currentMatAssets.length + ': ' + (currentMatAssets[0].name || '-'); }
                     } else {
                         if (prevBtn) prevBtn.style.display = 'none';
                         if (nextBtn) nextBtn.style.display = 'none';
@@ -774,7 +606,6 @@
             });
         });
 
-        // Material modal listeners
         var _matBtnClose = document.getElementById('mat-btn-close');
         var _matBtnFs = document.getElementById('mat-fullscreen-btn');
         if (_matBtnClose) _matBtnClose.addEventListener('click', function() { closeCatalogModal(MAT_IDS); });
@@ -784,7 +615,6 @@
         });
         initCatalogFullscreen('mat-canvas-wrap');
 
-        // Tools modal listeners
         var _toolBtnClose = document.getElementById('modal-btn-close');
         var _toolBtnFs = document.getElementById('modal-fullscreen-btn');
         if (_toolBtnClose) _toolBtnClose.addEventListener('click', function() { closeCatalogModal(TOOLS_IDS); });
@@ -794,7 +624,6 @@
         });
         initCatalogFullscreen('modal-canvas-wrap');
 
-        // Shared Escape handler
         document.addEventListener('keydown', function(e) {
             if (e.key !== 'Escape') return;
             var matOv = document.getElementById('mat-modal-overlay');

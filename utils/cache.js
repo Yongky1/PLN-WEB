@@ -1,7 +1,7 @@
 const _cache = new Map();
 
-const CACHE_FRESH_MS = 30_000;   // 30 detik: langsung dari cache
-const CACHE_STALE_MS = 120_000;  // 2 menit: serve stale, refresh background
+const CACHE_FRESH_MS = 30_000; // 30 detik: langsung dari cache
+const CACHE_STALE_MS = 120_000; // 2 menit: serve stale, refresh background
 
 async function cachedFetch(url) {
   const now = Date.now();
@@ -19,7 +19,7 @@ async function cachedFetch(url) {
     const age = now - hit.ts;
     if (age < CACHE_FRESH_MS) return hit.data;
     if (age < CACHE_STALE_MS) {
-      doFetch().catch(e => console.error('[cache] refresh error:', e.message));
+      doFetch().catch((e) => console.error('[cache] refresh error:', e.message));
       return hit.data;
     }
   }

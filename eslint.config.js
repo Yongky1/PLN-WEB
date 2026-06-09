@@ -35,7 +35,7 @@ module.exports = [
         fetch: 'readonly',
         AbortController: 'readonly',
         URL: 'readonly',
-        // Browser globals (untuk file JS di public/)
+        // Browser globals
         window: 'readonly',
         document: 'readonly',
         navigator: 'readonly',
@@ -55,6 +55,33 @@ module.exports = [
         requestAnimationFrame: 'readonly',
         cancelAnimationFrame: 'readonly',
         THREE: 'readonly',
+        Image: 'readonly',
+        performance: 'readonly',
+        DataTransfer: 'readonly',
+        event: 'readonly',
+        ResizeObserver: 'readonly',
+        location: 'readonly',
+        // App globals
+        showToast: 'readonly',
+        fetchBackend: 'readonly',
+        gsap: 'readonly',
+        ScrollTrigger: 'readonly',
+        closeEditModal: 'readonly',
+        closeAddMatModal: 'readonly',
+        closeAddToolModal: 'readonly',
+        closeAddKonstruksiModal: 'readonly',
+        getAdminSkeleton: 'readonly',
+        setToolFilter: 'readonly',
+        setMatFilter: 'readonly',
+        changeAdminPreview: 'readonly',
+        showConfirmDialog: 'readonly',
+        refreshAdminPreviewSelector: 'readonly',
+        initDropZone: 'readonly',
+        initImageDropZone: 'readonly',
+        openCatalogModal: 'readonly',
+        closeCatalogModal: 'readonly',
+        toggleCatalogFullscreen: 'readonly',
+        initCatalogFullscreen: 'readonly',
       },
     },
     rules: {
@@ -66,6 +93,7 @@ module.exports = [
       'no-console': 'off',
       'no-var': 'error',
       'prefer-const': 'warn',
+      'no-empty': 'warn',
 
       // --- Error Prevention ---
       'no-undef': 'error',
@@ -73,6 +101,13 @@ module.exports = [
 
       // --- Prettier ---
       'prettier/prettier': 'warn',
+    },
+  },
+  // Khusus untuk file yang menggunakan ES Modules
+  {
+    files: ['tailwind.config.js', 'vite.config.js', 'public/js/modul-viewer.js', 'public/js/admin/mapping-viewer.js', 'src/**/*.js'],
+    languageOptions: {
+      sourceType: 'module',
     },
   },
 ];
