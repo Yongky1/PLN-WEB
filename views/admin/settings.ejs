@@ -1,29 +1,23 @@
 <!-- views/admin/settings.ejs -->
 <div class="rd-page-head" style="margin-bottom: 24px;">
-  <div class="rd-page-title-block">
-    <h1 class="rd-page-title">Pengaturan Akun</h1>
-  </div>
+  <h1 class="rd-page-title" style="font-size: 26px; font-weight: 700; color: var(--text-primary); margin: 0;">Pengaturan Akun</h1>
 </div>
 
 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 24px; align-items: start;">
 
     <!-- Profil Card -->
-    <div class="rd-section-block">
-        <div class="rd-section-head" style="margin-bottom: 8px;">
-            <div class="rd-section-title">Profil Administrator</div>
-        </div>
-        
-        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid var(--border-subtle);">
-            <div style="width: 56px; height: 56px; border-radius: 8px; background: var(--bg-surface-2); border: 1px solid var(--border-default); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); font-size: 20px; font-weight: 600;">
+    <div class="rd-data-card" style="padding: 32px 28px;">
+        <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 32px;">
+            <div style="width: 64px; height: 64px; border-radius: 50%; background: var(--pln-blue); display: flex; align-items: center; justify-content: center; color: #FFFFFF; font-size: 24px; font-weight: 600;">
                 <%= typeof adminProfile !== 'undefined' && adminProfile && adminProfile.name ? adminProfile.name[0].toUpperCase() : 'A' %>
             </div>
             <div>
-                <div style="font-weight: 600; font-size: 14px; color: var(--text-primary);"><%= typeof adminProfile !== 'undefined' && adminProfile ? adminProfile.name : 'Super Admin' %></div>
-                <div style="font-size: 13px; color: var(--text-tertiary);"><%= typeof adminProfile !== 'undefined' && adminProfile ? adminProfile.email : 'admin@pln.co.id' %></div>
+                <div style="font-weight: 700; font-size: 18px; color: var(--text-primary);"><%= typeof adminProfile !== 'undefined' && adminProfile ? adminProfile.name : 'Super Admin' %></div>
+                <div style="font-size: 13.5px; color: var(--text-secondary); margin-top: 4px;"><%= typeof adminProfile !== 'undefined' && adminProfile && adminProfile.unit ? adminProfile.unit : 'Administrator' %></div>
             </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; flex-direction:column; gap:20px;">
             <div class="rd-field-group">
                 <label class="rd-field-label">Nama Lengkap</label>
                 <input id="s-name" type="text" class="rd-input" value="<%= typeof adminProfile !== 'undefined' && adminProfile ? adminProfile.name : '' %>" placeholder="Nama lengkap">
@@ -36,36 +30,32 @@
                 <label class="rd-field-label">Unit Kerja</label>
                 <input id="s-unit" type="text" class="rd-input" value="<%= typeof adminProfile !== 'undefined' && adminProfile ? adminProfile.unit : '' %>" placeholder="Unit kerja">
             </div>
-            <div style="margin-top: 8px;">
-                <button class="rd-btn rd-btn-primary" onclick="saveProfile()">Simpan Perubahan</button>
+            <div style="margin-top: 12px;">
+                <button class="rd-btn rd-btn-primary" onclick="saveProfile()" style="width: 100%; justify-content: center; padding: 12px; font-size: 14.5px; font-weight: 600; border-radius: 8px;">Simpan Perubahan</button>
             </div>
         </div>
     </div>
 
     <!-- Security Card -->
-    <div class="rd-section-block">
-        <div class="rd-section-head" style="margin-bottom: 16px;">
-            <div class="rd-section-title">Ganti Password</div>
-        </div>
+    <div class="rd-data-card" style="padding: 32px 28px;">
+        <h2 style="font-size: 20px; font-weight: 700; color: var(--text-primary); margin: 0 0 32px 0;">Keamanan & Privasi</h2>
 
-        <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="display:flex; flex-direction:column; gap:20px;">
             <div class="rd-field-group">
                 <label class="rd-field-label">Password Lama</label>
-                <input id="pw-old" type="password" class="rd-input" placeholder="Password lama">
+                <input id="pw-old" type="password" class="rd-input" placeholder="••••••••">
             </div>
             <div class="rd-field-group">
                 <label class="rd-field-label">Password Baru</label>
-                <input id="pw-new" type="password" class="rd-input" placeholder="Password baru">
+                <input id="pw-new" type="password" class="rd-input" placeholder="••••••••">
             </div>
             <div class="rd-field-group">
-                <label class="rd-field-label">Konfirmasi Password Baru</label>
-                <input id="pw-confirm" type="password" class="rd-input" placeholder="Konfirmasi password baru">
+                <label class="rd-field-label">Konfirmasi Password</label>
+                <input id="pw-confirm" type="password" class="rd-input" placeholder="••••••••">
             </div>
-            <div id="pw-error" style="font-size:12.5px; color:var(--status-danger, #EF4444); background: rgba(239, 68, 68, 0.1); padding: 8px 12px; border-radius: 6px; display:none; align-items: center; gap: 6px;">
-                <span>Password baru dan konfirmasi tidak cocok.</span>
-            </div>
-            <div style="margin-top: 8px;">
-                <button class="rd-btn rd-btn-secondary" onclick="savePassword()">Ganti Password</button>
+            <div id="pw-error" style="font-size:12.5px; color:var(--status-danger, #EF4444); display:none;">Password baru dan konfirmasi tidak cocok.</div>
+            <div style="margin-top: 12px;">
+                <button class="rd-btn rd-btn-primary" onclick="savePassword()" style="width: 100%; justify-content: center; padding: 12px; font-size: 14.5px; font-weight: 600; border-radius: 8px;">Ganti Password</button>
             </div>
         </div>
     </div>
