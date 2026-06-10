@@ -27,6 +27,26 @@ async function saveProfile() {
       throw new Error(result.error || 'Gagal menyimpan profil');
     }
 
+    // Update DOM (Card Profil)
+    const avatarEl = document.getElementById('profile-card-avatar');
+    if (avatarEl) avatarEl.innerText = name[0].toUpperCase();
+    
+    const nameEl = document.getElementById('profile-card-name');
+    if (nameEl) nameEl.innerText = name;
+    
+    const unitEl = document.getElementById('profile-card-unit');
+    if (unitEl) unitEl.innerText = unit;
+
+    // Update DOM (Sidebar)
+    const sbAvatar = document.querySelector('.rd-sidebar-footer .rd-avatar');
+    if (sbAvatar) sbAvatar.innerText = name[0].toUpperCase();
+
+    const sbName = document.querySelector('.rd-sidebar-footer .uname');
+    if (sbName) sbName.innerText = name;
+
+    const sbUnit = document.querySelector('.rd-sidebar-footer .urole');
+    if (sbUnit) sbUnit.innerText = unit;
+
     showToast('Profil berhasil disimpan!', 'success');
   } catch (err) {
     console.error(err);
