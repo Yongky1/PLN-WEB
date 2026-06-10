@@ -43,7 +43,7 @@
       justify-content: center;
       padding: 0 48px;
       overflow: hidden;
-      background: linear-gradient(135deg, #0052A3 0%, #003D7A 50%, #0A2A5C 100%);
+      background: linear-gradient(135deg, #00B4D8 0%, #0070D4 50%, #0052A3 100%);
     }
 
     .left::before {
@@ -535,10 +535,10 @@
     <div class="left">
       <div class="waves">
         <svg class="wave-svg w3" viewBox="0 0 2400 800" preserveAspectRatio="none">
-          <path d="M0,560 C200,500 400,620 600,560 C800,500 1000,620 1200,560 C1400,500 1600,620 1800,560 C2000,500 2200,620 2400,560 L2400,800 L0,800 Z" fill="#0052A3"/>
+          <path d="M0,560 C200,500 400,620 600,560 C800,500 1000,620 1200,560 C1400,500 1600,620 1800,560 C2000,500 2200,620 2400,560 L2400,800 L0,800 Z" fill="#3B82F6"/>
         </svg>
         <svg class="wave-svg w1" viewBox="0 0 2400 800" preserveAspectRatio="none">
-          <path d="M0,620 C200,580 400,680 600,620 C800,560 1000,680 1200,620 C1400,560 1600,680 1800,620 C2000,560 2200,680 2400,620 L2400,800 L0,800 Z" fill="#F5A623"/>
+          <path d="M0,620 C200,580 400,680 600,620 C800,560 1000,680 1200,620 C1400,560 1600,680 1800,620 C2000,560 2200,680 2400,620 L2400,800 L0,800 Z" fill="#60A5FA"/>
         </svg>
         <svg class="wave-svg w2" viewBox="0 0 2400 800" preserveAspectRatio="none">
           <path d="M0,680 C300,640 600,720 900,680 C1200,640 1500,720 1800,680 C2100,640 2400,720 2400,680 L2400,800 L0,800 Z" fill="#ffffff"/>
@@ -549,35 +549,35 @@
         <svg viewBox="0 0 1400 700" preserveAspectRatio="xMidYMid slice">
           <defs>
             <linearGradient id="sky-grad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stop-color="#0052A3"/>
-              <stop offset="55%"  stop-color="#0070D4"/>
-              <stop offset="80%"  stop-color="#5fa8dc"/>
-              <stop offset="100%" stop-color="#ffd280"/>
+              <stop offset="0%"   stop-color="#0070D4"/>
+              <stop offset="55%"  stop-color="#3AA6F2"/>
+              <stop offset="80%"  stop-color="#80C8FE"/>
+              <stop offset="100%" stop-color="#D4EFFF"/>
             </linearGradient>
           </defs>
           <!-- opaque sky background so waves don't bleed through -->
           <rect x="0" y="0" width="1400" height="700" fill="url(#sky-grad)"/>
           
-          <!-- morning clouds -->
-          <path class="cloud" d="M 120,130 C 130,115 155,115 165,130 C 175,120 195,120 200,130 C 210,135 210,145 200,150 L 120,150 Z" fill="rgba(255,255,255,0.15)" filter="blur(2px)"/>
-          <path class="cloud c2" d="M 850,90 C 865,70 900,70 915,90 C 930,78 955,78 962,90 C 975,98 975,110 962,118 L 850,118 Z" fill="rgba(255,255,255,0.12)" filter="blur(3px)"/>
-          <path class="cloud" d="M 500,150 C 510,138 530,138 540,150 C 550,142 565,142 570,150 C 580,154 580,162 570,166 L 500,166 Z" fill="rgba(255,255,255,0.1)" filter="blur(2px)" style="animation-delay:-4s"/>
+          <!-- daytime clouds -->
+          <path class="cloud" d="M 120,130 C 130,115 155,115 165,130 C 175,120 195,120 200,130 C 210,135 210,145 200,150 L 120,150 Z" fill="rgba(255,255,255,0.6)" filter="blur(2px)"/>
+          <path class="cloud c2" d="M 850,90 C 865,70 900,70 915,90 C 930,78 955,78 962,90 C 975,98 975,110 962,118 L 850,118 Z" fill="rgba(255,255,255,0.5)" filter="blur(3px)"/>
+          <path class="cloud" d="M 500,150 C 510,138 530,138 540,150 C 550,142 565,142 570,150 C 580,154 580,162 570,166 L 500,166 Z" fill="rgba(255,255,255,0.4)" filter="blur(2px)" style="animation-delay:-4s"/>
 
-          <!-- morning birds -->
+          <!-- daytime birds -->
           <path class="bird b1" d="M 280,90 Q 284,83 288,90 Q 292,83 296,90" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" stroke-linecap="round"/>
           <path class="bird b2" d="M 310,105 Q 313,99 316,105 Q 319,99 322,105" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.2" stroke-linecap="round"/>
           <path class="bird b3" d="M 260,115 Q 262,110 264,115 Q 266,110 268,115" fill="none" stroke="rgba(255,255,255,0.4)" stroke-width="1.0" stroke-linecap="round"/>
 
-          <!-- glowing morning sun -->
+          <!-- glowing daytime sun -->
           <g class="sun">
-            <circle cx="1199" cy="130" r="32" fill="#ffffff" filter="drop-shadow(0 0 16px #ffe59c)"/>
-            <circle cx="1199" cy="130" r="32" fill="#ffe59c" opacity="0.35"/>
+            <circle cx="1199" cy="130" r="32" fill="#ffffff" filter="drop-shadow(0 0 16px #FFD700)"/>
+            <circle cx="1199" cy="130" r="32" fill="#FFF200" opacity="0.6"/>
           </g>
 
-          <!-- mountain silhouette (morning teal-blue hues) -->
-          <path d="M0,500 L120,420 L240,460 L380,380 L520,440 L660,400 L820,470 L960,420 L1100,460 L1260,400 L1400,440 L1400,700 L0,700 Z" fill="#092d5c"/>
-          <rect x="0" y="500" width="1400" height="200" fill="#051c3c"/>
-          <line x1="0" y1="500" x2="1400" y2="500" stroke="rgba(245,166,35,0.22)" stroke-width="0.8"/>
+          <!-- mountain silhouette (daytime blue hues) -->
+          <path d="M0,500 L120,420 L240,460 L380,380 L520,440 L660,400 L820,470 L960,420 L1100,460 L1260,400 L1400,440 L1400,700 L0,700 Z" fill="#1C5E9E"/>
+          <rect x="0" y="500" width="1400" height="200" fill="#14467A"/>
+          <line x1="0" y1="500" x2="1400" y2="500" stroke="rgba(255,255,255,0.22)" stroke-width="0.8"/>
 
           <!-- POLE 1 (left) -->
           <g>
