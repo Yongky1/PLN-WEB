@@ -148,8 +148,9 @@
 <div id="toast" style="
   display:none;
   position:fixed;
-  bottom:28px;
-  right:28px;
+  top:32px;
+  left:50%;
+  transform:translateX(-50%);
   padding:12px 20px;
   border-radius:10px;
   font-size:13px;
@@ -158,7 +159,7 @@
   z-index:99999;
   box-shadow:0 4px 24px rgba(0,0,0,0.35);
   opacity:0;
-  transition:opacity 0.25s ease;
+  transition:opacity 0.25s ease, transform 0.25s ease;
   pointer-events:none;
   max-width:360px;
   line-height:1.4;
