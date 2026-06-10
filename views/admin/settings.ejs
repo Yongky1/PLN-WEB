@@ -1,24 +1,24 @@
 <!-- views/admin/settings.ejs -->
 <div style="max-width:560px; display:flex; flex-direction:column; gap:16px;">
 
-    <div class="admin-card">
-        <h3 class="section-title">Profil Administrator</h3>
+    <div class="rd-section-block">
+        <div class="rd-section-head"><h3 class="rd-section-title">Profil Administrator</h3></div>
         <div style="display:flex; flex-direction:column; gap:14px;">
-            <div><label class="admin-label">Nama Lengkap</label><input id="s-name"  type="text"  class="admin-input" value="<%= adminProfile ? adminProfile.name : '' %>"></div>
-            <div><label class="admin-label">Email</label>        <input id="s-email" type="email" class="admin-input" value="<%= adminProfile ? adminProfile.email : '' %>"></div>
-            <div><label class="admin-label">Unit</label>         <input id="s-unit"  type="text"  class="admin-input" value="<%= adminProfile ? adminProfile.unit : '' %>"></div>
-            <button class="btn-primary" style="align-self:flex-start;" onclick="saveProfile()">Simpan Perubahan</button>
+            <div class="rd-field-group"><label class="rd-field-label">Nama Lengkap</label><input id="s-name"  type="text"  class="rd-input" value="<%= adminProfile ? adminProfile.name : '' %>"></div>
+            <div class="rd-field-group"><label class="rd-field-label">Email</label>        <input id="s-email" type="email" class="rd-input" value="<%= adminProfile ? adminProfile.email : '' %>"></div>
+            <div class="rd-field-group"><label class="rd-field-label">Unit</label>         <input id="s-unit"  type="text"  class="rd-input" value="<%= adminProfile ? adminProfile.unit : '' %>"></div>
+            <button class="rd-btn rd-btn-primary" style="align-self:flex-start; margin-top: 8px;" onclick="saveProfile()">Simpan Perubahan</button>
         </div>
     </div>
 
-    <div class="admin-card">
-        <h3 class="section-title">Keamanan</h3>
+    <div class="rd-section-block">
+        <div class="rd-section-head"><h3 class="rd-section-title">Keamanan</h3></div>
         <div style="display:flex; flex-direction:column; gap:14px;">
-            <div><label class="admin-label">Password Lama</label>          <input id="pw-old"     type="password" class="admin-input" placeholder="Masukkan password lama"></div>
-            <div><label class="admin-label">Password Baru</label>           <input id="pw-new"     type="password" class="admin-input" placeholder="Masukkan password baru"></div>
-            <div><label class="admin-label">Konfirmasi Password Baru</label><input id="pw-confirm" type="password" class="admin-input" placeholder="Ulangi password baru"></div>
-            <div id="pw-error" style="font-size:12px; color:#EF4444; display:none;">Password baru dan konfirmasi tidak cocok.</div>
-            <button class="btn-secondary" style="align-self:flex-start;" onclick="savePassword()">Ganti Password</button>
+            <div class="rd-field-group"><label class="rd-field-label">Password Lama</label>          <input id="pw-old"     type="password" class="rd-input" placeholder="Masukkan password lama"></div>
+            <div class="rd-field-group"><label class="rd-field-label">Password Baru</label>           <input id="pw-new"     type="password" class="rd-input" placeholder="Masukkan password baru"></div>
+            <div class="rd-field-group"><label class="rd-field-label">Konfirmasi Password Baru</label><input id="pw-confirm" type="password" class="rd-input" placeholder="Ulangi password baru"></div>
+            <div id="pw-error" style="font-size:12px; color:var(--status-danger, #EF4444); display:none;">Password baru dan konfirmasi tidak cocok.</div>
+            <button class="rd-btn rd-btn-secondary" style="align-self:flex-start; margin-top: 8px;" onclick="savePassword()">Ganti Password</button>
         </div>
     </div>
 </div>
