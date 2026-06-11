@@ -11,6 +11,87 @@
     #<%=_modalId %>.active {
       display: flex !important;
     }
+
+    .custom-variant-select-container {
+      position: relative;
+      width: 100%;
+      font-family: inherit;
+    }
+    .cvs-trigger {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      border-radius: 12px;
+      color: #1e293b;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      transition: all 0.2s ease;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+    .cvs-trigger:hover {
+      background: rgba(255, 255, 255, 0.95);
+      border-color: rgba(0, 0, 0, 0.15);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+    }
+    .cvs-options {
+      position: absolute;
+      bottom: calc(100% + 8px);
+      left: 0;
+      right: 0;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(16px);
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      display: none;
+      flex-direction: column;
+      z-index: 100;
+      max-height: 200px;
+      overflow-y: auto;
+      transform: translateY(10px);
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+    .cvs-options.open {
+      display: flex;
+      animation: cvsSlideUp 0.2s forwards ease-out;
+    }
+    @keyframes cvsSlideUp {
+      from { transform: translateY(10px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .cvs-option {
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #334155;
+      cursor: pointer;
+      transition: background 0.15s ease;
+      border-bottom: 1px solid rgba(0,0,0,0.04);
+    }
+    .cvs-option:last-child {
+      border-bottom: none;
+    }
+    .cvs-option:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+    .cvs-option.selected {
+      background: #eff6ff;
+      color: #2563eb;
+      font-weight: 600;
+    }
+    .cvs-options::-webkit-scrollbar { width: 6px; }
+    .cvs-options::-webkit-scrollbar-track { background: transparent; }
+    .cvs-options::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.1); border-radius: 10px; }
+    .cvs-options::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.2); }
   </style>
   <div id="<%= _modalId %>" class="rd-modal-overlay" onclick="if(event.target===this)closeEditModal()">
     <div class="rd-modal">
@@ -132,12 +213,67 @@
                 </svg>
                 <span style="font-size:12px;font-weight:600;">Belum ada file GLB terpilih</span>
               </div>
-              <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
-                <select id="<%= _selId %>" onchange="<%= _onChange %>" class="rd-select"
-                  style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
+              <div class="custom-variant-select-container" style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
+                <select id="<%= _selId %>" onchange="<%= _onChange %>" style="display:none;">
                   <option value="">-- Pilih Varian untuk Preview --</option>
                 </select>
+                <div class="cvs-trigger" onclick="toggleCvs('<%= _selId %>')">
+                  <span id="cvs-text-<%= _selId %>">-- Pilih Varian untuk Preview --</span>
+                  <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>
+                </div>
+                <div class="cvs-options" id="cvs-options-<%= _selId %>"></div>
               </div>
+              <script>
+              (function() {
+                const selId = "<%= _selId %>";
+                function initCustomSelect() {
+                  const sel = document.getElementById(selId);
+                  if(!sel) return;
+                  const triggerText = document.getElementById('cvs-text-' + selId);
+                  const optionsContainer = document.getElementById('cvs-options-' + selId);
+                  function rebuild() {
+                    optionsContainer.innerHTML = '';
+                    const opts = Array.from(sel.options);
+                    const selectedOpt = opts[sel.selectedIndex];
+                    if(selectedOpt) triggerText.textContent = selectedOpt.textContent;
+                    opts.forEach((opt, idx) => {
+                      const div = document.createElement('div');
+                      div.className = 'cvs-option' + (idx === sel.selectedIndex ? ' selected' : '');
+                      div.textContent = opt.textContent;
+                      div.onclick = (e) => {
+                        e.stopPropagation();
+                        sel.selectedIndex = idx;
+                        sel.dispatchEvent(new Event('change'));
+                        triggerText.textContent = opt.textContent;
+                        optionsContainer.classList.remove('open');
+                        Array.from(optionsContainer.children).forEach(c => c.classList.remove('selected'));
+                        div.classList.add('selected');
+                      };
+                      optionsContainer.appendChild(div);
+                    });
+                  }
+                  const observer = new MutationObserver(rebuild);
+                  observer.observe(sel, { childList: true, subtree: true, attributes: true, attributeFilter: ['selected'] });
+                  rebuild();
+                  window.toggleCvs = window.toggleCvs || function(id) {
+                    const cont = document.getElementById('cvs-options-' + id);
+                    const isO = cont.classList.contains('open');
+                    document.querySelectorAll('.cvs-options').forEach(c => c.classList.remove('open'));
+                    if(!isO) cont.classList.add('open');
+                  };
+                  document.addEventListener('click', (e) => {
+                    if(!e.target.closest('.custom-variant-select-container')) {
+                      document.querySelectorAll('.cvs-options').forEach(c => c.classList.remove('open'));
+                    }
+                  });
+                }
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initCustomSelect);
+                } else {
+                  initCustomSelect();
+                }
+              })();
+              </script>
             </div>
           </div>
         </div>
