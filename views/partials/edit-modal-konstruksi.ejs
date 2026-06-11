@@ -12,6 +12,86 @@
       display: flex !important;
     }
 
+    #<%=_modalId %> .rd-input,
+    #<%=_modalId %> .rd-textarea,
+    #<%=_modalId %> .rd-select {
+      background: #ffffff !important;
+      border: 1px solid rgba(0,0,0,0.15) !important;
+      color: #1e293b !important;
+    }
+    #<%=_modalId %> .rd-input:focus,
+    #<%=_modalId %> .rd-textarea:focus,
+    #<%=_modalId %> .rd-select:focus {
+      border-color: #0ea5e9 !important;
+      box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+    }
+    #<%=_modalId %> .rd-drop-zone {
+      background: #ffffff !important;
+      border-color: rgba(0,0,0,0.15) !important;
+    }
+
+    /* Light Theme overrides for upload cards in Edit Modal */
+    #<%=_modalId %> .upload-card {
+      background: #ffffff !important;
+      border: 1px solid rgba(0,0,0,0.1) !important;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.03) !important;
+    }
+    #<%=_modalId %> .upload-card-header {
+      border-bottom: 1px solid rgba(0,0,0,0.05);
+      padding-bottom: 10px;
+      margin-bottom: 10px;
+    }
+    #<%=_modalId %> .card-label {
+      color: #0ea5e9 !important;
+    }
+    #<%=_modalId %> .admin-label {
+      color: #475569 !important;
+      font-weight: 700 !important;
+    }
+    #<%=_modalId %> .admin-input {
+      background: #ffffff !important;
+      border: 1px solid rgba(0,0,0,0.1) !important;
+      color: #1e293b !important;
+    }
+    #<%=_modalId %> .admin-input::placeholder {
+      color: #94a3b8 !important;
+    }
+    #<%=_modalId %> .admin-input:focus {
+      border-color: #0ea5e9 !important;
+      background: #ffffff !important;
+      box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+    }
+    #<%=_modalId %> .file-drop-zone {
+      border-color: rgba(0,0,0,0.15) !important;
+      background: #ffffff !important;
+    }
+    #<%=_modalId %> .file-drop-zone .drop-icon {
+      color: #94a3b8 !important;
+    }
+    #<%=_modalId %> .file-drop-zone .drop-label {
+      color: #475569 !important;
+      font-weight: 500 !important;
+    }
+    #<%=_modalId %> .file-drop-zone span {
+      color: #64748b !important;
+    }
+    #<%=_modalId %> .card-close-btn {
+      color: #ef4444 !important;
+      background: #fee2e2 !important;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: none;
+      cursor: pointer;
+    }
+    #<%=_modalId %> .card-close-btn:hover {
+      background: #fca5a5 !important;
+      color: #b91c1c !important;
+    }
+
     .custom-variant-select-container {
       position: relative;
       width: 100%;
@@ -203,12 +283,28 @@
           <div class="rd-field-row cols-2">
             <div class="rd-field-group">
               <label class="rd-field-label">Material</label>
+              <input type="text" class="rd-input" placeholder="Cari material..." style="margin-bottom:8px; padding:6px 12px; font-size:12px;" oninput="
+                const val = this.value.toLowerCase();
+                const items = document.querySelectorAll('#edit-modul-materials-list .mat-item');
+                items.forEach(item => {
+                  const text = item.querySelector('span:nth-child(3)').textContent.toLowerCase();
+                  item.style.display = text.includes(val) ? 'flex' : 'none';
+                });
+              ">
               <div id="edit-modul-materials-list"
                 style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding:8px;background:var(--bg-base);border:1px solid var(--border-default);border-radius:8px;">
               </div>
             </div>
             <div class="rd-field-group">
               <label class="rd-field-label">Peralatan</label>
+              <input type="text" class="rd-input" placeholder="Cari peralatan..." style="margin-bottom:8px; padding:6px 12px; font-size:12px;" oninput="
+                const val = this.value.toLowerCase();
+                const items = document.querySelectorAll('#edit-modul-tools-list .tool-item');
+                items.forEach(item => {
+                  const text = item.querySelector('span:nth-child(3)').textContent.toLowerCase();
+                  item.style.display = text.includes(val) ? 'flex' : 'none';
+                });
+              ">
               <div id="edit-modul-tools-list"
                 style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding:8px;background:var(--bg-base);border:1px solid var(--border-default);border-radius:8px;">
               </div>
