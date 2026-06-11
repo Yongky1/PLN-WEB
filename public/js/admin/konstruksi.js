@@ -97,7 +97,7 @@ window.toggleMatItem = function (el, mid) {
   if (cb.checked) {
     el.style.background = 'rgba(129,140,248,0.12)';
     el.style.borderColor = 'rgba(129,140,248,0.35)';
-    if (nameEl) nameEl.style.color = 'rgba(255,255,255,0.9)';
+    if (nameEl) nameEl.style.color = 'rgba(27,43,75,0.9)';
     badge.style.background = '#818CF8';
     badge.style.borderColor = '#818CF8';
     badge.innerHTML =
@@ -178,7 +178,7 @@ window.toggleToolItem = function (el, tid) {
   if (cb.checked) {
     el.style.background = 'rgba(245,158,11,0.1)';
     el.style.borderColor = 'rgba(245,158,11,0.35)';
-    if (nameEl) nameEl.style.color = 'rgba(255,255,255,0.9)';
+    if (nameEl) nameEl.style.color = 'rgba(27,43,75,0.9)';
     badge.style.background = '#F59E0B';
     badge.style.borderColor = '#F59E0B';
     badge.innerHTML =
@@ -863,13 +863,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchMat = document.getElementById('search-select-material');
   if (searchMat) {
     searchMat.addEventListener('input', (e) => {
-      renderMaterialList(
-        'modul-materials-list',
-        window._allMaterialsGlobal,
-        [],
-        false,
-        e.target.value
-      );
+      const val = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('#modul-materials-list .mat-item');
+      items.forEach(item => {
+        const text = item.querySelector('span:nth-child(3)').textContent.toLowerCase();
+        item.style.display = text.includes(val) ? 'flex' : 'none';
+      });
     });
   }
 
@@ -877,7 +876,12 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchTool = document.getElementById('search-select-tools');
   if (searchTool) {
     searchTool.addEventListener('input', (e) => {
-      renderToolList('modul-tools-list', window._allToolsGlobal, [], false, e.target.value);
+      const val = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('#modul-tools-list .tool-item');
+      items.forEach(item => {
+        const text = item.querySelector('span:nth-child(3)').textContent.toLowerCase();
+        item.style.display = text.includes(val) ? 'flex' : 'none';
+      });
     });
   }
 

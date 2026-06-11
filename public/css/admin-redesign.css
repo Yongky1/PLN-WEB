@@ -1634,3 +1634,89 @@ body.rd-body {
   box-shadow: var(--shadow-lg) !important;
   color: var(--text-primary) !important;
 }
+
+/* =========================================================================
+   Light Theme overrides for modals (Add/Edit)
+   ========================================================================= */
+.rd-modal .rd-input,
+.rd-modal .rd-textarea,
+.rd-modal .rd-select {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.15) !important;
+  color: #1e293b !important;
+}
+.rd-modal .rd-input:focus,
+.rd-modal .rd-textarea:focus,
+.rd-modal .rd-select:focus {
+  border-color: #0ea5e9 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+}
+.rd-modal .rd-input::placeholder,
+.rd-modal .rd-textarea::placeholder {
+  color: #94a3b8 !important;
+}
+.rd-modal .rd-drop-zone {
+  background: #ffffff !important;
+  border-color: rgba(0,0,0,0.15) !important;
+}
+.rd-modal .upload-card {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.03) !important;
+}
+.rd-modal .upload-card-header {
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  padding-bottom: 10px;
+  margin-bottom: 10px;
+}
+.rd-modal .card-label {
+  color: #0ea5e9 !important;
+}
+.rd-modal .admin-label {
+  color: #475569 !important;
+  font-weight: 700 !important;
+}
+.rd-modal .admin-input {
+  background: #ffffff !important;
+  border: 1px solid rgba(0,0,0,0.1) !important;
+  color: #1e293b !important;
+}
+.rd-modal .admin-input::placeholder {
+  color: #94a3b8 !important;
+}
+.rd-modal .admin-input:focus {
+  border-color: #0ea5e9 !important;
+  background: #ffffff !important;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.1) !important;
+}
+.rd-modal .file-drop-zone {
+  border-color: rgba(0,0,0,0.15) !important;
+  background: #ffffff !important;
+}
+.rd-modal .file-drop-zone .drop-icon {
+  color: #94a3b8 !important;
+}
+.rd-modal .file-drop-zone .drop-label {
+  color: #475569 !important;
+  font-weight: 500 !important;
+}
+.rd-modal .file-drop-zone span {
+  color: #64748b !important;
+}
+.rd-modal .card-close-btn {
+  color: #ef4444 !important;
+  background: #fee2e2 !important;
+  border-radius: 50%;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  cursor: pointer;
+}
+.rd-modal .card-close-btn:hover {
+  background: #fca5a5 !important;
+  color: #b91c1c !important;
+}
