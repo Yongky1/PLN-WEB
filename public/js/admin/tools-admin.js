@@ -8,6 +8,56 @@ window.currentEditingId = null;
 window.allTools = [];
 window.toolCategories = [];
 
+window.bindCustomSelect = function(selId) {
+  const sel = document.getElementById(selId);
+  if(!sel) return;
+  const triggerText = document.getElementById('cvs-text-' + selId);
+  const optionsContainer = document.getElementById('cvs-options-' + selId);
+  function rebuild() {
+    optionsContainer.innerHTML = '';
+    const opts = Array.from(sel.options);
+    const selectedOpt = opts[sel.selectedIndex];
+    if(selectedOpt) triggerText.textContent = selectedOpt.textContent;
+    opts.forEach((opt, idx) => {
+      const div = document.createElement('div');
+      div.className = 'cvs-option' + (idx === sel.selectedIndex ? ' selected' : '');
+      div.textContent = opt.textContent;
+      div.onclick = (e) => {
+        e.stopPropagation();
+        sel.selectedIndex = idx;
+        sel.dispatchEvent(new Event('change'));
+        optionsContainer.classList.remove('open');
+      };
+      optionsContainer.appendChild(div);
+    });
+  }
+  sel.addEventListener('change', () => {
+    const selectedOpt = sel.options[sel.selectedIndex];
+    if(selectedOpt) triggerText.textContent = selectedOpt.textContent;
+    Array.from(optionsContainer.children).forEach((c, idx) => {
+      c.classList.toggle('selected', idx === sel.selectedIndex);
+    });
+  });
+  
+  const observer = new MutationObserver(rebuild);
+  observer.observe(sel, { childList: true });
+  rebuild();
+};
+
+window.toggleCvs = window.toggleCvs || function(id) {
+  const cont = document.getElementById('cvs-options-' + id);
+  if(!cont) return;
+  const isO = cont.classList.contains('open');
+  document.querySelectorAll('.cvs-options').forEach(c => c.classList.remove('open'));
+  if(!isO) cont.classList.add('open');
+};
+
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.custom-variant-select-container')) {
+    document.querySelectorAll('.cvs-options').forEach(c => c.classList.remove('open'));
+  }
+});
+
 async function loadToolCategories() {
   try {
     const res = await fetchBackend('/api/categories?type=tool');
@@ -116,9 +166,13 @@ function editTool(id) {
 
     card.querySelector('.t-name').value = t.name;
     card.querySelector('.t-standard').value = t.standard || '';
-    card.querySelector('.t-cat').value = t.category_id || (t.category ? t.category.id : '');
-    card.querySelector('.t-status').value = t.status || 'Wajib';
-    const rawToolDesc = (t.description || '').substring(0, 2000);
+    const catSel = card.querySelector('.t-cat');
+    catSel.value = t.category_id || (t.category ? t.category.id : '');
+    catSel.dispatchEvent(new Event('change'));
+    
+    const statSel = card.querySelector('.t-status');
+    statSel.value = t.status || 'Wajib';
+    statSel.dispatchEvent(new Event('change'));    const rawToolDesc = (t.description || '').substring(0, 2000);
     card.querySelector('.t-desc').value = rawToolDesc;
     const tCounter = card.querySelector('.t-desc-counter');
     if (tCounter) tCounter.textContent = rawToolDesc.length + '/2000';
@@ -244,6 +298,7 @@ async function deleteTool(id, btn) {
 }
 
 function createToolsCard(index, removable, containerId = 'tools-cards') {
+  const cardId = Date.now() + '-' + index;
   const card = document.createElement('div');
   card.className = 'upload-card';
   card.dataset.idx = index;
@@ -275,22 +330,36 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
                     <div>
                         <label class="admin-label">Kategori</label>
-                        <select class="admin-select t-cat">
-                            ${
-                              window.toolCategories.length > 0
-                                ? window.toolCategories
-                                    .map((c) => `<option value="${c.id}">${c.name}</option>`)
-                                    .join('')
-                                : '<option value="">Belum ada kategori</option>'
-                            }
-                        </select>
+                        <div class="custom-variant-select-container" style="z-index: 12;">
+                            <select class="admin-select t-cat" id="t-cat-${cardId}" style="display:none;">
+                                ${
+                                  window.toolCategories.length > 0
+                                    ? window.toolCategories
+                                        .map((c) => `<option value="${c.id}">${c.name}</option>`)
+                                        .join('')
+                                    : '<option value="">Belum ada kategori</option>'
+                                }
+                            </select>
+                            <div class="cvs-trigger" onclick="toggleCvs('t-cat-${cardId}')" style="background:#ffffff; border:1px solid rgba(0,0,0,0.15); border-radius:10px; color:#1e293b; padding:10px 14px; font-weight:400; display:flex; justify-content:space-between; align-items:center;">
+                                <span id="cvs-text-t-cat-${cardId}">${window.toolCategories.length > 0 ? window.toolCategories[0].name : 'Belum ada kategori'}</span>
+                                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='#64748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>
+                            </div>
+                            <div class="cvs-options down" id="cvs-options-t-cat-${cardId}"></div>
+                        </div>
                     </div>
                     <div>
                         <label class="admin-label">Status Penggunaan</label>
-                        <select class="admin-select t-status">
-                            <option>Wajib</option>
-                            <option>Situasional</option>
-                        </select>
+                        <div class="custom-variant-select-container" style="z-index: 11;">
+                            <select class="admin-select t-status" id="t-status-${cardId}" style="display:none;">
+                                <option>Wajib</option>
+                                <option>Situasional</option>
+                            </select>
+                            <div class="cvs-trigger" onclick="toggleCvs('t-status-${cardId}')" style="background:#ffffff; border:1px solid rgba(0,0,0,0.15); border-radius:10px; color:#1e293b; padding:10px 14px; font-weight:400; display:flex; justify-content:space-between; align-items:center;">
+                                <span id="cvs-text-t-status-${cardId}">Wajib</span>
+                                <svg width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='#64748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'></polyline></svg>
+                            </div>
+                            <div class="cvs-options down" id="cvs-options-t-status-${cardId}"></div>
+                        </div>
                     </div>
                 </div>
 
@@ -373,6 +442,12 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
 
   initDropZone(card.querySelector('.file-drop-zone:not(.t-image-drop-zone)'));
   initImageDropZone(card.querySelector('.t-image-drop-zone'));
+  
+  setTimeout(() => {
+    bindCustomSelect(`t-cat-${cardId}`);
+    bindCustomSelect(`t-status-${cardId}`);
+  }, 0);
+  
   return card;
 }
 
