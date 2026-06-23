@@ -87,32 +87,32 @@
       <div class="rd-step-panel active" id="add-m-panel-0">
         <div class="rd-section-block">
           <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Informasi Material</div></div>
-          <div class="rd-field-row cols-2">
-            <div class="rd-field-group">
-              <label class="rd-field-label">Nama Material <span class="req">*</span></label>
-              <input type="text" id="mat-modul-name" class="rd-input" placeholder="Contoh: Baut HDG M16" />
+            <div class="rd-field-row cols-2">
+              <div class="rd-field-group">
+                <label class="rd-field-label">Nama Material <span class="req">*</span></label>
+                <input type="text" id="mat-modul-name" class="rd-input" placeholder="Contoh: Baut HDG M16" style="background: #ffffff;" />
+              </div>
+              <div class="rd-field-group">
+                <label class="rd-field-label">Kode / Standar <span class="req">*</span></label>
+                <input type="text" id="mat-modul-code" class="rd-input rd-mono" placeholder="MAT-101" style="background: #ffffff;" />
+              </div>
             </div>
             <div class="rd-field-group">
-              <label class="rd-field-label">Kode / Standar <span class="req">*</span></label>
-              <input type="text" id="mat-modul-code" class="rd-input rd-mono" placeholder="MAT-101" />
+              <label class="rd-field-label">Kategori</label>
+              <select id="mat-modul-cat" class="rd-select" style="max-width:60%; background: #ffffff;">
+                <option value="">Memuat kategori...</option>
+              </select>
             </div>
-          </div>
-          <div class="rd-field-group">
-            <label class="rd-field-label">Kategori</label>
-            <select id="mat-modul-cat" class="rd-select" style="max-width:60%;">
-              <option value="">Memuat kategori...</option>
-            </select>
-          </div>
           <div class="rd-field-group">
             <label class="rd-field-label" style="justify-content:space-between;">
               Deskripsi
               <span class="rd-field-counter" id="add-desc-char-count">0/2000</span>
             </label>
-            <textarea id="mat-modul-desc" class="rd-textarea" maxlength="2000" rows="3" placeholder="Spesifikasi singkat material..." oninput="document.getElementById('add-desc-char-count').textContent=this.value.length+'/2000'"></textarea>
+            <textarea id="mat-modul-desc" class="rd-textarea" maxlength="2000" rows="3" placeholder="Spesifikasi singkat material..." style="background: #ffffff;" oninput="document.getElementById('add-desc-char-count').textContent=this.value.length+'/2000'"></textarea>
           </div>
           <div class="rd-field-group">
             <label class="rd-field-label">Cover Gambar (Opsional)</label>
-            <div id="mat-modul-image-drop-zone" class="rd-drop-zone" onclick="document.getElementById('mat-modul-image').click()">
+            <div id="mat-modul-image-drop-zone" class="rd-drop-zone" style="background: #ffffff;" onclick="document.getElementById('mat-modul-image').click()">
               <div class="dz-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
               <div class="dz-text">
                 <div id="mat-add-img-empty"><div class="dz-title">Tarik &amp; lepas atau klik</div><div class="dz-sub">PNG · JPG · WEBP · maks 5MB</div></div>
@@ -181,7 +181,7 @@
             <div class="rd-review-tile" style="padding:10px;">
               <div class="label">Preview 3D (Varian Pertama)</div>
               <div id="review-m-3d-container" style="margin-top:8px; border-radius:8px; overflow:hidden; border:1px solid var(--border-default); aspect-ratio:16/9; display:flex; align-items:center; justify-content:center; background:var(--bg-base); position:relative;">
-                <model-viewer id="review-m-3d" src="" auto-rotate camera-controls interaction-prompt="none" style="width:100%; height:100%; display:none; background: radial-gradient(circle at center, #0F1E3A 0%, #030812 100%);"></model-viewer>
+                <model-viewer id="review-m-3d" src="" auto-rotate camera-controls interaction-prompt="none" style="width:100%; height:100%; display:none; background: #ffffff;"></model-viewer>
                 <span id="review-m-3d-empty" class="rd-muted" style="font-size:12px; display:flex; align-items:center; gap:6px;">
                   <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/></svg>
                   Tidak ada 3D Varian
