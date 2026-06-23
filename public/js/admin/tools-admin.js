@@ -248,13 +248,13 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
   card.className = 'upload-card';
   card.dataset.idx = index;
   card.style =
-    'flex-shrink: 0; padding: 14px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;';
+    'flex-shrink: 0; padding: 14px; background: transparent; border: 1px dashed var(--border-strong); border-radius: 12px; margin-bottom: 10px;';
   card.innerHTML = `
-        <div class="upload-card-header">
+        <div class="upload-card-header" style="display:flex; justify-content:space-between; margin-bottom:12px;">
             <span class="card-label" style="font-size:12px; font-weight:600; color:#F59E0B;">Peralatan #${index + 1}</span>
             ${
               removable
-                ? `<button class="card-close-btn" onclick="removeCard(this,'${containerId}')" title="Hapus kartu ini">×</button>`
+                ? `<button class="card-close-btn rd-action-btn danger" onclick="removeCard(this,'${containerId}')" title="Hapus kartu ini" style="width:24px;height:24px;line-height:1;">×</button>`
                 : ''
             }
         </div>
@@ -262,20 +262,20 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
             <div style="display:flex; flex-direction:column; gap:12px;">
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <div>
-                        <label class="admin-label">Nama Alat *</label>
-                        <input type="text" class="admin-input t-name" placeholder="Contoh: Kunci Torsi">
+                    <div class="rd-field-group">
+                        <label class="rd-field-label">Nama Alat <span class="req" style="color:oklch(0.78 0.18 25);">*</span></label>
+                        <input type="text" class="rd-input t-name" placeholder="Contoh: Kunci Torsi">
                     </div>
-                    <div>
-                        <label class="admin-label">Standar</label>
-                        <input type="text" class="admin-input t-standard" placeholder="SNI / IEC / ISO">
+                    <div class="rd-field-group">
+                        <label class="rd-field-label">Standar</label>
+                        <input type="text" class="rd-input t-standard" placeholder="SNI / IEC / ISO">
                     </div>
                 </div>
 
                 <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
-                    <div>
-                        <label class="admin-label">Kategori</label>
-                        <select class="admin-select t-cat">
+                    <div class="rd-field-group">
+                        <label class="rd-field-label">Kategori</label>
+                        <select class="rd-select t-cat">
                             ${
                               window.toolCategories.length > 0
                                 ? window.toolCategories
@@ -285,49 +285,49 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                             }
                         </select>
                     </div>
-                    <div>
-                        <label class="admin-label">Status Penggunaan</label>
-                        <select class="admin-select t-status">
+                    <div class="rd-field-group">
+                        <label class="rd-field-label">Status Penggunaan</label>
+                        <select class="rd-select t-status">
                             <option>Wajib</option>
                             <option>Situasional</option>
                         </select>
                     </div>
                 </div>
 
-                <div>
-                    <label class="admin-label">Deskripsi <span class="t-desc-counter" style="font-size:10px; color:rgba(27,43,75,0.3); font-weight:400;">0/2000</span></label>
-                    <textarea class="admin-input t-desc" rows="2" maxlength="2000" placeholder="Jelaskan fungsi alat..." style="resize:vertical;" oninput="this.closest('.upload-card').querySelector('.t-desc-counter').textContent = this.value.length + '/2000'"></textarea>
+                <div class="rd-field-group">
+                    <label class="rd-field-label" style="display:flex; justify-content:space-between; width:100%;">Deskripsi <span class="t-desc-counter rd-field-counter">0/2000</span></label>
+                    <textarea class="rd-textarea t-desc" rows="2" maxlength="2000" placeholder="Jelaskan fungsi alat..." oninput="this.closest('.upload-card').querySelector('.t-desc-counter').textContent = this.value.length + '/2000'"></textarea>
                 </div>
 
                 <!-- Cover Gambar -->
-                <div>
-                    <label class="admin-label">Cover Gambar Peralatan (Opsional)</label>
+                <div class="rd-field-group">
+                    <label class="rd-field-label">Cover Gambar Peralatan (Opsional)</label>
                     <div class="t-image-wrapper" style="display: grid; grid-template-columns: 1fr; gap: 12px; min-height: 140px;">
-                        <div class="file-drop-zone t-image-drop-zone" onclick="this.parentElement.querySelector('.t-image-file').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed rgba(255,255,255,0.2); border-radius: 8px; background: rgba(0,0,0,0.15); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                        <div class="file-drop-zone t-image-drop-zone" onclick="this.parentElement.querySelector('.t-image-file').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--bg-surface-2); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                             <div class="t-img-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
-                                <svg class="drop-icon" style="width:24px;height:24px;color:rgba(27,43,75,0.25); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <svg class="drop-icon" style="width:24px;height:24px;color:var(--text-tertiary); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
                                 </svg>
-                                <div class="drop-label" style="font-size: 14px; color:rgba(27,43,75,0.6);">Pilih Foto Thumbnail</div>
-                                <span style="font-size:11px; color:rgba(27,43,75,0.3); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
+                                <div class="drop-label" style="font-size: 13px; font-weight: 500; color:var(--text-secondary);">Pilih Foto Thumbnail</div>
+                                <span style="font-size:11px; color:var(--text-muted); margin-top:4px;">PNG, JPG, WEBP • Maks. 5MB</span>
                             </div>
                             <div class="t-img-filled" style="display:none; flex-direction:column; align-items:center; justify-content:center;">
                                 <svg style="width:28px;height:28px;color:#F59E0B; margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                                 </svg>
-                                <div style="font-size: 14px; color: #F59E0B; font-weight:600;">Thumbnail Terpasang</div>
-                                <div style="font-size:12px; color:rgba(27,43,75,0.5); margin-top:4px;">Klik untuk ganti foto</div>
+                                <div style="font-size: 13px; color: #F59E0B; font-weight:600;">Thumbnail Terpasang</div>
+                                <div style="font-size:11px; color:var(--text-muted); margin-top:4px;">Klik untuk ganti foto</div>
                             </div>
                         </div>
 
                         <input type="file" class="t-image-file" accept="image/png, image/jpeg, image/jpg" style="display:none;" onchange="previewToolImage(this)">
 
-                        <div class="t-image-preview-container" style="display:none; position: relative; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="t-image-preview-container" style="display:none; position: relative; aspect-ratio: 16/9; border-radius: 8px; overflow: hidden; border: 1px solid var(--border-default);">
                             <img class="t-image-preview-img" src="" style="width: 100%; height: 100%; object-fit: cover;">
                             <div style="position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0">
                                 <div style="display: flex; gap: 10px;">
-                                    <button type="button" onclick="this.closest('.t-image-wrapper').querySelector('.t-image-file').click()" style="background: rgba(245, 158, 11, 0.2); border: 1px solid #F59E0B; color: #F59E0B; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Ganti Foto</button>
-                                    <button type="button" onclick="clearToolImage(this)" style="background: rgba(239, 68, 68, 0.2); border: 1px solid #EF4444; color: #EF4444; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Hapus Thumbnail</button>
+                                    <button type="button" onclick="this.closest('.t-image-wrapper').querySelector('.t-image-file').click()" style="background: #F59E0B; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Ganti Foto</button>
+                                    <button type="button" onclick="clearToolImage(this)" style="background: #EF4444; border: none; color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; transition: all 0.2s; font-weight:600;">Hapus</button>
                                 </div>
                             </div>
                         </div>
@@ -335,21 +335,21 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                     <input type="hidden" class="t-image-deleted" value="false">
                 </div>
 
-                <div>
-                    <label class="admin-label">File Model 3D (.glb / .gltf)</label>
-                    <div class="file-drop-zone">
+                <div class="rd-field-group">
+                    <label class="rd-field-label">File Model 3D (.glb / .gltf)</label>
+                    <div class="file-drop-zone" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--bg-surface-2); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                         <input type="file" class="t-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
-                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.25);"
+                        <svg class="drop-icon" style="width:24px;height:24px;color:var(--text-tertiary); margin-bottom:8px;"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.35);">
+                        <span class="drop-label" style="font-size:13px; font-weight:500; color:var(--text-secondary);">
                             Drag & drop atau klik untuk upload (Timpa file lama)
                         </span>
-                        <span style="font-size:11px;color:rgba(27,43,75,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
+                        <span style="font-size:11px; color:var(--text-muted); margin-top:4px;">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
                 </div>
 
