@@ -28,29 +28,29 @@ var _onChange = typeof previewOnChange    !== 'undefined' ? previewOnChange    :
         <div class="rd-field-row cols-2">
           <div class="rd-field-group">
             <label class="rd-field-label">Nama Material <span class="req">*</span></label>
-            <input type="text" id="edit-mat-modul-name" class="rd-input" placeholder="Contoh: Baut HDG" />
+            <input type="text" id="edit-mat-modul-name" class="rd-input" placeholder="Contoh: Baut HDG" style="background: #ffffff;" />
           </div>
           <div class="rd-field-group">
             <label class="rd-field-label">Kode / Standar <span class="req">*</span></label>
-            <input type="text" id="edit-mat-modul-code" class="rd-input rd-mono" placeholder="Contoh: BT-HDG" />
+            <input type="text" id="edit-mat-modul-code" class="rd-input rd-mono" placeholder="Contoh: BT-HDG" style="background: #ffffff;" />
           </div>
         </div>
         <div class="rd-field-group">
           <label class="rd-field-label" style="justify-content:space-between;">
             Deskripsi <span class="rd-field-counter" id="desc-char-count">0/2000</span>
           </label>
-          <textarea id="edit-mat-modul-desc" class="rd-textarea" maxlength="2000" rows="2" oninput="document.getElementById('desc-char-count').textContent=this.value.length+'/2000'"></textarea>
+          <textarea id="edit-mat-modul-desc" class="rd-textarea" maxlength="2000" rows="2" style="background: #ffffff;" oninput="document.getElementById('desc-char-count').textContent=this.value.length+'/2000'"></textarea>
         </div>
         <div class="rd-field-group">
           <label class="rd-field-label">Kategori</label>
-          <select id="edit-mat-modul-cat" class="rd-select" style="max-width:60%;">
+          <select id="edit-mat-modul-cat" class="rd-select" style="max-width:60%; background: #ffffff;">
             <option value="">Memuat kategori...</option>
           </select>
         </div>
         <div class="rd-field-group">
           <label class="rd-field-label">Cover Gambar</label>
           <div id="edit-mat-modul-image-wrapper" style="display:grid;grid-template-columns:1fr;gap:12px;">
-            <div id="edit-mat-modul-image-drop-zone" class="rd-drop-zone" onclick="document.getElementById('edit-mat-modul-image').click()">
+            <div id="edit-mat-modul-image-drop-zone" class="rd-drop-zone" style="background: #ffffff;" onclick="document.getElementById('edit-mat-modul-image').click()">
               <div class="dz-icon"><svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
               <div class="dz-text">
                 <div id="edit-mat-img-empty"><div class="dz-title">Pilih Foto Baru</div><div class="dz-sub">PNG · JPG · WEBP · maks 5MB</div></div>
@@ -82,17 +82,17 @@ var _onChange = typeof previewOnChange    !== 'undefined' ? previewOnChange    :
               Tambah Varian
             </button>
           </div>
-          <div style="flex:1;min-width:280px;background:rgba(0,0,0,0.2);border-radius:12px;overflow:hidden;border:1px solid var(--border-default);position:relative;min-height:320px;">
+          <div style="flex:1;min-width:280px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid var(--border-default);position:relative;min-height:320px;">
             <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
             <model-viewer id="<%= _viewerId %>" src="" camera-controls auto-rotate rotation-per-second="30deg"
               interaction-prompt="none" shadow-intensity="1.5" environment-image="neutral" exposure="1"
-              style="width:100%;height:100%;min-height:320px;outline:none;background:#0A1520;"></model-viewer>
+              style="width:100%;height:100%;min-height:320px;outline:none;background:#ffffff;"></model-viewer>
             <div id="<%= _emptyId %>" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--text-muted);pointer-events:none;gap:8px;">
               <svg width="36" height="36" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
               <span style="font-size:12px;font-weight:600;">Belum ada file GLB terpilih</span>
             </div>
             <div style="position:absolute;bottom:12px;left:12px;right:12px;z-index:10;">
-              <select id="<%= _selId %>" onchange="<%= _onChange %>" class="rd-select" style="background:rgba(0,0,0,0.65);backdrop-filter:blur(6px);">
+              <select id="<%= _selId %>" onchange="<%= _onChange %>" class="rd-select" style="background:#ffffff; color:#1b2b4b;">
                 <option value="">-- Pilih Varian untuk Preview --</option>
               </select>
             </div>

@@ -172,7 +172,7 @@ async function editMaterial(id) {
           const dropLabel = card.querySelector('.drop-label');
           const fileName = decodeURIComponent(a.file.split('-3d/').pop());
           dropLabel.textContent = `Ada File: ${fileName}`;
-          dropLabel.style.color = '#818CF8';
+          dropLabel.style.color = '#2563eb';
 
           const viewerContainer = card.querySelector('.card-model-viewer-container');
           const internalViewer = card.querySelector('.internal-viewer');
@@ -283,10 +283,10 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
   card.className = 'upload-card';
   card.dataset.idx = index;
   card.style =
-    'flex-shrink: 0; padding: 14px; background: rgba(255,255,255,0.03); border: 1px dashed rgba(255,255,255,0.1); border-radius: 12px; margin-bottom: 10px;';
+    'flex-shrink: 0; padding: 14px; background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; margin-bottom: 10px;';
   card.innerHTML = `
         <div class="upload-card-header">
-            <span class="card-label" style="font-size:12px; font-weight:600; color:#818CF8;">Material #${index + 1}</span>
+            <span class="card-label" style="font-size:12px; font-weight:600; color:#2563eb;">Material #${index + 1}</span>
             ${
               removable
                 ? `<button class="card-close-btn" onclick="removeCard(this,'${containerId}')" title="Hapus kartu ini">×</button>`
@@ -297,25 +297,25 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
             <div style="display:flex; flex-direction:column; gap:12px;">
 
                 <div>
-                    <label class="admin-label">Nama Varian Material (Asset) *</label>
-                    <input type="text" class="admin-input m-name" placeholder="Contoh: Baut HDG Ukuran M16">
+                    <label class="admin-label" style="color: #1b2b4b; font-weight: 600;">Nama Varian Material (Asset) *</label>
+                    <input type="text" class="admin-input m-name" placeholder="Contoh: Baut HDG Ukuran M16" style="background: #ffffff; color: #1b2b4b; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 14px; width: 100%; box-sizing: border-box; outline: none;">
                 </div>
 
                 <div>
-                    <label class="admin-label">File Model 3D (.glb / .gltf)</label>
-                    <div class="file-drop-zone">
+                    <label class="admin-label" style="color: #1b2b4b; font-weight: 600;">File Model 3D (.glb / .gltf)</label>
+                    <div class="file-drop-zone" style="background: #ffffff; border: 1.5px dashed #cbd5e1; border-radius: 8px;">
                         <input type="file" class="m-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
-                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.25);"
+                        <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.6);"
                              fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
-                        <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.35);">
+                        <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.7);">
                             Drag & drop atau klik untuk upload
                         </span>
-                        <span style="font-size:11px;color:rgba(27,43,75,0.2);">Format: .glb, .gltf (maks. 50MB)</span>
+                        <span style="font-size:11px;color:rgba(27,43,75,0.5);">Format: .glb, .gltf (maks. 50MB)</span>
                     </div>
                 </div>
 
