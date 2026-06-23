@@ -248,7 +248,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
   card.className = 'upload-card';
   card.dataset.idx = index;
   card.style =
-    'flex-shrink: 0; padding: 14px; background: transparent; border: 1px dashed var(--border-strong); border-radius: 12px; margin-bottom: 10px;';
+    'flex-shrink: 0; padding: 16px; background: var(--bg-base); border: 1px solid var(--border-default); border-radius: 12px; margin-bottom: 10px; box-shadow: var(--shadow-sm);';
   card.innerHTML = `
         <div class="upload-card-header" style="display:flex; justify-content:space-between; margin-bottom:12px;">
             <span class="card-label" style="font-size:12px; font-weight:600; color:#F59E0B;">Peralatan #${index + 1}</span>
@@ -303,7 +303,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 <div class="rd-field-group">
                     <label class="rd-field-label">Cover Gambar Peralatan (Opsional)</label>
                     <div class="t-image-wrapper" style="display: grid; grid-template-columns: 1fr; gap: 12px; min-height: 140px;">
-                        <div class="file-drop-zone t-image-drop-zone" onclick="this.parentElement.querySelector('.t-image-file').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--bg-surface-2); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
+                        <div class="file-drop-zone t-image-drop-zone" onclick="this.parentElement.querySelector('.t-image-file').click()" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 2px dashed #cbd5e1; border-radius: 10px; background: var(--bg-surface-2); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
                             <div class="t-img-empty" style="display:flex; flex-direction:column; align-items:center; justify-content:center;">
                                 <svg class="drop-icon" style="width:24px;height:24px;color:var(--text-tertiary); margin-bottom: 8px;" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/>
@@ -337,7 +337,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
 
                 <div class="rd-field-group">
                     <label class="rd-field-label">File Model 3D (.glb / .gltf)</label>
-                    <div class="file-drop-zone" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 1px dashed var(--border-strong); border-radius: 8px; background: var(--bg-surface-2); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <div class="file-drop-zone" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 2px dashed #cbd5e1; border-radius: 10px; background: var(--bg-surface-2); transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
                         <input type="file" class="t-file-3d" accept=".glb,.gltf"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
