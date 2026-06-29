@@ -3,79 +3,169 @@
    Shared styles untuk halaman upload card admin
    ============================================ */
 
-.upload-card {
-    position: relative;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 14px;
-    overflow: hidden;
-    transition: border-color 0.2s ease;
+/* ---- Keyframes ---- */
+@keyframes dz-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 2px var(--zone-color, rgba(0, 229, 255, 0.6)),
+      0 0 14px var(--zone-glow, rgba(0, 229, 255, 0.1));
+  }
+  50% {
+    box-shadow:
+      0 0 0 3px var(--zone-color, rgba(0, 229, 255, 0.9)),
+      0 0 28px var(--zone-glow, rgba(0, 229, 255, 0.24));
+  }
 }
-.upload-card:hover { border-color: rgba(255,255,255,0.18); }
+
+@keyframes dz-icon-bounce {
+  0%,
+  100% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-8px) scale(1.15);
+  }
+  65% {
+    transform: translateY(-3px) scale(1.07);
+  }
+}
+
+/* ---- Upload Card ---- */
+.upload-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  overflow: hidden;
+  transition: border-color 0.2s ease;
+}
+.upload-card:hover {
+  border-color: rgba(255, 255, 255, 0.18);
+}
 
 .upload-card-header {
-    padding: 12px 16px;
-    border-bottom: 1px solid rgba(255,255,255,0.07);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .upload-card-body {
-    padding: 16px;
+  padding: 16px;
 }
 
-/* Drop zone */
+/* ---- Drop zone base ---- */
 .file-drop-zone {
-    border: 2px dashed rgba(255,255,255,0.15);
-    border-radius: 10px;
-    padding: 20px 16px;
-    text-align: center;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    min-height: 86px;
-    user-select: none;
+  border: 2px dashed rgba(255, 255, 255, 0.15);
+  border-radius: 10px;
+  padding: 20px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 86px;
+  user-select: none;
 }
-.file-drop-zone:hover   { border-color: var(--zone-color, rgba(0,229,255,0.5)); background: var(--zone-bg, rgba(0,229,255,0.04)); }
-.file-drop-zone.dragover{ border-color: var(--zone-color, rgba(0,229,255,0.7)); background: var(--zone-bg, rgba(0,229,255,0.08)); transform: scale(1.01); }
-.file-drop-zone.has-file{ border-color: rgba(0,200,100,0.5); background: rgba(0,200,100,0.04); }
 
-/* Close button */
+/* Transisi smooth untuk drop icon di semua state */
+.file-drop-zone .drop-icon {
+  transition:
+    transform 0.25s ease,
+    color 0.25s ease;
+}
+
+/* ---- Hover state ---- */
+.file-drop-zone:hover {
+  border-color: var(--zone-color, rgba(0, 229, 255, 0.45)) !important;
+  background: var(--zone-bg, rgba(0, 229, 255, 0.04)) !important;
+  box-shadow:
+    0 0 0 1px var(--zone-color, rgba(0, 229, 255, 0.18)),
+    0 0 14px var(--zone-glow, rgba(0, 229, 255, 0.08));
+}
+
+.file-drop-zone:hover .drop-icon {
+  transform: translateY(-4px) scale(1.15);
+  color: var(--zone-color, rgba(0, 229, 255, 0.65)) !important;
+}
+
+/* ---- Dragover state ---- */
+.file-drop-zone.dragover {
+  border-color: var(--zone-color, rgba(0, 229, 255, 0.85)) !important;
+  background: var(--zone-bg-drag, rgba(0, 229, 255, 0.09)) !important;
+  transform: scale(1.015);
+  animation: dz-pulse 1.3s ease-in-out infinite;
+}
+
+.file-drop-zone.dragover .drop-icon {
+  animation: dz-icon-bounce 0.75s ease-in-out infinite;
+  color: var(--zone-color, rgba(0, 229, 255, 1)) !important;
+  transition: none;
+}
+
+.file-drop-zone.dragover .drop-label {
+  color: var(--zone-color, rgba(0, 229, 255, 0.95)) !important;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+/* ---- Has file state ---- */
+.file-drop-zone.has-file {
+  border-color: rgba(0, 200, 100, 0.5);
+  background: rgba(0, 200, 100, 0.04);
+}
+
+/* ---- Image drop zone — amber color scheme ---- */
+.t-image-drop-zone {
+  --zone-color: rgba(245, 158, 11, 0.75);
+  --zone-bg: rgba(245, 158, 11, 0.05);
+  --zone-bg-drag: rgba(245, 158, 11, 0.09);
+  --zone-glow: rgba(245, 158, 11, 0.2);
+}
+
+/* ---- Close button ---- */
 .card-close-btn {
-    width: 24px; height: 24px;
-    border-radius: 50%;
-    border: none;
-    background: rgba(239,68,68,0.15);
-    color: #EF4444;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    line-height: 1;
-    transition: background 0.15s ease;
-    flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  line-height: 1;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
 }
-.card-close-btn:hover { background: rgba(239,68,68,0.3); }
+.card-close-btn:hover {
+  background: rgba(239, 68, 68, 0.3);
+}
 
-/* Add card button */
+/* ---- Add card button ---- */
 .add-card-btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 12px;
-    border-radius: 14px;
-    background: transparent;
-    font-size: 13px;
-    font-weight: 600;
-    font-family: inherit;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 14px;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }

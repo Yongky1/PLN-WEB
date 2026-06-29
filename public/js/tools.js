@@ -1,61 +1,59 @@
-const toolsData = window.__TOOLS_DATA__;
-const overlay   = document.getElementById('modal-overlay');
+/**
+ * tools.js – Tools Catalog Modal Logic
+ * Logika modal shared di catalog-modal.js
+ */
 
-// ============ OPEN DETAIL MODAL ============
-document.querySelectorAll('.tool-card').forEach(card => {
-    card.addEventListener('click', () => openDetail(card.dataset.id));
-});
+const toolsData = window.__TOOLS_DATA__;
+
+const TOOLS_IDS = {
+  overlay: 'modal-overlay',
+  card: 'modal-card',
+  modelViewer: 'modal-model-viewer',
+  canvasWrap: 'modal-canvas-wrap',
+  emptyState: 'modal-empty-state',
+  loadingOverlay: 'modal-loading-overlay',
+  spinner: 'modal-loading-spinner',
+  loadingText: 'modal-loading-text',
+};
 
 function openDetail(id) {
-    const tool = toolsData.find(t => t.id === id);
-    if (!tool) return;
+  const tool = toolsData.find((t) => t.id === id);
+  if (!tool) return;
 
-    // Header
-    document.getElementById('modal-header').style.background = tool.bgGradient;
-    document.getElementById('modal-icon').textContent        = tool.icon || '🔧';
-
-    // Category badge
+  openCatalogModal(TOOLS_IDS, tool.file3d, 'Memuat Model 3D...', () => {
     const catLabel = document.getElementById('modal-category-label');
-    catLabel.textContent = tool.categoryLabel;
-    catLabel.className   = 'text-[9px] font-bold uppercase tracking-widest px-3 py-1 rounded-full border inline-block mb-2 ';
-    if (tool.category === 'k3')          catLabel.className += 'cat-badge-k3';
-    else if (tool.category === 'teknis') catLabel.className += 'cat-badge-teknis';
-    else                                 catLabel.className += 'cat-badge-pengukuran';
+    catLabel.className =
+      'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 cat-badge-teknis';
+    catLabel.innerHTML = `<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>${tool.categoryLabel}`;
 
-    // Name & Description
-    document.getElementById('modal-name').textContent     = tool.name;
-    document.getElementById('modal-desc').textContent     = tool.description || 'Deskripsi belum tersedia.';
+    document.getElementById('modal-name').textContent = tool.name;
+
     document.getElementById('modal-standard').textContent = tool.standard || '-';
 
-    // Status with color
-    const statusEl       = document.getElementById('modal-status');
+    const statusEl = document.getElementById('modal-status');
     statusEl.textContent = tool.status || '-';
-    statusEl.className   = 'text-sm font-bold ' + (tool.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
+    statusEl.className =
+      'text-[11px] font-bold ' + (tool.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
 
-    // Procedure steps
-    const procedures = Array.isArray(tool.procedure) ? tool.procedure : [];
-    document.getElementById('modal-procedure').innerHTML = procedures.length > 0
-        ? procedures.map((step, i) => `
-            <li class="flex items-start gap-3">
-                <span class="flex-shrink-0 w-5 h-5 rounded-full bg-[var(--color-pln-yellow)]/10 border border-[var(--color-pln-yellow)]/30 flex items-center justify-center text-[10px] font-bold text-[var(--color-pln-yellow)] mt-0.5">${i + 1}</span>
-                <span class="text-xs text-white/50 leading-relaxed">${step}</span>
-            </li>
-        `).join('')
-        : `<li class="text-xs text-white/30 italic">Prosedur belum tersedia.</li>`;
-
-    // Show modal
-    overlay.classList.remove('hidden');
-    overlay.classList.add('flex');
-    document.body.style.overflow = 'hidden';
+    const rawDesc = tool.description || 'Deskripsi belum tersedia.';
+    document.getElementById('modal-desc').textContent = rawDesc;
+  });
 }
 
-// ============ CLOSE DETAIL MODAL ============
-function closeDetail() {
-    overlay.classList.add('hidden');
-    overlay.classList.remove('flex');
-    document.body.style.overflow = '';
-}
+document.querySelectorAll('#tools-grid .v3-card-item[data-id]').forEach((card) => {
+  card.addEventListener('click', () => openDetail(card.dataset.id));
+});
 
-document.getElementById('modal-close').addEventListener('click', closeDetail);
-overlay.addEventListener('click', e => { if (e.target === overlay) closeDetail(); });
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeDetail(); });
+const _toolsBtnClose = document.getElementById('modal-btn-close');
+if (_toolsBtnClose) _toolsBtnClose.addEventListener('click', () => closeCatalogModal(TOOLS_IDS));
+document.getElementById('modal-overlay').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('modal-overlay')) closeCatalogModal(TOOLS_IDS);
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeCatalogModal(TOOLS_IDS);
+});
+
+const _toolsBtnFullscreen = document.getElementById('modal-fullscreen-btn');
+if (_toolsBtnFullscreen)
+  _toolsBtnFullscreen.addEventListener('click', () => toggleCatalogFullscreen('modal-canvas-wrap'));
+initCatalogFullscreen('modal-canvas-wrap');

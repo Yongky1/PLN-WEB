@@ -1,28 +1,43 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><%= title %></title>
-<meta name="description" content="PLN Pusdiklat - Ekosistem Pembelajaran dan Inovasi Energi Masa Depan.">
+<meta name="theme-color" content="<%= typeof isLanding !== 'undefined' && isLanding ? '#0A1628' : '#0052A3' %>">
+<title>
+  <%= title %>
+</title>
+<meta name="description" content="JALA — Platform Pembelajaran Interaktif 3D PLN untuk Peralatan, Konstruksi, dan Material Kelistrikan.">
 
-<!-- Fonts: Inter, Outfit & Space Grotesk -->
+<!-- Fonts: Inter -->
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@500;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<!-- GSAP + ScrollTrigger for award-winning scroll animations -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
-
-<!-- Tailwind Styles -->
-<link rel="stylesheet" href="/css/output.css">
-<!-- Custom Styles -->
-<link rel="stylesheet" href="/css/custom.css">
-
-<!-- Configure dark mode out of the box based on class -->
-<script>
-    // Default to day mode
-    if (localStorage.theme === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-        document.documentElement.classList.add('dark')
-    } else {
-        document.documentElement.classList.remove('dark')
+<% if (typeof isLanding !== 'undefined' && isLanding) { %>
+  <!-- Landing Page Styles -->
+  <link rel="stylesheet" href="/css/landing.css">
+<% } else { %>
+  <style>
+    body {
+      font-family: 'Inter', system-ui, sans-serif;
     }
-</script>
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6,
+    .brand-font {
+      font-family: 'Inter', sans-serif;
+    }
+  </style>
+
+  <!-- GSAP + ScrollTrigger for award-winning scroll animations -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+  <!-- Tailwind Styles -->
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/output.css">
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/css/custom.css">
+<% } %>

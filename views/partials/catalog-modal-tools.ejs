@@ -1,0 +1,72 @@
+    <style>
+      #modal-overlay { background: rgba(27,43,75,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+      #modal-overlay.active { display: flex !important; }
+      #modal-card { height: auto; max-height: 90vh; }
+      @media (min-width: 768px) { #modal-card { height: 560px; max-height: unset; } }
+    </style>
+    <!-- ====================================================
+         MODAL – Tool Detail & 3D Viewer
+    ==================================================== -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none;">
+
+        <div id="modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+
+            <!-- LEFT: 3D Viewer -->
+            <div id="modal-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 blur-[60px] pointer-events-none bg-[var(--color-primary)]/5"></div>
+                <model-viewer id="modal-model-viewer" src="" camera-controls auto-rotate rotation-per-second="25deg"
+                    interaction-prompt="none" shadow-intensity="1" environment-image="neutral" exposure="1"
+                    class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+                </model-viewer>
+                <div id="modal-loading-overlay" class="pln-3d-loading absolute inset-0 z-10">
+                    <div id="modal-loading-spinner" class="pln-3d-loader">
+                        <span class="pln-dot bg-[var(--color-primary)]"></span>
+                        <span class="pln-dot bg-[var(--color-primary)]"></span>
+                        <span class="pln-dot bg-[var(--color-primary)]"></span>
+                    </div>
+                    <span id="modal-loading-text" class="pln-3d-label text-[var(--color-text-secondary)]"></span>
+                </div>
+                <div id="modal-empty-state" class="absolute inset-0 flex-col items-center justify-center text-[var(--color-text-muted)] z-10 hidden" style="display:none;">
+                    <svg class="w-16 h-16 mb-4 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <span class="text-sm font-medium tracking-wide brand-font">Belum ada file 3D</span>
+                </div>
+                <div id="modal-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-lg">
+                    <svg class="w-3.5 h-3.5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
+                    Rotasi 360° · Zoom via Scroll
+                </div>
+                <button id="modal-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-sm opacity-0 group-hover:opacity-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                </button>
+            </div>
+
+            <!-- RIGHT: Info Panel -->
+            <div id="modal-info-wrap" class="flex-1 flex flex-col min-h-0 relative" style="overflow-y: auto;">
+                <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
+                    <div class="absolute top-5 right-5 z-20">
+                        <button id="modal-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-bg-surface-alt)] hover:bg-[var(--color-primary)]/5">
+                            <svg class="w-4 h-4 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 mb-4 pr-12">
+                        <span id="modal-category-label" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 bg-[var(--color-primary)]/10 border-[var(--color-primary)]/20 text-[var(--color-primary)]"></span>
+                    </div>
+                    <h2 id="modal-name" class="text-2xl font-bold text-[var(--color-text-primary)] leading-tight mb-1 brand-font tracking-tight"></h2>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">Standar:</span>
+                            <span id="modal-standard" class="text-[11px] font-bold text-[var(--color-primary)]"></span>
+                        </div>
+                        <div class="w-px h-3 bg-[var(--color-border)]"></div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">Status:</span>
+                            <span id="modal-status" class="text-[11px] font-bold text-[var(--color-success)]"></span>
+                        </div>
+                    </div>
+                    <div class="mt-3 h-px bg-[var(--color-border-light)]"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3">
+                    <p id="modal-desc" class="text-[13px] text-[var(--color-text-secondary)] leading-relaxed mb-5"></p>
+                </div>
+            </div>
+        </div>
+    </div>

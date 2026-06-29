@@ -1,0 +1,195 @@
+<!-- views/admin/categories.ejs -->
+<div class="rd-page-head">
+    <div class="rd-page-title-block">
+        <span class="rd-page-eyebrow">Manajemen Sistem</span>
+        <h1 class="rd-page-title">Kategori</h1>
+        <p class="rd-page-subtitle">Kelola kategori material dan peralatan.</p>
+    </div>
+    <div class="rd-page-actions">
+        <button class="rd-btn rd-btn-primary" onclick="openCategoryModal()">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Kategori
+        </button>
+    </div>
+</div>
+
+<div class="rd-toolbar">
+    <div class="rd-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="category-search" placeholder="Cari kategori..." oninput="renderCategories()" />
+    </div>
+</div>
+
+<div class="rd-section-label rd-section-label--material">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+    Material
+</div>
+<div class="rd-data-card rd-data-card--material">
+    <div class="rd-table-head">
+        <div style="flex:2;">Nama Kategori</div>
+        <div style="flex:1;">Label Sistem (Value)</div>
+        <div style="width:130px;text-align:center;">Aksi</div>
+    </div>
+    <div id="material-list"></div>
+</div>
+
+<div class="rd-section-label rd-section-label--tool" style="margin-top:24px;">
+    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+    Peralatan (Tools)
+</div>
+<div class="rd-data-card rd-data-card--tool">
+    <div class="rd-table-head">
+        <div style="flex:2;">Nama Kategori</div>
+        <div style="flex:1;">Label Sistem (Value)</div>
+        <div style="width:130px;text-align:center;">Aksi</div>
+    </div>
+    <div id="tool-list"></div>
+</div>
+
+<!-- Modal Kategori -->
+<div id="category-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeCategoryModal()">
+    <div class="rd-modal" style="max-width:500px;">
+        <div class="rd-modal-header">
+            <div class="rd-modal-title-block">
+                <div class="rd-modal-eyebrow">Kategori</div>
+                <h2 class="rd-modal-title" id="cat-modal-title">Tambah Kategori</h2>
+            </div>
+            <button class="rd-modal-close" onclick="closeCategoryModal()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="rd-modal-body">
+            <input type="hidden" id="cat-id">
+            <div class="rd-field-group">
+                <label class="rd-field-label">Nama Kategori <span class="req">*</span></label>
+                <input type="text" id="cat-name" class="rd-input" placeholder="Contoh: Alat Ukur" />
+            </div>
+            <div class="rd-field-group">
+                <label class="rd-field-label">Tipe Kategori <span class="req">*</span></label>
+                <select id="cat-type" class="rd-select">
+                    <option value="tool">Peralatan (Tool)</option>
+                    <option value="material">Material</option>
+                </select>
+            </div>
+        </div>
+        <div class="rd-modal-footer">
+            <div class="rd-footer-meta"></div>
+            <div class="rd-footer-actions">
+                <button class="rd-btn rd-btn-ghost" onclick="closeCategoryModal()">Batal</button>
+                <button class="rd-btn rd-btn-primary" onclick="saveCategory()">Simpan Kategori</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allCategories = [];
+
+function buildSkeleton(rows = 4) {
+    return Array.from({ length: rows }, () => `
+        <div class="rd-skeleton-row">
+            <div class="sk" style="flex:2;max-width:220px;"></div>
+            <div class="sk" style="flex:1;max-width:140px;"></div>
+            <div class="sk" style="width:90px;margin-left:auto;"></div>
+        </div>
+    `).join('');
+}
+
+async function loadCategories() {
+    const sk = buildSkeleton(4);
+    document.getElementById('material-list').innerHTML = sk;
+    document.getElementById('tool-list').innerHTML = sk;
+    try {
+        allCategories = await fetchBackend('/api/categories');
+        renderCategories();
+    } catch (err) {
+        const errMsg = `<div style="padding:20px;text-align:center;color:#EF4444;">Gagal memuat: ${err.message}</div>`;
+        document.getElementById('material-list').innerHTML = errMsg;
+        document.getElementById('tool-list').innerHTML = errMsg;
+    }
+}
+
+function buildRows(items) {
+    if (items.length === 0) return '<div style="padding:20px;text-align:center;color:var(--text-muted);">Belum ada kategori.</div>';
+    return items.map(c => `
+        <div class="item-row">
+            <div style="flex:2;font-weight:600;color:var(--text-primary);">${c.name}</div>
+            <div style="flex:1;color:var(--text-secondary);" class="rd-mono">${c.value}</div>
+            <div style="width:130px;display:flex;gap:6px;justify-content:center;">
+                <button class="btn-warning rd-btn-sm" onclick='editCategory(${JSON.stringify(c)})'>Edit</button>
+                <button class="btn-danger rd-btn-sm" onclick="deleteCategory('${c.id}')">Hapus</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderCategories() {
+    const q = (document.getElementById('category-search')?.value || '').toLowerCase();
+    const filtered = (q ? allCategories.filter(c => c.name.toLowerCase().includes(q) || c.value.toLowerCase().includes(q)) : allCategories)
+        .slice().sort((a, b) => a.name.localeCompare(b.name, 'id'));
+    document.getElementById('material-list').innerHTML = buildRows(filtered.filter(c => c.type === 'material'));
+    document.getElementById('tool-list').innerHTML = buildRows(filtered.filter(c => c.type === 'tool'));
+}
+
+function openCategoryModal() {
+    document.getElementById('cat-id').value = '';
+    document.getElementById('cat-name').value = '';
+    document.getElementById('cat-type').value = 'tool';
+    document.getElementById('cat-modal-title').textContent = 'Tambah Kategori';
+    document.getElementById('category-modal').classList.add('active');
+}
+
+function closeCategoryModal() {
+    document.getElementById('category-modal').classList.remove('active');
+}
+
+function editCategory(cat) {
+    document.getElementById('cat-id').value = cat.id;
+    document.getElementById('cat-name').value = cat.name;
+    document.getElementById('cat-type').value = cat.type;
+    document.getElementById('cat-modal-title').textContent = 'Edit Kategori';
+    document.getElementById('category-modal').classList.add('active');
+}
+
+async function saveCategory() {
+    const id = document.getElementById('cat-id').value;
+    const name = document.getElementById('cat-name').value.trim();
+    const type = document.getElementById('cat-type').value;
+
+    if (!name) return showToast('Nama kategori wajib diisi', 'error');
+
+    const method = id ? 'PUT' : 'POST';
+    const endpoint = id ? `/api/categories/${id}` : '/api/categories';
+
+    try {
+        await fetchBackend(endpoint, {
+            method,
+            body: JSON.stringify({ name, type })
+        });
+        showToast('Kategori berhasil disimpan');
+        closeCategoryModal();
+        loadCategories();
+    } catch (err) {
+        showToast('Gagal menyimpan kategori: ' + err.message, 'error');
+    }
+}
+
+async function deleteCategory(id) {
+    showConfirmDialog({
+        title: 'Hapus Kategori?',
+        message: 'Kategori akan dihapus permanen. Data yang sudah terikat kategori ini akan menjadi "Uncategorized". Lanjutkan?',
+        confirmText: 'Hapus',
+        onConfirm: async () => {
+            try {
+                await fetchBackend(`/api/categories/${id}`, { method: 'DELETE' });
+                showToast('Kategori dihapus');
+                loadCategories();
+            } catch (err) {
+                showToast('Gagal menghapus: ' + err.message, 'error');
+            }
+        }
+    });
+}
+
+document.addEventListener('DOMContentLoaded', loadCategories);
+</script>

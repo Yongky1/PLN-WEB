@@ -8,105 +8,191 @@
  */
 
 const express = require('express');
-const router  = express.Router();
-const ejs     = require('ejs');
-const path    = require('path');
+const router = express.Router();
+const ejs = require('ejs');
+const path = require('path');
 
 // Helper: render halaman admin dengan layout
-function renderAdmin(res, page, title, subtitle, extraData = {}) {
-    const viewsDir  = path.join(__dirname, '..', 'views', 'admin');
-    const layoutPath = path.join(viewsDir, 'layout.ejs');
-    const bodyPath   = path.join(viewsDir, `${page}.ejs`);
+function renderAdmin(res, page, title, subtitle, extraData = {}, currentUser = null) {
+  const viewsDir = path.join(__dirname, '..', 'views', 'admin');
+  const layoutPath = path.join(viewsDir, 'layout.ejs');
+  const bodyPath = path.join(viewsDir, `${page}.ejs`);
 
-    // Render body dulu, lalu inject ke layout
-    ejs.renderFile(bodyPath, { ...extraData }, (errBody, bodyHtml) => {
-        if (errBody) {
-            console.error(`[Admin] Error rendering ${page}.ejs:`, errBody);
-            return res.status(500).send('Error rendering page');
+  // Render body dulu, lalu inject ke layout
+  ejs.renderFile(bodyPath, { ...extraData }, (errBody, bodyHtml) => {
+    if (errBody) {
+      console.error(`[Admin] Error rendering ${page}.ejs:`, errBody);
+      return res.status(500).send('Error rendering page');
+    }
+    ejs.renderFile(
+      layoutPath,
+      {
+        page,
+        title,
+        subtitle,
+        body: bodyHtml,
+        scripts: '',
+        currentUser,
+        ...extraData,
+      },
+      (errLayout, html) => {
+        if (errLayout) {
+          console.error('[Admin] Error rendering layout.ejs:', errLayout);
+          return res.status(500).send('Error rendering layout');
         }
-        ejs.renderFile(layoutPath, {
-            page,
-            title,
-            subtitle,
-            body: bodyHtml,
-            scripts: '',    // opsional: inject script tambahan per halaman
-            ...extraData,
-        }, (errLayout, html) => {
-            if (errLayout) {
-                console.error('[Admin] Error rendering layout.ejs:', errLayout);
-                return res.status(500).send('Error rendering layout');
-            }
-            res.send(html);
-        });
-    });
+        res.send(html);
+      }
+    );
+  });
 }
 
 /* =====================================================
    ROUTES
    ===================================================== */
 
-// Redirect /admin → /admin/overview
-router.get('/', (req, res) => res.redirect('/admin/overview'));
-
-// Overview
-router.get('/overview', (req, res) => {
-    renderAdmin(res, 'overview', 'Overview', 'Selamat datang di panel administrator');
-    // TODO (back end): tambahkan data statistik dari DB:
-    // const stats = await db.getStats();
-    // renderAdmin(res, 'overview', 'Overview', '...', { stats });
-});
-
-// Laporan
-router.get('/laporan', (req, res) => {
-    renderAdmin(res, 'laporan', 'Laporan', 'Statistik dan laporan penggunaan platform');
-    // TODO (back end): const reports = await db.getReports(req.query.period);
-});
+// Redirect /admin → /admin/konstruksi
+router.get('/', (req, res) => res.redirect('/admin/konstruksi'));
 
 // Manajemen User
 router.get('/users', (req, res) => {
-    renderAdmin(res, 'users', 'Manajemen User', 'Kelola akun dan akses pengguna');
-    // TODO (back end): const users = await db.getUsers();
-    // renderAdmin(res, 'users', ..., { users });
+  renderAdmin(res, 'users', 'Manajemen User', 'Kelola akun dan akses pengguna', {}, req.user);
 });
 
 // Modul Konten
 router.get('/modules', async (req, res) => {
-    try {
-        const fetchRes = await fetch('http://localhost:4000/api/modules?all=true');
-        const modules = await fetchRes.json();
-        
-        // Peta data agar sesuai dengan ejs format jika perlu, 
-        // tapi ejs admin/modules.ejs masih menggunakan variabel statis m.name, m.cat dll
-        // Kita akan pass data as-is dan sesuaikan EJS nya di langkah berikutnya
-        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul pembelajaran dan konten', { modules });
-    } catch(err) {
-        console.error(err);
-        renderAdmin(res, 'modules', 'Modul Konten', 'Kelola modul pembelajaran dan konten', { modules: [] });
-    }
+  const base = process.env.BACKEND_URL || 'http://localhost:4000';
+  try {
+    const [modulesRes, materialsRes, toolsRes] = await Promise.all([
+      fetch(`${base}/api/modules?all=true`),
+      fetch(`${base}/api/materials`),
+      fetch(`${base}/api/tools`),
+    ]);
+    const [modules, materials, tools] = await Promise.all([
+      modulesRes.json(),
+      materialsRes.json(),
+      toolsRes.json(),
+    ]);
+    renderAdmin(
+      res,
+      'modules',
+      'Modul Konten',
+      'Kelola modul, material, dan peralatan',
+      {
+        modules,
+        materials,
+        tools,
+      },
+      req.user
+    );
+  } catch (err) {
+    console.error(err);
+    renderAdmin(
+      res,
+      'modules',
+      'Modul Konten',
+      'Kelola modul, material, dan peralatan',
+      {
+        modules: [],
+        materials: [],
+        tools: [],
+      },
+      req.user
+    );
+  }
 });
 
 // Manajemen Konstruksi
 router.get('/konstruksi', (req, res) => {
-    renderAdmin(res, 'konstruksi', 'Manajemen Konstruksi', 'Tambah dan kelola data konstruksi jaringan');
-    // TODO (back end): const konstruksiList = await db.getKonstruksi();
+  renderAdmin(
+    res,
+    'konstruksi',
+    'Manajemen Konstruksi',
+    'Tambah dan kelola data konstruksi jaringan',
+    {},
+    req.user
+  );
 });
 
 // Manajemen Material
 router.get('/material', (req, res) => {
-    renderAdmin(res, 'material', 'Manajemen Material', 'Tambah dan kelola katalog material jaringan');
-    // TODO (back end): const materialList = await db.getMaterial();
+  renderAdmin(
+    res,
+    'material',
+    'Manajemen Material',
+    'Tambah dan kelola katalog material jaringan',
+    {},
+    req.user
+  );
 });
 
 // Manajemen Peralatan (Tools)
 router.get('/tools', (req, res) => {
-    renderAdmin(res, 'tools', 'Manajemen Peralatan', 'Tambah dan kelola katalog alat lapangan');
-    // TODO (back end): const toolsList = await db.getTools();
+  renderAdmin(
+    res,
+    'tools',
+    'Manajemen Peralatan',
+    'Tambah dan kelola katalog alat lapangan',
+    {},
+    req.user
+  );
+});
+
+// Manajemen Kategori
+router.get('/categories', (req, res) => {
+  renderAdmin(
+    res,
+    'categories',
+    'Manajemen Kategori',
+    'Kelola kategori material dan peralatan',
+    {},
+    req.user
+  );
+});
+
+// Mesh Mapping — per modul
+router.get('/konstruksi/:id/mapping', async (req, res) => {
+  const base = process.env.BACKEND_URL || 'http://localhost:4000';
+  const { id } = req.params;
+  try {
+    const moduleRes = await fetch(`${base}/api/modules/${id}`);
+    if (!moduleRes.ok) return res.redirect('/admin/modules');
+    const moduleData = await moduleRes.json();
+
+    // Normalisasi URL aset: ganti absolute URL backend → relative path
+    // agar Three.js tidak request langsung ke port 4000 (CORS/403 error)
+    if (Array.isArray(moduleData.assets)) {
+      moduleData.assets = moduleData.assets.map((asset) => ({
+        ...asset,
+        file: asset.file ? asset.file.replace(/^https?:\/\/[^/]+/, '') : asset.file,
+      }));
+    }
+
+    renderAdmin(
+      res,
+      'mapping',
+      `Mesh Mapping`,
+      `Hubungkan mesh 3D ke material & peralatan — ${moduleData.title}`,
+      { moduleData },
+      req.user
+    );
+  } catch (err) {
+    console.error('[Admin] Error loading mapping page:', err);
+    res.redirect('/admin/modules');
+  }
 });
 
 // Pengaturan
 router.get('/settings', (req, res) => {
-    renderAdmin(res, 'settings', 'Pengaturan', 'Konfigurasi sistem dan preferensi admin');
-    // TODO (back end): const adminProfile = await db.getAdminProfile(req.user.id);
+  renderAdmin(
+    res,
+    'settings',
+    'Pengaturan',
+    'Konfigurasi sistem dan preferensi admin',
+    {
+      adminProfile: req.user,
+    },
+    req.user
+  );
 });
 
 module.exports = router;

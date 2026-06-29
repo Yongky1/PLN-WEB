@@ -1,34 +1,913 @@
 <!-- views/admin/modules.ejs -->
-<div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
-    <h3 style="font-size:15px; font-weight:600; color:#fff; margin:0;">Daftar Modul Konten</h3>
-    <button class="btn-primary">+ Tambah Modul</button>
+<div class="rd-page-head">
+    <div class="rd-page-title-block">
+        <span class="rd-page-eyebrow">Manajemen Sistem</span>
+        <h1 class="rd-page-title">Modul</h1>
+        <p class="rd-page-subtitle">Kelola modul konstruksi, material, dan peralatan.</p>
+    </div>
 </div>
-<div style="display:grid; grid-template-columns:repeat(2,1fr); gap:14px;">
+
+<style>
+  /* ── Shared card grid ── */
+  .am-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+  }
+  @media (max-width: 1200px) { .am-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 720px)  { .am-grid { grid-template-columns: 1fr; } }
+
+  /* ── Glass card base ── */
+  .am-card {
+    border-radius: 20px;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-bg-surface, #FFFFFF);
+    border: 1px solid var(--color-border-light, #E8F0FB);
+    box-shadow: 0 1px 3px rgba(0, 82, 163, 0.04), 0 4px 16px rgba(0, 82, 163, 0.04);
+    transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    cursor: pointer;
+  }
+  .am-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 8px 30px rgba(0, 82, 163, 0.1), 0 2px 8px rgba(0, 82, 163, 0.06);
+    border-color: var(--color-border, #D6E4F7);
+  }
+
+  /* Image area */
+  .am-card-img {
+    width: 100%; height: 190px;
+    position: relative; overflow: hidden;
+    background: var(--color-bg-surface-alt, #EFF5FF);
+    flex-shrink: 0;
+  }
+  .am-card-img img {
+    width: 100%; height: 100%; object-fit: cover;
+    transition: transform .5s ease-out;
+  }
+  .am-card:hover .am-card-img img { transform: scale(1.06); }
+  .am-card-img-placeholder {
+    width: 100%; height: 100%;
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 8px;
+    background: repeating-linear-gradient(
+      45deg,
+      rgba(0,0,0,0.02) 0px, rgba(0,0,0,0.02) 1px,
+      transparent 1px, transparent 14px
+    );
+  }
+  .am-card-img-grad {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 60px;
+    background: linear-gradient(to top, rgba(255,255,255,0.9), transparent);
+    pointer-events: none;
+  }
+
+  /* Status badge on image */
+  .am-card-badge {
+    position: absolute; top: 10px; right: 10px;
+    padding: 3px 9px; border-radius: 999px;
+    font-size: 9.5px; font-weight: 700; letter-spacing: 0.06em;
+    text-transform: uppercase; font-family: 'JetBrains Mono', monospace;
+    background: rgba(255,255,255,0.9);
+  }
+  .am-badge-green  { color: #16a34a; border: 1px solid rgba(22,163,74,0.3); }
+  .am-badge-yellow { color: #d97706; border: 1px solid rgba(217,119,6,0.3); }
+  .am-badge-gray   { color: #64748b; border: 1px solid rgba(100,116,139,0.3); }
+  .am-badge-blue   { color: #2563eb; border: 1px solid rgba(37,99,235,0.3); }
+
+  /* Card body */
+  .am-card-body {
+    padding: 16px 18px 18px;
+    display: flex; flex-direction: column; gap: 6px;
+    flex: 1;
+  }
+  .am-card-eyebrow {
+    font-size: 9px; font-family: 'JetBrains Mono', monospace;
+    color: var(--color-text-muted, #8B9DC3); letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .am-card-title {
+    font-weight: 700; font-size: 16px; color: var(--color-text-primary, #1B2B4B);
+    line-height: 1.3; letter-spacing: -0.2px;
+    transition: color .2s;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .am-card:hover .am-card-title { color: var(--color-primary, #0052A3); }
+  .am-card-desc {
+    font-size: 11px; color: var(--color-text-secondary, #526080); line-height: 1.55;
+    display: -webkit-box; -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical; overflow: hidden;
+  }
+  .am-card-divider { height: 1px; background: var(--color-border-light, #E8F0FB); margin: 4px 0; }
+  .am-card-stats {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .am-stat { display: flex; flex-direction: column; gap: 1px; }
+  .am-stat-label {
+    font-size: 8.5px; font-family: 'JetBrains Mono', monospace;
+    color: var(--color-text-muted, #8B9DC3); letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .am-stat-val {
+    font-size: 17px; font-weight: 700; font-family: 'Space Grotesk', 'Inter', sans-serif;
+  }
+  .am-stat-text {
+    font-size: 12px; font-weight: 600; color: var(--color-text-secondary, #526080);
+    font-family: 'Inter', sans-serif;
+  }
+  .am-go-btn {
+    width: 32px; height: 32px; border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    background: rgba(0, 180, 216, 0.1); color: var(--color-cyan, #00B4D8);
+    border: 1px solid rgba(0, 180, 216, 0.18);
+    transition: background .2s, transform .2s;
+    flex-shrink: 0;
+  }
+  .am-card:hover .am-go-btn {
+    background: var(--color-cyan, #00B4D8); color: #FFF;
+    transform: rotate(-45deg) scale(1.1);
+  }
+
+  /* Electric accent line */
+  .am-electric-line {
+    position: absolute; bottom: 0; left: 0; right: 0; height: 3px;
+    opacity: 0; transition: transform .5s, opacity .3s;
+    transform: scaleX(0); transform-origin: left;
+  }
+  .am-card:hover .am-electric-line { opacity: 1; transform: scaleX(1); }
+
+  /* Action buttons */
+  .am-card-actions {
+    position: absolute; top: 10px; left: 10px;
+    display: flex; gap: 6px;
+    opacity: 0.55; transform: translateY(-2px);
+    transition: opacity .2s, transform .2s;
+    z-index: 10;
+  }
+  .am-card:hover .am-card-actions { opacity: 1; transform: none; }
+  .am-action-btn {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    border: 1px solid var(--color-border, #D6E4F7); cursor: pointer;
+    transition: background .15s, border-color .15s, transform .15s;
+    background: rgba(255,255,255,0.9);
+    backdrop-filter: blur(8px);
+  }
+  .am-action-btn:hover { transform: scale(1.08); }
+  .am-action-edit:hover  { background: rgba(0, 180, 216, 0.15); border-color: rgba(0, 180, 216, 0.3); }
+  .am-action-delete:hover { background: rgba(239, 68, 68, 0.15); border-color: rgba(239, 68, 68, 0.3); }
+
+  /* Section header */
+  .am-section {
+    margin-bottom: 36px;
+  }
+  .am-section-head {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 18px; padding-bottom: 14px;
+    border-bottom: 1px solid var(--color-border, #D6E4F7);
+  }
+  .am-section-title-wrap { display: flex; align-items: center; gap: 10px; }
+  .am-section-icon {
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .am-section-title {
+    font-size: 14px; font-weight: 700; color: var(--color-text-primary, #1B2B4B); margin: 0;
+  }
+  .am-section-count {
+    font-size: 11px; color: var(--color-text-muted, #8B9DC3); margin: 2px 0 0;
+  }
+
+  /* Empty state */
+  .am-empty {
+    grid-column: 1 / -1;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; padding: 48px 0; gap: 12px;
+  }
+  .am-empty-icon {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(0, 82, 163, 0.04); border: 1px solid rgba(0, 82, 163, 0.07);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .am-empty-text {
+    font-size: 12.5px; color: var(--color-text-secondary, #526080);
+  }
+</style>
+
+<!-- ═══════════════════════════════════════
+     SECTION 1: MODUL
+══════════════════════════════════════════ -->
+<div class="am-section">
+  <div class="am-section-head">
+    <div class="am-section-title-wrap">
+      <div class="am-section-icon" style="background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.18);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#00E5FF" stroke-width="2">
+          <polygon points="12 2 2 7 12 12 22 7 12 2"/>
+          <polyline points="2 17 12 22 22 17"/>
+          <polyline points="2 12 12 17 22 12"/>
+        </svg>
+      </div>
+      <div>
+        <div class="am-section-title">Modul Konstruksi</div>
+        <div class="am-section-count"><%= modules && modules.length ? modules.length : 0 %> modul</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="window.location.href='/admin/konstruksi?openAdd=1'">+ Tambah Modul</button>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
     <% if (modules && modules.length > 0) { %>
-        <% modules.forEach(m => { 
-            // Format ulang status agar cocok dengan badge class UI
-            let statusClass = 'badge-blue';
-            if (m.status === 'Aktif') statusClass = 'badge-green';
-            else if (m.status === 'Draft' || m.status === 'Nonaktif') statusClass = 'badge-yellow';
-            
-            const totalItems = (m.materials ? m.materials.length : 0) + (m.tools ? m.tools.length : 0) + (m.assets ? m.assets.length : 0);
-            
-            // Format tanggal yang bagus
-            const dateObj = new Date(m.created_at || Date.now());
-            const dateStr = dateObj.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
-        %>
-        <div class="item-row">
-            <div class="item-icon"><svg style="width:18px;height:18px;color:#00E5FF;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg></div>
-            <div style="flex:1; min-width:0;">
-                <div style="font-size:13px; font-weight:600; color:#fff; margin-bottom:3px;"><%= m.title %></div>
-                <div style="font-size:11px; color:rgba(255,255,255,0.35);">Dibuat <%= dateStr %> · <%= totalItems %> komponen terkait</div>
-            </div>
-            <span class="badge <%= statusClass %>"><%= m.status %></span>
-        </div>
-        <% }); %>
+      <% modules.forEach(function(m, i) {
+          let badgeClass = 'am-badge-gray';
+          if (m.status === 'Aktif') badgeClass = 'am-badge-green';
+          else if (m.status === 'Draft') badgeClass = 'am-badge-yellow';
+          const accentColor = i % 2 === 0 ? '#00E5FF' : '#FFD700';
+      %>
+            <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col relative" onclick="window.location.href='/ModulKonstruksi/<%= m.id %>?back=/admin/modules'">
+          <!-- Admin Actions Overlay -->
+          <div class="absolute top-3 left-3 z-30 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/90 backdrop-blur-sm border border-[var(--color-border)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all shadow-sm" title="Edit" onclick="event.stopPropagation(); openItemEdit('module','<%= m.id %>')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/90 backdrop-blur-sm border border-[var(--color-border)] text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white transition-all shadow-sm" title="Hapus" onclick="event.stopPropagation(); deleteFromModules('module', '<%= m.id %>', this)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              </button>
+          </div>
+
+          <!-- Image -->
+          <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+              <% if (m.image) { %>
+                  <img src="<%= m.image %>" alt="<%= m.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <% } else { %>
+                  <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-accent)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                          <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="14.5" r="1.5"/>
+                      </svg>
+                      <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">MODULE</span>
+                  </div>
+              <% } %>
+              <!-- Status Badge -->
+              <div class="absolute top-3 right-3 z-20">
+                  <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[var(--color-text-secondary)] border border-[var(--color-border)]">
+                      <%= m.status || 'Draft' %>
+                  </span>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+          </div>
+
+          <!-- Body -->
+          <div class="p-5 flex flex-col flex-grow">
+              <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= m.title %></h3>
+              <div class="relative flex-grow mb-4">
+                  <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
+                      <%= m.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                  </p>
+                  <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                      <%= m.description || 'Deskripsi belum tersedia.' %>
+                  </p>
+                  <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+              </div>
+              <div class="mt-auto">
+                  <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
+                  <div class="flex items-center justify-between gap-3">
+                      <div class="flex gap-4 min-w-0 flex-1">
+                          <div class="flex flex-col min-w-0 flex-1 justify-center">
+                              <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Material</span>
+                              <span class="text-sm font-bold text-[var(--color-accent)] brand-font truncate"><%= m.materialCount || 0 %></span>
+                          </div>
+                          <div class="w-px bg-[var(--color-border-light)] shrink-0"></div>
+                          <div class="flex flex-col shrink-0 justify-center">
+                              <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Peralatan</span>
+                              <span class="text-sm font-bold text-[var(--color-cyan)] brand-font truncate"><%= m.equipmentCount || 0 %></span>
+                          </div>
+                      </div>
+                      <div class="w-9 h-9 shrink-0 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="h-0.5 bg-gradient-to-r from-[var(--color-accent)] via-[var(--color-cyan)] to-[var(--color-primary)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+      </div>
+      <% }); %>
     <% } else { %>
-        <div style="grid-column: 1 / -1; padding: 20px; text-align: center; color: rgba(255,255,255,0.5); font-size: 13px;">
-            Belum ada modul yang terdaftar dalam database.
+      <div class="am-empty">
+        <div class="am-empty-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted, #8B9DC3)" stroke-width="1.5"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>
         </div>
+        <span class="am-empty-text">Belum ada modul yang terdaftar.</span>
+      </div>
     <% } %>
+  </div>
 </div>
+
+<!-- ═══════════════════════════════════════
+     SECTION 2: MATERIAL
+══════════════════════════════════════════ -->
+<div class="am-section">
+  <div class="am-section-head">
+    <div class="am-section-title-wrap">
+      <div class="am-section-icon" style="background:rgba(255,215,0,0.1); border:1px solid rgba(255,215,0,0.2);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#FFD700" stroke-width="2">
+          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+        </svg>
+      </div>
+      <div>
+        <div class="am-section-title">Material</div>
+        <div class="am-section-count"><%= materials && materials.length ? materials.length : 0 %> item</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="window.location.href='/admin/material?openAdd=1'">+ Tambah Material</button>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <% if (materials && materials.length > 0) { %>
+      <% materials.forEach(function(m, i) {
+          const accentColor = i % 2 === 0 ? '#FFD700' : '#00E5FF';
+          const variantCount = m.assets ? m.assets.length : 0;
+      %>
+            <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col relative" data-type="material" data-id="<%= m.id %>" onclick="openModuleItemModal('material', '<%= m.id %>')">
+          <!-- Admin Actions Overlay -->
+          <div class="absolute top-3 left-3 z-30 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/90 backdrop-blur-sm border border-[var(--color-border)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all shadow-sm" title="Edit" onclick="event.stopPropagation(); openItemEdit('material','<%= m.id %>')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/90 backdrop-blur-sm border border-[var(--color-border)] text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white transition-all shadow-sm" title="Hapus" onclick="event.stopPropagation(); deleteFromModules('material', '<%= m.id %>', this)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              </button>
+          </div>
+
+          <!-- Image -->
+          <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+              <% if (m.image) { %>
+                  <img src="<%= m.image %>" alt="<%= m.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <% } else { %>
+                  <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-accent)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                          <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                      </svg>
+                      <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">MATERIAL</span>
+                  </div>
+              <% } %>
+              <!-- Category badge -->
+              <div class="absolute top-3 right-3 z-20 flex flex-col gap-1.5 items-end">
+                  <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[var(--color-text-secondary)] border border-[var(--color-border)]">
+                      <%= m.category && m.category.name ? m.category.name : 'Uncategorized' %>
+                  </span>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+          </div>
+
+          <!-- Body -->
+          <div class="p-5 flex flex-col flex-grow">
+              <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= m.name %></h3>
+              <div class="relative flex-grow mb-4">
+                  <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
+                      <%= m.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                  </p>
+                  <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                      <%= m.description || 'Deskripsi belum tersedia.' %>
+                  </p>
+                  <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+              </div>
+              <div class="mt-auto">
+                  <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
+                  <div class="flex items-center justify-between gap-3">
+                      <div class="flex gap-4 min-w-0 flex-1">
+                          <div class="flex flex-col min-w-0 flex-1 justify-center">
+                              <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Kode</span>
+                              <span class="text-sm font-bold text-[var(--color-cyan)] brand-font truncate" title="<%= m.code || '—' %>"><%= m.code || '—' %></span>
+                          </div>
+                          <div class="w-px bg-[var(--color-border-light)] shrink-0"></div>
+                          <div class="flex flex-col shrink-0 justify-center">
+                              <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Varian 3D</span>
+                              <span class="text-sm font-bold text-[var(--color-accent)] brand-font truncate"><%= variantCount %></span>
+                          </div>
+                      </div>
+                      <div class="w-9 h-9 shrink-0 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="h-0.5 bg-gradient-to-r from-[var(--color-accent)] via-[var(--color-cyan)] to-[var(--color-primary)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+      </div>
+      <% }); %>
+    <% } else { %>
+      <div class="am-empty">
+        <div class="am-empty-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted, #8B9DC3)" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        </div>
+        <span class="am-empty-text">Belum ada material yang terdaftar.</span>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     SECTION 3: PERALATAN
+══════════════════════════════════════════ -->
+<div class="am-section">
+  <div class="am-section-head">
+    <div class="am-section-title-wrap">
+      <div class="am-section-icon" style="background:rgba(96,165,250,0.1); border:1px solid rgba(96,165,250,0.2);">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#60A5FA" stroke-width="2">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
+      <div>
+        <div class="am-section-title">Peralatan</div>
+        <div class="am-section-count"><%= tools && tools.length ? tools.length : 0 %> item</div>
+      </div>
+    </div>
+    <button class="btn-primary" onclick="window.location.href='/admin/tools?openAdd=1'">+ Tambah Peralatan</button>
+  </div>
+
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+    <% if (tools && tools.length > 0) { %>
+      <% tools.forEach(function(t, i) {
+          let badgeClass = 'am-badge-gray';
+          if (t.status === 'Aktif') badgeClass = 'am-badge-green';
+          else if (t.status === 'Draft') badgeClass = 'am-badge-yellow';
+          const accentColor = i % 2 === 0 ? '#60A5FA' : '#00E5FF';
+      %>
+            <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col relative" data-type="tool" data-id="<%= t.id %>" onclick="openModuleItemModal('tool', '<%= t.id %>')">
+          <!-- Admin Actions Overlay -->
+          <div class="absolute top-3 left-3 z-30 flex gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/90 backdrop-blur-sm border border-[var(--color-border)] text-[var(--color-primary)] hover:bg-[var(--color-primary)] hover:text-white transition-all shadow-sm" title="Edit" onclick="event.stopPropagation(); openItemEdit('tool','<%= t.id %>')">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="w-8 h-8 rounded-lg flex items-center justify-center bg-white/90 backdrop-blur-sm border border-[var(--color-border)] text-[var(--color-error)] hover:bg-[var(--color-error)] hover:text-white transition-all shadow-sm" title="Hapus" onclick="event.stopPropagation(); deleteFromModules('tool', '<%= t.id %>', this)">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              </button>
+          </div>
+
+          <!-- Image -->
+          <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+              <% if (t.image) { %>
+                  <img src="<%= t.image %>" alt="<%= t.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+              <% } else { %>
+                  <div class="w-full h-full flex flex-col items-center justify-center gap-2">
+                      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-primary)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                          <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="14.5" r="1.5"/>
+                      </svg>
+                      <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">PERALATAN</span>
+                  </div>
+              <% } %>
+              <!-- Category badge -->
+              <div class="absolute top-3 right-3 z-20 flex flex-col gap-1.5 items-end">
+                  <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[var(--color-text-secondary)] border border-[var(--color-border)]">
+                      <%= t.category && t.category.name ? t.category.name : 'Uncategorized' %>
+                  </span>
+                  <% if (t.file3d) { %>
+                  <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-[var(--color-cyan)]/10 text-[var(--color-cyan)] border border-[var(--color-cyan)]/15">3D</span>
+                  <% } %>
+              </div>
+              <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
+          </div>
+
+          <!-- Body -->
+          <div class="p-5 flex flex-col flex-grow">
+              <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= t.name %></h3>
+              <div class="relative flex-grow mb-4">
+                  <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
+                      <%= t.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                  </p>
+                  <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                      <%= t.description || 'Deskripsi belum tersedia.' %>
+                  </p>
+                  <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
+              </div>
+              <div class="mt-auto">
+                  <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
+                  <div class="flex items-center justify-between gap-3">
+                      <div class="flex gap-4 min-w-0 flex-1">
+                          <div class="flex flex-col min-w-0 flex-1 justify-center">
+                              <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Standar</span>
+                              <span class="text-sm font-bold text-[var(--color-primary)] brand-font truncate" title="<%= t.standard || '—' %>"><%= t.standard || '—' %></span>
+                          </div>
+                          <div class="w-px bg-[var(--color-border-light)] shrink-0"></div>
+                          <div class="flex flex-col shrink-0 justify-center">
+                              <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Status</span>
+                              <span class="text-sm font-bold brand-font" style="color:<%= t.status === 'Wajib' ? 'var(--color-error)' : 'var(--color-success)' %>;"><%= t.status || 'Aktif' %></span>
+                          </div>
+                      </div>
+                      <div class="w-9 h-9 shrink-0 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
+                          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                      </div>
+                  </div>
+              </div>
+          </div>
+          <div class="h-0.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-cyan)] to-[var(--color-accent)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
+      </div>
+      <% }); %>
+    <% } else { %>
+      <div class="am-empty">
+        <div class="am-empty-icon">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted, #8B9DC3)" stroke-width="1.5"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <span class="am-empty-text">Belum ada peralatan yang terdaftar.</span>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════
+     DETAIL MODAL (Material & Tools) — layout sama dengan halaman publik
+══════════════════════════════════════════ -->
+<script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+<script src="/js/catalog-modal.js"></script>
+
+<style>
+  #amqv-overlay { background: rgba(27,43,75,0.4); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+  #amqv-overlay.active { display: flex !important; }
+  #amqv-card { height: auto; max-height: 90vh; }
+  @media (min-width: 768px) { #amqv-card { height: 560px; max-height: unset; } }
+</style>
+
+<div id="amqv-overlay" class="fixed inset-0 z-[999] hidden items-center justify-center p-4 sm:p-6" style="display:none;">
+  <div id="amqv-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+
+    <!-- LEFT: 3D Viewer -->
+    <div id="amqv-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+      <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 blur-[60px] pointer-events-none bg-[var(--color-primary)]/5"></div>
+      <model-viewer id="amqv-model-viewer" src="" camera-controls auto-rotate rotation-per-second="25deg"
+          interaction-prompt="none" shadow-intensity="1" environment-image="neutral" exposure="1"
+          class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+      </model-viewer>
+      <div id="amqv-loading-overlay" class="pln-3d-loading absolute inset-0 z-10">
+        <div id="amqv-loading-spinner" class="pln-3d-loader">
+          <span class="pln-dot bg-[var(--color-primary)]"></span>
+          <span class="pln-dot bg-[var(--color-primary)]"></span>
+          <span class="pln-dot bg-[var(--color-primary)]"></span>
+        </div>
+        <span id="amqv-loading-text" class="pln-3d-label text-[var(--color-text-secondary)]"></span>
+      </div>
+      <div id="amqv-empty-state" class="absolute inset-0 flex-col items-center justify-center text-[var(--color-text-muted)] z-10 hidden" style="display:none;">
+        <svg class="w-16 h-16 mb-4 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <span class="text-sm font-medium tracking-wide brand-font">Belum ada file 3D</span>
+      </div>
+      <div class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-lg">
+        <svg class="w-3.5 h-3.5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
+        Rotasi 360° · Zoom via Scroll
+      </div>
+      <button id="amqv-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-sm opacity-0 group-hover:opacity-100">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+      </button>
+    </div>
+
+    <!-- RIGHT: Info Panel -->
+    <div class="flex-1 flex flex-col min-h-0 relative" style="overflow-y:auto;">
+      <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
+        <div class="absolute top-5 right-5 z-20">
+          <button id="amqv-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-bg-surface-alt)] hover:bg-[var(--color-primary)]/5">
+            <svg class="w-4 h-4 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+        <div class="flex items-center gap-3 mb-4 pr-12">
+          <span id="amqv-modal-icon" class="text-3xl select-none shrink-0 leading-none"></span>
+          <span id="amqv-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 bg-[var(--color-primary)]/10 border-[var(--color-primary)]/20 text-[var(--color-primary)]">
+            <span class="w-1 h-1 rounded-full animate-pulse" style="background:currentColor; opacity:.7;"></span>
+          </span>
+        </div>
+        <h2 id="amqv-modal-name" class="text-2xl font-bold text-[var(--color-text-primary)] leading-tight mb-1 brand-font tracking-tight"></h2>
+        <p id="amqv-modal-sub" class="text-[11px] font-mono tracking-wider text-[var(--color-primary)]"></p>
+        <!-- Tools-only fields -->
+        <div id="amqv-tools-meta" class="mt-2 flex gap-4 hidden" style="display:none;">
+          <div class="flex items-center gap-1.5">
+            <span class="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">Status:</span>
+            <span id="amqv-modal-status" class="text-[11px] font-bold text-[var(--color-success)]"></span>
+          </div>
+        </div>
+        <div class="mt-3 h-px bg-[var(--color-border-light)]"></div>
+      </div>
+      <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3" style="scrollbar-width:thin; scrollbar-color:rgba(var(--color-text-muted-rgb),0.2) transparent;">
+        <p id="amqv-modal-desc" class="text-[13px] text-[var(--color-text-secondary)] leading-relaxed mb-5" style="font-family:'Inter',sans-serif;"></p>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  const __AM_MATERIALS__ = <%- JSON.stringify(materials || []) %>;
+  const __AM_TOOLS__     = <%- JSON.stringify(tools     || []) %>;
+
+  const AMQV_IDS = {
+    overlay:        'amqv-overlay',
+    card:           'amqv-card',
+    modelViewer:    'amqv-model-viewer',
+    canvasWrap:     'amqv-canvas-wrap',
+    emptyState:     'amqv-empty-state',
+    loadingOverlay: 'amqv-loading-overlay',
+    spinner:        'amqv-loading-spinner',
+    loadingText:    'amqv-loading-text',
+  };
+
+  function openModuleItemModal(type, id) {
+    const isMat  = type === 'material';
+    const data   = isMat
+      ? __AM_MATERIALS__.find(m => m.id === id)
+      : __AM_TOOLS__.find(t => t.id === id);
+    if (!data) return;
+
+    const accentColor = isMat ? '#FFD700' : '#60A5FA';
+    const accentBg    = isMat ? 'rgba(255,215,0,0.1)'   : 'rgba(96,165,250,0.1)';
+    const accentBorder= isMat ? 'rgba(255,215,0,0.25)'  : 'rgba(96,165,250,0.25)';
+
+    // Category badge
+    const catEl = document.getElementById('amqv-modal-category');
+    catEl.textContent = '';
+    catEl.style.cssText = `font-size:9px; font-weight:900; text-transform:uppercase; letter-spacing:0.2em; padding:4px 12px 4px 10px; border-radius:999px; border:1px solid ${accentBorder}; background:${accentBg}; color:${accentColor}; display:inline-flex; align-items:center; gap:6px;`;
+    const dot = document.createElement('span');
+    dot.style.cssText = `width:4px; height:4px; border-radius:50%; background:currentColor; opacity:.7; animation:pulse 2s infinite;`;
+    catEl.appendChild(dot);
+    catEl.appendChild(document.createTextNode(data.category?.name || (isMat ? 'Material' : 'Peralatan')));
+
+    document.getElementById('amqv-modal-icon').textContent = data.icon || (isMat ? '🔩' : '🔧');
+    document.getElementById('amqv-modal-name').textContent = data.name || '';
+
+    // Sub line: code (material) or standard (tools)
+    const subEl = document.getElementById('amqv-modal-sub');
+    subEl.style.color = isMat ? 'rgba(255,215,0,0.5)' : 'rgba(96,165,250,0.5)';
+    subEl.textContent = isMat ? (data.code || '') : (data.standard ? `Standar: ${data.standard}` : '');
+
+    // Status (tools only)
+    const toolsMeta = document.getElementById('amqv-tools-meta');
+    if (!isMat && data.status) {
+      const statusEl = document.getElementById('amqv-modal-status');
+      statusEl.textContent = data.status;
+      statusEl.style.color = data.status === 'Wajib' ? '#f87171' : '#34d399';
+      toolsMeta.style.display = 'flex';
+    } else {
+      toolsMeta.style.display = 'none';
+    }
+
+    // Description
+    const rawDesc = data.description || '';
+    document.getElementById('amqv-modal-desc').textContent = rawDesc || '—';
+
+    // File 3D: material ambil dari assets[0], tools langsung dari file3d
+    const file3d = isMat
+      ? (data.assets && data.assets[0] ? data.assets[0].file : '')
+      : (data.file3d || '');
+
+    openCatalogModal(AMQV_IDS, file3d, 'Memuat Model 3D...', () => {});
+  }
+
+  function deleteFromModules(type, id, btn) {
+    const labels    = { material: 'Material', tool: 'Peralatan', module: 'Modul Konstruksi' };
+    const endpoints = { material: `/api/materials/${id}`, tool: `/api/tools/${id}`, module: `/api/modules/${id}` };
+    const notes     = {
+      material: 'File 3D terkait juga akan ikut terhapus dari server.',
+      tool:     'File 3D (jika ada) juga akan ikut terhapus dari server.',
+      module:   'Semua varian dan file 3D terkait juga akan ikut terhapus dari server.',
+    };
+    showConfirmDialog({
+      title:       `Hapus ${labels[type]}?`,
+      message:     `Tindakan ini permanen dan tidak dapat dibatalkan. ${notes[type]}`,
+      confirmText: 'Ya, Hapus',
+      onConfirm: async () => {
+        try {
+          await fetchBackend(endpoints[type], { method: 'DELETE' });
+          showToast(`${labels[type]} berhasil dihapus!`);
+          btn.closest('.am-card').remove();
+        } catch (err) {
+          showToast(`Gagal menghapus: ${err.message}`, 'error');
+        }
+      },
+    });
+  }
+
+  document.getElementById('amqv-btn-close').addEventListener('click', () => closeCatalogModal(AMQV_IDS));
+  document.getElementById('amqv-overlay').addEventListener('click', function(e) {
+    if (e.target === this) closeCatalogModal(AMQV_IDS);
+  });
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeCatalogModal(AMQV_IDS);
+  });
+  document.getElementById('amqv-fullscreen-btn').addEventListener('click', () => toggleCatalogFullscreen('amqv-canvas-wrap'));
+  initCatalogFullscreen('amqv-canvas-wrap');
+</script>
+
+<!-- ═══════════════════════════════════════════════════════
+     EDIT MODAL SUPPORT — Material, Peralatan & Konstruksi
+     Stub containers agar DOMContentLoaded management JS tidak crash.
+     Modals di-embed langsung sehingga edit tidak perlu navigate.
+══════════════════════════════════════════════════════════ -->
+
+<!-- Stubs untuk DOMContentLoaded management JS (addMaterialCard, addToolsCard, addKonstruksiCard butuh container ini) -->
+<div id="material-cards"   style="display:none;"></div>
+<div id="tools-cards"      style="display:none;"></div>
+<div id="konstruksi-cards" style="display:none;"></div>
+
+<%- include('../partials/edit-modal-material', { modalId: 'mat-edit-modal' }) %>
+
+<%- include('../partials/edit-modal-tools', {
+  modalId: 'tool-edit-modal',
+  previewViewerId: 'tool-preview-viewer',
+  previewEmptyId: 'tool-preview-empty',
+  previewSelectorId: 'tool-preview-selector',
+  previewOnChange: 'toolChangeAdminPreview()'
+}) %>
+
+<%- include('../partials/edit-modal-konstruksi', {
+  modalId: 'kon-edit-modal',
+  previewViewerId: 'kon-preview-viewer',
+  previewEmptyId: 'kon-preview-empty',
+  previewSelectorId: 'kon-preview-selector',
+  previewOnChange: 'konChangeAdminPreview()'
+}) %>
+
+<!-- Load management JS untuk fungsi edit & upload card -->
+<link rel="stylesheet" href="/css/upload-card.css">
+<script src="/js/admin/upload-card.js"></script>
+<script src="/js/admin/material-admin.js"></script>
+<script src="/js/admin/tools-admin.js"></script>
+<script src="/js/admin/konstruksi.js"></script>
+
+<script>
+  /* ── Preview helpers: changer dan refresher per modal type ── */
+  function _previewChanger(viewerId, selectorId, emptyId) {
+    var viewer   = document.getElementById(viewerId);
+    var selector = document.getElementById(selectorId);
+    var empty    = document.getElementById(emptyId);
+    if (!selector || !viewer || !empty) return;
+    if (selector.value) {
+      viewer.setAttribute('src', selector.value);
+      viewer.style.display = 'block';
+      empty.style.display  = 'none';
+      viewer.dismissPoster && viewer.dismissPoster();
+    } else {
+      viewer.removeAttribute('src');
+      viewer.style.display = 'none';
+      empty.style.display  = 'flex';
+    }
+  }
+
+  function toolChangeAdminPreview() { _previewChanger('tool-preview-viewer', 'tool-preview-selector', 'tool-preview-empty'); }
+  function konChangeAdminPreview()  { _previewChanger('kon-preview-viewer',  'kon-preview-selector',  'kon-preview-empty');  }
+
+  function _makePreviewRefresher(viewerId, selectorId, emptyId, changeFn) {
+    return function (assets) {
+      var viewer   = document.getElementById(viewerId);
+      var selector = document.getElementById(selectorId);
+      var empty    = document.getElementById(emptyId);
+      if (!selector || !viewer || !empty) return;
+      selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
+      if (assets && assets.length > 0) {
+        assets.forEach(function (a, idx) {
+          if (a.file && a.file !== '-') {
+            var opt = document.createElement('option');
+            opt.value = a.file;
+            opt.textContent = a.name || ('File ' + (idx + 1));
+            selector.appendChild(opt);
+          }
+        });
+        if (selector.options.length > 1) { selector.selectedIndex = 1; changeFn(); }
+        else { viewer.style.display = 'none'; empty.style.display = 'flex'; }
+      } else {
+        viewer.style.display = 'none';
+        empty.style.display  = 'flex';
+      }
+    };
+  }
+
+  var _toolRefresh = _makePreviewRefresher('tool-preview-viewer', 'tool-preview-selector', 'tool-preview-empty', toolChangeAdminPreview);
+  var _konRefresh  = _makePreviewRefresher('kon-preview-viewer',  'kon-preview-selector',  'kon-preview-empty',  konChangeAdminPreview);
+
+  /* ── Wrapper: buka edit modal yang benar berdasarkan tipe ── */
+  async function openItemEdit(type, id) {
+    var origRefresh = window.refreshAdminPreviewSelector;
+
+    if (type === 'material') {
+      await editMaterial(id);
+      document.getElementById('mat-edit-modal').classList.add('active');
+    } else if (type === 'tool') {
+      window.refreshAdminPreviewSelector = _toolRefresh;
+      editTool(id);
+      window.refreshAdminPreviewSelector = origRefresh;
+      document.getElementById('tool-edit-modal').classList.add('active');
+    } else if (type === 'module') {
+      window.refreshAdminPreviewSelector = _konRefresh;
+      await editKonstruksi(id);
+      window.refreshAdminPreviewSelector = origRefresh;
+      document.getElementById('kon-edit-modal').classList.add('active');
+    }
+  }
+
+  /* ── Override closeEditModal dari core.js agar tutup semua modal embedded ── */
+  window.closeEditModal = function () {
+    window.currentEditingId = null;
+    var m1 = document.getElementById('mat-edit-modal');
+    if (m1) m1.classList.remove('active');
+    var m2 = document.getElementById('tool-edit-modal');
+    if (m2) m2.classList.remove('active');
+    var m3 = document.getElementById('kon-edit-modal');
+    if (m3) m3.classList.remove('active');
+  };
+
+  /* ── Override syncAdminPreviewDropdown agar routing ke modal yang aktif ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var origSync = window.syncAdminPreviewDropdown;
+    window.syncAdminPreviewDropdown = function () {
+      var konActive  = document.getElementById('kon-edit-modal');
+      var toolActive = document.getElementById('tool-edit-modal');
+      if (konActive && konActive.classList.contains('active')) {
+        _konSyncFromCards();
+      } else if (toolActive && toolActive.classList.contains('active')) {
+        _toolSyncFromCards();
+      } else if (origSync) {
+        origSync.apply(this, arguments);
+      }
+    };
+  });
+
+  function _toolSyncFromCards() {
+    var selector = document.getElementById('tool-preview-selector');
+    var viewer   = document.getElementById('tool-preview-viewer');
+    var empty    = document.getElementById('tool-preview-empty');
+    if (!selector || !viewer || !empty) return;
+    var cards   = document.querySelectorAll('#edit-tools-cards .upload-card');
+    var current = selector.value;
+    selector.innerHTML = '<option value="">-- Pilih File untuk Preview --</option>';
+    var hasValid = false;
+    cards.forEach(function (card, idx) {
+      var nameEl = card.querySelector('.t-name');
+      var name   = nameEl && nameEl.value.trim() ? nameEl.value.trim() : ('Peralatan ' + (idx + 1));
+      var fi     = card.querySelector('input.t-file-3d');
+      var url    = '';
+      var local  = fi && fi.files && fi.files[0];
+      if (local) { url = URL.createObjectURL(fi.files[0]); }
+      else if (card.dataset.oldFile && card.dataset.oldFile !== '-') { url = card.dataset.oldFile; }
+      if (url) {
+        var opt = document.createElement('option');
+        opt.value = url;
+        opt.textContent = local ? ('[Baru] ' + name) : name;
+        selector.appendChild(opt);
+        hasValid = true;
+      }
+    });
+    if (hasValid) {
+      var found = current && Array.from(selector.options).find(function (o) { return o.value === current; });
+      selector.value = found ? current : (selector.options.length > 1 ? selector.options[1].value : '');
+    } else { selector.value = ''; }
+    toolChangeAdminPreview();
+  }
+
+  function _konSyncFromCards() {
+    var selector = document.getElementById('kon-preview-selector');
+    var viewer   = document.getElementById('kon-preview-viewer');
+    var empty    = document.getElementById('kon-preview-empty');
+    if (!selector || !viewer || !empty) return;
+    var cards   = document.querySelectorAll('#edit-konstruksi-cards .upload-card');
+    var current = selector.value;
+    selector.innerHTML = '<option value="">-- Pilih Varian untuk Preview --</option>';
+    var hasValid = false;
+    cards.forEach(function (card, idx) {
+      var nameEl = card.querySelector('.k-name');
+      var name   = nameEl ? (nameEl.value.trim() || ('Varian ' + (idx + 1))) : ('Varian ' + (idx + 1));
+      var fi     = card.querySelector('input[type="file"]');
+      var url    = '';
+      var local  = fi && (fi._confirmedFile || (fi.files && fi.files[0]));
+      if (local) { url = URL.createObjectURL(local); }
+      else if (card.dataset.oldFile && card.dataset.oldFile !== '-') { url = card.dataset.oldFile; }
+      if (url) {
+        var opt = document.createElement('option');
+        opt.value = url;
+        opt.textContent = local ? ('[Baru] ' + name) : name;
+        if (url === current) opt.selected = true;
+        selector.appendChild(opt);
+        hasValid = true;
+      }
+    });
+    if (hasValid) {
+      if (!selector.value && selector.options.length > 1) selector.selectedIndex = 1;
+    } else { selector.value = ''; }
+    konChangeAdminPreview();
+  }
+
+  /* ── Reload halaman setelah save agar card terupdate ── */
+  document.addEventListener('DOMContentLoaded', function () {
+    var fns = ['submitEditMaterial', 'submitEditTool', 'submitEditKonstruksi'];
+    fns.forEach(function (name) {
+      var orig = window[name];
+      if (typeof orig !== 'function') return;
+      window[name] = async function () {
+        await orig.apply(this, arguments);
+        location.reload();
+      };
+    });
+  });
+
+  /* ── Pre-fetch allTools (editTool butuh ini) ── */
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      if (!window.allTools || !window.allTools.length) {
+        window.allTools = await fetchBackend('/api/tools?all=true');
+      }
+    } catch (e) { /* gagal silent */ }
+  });
+
+</script>
