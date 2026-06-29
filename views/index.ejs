@@ -1,107 +1,89 @@
 <!DOCTYPE html>
-<html lang="id" class="scroll-smooth">
+<html lang="id">
 
 <head>
-  <%- include('partials/head') %>
-  <style>
-    body {
-      font-family: 'Inter', sans-serif;
-    }
-    h1, h2, h3, h4, h5, h6, .brand-font {
-      font-family: 'Space Grotesk', sans-serif;
-    }
-  </style>
+  <%- include('partials/head', { isLanding: true }) %>
 </head>
 
-<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+<body class="landing-page">
 
-  <%- include('partials/navbar') %>
+  <!-- JALA Loader -->
+  <div id="jala-loader" style="position: fixed; inset: 0; background: #ffffff; z-index: 9999; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity 0.5s ease;">
+    <h2 style="font-family: 'Inter', sans-serif; font-weight: 700; color: #111827; font-size: 24px; letter-spacing: -0.025em; margin-bottom: 1rem;">JALA</h2>
+    <div style="width: 200px; height: 2px; background: rgba(0,0,0,0.05); border-radius: 2px; overflow: hidden;">
+      <div style="width: 100%; height: 100%; background: #2C5C88; animation: load-progress 1.5s ease-in-out infinite;"></div>
+    </div>
+    <style>
+      @keyframes load-progress {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(100%); }
+      }
+    </style>
+  </div>
 
-    <main>
-      <%- include('partials/hero') %>
-        <%- include('partials/intro') %>
-          <%- include('partials/categories') %>
-            <%- include('partials/showcase') %>
-              <%- include('partials/cta') %>
-    </main>
+  <!-- Importmap untuk Three.js (sama seperti halaman 3D lain) -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "/scripts/three/three.module.js",
+      "three/addons/": "/scripts/three/jsm/"
+    }
+  }
+  </script>
 
-    <%- include('partials/footer') %>
+  <!-- Scroll 3D Background (model GLB di-scrub oleh scroll) -->
+  <div id="scroll-video-container">
+    <!-- Gradient placeholder (tampil saat model loading / fallback bila WebGL gagal) -->
+    <div class="video-placeholder"></div>
+    <canvas id="hero-3d-canvas"></canvas>
+    <div class="overlay"></div>
+  </div>
 
-      <!-- GSAP Scroll Animations -->
-      <script>
-        document.addEventListener("DOMContentLoaded", function () {
-          // CSS-only fallback for reveal on scroll
-          const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-              if (entry.isIntersecting) {
-                entry.target.classList.add('is-visible');
-              }
-            });
-          }, { threshold: 0.1 });
+  <!-- Particles -->
+  <canvas id="particles-canvas"></canvas>
 
-          document.querySelectorAll('.reveal-on-scroll').forEach(el => observer.observe(el));
+  <!-- Fixed Cards Overlay -->
+  <%- include('partials/categories') %>
 
-          // GSAP animations (if loaded)
-          if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-            gsap.registerPlugin(ScrollTrigger);
+  <!-- Navigation -->
+  <%- include('partials/navbar', { isLanding: true }) %>
 
-            // Fade in sections
-            gsap.utils.toArray('.gsap-reveal').forEach(el => {
-              gsap.to(el, {
-                scrollTrigger: {
-                  trigger: el,
-                  start: 'top 85%',
-                  toggleActions: 'play none none none'
-                },
-                y: 0,
-                opacity: 1,
-                duration: 1,
-                ease: 'power3.out'
-              });
-            });
+  <!-- Mobile Menu -->
+  <div class="landing-mobile-menu" id="landing-mobile-menu">
+    <a href="/">Beranda</a>
+    <a href="/tools">Peralatan</a>
+    <a href="/ModulKonstruksi">Konstruksi</a>
+    <a href="/material">Material</a>
+    <a href="/ModulKonstruksi" class="nav-cta" style="margin-top:1rem;">Mulai Belajar →</a>
+  </div>
 
-            // Stagger cards
-            gsap.utils.toArray('.gsap-stagger-container').forEach(container => {
-              const cards = container.querySelectorAll('.gsap-stagger-item');
-              gsap.from(cards, {
-                scrollTrigger: {
-                  trigger: container,
-                  start: 'top 80%'
-                },
-                y: 60,
-                opacity: 0,
-                duration: 0.8,
-                stagger: 0.15,
-                ease: 'power3.out'
-              });
-            });
+  <!-- Main Content -->
+  <div id="content">
+    <!-- Section 1: Hero -->
+    <%- include('partials/hero') %>
 
-            // Counter animation
-            document.querySelectorAll('.counter-value').forEach(counter => {
-              const target = parseInt(counter.getAttribute('data-target'));
-              const suffix = counter.getAttribute('data-suffix') || '';
+    <!-- Spacer for scroll video -->
+    <div style="height:150vh;"></div>
 
-              ScrollTrigger.create({
-                trigger: counter,
-                start: 'top 85%',
-                once: true,
-                onEnter: () => {
-                  gsap.to({ val: 0 }, {
-                    val: target,
-                    duration: 2,
-                    ease: 'power2.out',
-                    onUpdate: function () {
-                      counter.textContent = Math.floor(this.targets()[0].val) + suffix;
-                    }
-                  });
-                }
-              });
-            });
-          }
-        });
-      </script>
+    <!-- Cards Trigger Zone -->
+    <%- include('partials/intro') %>
 
-      <script src="/js/main.js"></script>
+    <!-- Spacer -->
+    <div style="height:100vh;"></div>
+
+    <!-- Section 3: Brand Reveal -->
+    <%- include('partials/showcase') %>
+
+    <!-- Footer (minimal) -->
+    <%- include('partials/footer', { isLanding: true }) %>
+  </div>
+
+  <!-- Landing Page JS -->
+  <script src="/js/landing.js"></script>
+  <!-- Landing Page Animations -->
+  <script src="/js/landing-animations.js"></script>
+  <!-- Hero 3D scroll engine (model GLB) -->
+  <script type="module" src="/js/hero-3d.js"></script>
 </body>
 
 </html>

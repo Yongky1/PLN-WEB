@@ -1,3 +1,31 @@
+<% if (typeof isLanding !== 'undefined' && isLanding) { %>
+<!-- ═══ LANDING NAV ═══ -->
+<nav class="landing-nav">
+  <div class="logo-area">
+    <a href="/" class="logo">
+      JALA
+    </a>
+    <div class="nav-links">
+      <a href="/" class="active">Beranda</a>
+      <a href="/tools">Peralatan</a>
+      <a href="/ModulKonstruksi">Konstruksi</a>
+      <a href="/material">Material</a>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="/ModulKonstruksi" class="nav-cta">
+      <span>Mulai Belajar</span>
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+    </a>
+    <button class="mobile-btn" id="landing-mobile-btn" aria-label="Menu">
+      <svg class="icon-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      <svg class="icon-close" style="display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+    </button>
+  </div>
+</nav>
+
+<% } else { %>
+<!-- ═══ STANDARD NAV (Light Theme) ═══ -->
 <nav id="main-navbar"
   class="fixed w-full z-50 glass-nav transition-all duration-500">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -6,15 +34,7 @@
       <!-- Brand Logo -->
       <div class="flex-shrink-0">
         <a href="/" class="flex items-center gap-3 group">
-          <!-- PLN Logo Placeholder -->
-          <div
-            class="w-10 h-10 bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-light)] flex items-center justify-center font-extrabold text-white brand-font text-sm rounded-xl shadow-lg shadow-[var(--color-primary)]/20 group-hover:shadow-[var(--color-primary)]/30 transition-shadow duration-300">
-            PLN
-          </div>
-          <div class="flex flex-col">
-            <span class="font-extrabold text-lg tracking-wider text-[var(--color-text-primary)] brand-font leading-none">ELECTRA</span>
-            <span class="text-[10px] font-semibold tracking-[0.3em] text-[var(--color-primary)] uppercase leading-none mt-0.5">3D Platform</span>
-          </div>
+          <span class="font-bold text-xl tracking-wide text-gray-900 brand-font leading-none">JALA</span>
         </a>
       </div>
 
@@ -49,14 +69,10 @@
           class="inline-flex items-center justify-center p-2 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 focus:outline-none transition-colors"
           aria-controls="mobile-menu" aria-expanded="false">
           <span class="sr-only">Open main menu</span>
-          <!-- Hamburger icon -->
-          <svg id="menu-icon-open" class="block h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor" aria-hidden="true">
+          <svg id="menu-icon-open" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
-          <!-- Close icon -->
-          <svg id="menu-icon-close" class="hidden h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor" aria-hidden="true">
+          <svg id="menu-icon-close" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
@@ -96,7 +112,6 @@
     let lastScrollY = window.scrollY;
     let ticking = false;
 
-    // Mobile menu toggle
     if (mobileMenuBtn) {
       mobileMenuBtn.addEventListener("click", () => {
         const isHidden = mobileMenu.classList.contains("hidden");
@@ -108,7 +123,6 @@
       });
     }
 
-    // Auto-hide navbar on scroll + shadow
     window.addEventListener("scroll", () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
@@ -117,7 +131,6 @@
           } else {
             navbar.classList.remove("glass-nav-scrolled");
           }
-          
           if (window.scrollY > 100) {
             if (window.scrollY > lastScrollY) {
               navbar.style.transform = "translateY(-100%)";
@@ -135,3 +148,4 @@
     }, { passive: true });
   });
 </script>
+<% } %>

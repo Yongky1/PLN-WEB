@@ -1,155 +1,24 @@
-<!-- ═══ HERO SECTION — Awwwards Quality ═══ -->
-<section class="relative w-full min-h-screen flex items-center overflow-hidden gradient-mesh">
-  
-  <!-- Animated Background Elements -->
-  <div class="absolute inset-0 pointer-events-none overflow-hidden">
-    <!-- Animated gradient blobs -->
-    <div class="absolute -top-40 -right-40 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-[var(--color-primary)]/10 to-[var(--color-cyan)]/8 blur-3xl animate-blob"></div>
-    <div class="absolute -bottom-40 -left-40 w-[500px] h-[500px] rounded-full bg-gradient-to-tr from-[var(--color-accent)]/8 to-[var(--color-primary)]/5 blur-3xl animate-blob animation-delay-2000"></div>
-    <div class="absolute top-1/3 right-1/4 w-[300px] h-[300px] rounded-full bg-gradient-to-bl from-[var(--color-cyan)]/6 to-transparent blur-2xl animate-blob animation-delay-4000"></div>
-    
-    <!-- Dot pattern -->
-    <div class="absolute inset-0 dot-pattern opacity-40"></div>
-    
-    <!-- Floating geometric shapes -->
-    <div class="absolute top-32 right-[15%] animate-float-slow opacity-20">
-      <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
-        <rect x="5" y="5" width="50" height="50" rx="12" stroke="#0052A3" stroke-width="1.5" transform="rotate(15 30 30)"/>
-      </svg>
+<!-- ═══ HERO — JALA Landing ═══ -->
+<section id="hero">
+  <div class="gradient-overlay"></div>
+  <div class="content">
+    <p class="subtitle">Tujuan Kami:</p>
+    <h1>
+      Bangun pemahaman kelistrikan PLN lewat
+      <span class="underlined"><span class="line"></span><span>dunia 3D</span></span>
+      yang interaktif.
+    </h1>
+    <div class="ctas">
+      <a href="/tools" class="code-box">
+        <span class="prompt">&gt;</span>
+        <code>jelajahi-peralatan-3d</code>
+      </a>
+      <a href="/ModulKonstruksi" class="cta-btn">Mulai Belajar <span>&rarr;</span></a>
     </div>
-    <div class="absolute bottom-40 left-[10%] animate-float-delayed opacity-15">
-      <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
-        <circle cx="40" cy="40" r="35" stroke="#00B4D8" stroke-width="1.5"/>
-        <circle cx="40" cy="40" r="20" stroke="#00B4D8" stroke-width="1" opacity="0.5"/>
-      </svg>
-    </div>
-    <div class="absolute top-[60%] right-[8%] animate-float opacity-20">
-      <svg width="50" height="50" viewBox="0 0 50 50" fill="none">
-        <polygon points="25,5 45,40 5,40" stroke="#F5A623" stroke-width="1.5" fill="none" transform="rotate(-10 25 25)"/>
-      </svg>
-    </div>
-
-    <!-- Decorative grid lines -->
-    <svg class="absolute inset-0 w-full h-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <pattern id="hero-grid" width="80" height="80" patternUnits="userSpaceOnUse">
-          <path d="M 80 0 L 0 0 0 80" fill="none" stroke="#0052A3" stroke-width="0.5"/>
-        </pattern>
-      </defs>
-      <rect width="100%" height="100%" fill="url(#hero-grid)"/>
+  </div>
+  <div class="bounce-arrow">
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 8.25l-7.5 7.5-7.5-7.5"/>
     </svg>
-  </div>
-
-  <!-- Hero Content -->
-  <div class="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-32 pb-20">
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-      
-      <!-- Left: Text Content -->
-      <div class="max-w-2xl">
-        <!-- Eyebrow -->
-        <div class="reveal-on-scroll flex items-center gap-3 mb-8">
-          <div class="flex items-center gap-2 px-4 py-2 rounded-full bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/15">
-            <div class="w-2 h-2 rounded-full bg-[var(--color-success)] animate-pulse"></div>
-            <span class="text-xs font-bold tracking-[0.15em] text-[var(--color-primary)] uppercase">PLN ELECTRA 3D</span>
-          </div>
-        </div>
-
-        <!-- Main Heading -->
-        <h1 class="reveal-on-scroll text-5xl md:text-6xl lg:text-7xl font-extrabold leading-[1.05] mb-8 brand-font tracking-tight">
-          <span class="text-[var(--color-text-primary)]">Pelajari Dunia</span><br>
-          <span class="gradient-text-blue">Kelistrikan</span><br>
-          <span class="text-[var(--color-text-primary)]">PLN.</span>
-        </h1>
-
-        <!-- Subtitle -->
-        <p class="reveal-on-scroll stagger-2 text-lg md:text-xl text-[var(--color-text-secondary)] leading-relaxed mb-10 max-w-lg">
-          Platform pembelajaran interaktif berbasis 3D — eksplorasi peralatan, konstruksi jaringan, dan material kelistrikan secara visual dan immersif.
-        </p>
-
-        <!-- CTA Buttons -->
-        <div class="reveal-on-scroll stagger-3 flex flex-col sm:flex-row gap-4">
-          <a href="/ModulKonstruksi" class="btn-primary text-center text-sm px-8 py-4 inline-flex items-center justify-center gap-3 rounded-2xl">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.828 14.828a4 4 0 01-5.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <span>Jelajahi Konstruksi</span>
-          </a>
-          <a href="/tools" class="btn-outline text-center text-sm px-8 py-4 inline-flex items-center justify-center gap-3 rounded-2xl">
-            <span>Lihat Peralatan</span>
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-          </a>
-        </div>
-
-        <!-- Stats mini -->
-        <div class="reveal-on-scroll stagger-4 flex items-center gap-8 mt-14 pt-8 border-t border-[var(--color-border)]">
-          <div>
-            <div class="text-3xl font-extrabold text-[var(--color-primary)] brand-font">3D</div>
-            <div class="text-xs text-[var(--color-text-muted)] font-medium mt-1">Visualisasi<br>Interaktif</div>
-          </div>
-          <div class="w-px h-12 bg-[var(--color-border)]"></div>
-          <div>
-            <div class="text-3xl font-extrabold text-[var(--color-primary)] brand-font">360°</div>
-            <div class="text-xs text-[var(--color-text-muted)] font-medium mt-1">Orbit &<br>Eksplorasi</div>
-          </div>
-          <div class="w-px h-12 bg-[var(--color-border)]"></div>
-          <div>
-            <div class="text-3xl font-extrabold text-[var(--color-primary)] brand-font">GLB</div>
-            <div class="text-xs text-[var(--color-text-muted)] font-medium mt-1">Format<br>Industri</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Right: 3D Visual / Decorative -->
-      <div class="relative hidden lg:flex items-center justify-center">
-        <div class="relative w-full max-w-lg aspect-square">
-          <!-- Animated rings -->
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div class="absolute w-full h-full rounded-full border border-[var(--color-primary)]/10 animate-[spin_25s_linear_infinite]"></div>
-            <div class="absolute w-[85%] h-[85%] rounded-full border border-[var(--color-cyan)]/10 animate-[spin_20s_linear_infinite_reverse]"></div>
-            <div class="absolute w-[70%] h-[70%] rounded-full border border-[var(--color-accent)]/8"></div>
-          </div>
-          
-          <!-- Center visual -->
-          <div class="absolute inset-0 flex items-center justify-center">
-            <div class="relative">
-              <!-- Glowing orb -->
-              <div class="w-48 h-48 rounded-full bg-gradient-to-br from-[var(--color-primary)]/15 to-[var(--color-cyan)]/10 flex items-center justify-center animate-pulse-glow">
-                <div class="w-32 h-32 rounded-full bg-gradient-to-br from-[var(--color-bg-surface)] to-[var(--color-bg-surface-alt)] shadow-2xl flex items-center justify-center border border-[var(--color-border)]">
-                  <svg class="w-16 h-16 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>
-                  </svg>
-                </div>
-              </div>
-              
-              <!-- Orbiting elements -->
-              <div class="absolute -top-4 -right-8 animate-float">
-                <div class="px-3 py-1.5 rounded-lg bg-white shadow-lg border border-[var(--color-border)] text-xs font-semibold text-[var(--color-primary)] flex items-center gap-1.5">
-                  <div class="w-2 h-2 rounded-full bg-[var(--color-success)]"></div>
-                  Peralatan
-                </div>
-              </div>
-              <div class="absolute -bottom-4 -left-12 animate-float-delayed">
-                <div class="px-3 py-1.5 rounded-lg bg-white shadow-lg border border-[var(--color-border)] text-xs font-semibold text-[var(--color-cyan)] flex items-center gap-1.5">
-                  <div class="w-2 h-2 rounded-full bg-[var(--color-cyan)]"></div>
-                  Konstruksi
-                </div>
-              </div>
-              <div class="absolute top-1/2 -right-16 animate-float-slow">
-                <div class="px-3 py-1.5 rounded-lg bg-white shadow-lg border border-[var(--color-border)] text-xs font-semibold text-[var(--color-accent)] flex items-center gap-1.5">
-                  <div class="w-2 h-2 rounded-full bg-[var(--color-accent)]"></div>
-                  Material
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Scroll indicator -->
-  <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 scroll-indicator flex flex-col items-center gap-2">
-    <span class="text-xs text-[var(--color-text-muted)] tracking-widest uppercase">Scroll</span>
-    <div class="w-6 h-10 rounded-full border-2 border-[var(--color-border)] flex justify-center pt-2">
-      <div class="w-1.5 h-3 rounded-full bg-[var(--color-primary)]/40 animate-scroll-dot"></div>
-    </div>
   </div>
 </section>
