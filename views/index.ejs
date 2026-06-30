@@ -2,7 +2,7 @@
 <html lang="id">
 
 <head>
-  <%- include('partials/head', { isLanding: true }) %>
+  <%- include('partials/head') %>
 </head>
 
 <body class="landing-page">
@@ -35,6 +35,7 @@
   <div id="scroll-video-container">
     <!-- Gradient placeholder (tampil saat model loading / fallback bila WebGL gagal) -->
     <div class="video-placeholder"></div>
+    <div class="ambient-mesh"></div>
     <canvas id="hero-3d-canvas"></canvas>
     <div class="overlay"></div>
   </div>
@@ -46,16 +47,7 @@
   <%- include('partials/categories') %>
 
   <!-- Navigation -->
-  <%- include('partials/navbar', { isLanding: true }) %>
-
-  <!-- Mobile Menu -->
-  <div class="landing-mobile-menu" id="landing-mobile-menu">
-    <a href="/">Beranda</a>
-    <a href="/tools">Peralatan</a>
-    <a href="/ModulKonstruksi">Konstruksi</a>
-    <a href="/material">Material</a>
-    <a href="/ModulKonstruksi" class="nav-cta" style="margin-top:1rem;">Mulai Belajar →</a>
-  </div>
+  <%- include('partials/navbar') %>
 
   <!-- Main Content -->
   <div id="content">
@@ -75,13 +67,12 @@
     <%- include('partials/showcase') %>
 
     <!-- Footer (minimal) -->
-    <%- include('partials/footer', { isLanding: true }) %>
+    <%- include('partials/footer') %>
   </div>
 
   <!-- Landing Page JS -->
   <script src="/js/landing.js"></script>
-  <!-- Landing Page Animations -->
-  <script src="/js/landing-animations.js"></script>
+  <!-- Landing Page Animations (Merged) -->
   <!-- Hero 3D scroll engine (model GLB) -->
   <script type="module" src="/js/hero-3d.js"></script>
 </body>
