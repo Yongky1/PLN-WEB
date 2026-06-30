@@ -1,151 +1,146 @@
-<% if (typeof isLanding !== 'undefined' && isLanding) { %>
-<!-- ═══ LANDING NAV ═══ -->
-<nav class="landing-nav">
-  <div class="logo-area">
-    <a href="/" class="logo">
-      JALA
+<!-- ═══ AWWWARDS-LEVEL NAVBAR — JALA (Refined) ═══ -->
+<% const current = typeof currentPage !== 'undefined' ? currentPage : (typeof isLanding !== 'undefined' && isLanding ? 'home' : ''); %>
+<%
+  const navItems = [
+    { href: '/', label: 'Beranda', key: 'home', desc: 'Halaman utama platform' },
+    { href: '/tools', label: 'Peralatan', key: 'tools', desc: 'Katalog peralatan 3D' },
+    { href: '/ModulKonstruksi', label: 'Konstruksi', key: 'konstruksi', desc: 'Modul pembelajaran konstruksi' },
+    { href: '/material', label: 'Material', key: 'material', desc: 'Database material kelistrikan' }
+  ];
+%>
+
+<!-- ═══ FLOATING PILL NAVBAR ═══ -->
+<div id="jl-nav-wrap" class="jl-nav-wrap">
+  <nav id="jl-navbar" class="jl-navbar">
+
+    <!-- Scroll Progress Bar (inside pill) -->
+    <div class="jl-nav-progress-track">
+      <div id="jl-nav-progress" class="jl-nav-progress-bar"></div>
+    </div>
+
+    <!-- Brand -->
+    <a href="/" class="jl-brand" data-magnetic>
+      <div class="jl-brand-mark">
+        <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="16" cy="16" r="14" stroke="currentColor" stroke-width="1.5" opacity="0.3"/>
+          <path d="M16 6L16 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          <path d="M12 20C12 22.2091 13.7909 24 16 24C18.2091 24 20 22.2091 20 20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <span class="jl-brand-text">JALA</span>
     </a>
-    <div class="nav-links">
-      <a href="/" class="active">Beranda</a>
-      <a href="/tools">Peralatan</a>
-      <a href="/ModulKonstruksi">Konstruksi</a>
-      <a href="/material">Material</a>
-    </div>
-  </div>
-  <div class="nav-right">
-    <a href="/ModulKonstruksi" class="nav-cta">
-      <span>Mulai Belajar</span>
-      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-    </a>
-    <button class="mobile-btn" id="landing-mobile-btn" aria-label="Menu">
-      <svg class="icon-open" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
-      <svg class="icon-close" style="display:none;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-    </button>
-  </div>
-</nav>
 
-<% } else { %>
-<!-- ═══ STANDARD NAV (Light Theme) ═══ -->
-<nav id="main-navbar"
-  class="fixed w-full z-50 glass-nav transition-all duration-500">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-    <div class="flex items-center justify-between h-20">
+    <!-- Divider (desktop) -->
+    <div class="jl-nav-divider"></div>
 
-      <!-- Brand Logo -->
-      <div class="flex-shrink-0">
-        <a href="/" class="flex items-center gap-3 group">
-          <span class="font-bold text-xl tracking-wide text-gray-900 brand-font leading-none">JALA</span>
+    <!-- Desktop Links -->
+    <div class="jl-nav-links">
+      <!-- Sliding pill background -->
+      <div id="jl-link-pill" class="jl-link-pill"></div>
+
+      <% navItems.forEach((item, idx) => { %>
+        <a href="<%= item.href %>"
+           class="jl-nav-link <%= current === item.key ? 'is-active' : '' %>"
+           data-idx="<%= idx %>"
+           data-magnetic>
+          <span class="jl-nav-link-text"><%= item.label %></span>
         </a>
-      </div>
+      <% }); %>
+    </div>
 
-      <!-- Desktop Menu -->
-      <div class="hidden md:block">
-        <div class="ml-10 flex items-center space-x-1">
-          <a href="/"
-            class="<%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Beranda</a>
-          <a href="/tools"
-            class="<%= typeof currentPage !== 'undefined' && currentPage === 'tools' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Peralatan</a>
-          <a href="/ModulKonstruksi"
-            class="<%= typeof currentPage !== 'undefined' && currentPage === 'konstruksi' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Konstruksi</a>
-          <a href="/material"
-            class="<%= typeof currentPage !== 'undefined' && currentPage === 'material' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5' %> px-4 py-2 rounded-xl text-sm font-semibold tracking-wide transition-all duration-300">Material</a>
-        </div>
-      </div>
+    <!-- Right Section -->
+    <div class="jl-nav-right">
+      <!-- Divider (desktop only) -->
+      <div class="jl-nav-divider"></div>
 
-      <!-- CTA Button -->
-      <div class="hidden md:block">
-        <a href="/ModulKonstruksi"
-          class="btn-primary text-sm px-6 py-2.5 inline-flex items-center gap-2 rounded-xl">
-          <span>Mulai Belajar</span>
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path>
+      <!-- CTA Button (desktop only) -->
+      <a href="/ModulKonstruksi" class="jl-nav-cta" data-magnetic>
+        <span class="jl-cta-text">Mulai Belajar</span>
+        <span class="jl-cta-icon">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M1 7h12M8 2l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
+        </span>
+      </a>
+
+      <!-- Hamburger Toggle (mobile only) -->
+      <button id="jl-menu-toggle" class="jl-menu-toggle" aria-label="Menu">
+        <div class="jl-toggle-inner">
+          <div class="jl-toggle-icon">
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- ═══ FULLSCREEN OVERLAY MENU ═══ -->
+<div id="jl-overlay" class="jl-overlay">
+
+  <!-- Background layers -->
+  <div class="jl-overlay-bg">
+    <div class="jl-overlay-bg-layer" style="--delay: 0;"></div>
+    <div class="jl-overlay-bg-layer" style="--delay: 1;"></div>
+    <div class="jl-overlay-bg-layer" style="--delay: 2;"></div>
+  </div>
+
+  <!-- Overlay Content -->
+  <div class="jl-overlay-content">
+
+    <!-- Left: Navigation -->
+    <div class="jl-overlay-nav">
+      <p class="jl-overlay-label">Navigasi</p>
+
+      <% navItems.forEach((item, idx) => { %>
+        <a href="<%= item.href %>"
+           class="jl-overlay-link <%= current === item.key ? 'is-active' : '' %>"
+           data-desc="<%= item.desc %>"
+           style="--i: <%= idx %>;">
+          <span class="jl-ol-num">0<%= idx + 1 %></span>
+          <span class="jl-ol-text-wrap">
+            <span class="jl-ol-text"><%= item.label %></span>
+          </span>
+          <span class="jl-ol-desc"><%= item.desc %></span>
+          <span class="jl-ol-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <% if (current === item.key) { %>
+            <span class="jl-ol-active-dot"></span>
+          <% } %>
         </a>
+      <% }); %>
+    </div>
+
+    <!-- Right: Info Column -->
+    <div class="jl-overlay-info">
+      <div class="jl-overlay-info-block">
+        <p class="jl-overlay-label">Platform</p>
+        <p class="jl-overlay-desc">
+          Platform pembelajaran kelistrikan berbasis 3D interaktif untuk karyawan & teknisi PT PLN (Persero).
+        </p>
       </div>
 
-      <!-- Mobile menu button -->
-      <div class="-mr-2 flex md:hidden">
-        <button type="button" id="mobile-menu-btn"
-          class="inline-flex items-center justify-center p-2 rounded-xl text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-[var(--color-primary)]/5 focus:outline-none transition-colors"
-          aria-controls="mobile-menu" aria-expanded="false">
-          <span class="sr-only">Open main menu</span>
-          <svg id="menu-icon-open" class="block h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-          </svg>
-          <svg id="menu-icon-close" class="hidden h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-          </svg>
-        </button>
+      <div class="jl-overlay-info-block">
+        <p class="jl-overlay-label">Kontak</p>
+        <a href="mailto:pusdiklat@pln.co.id" class="jl-overlay-contact">pusdiklat@pln.co.id</a>
       </div>
+
+      <a href="/ModulKonstruksi" class="jl-overlay-cta">
+        <span>Mulai Belajar</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+          <path d="M5 12h14M12 5l7 7-7 7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
     </div>
   </div>
 
-  <!-- Mobile Menu -->
-  <div class="md:hidden hidden" id="mobile-menu">
-    <div class="bg-white/95 backdrop-blur-xl border-t border-[var(--color-border-light)] shadow-xl">
-      <div class="px-4 pt-4 pb-6 space-y-1">
-        <a href="/"
-          class="<%= typeof currentPage !== 'undefined' && currentPage === 'home' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Beranda</a>
-        <a href="/tools"
-          class="<%= typeof currentPage !== 'undefined' && currentPage === 'tools' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Peralatan</a>
-        <a href="/ModulKonstruksi"
-          class="<%= typeof currentPage !== 'undefined' && currentPage === 'konstruksi' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Konstruksi</a>
-        <a href="/material"
-          class="<%= typeof currentPage !== 'undefined' && currentPage === 'material' ? 'text-[var(--color-primary)] bg-[var(--color-primary)]/5 font-bold' : 'text-[var(--color-text-secondary)]' %> block px-4 py-3 rounded-xl text-base font-semibold transition-colors">Material</a>
-        <div class="pt-3">
-          <a href="/ModulKonstruksi"
-            class="btn-primary block text-center text-sm py-3 rounded-xl">Mulai Belajar</a>
-        </div>
-      </div>
-    </div>
+  <!-- Footer -->
+  <div class="jl-overlay-footer">
+    <span>&copy; 2026 PT PLN (Persero)</span>
+    <span>JALA — Visualisasi 3D Kelistrikan</span>
   </div>
-</nav>
-
-<!-- Navbar Scripts -->
-<script>
-  document.addEventListener("DOMContentLoaded", () => {
-    const navbar = document.getElementById("main-navbar");
-    const mobileMenuBtn = document.getElementById("mobile-menu-btn");
-    const mobileMenu = document.getElementById("mobile-menu");
-    const iconOpen = document.getElementById("menu-icon-open");
-    const iconClose = document.getElementById("menu-icon-close");
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    if (mobileMenuBtn) {
-      mobileMenuBtn.addEventListener("click", () => {
-        const isHidden = mobileMenu.classList.contains("hidden");
-        mobileMenu.classList.toggle("hidden");
-        iconOpen.classList.toggle("hidden", !isHidden);
-        iconOpen.classList.toggle("block", isHidden);
-        iconClose.classList.toggle("hidden", isHidden);
-        iconClose.classList.toggle("block", !isHidden);
-      });
-    }
-
-    window.addEventListener("scroll", () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          if (window.scrollY > 20) {
-            navbar.classList.add("glass-nav-scrolled");
-          } else {
-            navbar.classList.remove("glass-nav-scrolled");
-          }
-          if (window.scrollY > 100) {
-            if (window.scrollY > lastScrollY) {
-              navbar.style.transform = "translateY(-100%)";
-            } else {
-              navbar.style.transform = "translateY(0)";
-            }
-          } else {
-            navbar.style.transform = "translateY(0)";
-          }
-          lastScrollY = window.scrollY;
-          ticking = false;
-        });
-        ticking = true;
-      }
-    }, { passive: true });
-  });
-</script>
-<% } %>
+</div>

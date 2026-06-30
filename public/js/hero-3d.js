@@ -103,15 +103,15 @@ import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
     const visH = 2 * dist * Math.tan((camera.fov * Math.PI) / 180 / 2);
 
     if (isMobile) {
-      // mobile: tetap di tengah, sedikit lebih kecil
+      // mobile: model ditaruh di atas
       pivot.position.x = 0;
-      pivot.position.y = -visH * 0.02;
-      pivot.scale.setScalar(0.8);
+      pivot.position.y = visH * 0.15;
+      pivot.scale.setScalar(0.9);
     } else {
-      // desktop: center, sebagai elemen latar kecil di belakang teks
+      // desktop: model ditaruh di atas teks (product showcase style)
       pivot.position.x = 0;
-      pivot.position.y = 0;
-      pivot.scale.setScalar(1);
+      pivot.position.y = visH * 0.12;
+      pivot.scale.setScalar(1.35);
     }
   }
 
