@@ -71,62 +71,39 @@
                 <% } %>
                 <% (toolsData || []).forEach(function(tool, i) { %>
                 <div class="gsap-stagger-item v3-card-item" data-id="<%= tool.id %>" data-name="<%= tool.name.toLowerCase() %>" data-category="<%= tool.category %>">
-                    <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col">
-                        <!-- Image -->
-                        <div class="aspect-[16/10] relative overflow-hidden bg-[rgba(0,0,0,0.02)]">
+                    <div class="mv-card" data-id="<%= tool.id %>">
+                        <div class="mv-card-img">
                             <% if (tool.image) { %>
-                                <img src="<%= tool.image %>" alt="<%= tool.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <img src="<%= tool.image %>" alt="<%= tool.name %>">
                             <% } else { %>
-                                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-primary)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                                <div class="mv-card-img-placeholder">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-primary)' : 'var(--color-cyan)' %>" stroke-width="1.5" opacity="0.4">
                                         <path d="M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z"/><path d="M3 9l4-4 4 4 4-4 4 4"/><circle cx="8.5" cy="14.5" r="1.5"/>
                                     </svg>
-                                    <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Peralatan</span>
+                                    <span style="font-size:10px; font-weight:700; color:var(--color-text-muted); letter-spacing:0.1em; text-transform:uppercase;">Peralatan</span>
                                 </div>
                             <% } %>
-                            <!-- Category badge -->
-                            <div class="absolute top-3 right-3 z-20 flex flex-col gap-1.5 items-end">
-                                <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/15">
-                                    <%= tool.categoryLabel %>
-                                </span>
-                                <% if (tool.file3d) { %>
-                                <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-[var(--color-cyan)]/10 text-[var(--color-cyan)] border border-[var(--color-cyan)]/15">3D</span>
-                                <% } %>
-                            </div>
-                            </div>
-
-                        <!-- Body -->
-                        <div class="p-5 flex flex-col flex-grow">
-                            <h3 class="text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= tool.name %></h3>
-                            <div class="relative flex-grow mb-4">
-                                <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
-                                    <%= tool.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
-                                </p>
-                                <p class="absolute inset-0 text-sm text-[var(--color-text-secondary)] leading-relaxed overflow-hidden">
-                                    <%= tool.description || 'Deskripsi belum tersedia.' %>
-                                </p>
-                            </div>
-                            <div class="mt-auto">
-                                <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <div class="flex gap-4 min-w-0 flex-1">
-                                        <div class="flex flex-col min-w-0 flex-1 justify-center">
-                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Standar</span>
-                                            <span class="text-sm font-bold text-[var(--color-primary)] brand-font truncate" title="<%= tool.standard || '—' %>"><%= tool.standard || '—' %></span>
-                                        </div>
-                                        <div class="w-px bg-[var(--color-border-light)] shrink-0"></div>
-                                        <div class="flex flex-col shrink-0 justify-center">
-                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Status</span>
-                                            <span class="text-sm font-bold brand-font <%= tool.status === 'Wajib' ? 'text-[var(--color-error)]' : 'text-[var(--color-success)]' %>"><%= tool.status %></span>
-                                        </div>
-                                    </div>
-                                    <div class="w-9 h-9 shrink-0 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                    </div>
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title v3-card-title"><%= tool.name || '-' %></div>
+                            <div class="mv-card-desc"><%= tool.description || 'Deskripsi belum tersedia.' %></div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div class="mv-card-stat">
+                                    <span class="mv-card-stat-label">Standar</span>
+                                    <span class="mv-card-stat-val" style="color:var(--color-primary);"><%= tool.standard || '—' %></span>
+                                </div>
+                                <div class="mv-card-stat">
+                                    <span class="mv-card-stat-label">Status</span>
+                                    <span class="mv-card-stat-val" style="color:<%= tool.status === 'Wajib' ? 'var(--color-error)' : 'var(--color-success)' %>;"><%= tool.status || '-' %></span>
+                                </div>
+                                <div class="mv-go-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </div>
                             </div>
                         </div>
-                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
                 </div>
                 <% }); %>
             </div>

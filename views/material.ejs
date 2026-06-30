@@ -73,58 +73,38 @@
 
                 <% validMaterials.forEach((mat, i) => { %>
                 <div class="gsap-stagger-item mat-card-item" data-category="<%= mat.category %>">
-                    <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col" data-id="<%= mat.id %>">
-                        <!-- Image -->
-                        <div class="aspect-[16/10] relative overflow-hidden bg-[rgba(0,0,0,0.02)]">
+                    <div class="mv-card" data-id="<%= mat.id %>">
+                        <div class="mv-card-img">
                             <% if (mat.image) { %>
-                                <img src="<%= mat.image %>" alt="<%= mat.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
+                                <img src="<%= mat.image %>" alt="<%= mat.name %>">
                             <% } else { %>
-                                <div class="w-full h-full flex flex-col items-center justify-center gap-2">
-                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-accent)' : 'var(--color-cyan)' %>" stroke-width="1" opacity="0.3">
+                                <div class="mv-card-img-placeholder">
+                                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="<%= i % 2 === 0 ? 'var(--color-accent)' : 'var(--color-cyan)' %>" stroke-width="1.5" opacity="0.4">
                                         <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
                                     </svg>
-                                    <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase">Material</span>
+                                    <span style="font-size:10px; font-weight:700; color:var(--color-text-muted); letter-spacing:0.1em; text-transform:uppercase;">Material</span>
                                 </div>
                             <% } %>
-                            <!-- Category badge -->
-                            <div class="absolute top-3 right-3 z-20">
-                                <span class="text-[9px] font-bold uppercase tracking-[0.08em] px-2.5 py-1 rounded-full bg-white/90 backdrop-blur-sm text-[var(--color-text-secondary)] border border-[var(--color-border)]">
-                                    <%= mat.categoryLabel %>
-                                </span>
-                            </div>
                         </div>
-
-                        <!-- Body -->
-                        <div class="p-5 flex flex-col flex-grow">
-                            <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= mat.name %></h3>
-                            <div class="relative flex-grow mb-4">
-                                <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
-                                    <%= mat.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
-                                </p>
-                                <p class="absolute inset-0 text-sm text-[var(--color-text-secondary)] leading-relaxed overflow-hidden">
-                                    <%= mat.description || 'Deskripsi belum tersedia.' %>
-                                </p>
-                            </div>
-                            <div class="mt-auto">
-                                <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
-                                <div class="flex items-center justify-between gap-3">
-                                    <div class="flex gap-4 min-w-0 flex-1">
-                                        <div class="flex flex-col min-w-0 flex-1 justify-center">
-                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Kategori</span>
-                                            <span class="text-sm font-bold text-[var(--color-accent)] brand-font truncate" title="<%= mat.categoryLabel %>"><%= mat.categoryLabel %></span>
-                                        </div>
-                                        <div class="w-px bg-[var(--color-border-light)] shrink-0"></div>
-                                        <div class="flex flex-col shrink-0 justify-center">
-                                            <span class="text-[9px] font-bold tracking-[0.1em] text-[var(--color-text-muted)] uppercase truncate">Kode</span>
-                                            <span class="text-sm font-bold text-[var(--color-cyan)] brand-font truncate" title="<%= mat.code || '—' %>"><%= mat.code || '—' %></span>
-                                        </div>
-                                    </div>
-                                    <div class="w-9 h-9 shrink-0 rounded-xl bg-[var(--color-primary)]/8 flex items-center justify-center text-[var(--color-primary)] group-hover:bg-[var(--color-primary)] group-hover:text-white transition-all duration-300 group-hover:rotate-[-45deg] group-hover:scale-110">
-                                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-                                    </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title v3-card-title"><%= mat.name || '-' %></div>
+                            <div class="mv-card-desc"><%= mat.description || 'Deskripsi belum tersedia.' %></div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div class="mv-card-stat">
+                                    <span class="mv-card-stat-label">Kategori</span>
+                                    <span class="mv-card-stat-val" style="color:var(--color-accent);"><%= mat.categoryLabel || '-' %></span>
+                                </div>
+                                <div class="mv-card-stat">
+                                    <span class="mv-card-stat-label">Kode</span>
+                                    <span class="mv-card-stat-val" style="color:var(--color-cyan);"><%= mat.code || '—' %></span>
+                                </div>
+                                <div class="mv-go-btn">
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                 </div>
                             </div>
                         </div>
+                        <div class="mv-accent-line"></div>
                     </div>
                 </div>
                 <% }); %>

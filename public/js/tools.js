@@ -40,8 +40,8 @@ function openDetail(id) {
   });
 }
 
-document.querySelectorAll('#tools-grid .v3-card-item[data-id]').forEach((card) => {
-  card.addEventListener('click', () => openDetail(card.dataset.id));
+document.querySelectorAll('#tools-grid .mv-card[data-id]').forEach((card) => {
+  card.addEventListener('click', () => openModal(card.dataset.id));
 });
 
 const _toolsBtnClose = document.getElementById('modal-btn-close');
