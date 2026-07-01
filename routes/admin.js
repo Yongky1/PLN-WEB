@@ -113,6 +113,18 @@ router.get('/konstruksi', (req, res) => {
   );
 });
 
+// Kategori Konstruksi 3 Level
+router.get('/construction-categories', (req, res) => {
+  renderAdmin(
+    res,
+    'construction-categories',
+    'Kategori Konstruksi',
+    'Kelola hierarki 3 level kategori konstruksi',
+    {},
+    req.user
+  );
+});
+
 // Manajemen Material
 router.get('/material', (req, res) => {
   renderAdmin(

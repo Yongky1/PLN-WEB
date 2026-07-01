@@ -1,0 +1,438 @@
+<!-- views/admin/construction-categories.ejs -->
+<!-- Halaman manajemen Kategori Konstruksi 3 Level -->
+
+<!-- ======================== PAGE HEAD ======================== -->
+<div class="rd-page-head">
+  <div class="rd-page-title-block">
+    <span class="rd-page-eyebrow">Manajemen Kategori</span>
+    <h1 class="rd-page-title">Kategori Konstruksi, Material, & Peralatan</h1>
+    <p class="rd-page-subtitle">Kelola hierarki 3 level: Root &rarr; Sub-Kategori &rarr; Detail/Spesifik.</p>
+  </div>
+  <div class="rd-page-actions">
+    <button class="rd-btn rd-btn-primary" onclick="openAddModal(null, null)">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tambah Root
+    </button>
+  </div>
+</div>
+
+<!-- ======================== TOOLBAR ======================== -->
+<div class="rd-toolbar" style="flex-wrap:wrap; gap:12px;">
+  <div class="rd-search">
+    <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <input type="text" id="cc-search" placeholder="Cari kategori..." oninput="renderTree()" />
+  </div>
+  
+  <div class="rd-divider-v"></div>
+  
+  <!-- Filter Tipe -->
+  <div style="display:flex; gap:6px; align-items:center;">
+    <span style="font-size:12px; color:var(--text-muted); font-weight:600;">Tipe:</span>
+    <button class="rd-filter-chip active" data-type="all" onclick="setTypeFilter(this,'all')">Semua</button>
+    <button class="rd-filter-chip" data-type="konstruksi" onclick="setTypeFilter(this,'konstruksi')">Konstruksi</button>
+    <button class="rd-filter-chip" data-type="material" onclick="setTypeFilter(this,'material')">Material</button>
+    <button class="rd-filter-chip" data-type="peralatan" onclick="setTypeFilter(this,'peralatan')">Peralatan</button>
+  </div>
+
+  <div class="rd-divider-v"></div>
+
+  <!-- Filter Level -->
+  <div style="display:flex; gap:6px; align-items:center;">
+    <span style="font-size:12px; color:var(--text-muted); font-weight:600;">Level:</span>
+    <button class="rd-filter-chip active" data-level="all"  onclick="setLevelFilter(this,'all')">Semua</button>
+    <button class="rd-filter-chip"        data-level="1"    onclick="setLevelFilter(this,1)">L1 - Root</button>
+    <button class="rd-filter-chip"        data-level="2"    onclick="setLevelFilter(this,2)">L2 - Sub</button>
+    <button class="rd-filter-chip"        data-level="3"    onclick="setLevelFilter(this,3)">L3 - Detail</button>
+  </div>
+</div>
+
+<!-- ======================== STATS PILLS ======================== -->
+<div id="cc-stats" style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;"></div>
+
+<!-- ======================== TREE TABLE ======================== -->
+<div class="rd-data-card">
+  <div class="rd-table-head">
+    <div style="flex:1;">Nama Kategori</div>
+    <div style="width:100px;text-align:center;">Tipe</div>
+    <div style="width:80px;text-align:center;">Level</div>
+    <div style="width:160px;">Slug</div>
+    <div style="width:120px;">Parent</div>
+    <div style="width:180px;text-align:center;">Aksi</div>
+  </div>
+  <div id="cc-list"></div>
+</div>
+
+<!-- ======================== MODAL TAMBAH / EDIT ======================== -->
+<div id="cc-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="rd-modal" style="max-width:520px;">
+    <div class="rd-modal-header">
+      <div class="rd-modal-title-block">
+        <div class="rd-modal-eyebrow" id="cc-modal-eyebrow">Kategori Baru</div>
+        <h2 class="rd-modal-title" id="cc-modal-title">Tambah Kategori</h2>
+      </div>
+      <button class="rd-modal-close" onclick="closeModal()">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="rd-modal-body" style="display:flex;flex-direction:column;gap:16px;">
+      <input type="hidden" id="cc-id" />
+
+      <div class="rd-field-group">
+        <label class="rd-field-label">Nama Kategori <span class="req">*</span></label>
+        <input type="text" id="cc-name" class="rd-input" placeholder="Contoh: Jaringan Tegangan Menengah" oninput="autoSlug()" />
+      </div>
+
+      <div class="rd-field-group">
+        <label class="rd-field-label">Slug <span class="req">*</span>
+          <span style="font-size:10px;color:var(--text-muted);font-weight:400;margin-left:4px;">huruf kecil, tanpa spasi</span>
+        </label>
+        <input type="text" id="cc-slug" class="rd-input rd-mono" placeholder="contoh: jtm" />
+      </div>
+
+      <div class="rd-field-group">
+        <label class="rd-field-label">Tipe Kategori <span class="req">*</span></label>
+        <select id="cc-type" class="rd-select" onchange="onTypeChange()">
+          <option value="konstruksi">Konstruksi</option>
+          <option value="material">Material</option>
+          <option value="peralatan">Peralatan</option>
+        </select>
+      </div>
+
+      <div class="rd-field-group">
+        <label class="rd-field-label">Level <span class="req">*</span></label>
+        <select id="cc-level" class="rd-select" onchange="onLevelChange()">
+          <option value="1">1 - Root (Induk Utama)</option>
+          <option value="2">2 - Sub-Kategori (Level 2)</option>
+          <option value="3">3 - Detail / Spesifik (Level 3)</option>
+        </select>
+      </div>
+
+      <div class="rd-field-group" id="cc-parent-group" style="display:none;">
+        <label class="rd-field-label">Parent <span class="req">*</span></label>
+        <select id="cc-parent" class="rd-select">
+          <option value="">- Pilih parent -</option>
+        </select>
+      </div>
+
+      <div class="rd-field-group">
+        <label class="rd-field-label">Deskripsi</label>
+        <textarea id="cc-description" class="rd-input" rows="2" placeholder="Opsional: deskripsi singkat kategori" style="resize:vertical;min-height:60px;"></textarea>
+      </div>
+    </div>
+
+    <div class="rd-modal-footer">
+      <div class="rd-footer-meta" id="cc-footer-meta" style="font-size:11px;color:var(--text-muted);"></div>
+      <div class="rd-footer-actions">
+        <button class="rd-btn rd-btn-ghost" onclick="closeModal()">Batal</button>
+        <button class="rd-btn rd-btn-primary" onclick="saveCategory()">Simpan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+var allItems = [];
+var levelFilter = 'all';
+var typeFilter = 'all';
+
+async function loadData() {
+  showSkeleton();
+  try {
+    allItems = await fetchBackend('/api/construction/admin/all');
+    renderStats();
+    renderTree();
+  } catch (err) {
+    document.getElementById('cc-list').innerHTML =
+      '<div style="padding:24px;text-align:center;color:#EF4444;">Gagal memuat data: ' + err.message + '</div>';
+  }
+}
+
+function showSkeleton(rows) {
+  rows = rows || 6;
+  var html = '';
+  for (var i = 0; i < rows; i++) {
+    var pl = (i % 3) * 20 + 16;
+    html += '<div class="rd-skeleton-row" style="padding-left:' + pl + 'px;">' +
+      '<div class="sk" style="flex:1;max-width:260px;"></div>' +
+      '<div class="sk" style="width:80px;"></div>' +
+      '<div class="sk" style="width:60px;"></div>' +
+      '<div class="sk" style="width:120px;"></div>' +
+      '<div class="sk" style="width:90px;"></div>' +
+      '<div class="sk" style="width:140px;margin-left:auto;"></div>' +
+      '</div>';
+  }
+  document.getElementById('cc-list').innerHTML = html;
+}
+
+function renderStats() {
+  var l1 = allItems.filter(function(x){ return x.level===1; }).length;
+  var l2 = allItems.filter(function(x){ return x.level===2; }).length;
+  var l3 = allItems.filter(function(x){ return x.level===3; }).length;
+  
+  var cK = allItems.filter(function(x){ return x.module_type==='konstruksi'; }).length;
+  var cM = allItems.filter(function(x){ return x.module_type==='material'; }).length;
+  var cP = allItems.filter(function(x){ return x.module_type==='peralatan'; }).length;
+
+  var pills = [
+    { label:'Total', val:allItems.length, bg:'rgba(255,255,255,0.05)', border:'rgba(255,255,255,0.1)', color:'var(--text-primary)' },
+    { label:'Konstruksi', val:cK, bg:'rgba(59,130,246,0.12)', border:'rgba(59,130,246,0.3)', color:'#60A5FA' },
+    { label:'Material', val:cM, bg:'rgba(16,185,129,0.12)', border:'rgba(16,185,129,0.3)', color:'#34D399' },
+    { label:'Peralatan', val:cP, bg:'rgba(245,158,11,0.12)', border:'rgba(245,158,11,0.3)', color:'#FBBF24' },
+    { label:'Level 1', val:l1, bg:'rgba(255,255,255,0.03)', border:'rgba(255,255,255,0.05)', color:'var(--text-secondary)' },
+    { label:'Level 2', val:l2, bg:'rgba(255,255,255,0.03)', border:'rgba(255,255,255,0.05)', color:'var(--text-secondary)' },
+    { label:'Level 3', val:l3, bg:'rgba(255,255,255,0.03)', border:'rgba(255,255,255,0.05)', color:'var(--text-secondary)' },
+  ];
+  document.getElementById('cc-stats').innerHTML = pills.map(function(p){
+    return '<div style="padding:8px 16px;border-radius:10px;background:'+p.bg+';border:1px solid '+p.border+';font-size:12px;font-weight:600;color:'+p.color+';">' +
+      p.label + ': <strong>' + p.val + '</strong></div>';
+  }).join('');
+}
+
+function setLevelFilter(btn, val) {
+  document.querySelectorAll('[data-level]').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  levelFilter = val;
+  renderTree();
+}
+
+function setTypeFilter(btn, val) {
+  document.querySelectorAll('[data-type]').forEach(function(b){ b.classList.remove('active'); });
+  btn.classList.add('active');
+  typeFilter = val;
+  renderTree();
+}
+
+function renderTree() {
+  var q = (document.getElementById('cc-search').value || '').toLowerCase();
+  var items = allItems;
+  
+  if (typeFilter !== 'all') items = items.filter(function(x){ return x.module_type === typeFilter; });
+  if (levelFilter !== 'all') items = items.filter(function(x){ return x.level === Number(levelFilter); });
+  
+  if (q) items = items.filter(function(x){
+    return x.name.toLowerCase().includes(q) ||
+      x.slug.toLowerCase().includes(q) ||
+      (x.description || '').toLowerCase().includes(q);
+  });
+
+  if (items.length === 0) {
+    document.getElementById('cc-list').innerHTML =
+      '<div style="padding:24px;text-align:center;color:var(--text-muted);">Tidak ada data.</div>';
+    return;
+  }
+
+  var isSearchingOrFiltering = (levelFilter !== 'all' || typeFilter !== 'all' || q);
+  var html = !isSearchingOrFiltering ? buildTreeRows(items) : buildFlatRows(items);
+  document.getElementById('cc-list').innerHTML = html;
+}
+
+function typeBadge(type) {
+  var label = type === 'konstruksi' ? 'Konstruksi' : type === 'material' ? 'Material' : 'Peralatan';
+  var bg = type === 'konstruksi' ? 'rgba(59,130,246,0.18)' : type === 'material' ? 'rgba(16,185,129,0.18)' : 'rgba(245,158,11,0.18)';
+  var color = type === 'konstruksi' ? '#60A5FA' : type === 'material' ? '#34D399' : '#FBBF24';
+  return '<span style="display:inline-flex;align-items:center;justify-content:center;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;background:'+bg+';color:'+color+'">' +
+    label + '</span>';
+}
+
+function levelBadge(level) {
+  var colors = ['','#60A5FA','#34D399','#C084FC'];
+  var bgs    = ['','rgba(59,130,246,0.18)','rgba(16,185,129,0.18)','rgba(168,85,247,0.18)'];
+  var labels = ['','Root','Sub','Detail'];
+  return '<span style="display:inline-flex;align-items:center;justify-content:center;min-width:64px;padding:2px 10px;border-radius:20px;font-size:10px;font-weight:700;background:'+bgs[level]+';color:'+colors[level]+'">' +
+    'L'+level+' '+labels[level]+'</span>';
+}
+
+function buildFlatRows(items) {
+  return items.map(function(item){ return buildRow(item, 0); }).join('');
+}
+
+function buildTreeRows(items) {
+  var rows = [];
+  var roots = items.filter(function(x){ return x.level===1; });
+  roots.forEach(function(root){
+    rows.push(buildRow(root, 0));
+    var children = items.filter(function(x){ return x.parent_id === root.id; });
+    children.forEach(function(child){
+      rows.push(buildRow(child, 1));
+      var grandchildren = items.filter(function(x){ return x.parent_id === child.id; });
+      grandchildren.forEach(function(gc){ rows.push(buildRow(gc, 2)); });
+    });
+  });
+  return rows.join('');
+}
+
+function buildRow(item, indent) {
+  var parentName = (item.parent && item.parent.name) ? item.parent.name : '-';
+  var pl = indent * 24 + 16;
+  var connector = indent===1 ? '&#x2514; ' : indent===2 ? '&#x2514;&#x2500; ' : '';
+  
+  var addChildBtn = item.level < 3
+    ? '<button class="rd-btn-sm" style="background:rgba(16,185,129,0.12);color:#34D399;border:1px solid rgba(16,185,129,0.2);" onclick="openAddModal('+(item.level+1)+',\''+item.id+'\',\''+item.module_type+'\')">+ Anak</button>'
+    : '';
+    
+  var dataStr = encodeURIComponent(JSON.stringify(item));
+  return '<div class="item-row" style="padding-left:'+pl+'px;border-left:'+(indent>0?'2px solid rgba(255,255,255,0.06)':'none')+'">' +
+    '<div style="flex:1;display:flex;align-items:center;gap:8px;min-width:0;">' +
+      '<span style="color:var(--text-muted);font-size:12px;flex-shrink:0;">'+connector+'</span>' +
+      '<span style="font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+item.name+'">'+item.name+'</span>' +
+    '</div>' +
+    '<div style="width:100px;text-align:center;">'+typeBadge(item.module_type)+'</div>' +
+    '<div style="width:80px;text-align:center;">'+levelBadge(item.level)+'</div>' +
+    '<div style="width:160px;color:var(--text-secondary);font-family:monospace;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+item.slug+'</div>' +
+    '<div style="width:120px;color:var(--text-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+parentName+'">'+parentName+'</div>' +
+    '<div style="width:180px;display:flex;gap:5px;justify-content:center;flex-shrink:0;">' +
+      addChildBtn +
+      '<button class="btn-warning rd-btn-sm" onclick="openEditFromEncoded(\''+dataStr+'\')">Edit</button>' +
+      '<button class="btn-danger rd-btn-sm" onclick="deleteItem(\''+item.id+'\',\''+item.name.replace(/'/g,"\\'")+'\')" >Hapus</button>' +
+    '</div>' +
+  '</div>';
+}
+
+function openEditFromEncoded(encoded) {
+  var item = JSON.parse(decodeURIComponent(encoded));
+  openEditModal(item);
+}
+
+function openAddModal(defaultLevel, defaultParentId, defaultType) {
+  resetModal();
+  document.getElementById('cc-modal-eyebrow').textContent = 'Tambah Kategori';
+  document.getElementById('cc-modal-title').textContent = 'Tambah Baru';
+  document.getElementById('cc-footer-meta').textContent = '';
+  
+  var type = defaultType ? defaultType : 'konstruksi';
+  document.getElementById('cc-type').value = type;
+  document.getElementById('cc-type').disabled = !!defaultType;
+  
+  var lvl = defaultLevel ? defaultLevel : 1;
+  document.getElementById('cc-level').value = lvl;
+  document.getElementById('cc-level').disabled = !!defaultLevel;
+  
+  onLevelChange(defaultParentId || null);
+  document.getElementById('cc-modal').classList.add('active');
+  setTimeout(function(){ document.getElementById('cc-name').focus(); }, 100);
+}
+
+function openEditModal(item) {
+  resetModal();
+  document.getElementById('cc-modal-eyebrow').textContent = 'Edit Kategori';
+  document.getElementById('cc-modal-title').textContent = 'Edit: ' + item.name;
+  
+  document.getElementById('cc-id').value = item.id;
+  document.getElementById('cc-name').value = item.name;
+  document.getElementById('cc-slug').value = item.slug;
+  document.getElementById('cc-type').value = item.module_type;
+  document.getElementById('cc-type').disabled = true;
+  document.getElementById('cc-level').value = item.level;
+  document.getElementById('cc-level').disabled = true;
+  
+  document.getElementById('cc-description').value = item.description || '';
+  document.getElementById('cc-footer-meta').textContent = 'ID: ' + item.id.slice(0,8) + '...';
+  
+  onLevelChange(item.parent_id || null);
+  document.getElementById('cc-modal').classList.add('active');
+}
+
+function resetModal() {
+  ['cc-id','cc-name','cc-slug','cc-description'].forEach(function(id){
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('cc-type').disabled = false;
+  document.getElementById('cc-level').disabled = false;
+}
+
+function closeModal() {
+  document.getElementById('cc-modal').classList.remove('active');
+}
+
+function autoSlug() {
+  if (document.getElementById('cc-id').value) return;
+  var name = document.getElementById('cc-name').value;
+  var slug = name.toLowerCase().replace(/[^a-z0-9\s-]/g,'').trim().replace(/\s+/g,'-');
+  document.getElementById('cc-slug').value = slug;
+}
+
+function onTypeChange() {
+  onLevelChange();
+}
+
+function onLevelChange(preselect) {
+  var level = parseInt(document.getElementById('cc-level').value);
+  var type = document.getElementById('cc-type').value;
+  var parentGroup = document.getElementById('cc-parent-group');
+  
+  if (level === 1) { 
+    parentGroup.style.display = 'none'; 
+    return; 
+  }
+  
+  parentGroup.style.display = 'block';
+  var parentLevel = level - 1;
+  
+  var candidates = allItems.filter(function(x){ 
+    return x.level === parentLevel && x.module_type === type; 
+  });
+  
+  var sel = document.getElementById('cc-parent');
+  sel.innerHTML = '<option value="">- Pilih parent -</option>' +
+    candidates.map(function(c){ return '<option value="'+c.id+'">'+c.name+'</option>'; }).join('');
+    
+  if (preselect) sel.value = preselect;
+}
+
+async function saveCategory() {
+  var id          = document.getElementById('cc-id').value.trim();
+  var name        = document.getElementById('cc-name').value.trim();
+  var slug        = document.getElementById('cc-slug').value.trim();
+  var module_type = document.getElementById('cc-type').value;
+  var level       = parseInt(document.getElementById('cc-level').value);
+  var parent_id   = document.getElementById('cc-parent').value || null;
+  var description = document.getElementById('cc-description').value.trim() || null;
+
+  if (!name) return showToast('Nama wajib diisi', 'error');
+  if (!slug) return showToast('Slug wajib diisi', 'error');
+  if (level > 1 && !parent_id) return showToast('Pilih parent untuk level ' + level, 'error');
+
+  var body = { 
+    name: name, 
+    slug: slug, 
+    level: level, 
+    module_type: module_type, 
+    parent_id: parent_id, 
+    description: description 
+  };
+  var method   = id ? 'PUT' : 'POST';
+  var endpoint = id ? '/api/construction/admin/' + id : '/api/construction/admin';
+
+  try {
+    await fetchBackend(endpoint, { method: method, body: JSON.stringify(body) });
+    showToast(id ? 'Kategori berhasil diperbarui' : 'Kategori berhasil ditambahkan');
+    closeModal();
+    loadData();
+  } catch (err) {
+    showToast('Gagal menyimpan: ' + err.message, 'error');
+  }
+}
+
+function deleteItem(id, name) {
+  var hasChildren = allItems.some(function(x){ return x.parent_id === id; });
+  showConfirmDialog({
+    title: 'Hapus Kategori?',
+    message: hasChildren
+      ? '"' + name + '" masih memiliki sub-kategori. Hapus semua anaknya terlebih dahulu.'
+      : '"' + name + '" akan dihapus permanen. Lanjutkan?',
+    confirmText: 'Hapus',
+    onConfirm: async function() {
+      try {
+        await fetchBackend('/api/construction/admin/' + id, { method: 'DELETE' });
+        showToast('Kategori dihapus');
+        loadData();
+      } catch (err) {
+        showToast('Gagal menghapus: ' + err.message, 'error');
+      }
+    }
+  });
+}
+
+document.addEventListener('DOMContentLoaded', loadData);
+</script>
