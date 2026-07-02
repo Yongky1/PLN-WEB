@@ -23,8 +23,8 @@ function openDetail(id) {
   openCatalogModal(TOOLS_IDS, tool.file3d, 'Memuat Model 3D...', () => {
     const catLabel = document.getElementById('modal-category-label');
     catLabel.className =
-      'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 cat-badge-teknis';
-    catLabel.innerHTML = `<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>${tool.categoryLabel}`;
+      'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 bg-sky-50 border-sky-200 text-sky-600 cat-badge-teknis';
+    catLabel.innerHTML = `<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-sky-500"></span>${tool.categoryLabel}`;
 
     document.getElementById('modal-name').textContent = tool.name;
 
