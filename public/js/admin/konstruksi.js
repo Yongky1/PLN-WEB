@@ -27,45 +27,72 @@ async function loadAndRenderMaterialToolLists() {
   }
 }
 
+window._allConstructionCategories = [];
+
 async function loadConstructionCategories() {
   try {
-    const res = await fetchBackend('/api/construction/admin/all');
+    const res = await fetchBackend('/api/construction/tree');
     if (!res) return;
-    const select = document.getElementById('modul-construction-id');
-    const selectEdit = document.getElementById('edit-modul-construction-id');
+    window._allConstructionCategories = res; // Menyimpan tree (Level 1 berisi Level 2, dst)
     
-    if (select) select.innerHTML = '<option value="">-- Tanpa Kategori (Root) --</option>';
-    if (selectEdit) selectEdit.innerHTML = '<option value="">-- Tanpa Kategori (Root) --</option>';
-    
-    // Recursive function to flatten tree with indentation
-    const buildOptions = (categories, depth = 0) => {
-      categories.forEach(cat => {
-        const prefix = depth > 0 ? '— '.repeat(depth) : '';
-        const val = cat.id;
-        const text = `${prefix}${cat.name}`;
-        
-        if (select) {
-          const opt = document.createElement('option');
-          opt.value = val;
-          opt.textContent = text;
-          select.appendChild(opt);
-        }
-        if (selectEdit) {
-          const optEdit = document.createElement('option');
-          optEdit.value = val;
-          optEdit.textContent = text;
-          selectEdit.appendChild(optEdit);
-        }
-        
-        if (cat.children && cat.children.length > 0) {
-          buildOptions(cat.children, depth + 1);
-        }
-      });
-    };
-    buildOptions(res);
+    // Inisialisasi dropdown untuk modal Add
+    initCascadingDropdowns('', window._allConstructionCategories);
+    // Inisialisasi dropdown untuk modal Edit
+    initCascadingDropdowns('edit-', window._allConstructionCategories);
   } catch (err) {
     console.error('Gagal memuat kategori konstruksi:', err);
   }
+}
+
+function initCascadingDropdowns(prefix, dataTree) {
+  const sel1 = document.getElementById(prefix + 'modul-category-1');
+  const sel2 = document.getElementById(prefix + 'modul-category-2');
+  const sel3 = document.getElementById(prefix + 'modul-category-3');
+  
+  if (!sel1 || !sel2 || !sel3) return;
+
+  // Populate Level 1
+  sel1.innerHTML = '<option value="">-- Pilih Kategori 1 --</option>';
+  dataTree.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c.id;
+    opt.textContent = c.name;
+    sel1.appendChild(opt);
+  });
+
+  // Level 1 change event
+  sel1.addEventListener('change', () => {
+    sel2.innerHTML = '<option value="">-- Pilih Kategori 2 --</option>';
+    sel3.innerHTML = '<option value="">-- Pilih Kategori 3 --</option>';
+    
+    const selectedL1 = dataTree.find(c => c.id === sel1.value);
+    if (selectedL1 && selectedL1.children && selectedL1.children.length > 0) {
+      selectedL1.children.forEach(c => {
+        const opt = document.createElement('option');
+        opt.value = c.id;
+        opt.textContent = c.name;
+        sel2.appendChild(opt);
+      });
+    }
+  });
+
+  // Level 2 change event
+  sel2.addEventListener('change', () => {
+    sel3.innerHTML = '<option value="">-- Pilih Kategori 3 --</option>';
+    
+    const selectedL1 = dataTree.find(c => c.id === sel1.value);
+    if (selectedL1 && selectedL1.children) {
+      const selectedL2 = selectedL1.children.find(c => c.id === sel2.value);
+      if (selectedL2 && selectedL2.children && selectedL2.children.length > 0) {
+        selectedL2.children.forEach(c => {
+          const opt = document.createElement('option');
+          opt.value = c.id;
+          opt.textContent = c.name;
+          sel3.appendChild(opt);
+        });
+      }
+    }
+  });
 }
 
 // Global Filter State
@@ -331,8 +358,48 @@ async function editKonstruksi(id) {
   if (descCounter) descCounter.textContent = (m.description || '').length + '/2000';
   document.getElementById('edit-modul-status').value = m.status || 'Aktif';
   
-  if (document.getElementById('edit-modul-construction-id')) {
-    document.getElementById('edit-modul-construction-id').value = m.construction_id || '';
+  // Populasikan Kategori 3 Level
+  const sel1 = document.getElementById('edit-modul-category-1');
+  const sel2 = document.getElementById('edit-modul-category-2');
+  const sel3 = document.getElementById('edit-modul-category-3');
+  
+  if (sel1 && sel2 && sel3) {
+    sel1.value = '';
+    sel1.dispatchEvent(new Event('change')); // Reset L2 & L3
+    
+    if (m.construction_id && window._allConstructionCategories) {
+      let foundPath = null;
+      // Fungsi rekursif untuk mencari path (Level 1 -> 2 -> 3) dari ID kategori
+      const findPath = (nodes, targetId, currentPath) => {
+        for (const node of nodes) {
+          const path = [...currentPath, node];
+          if (node.id === targetId) {
+            foundPath = path;
+            return true;
+          }
+          if (node.children && findPath(node.children, targetId, path)) {
+            return true;
+          }
+        }
+        return false;
+      };
+      
+      findPath(window._allConstructionCategories, m.construction_id, []);
+      
+      if (foundPath) {
+        if (foundPath[0]) {
+          sel1.value = foundPath[0].id;
+          sel1.dispatchEvent(new Event('change'));
+        }
+        if (foundPath[1]) {
+          sel2.value = foundPath[1].id;
+          sel2.dispatchEvent(new Event('change'));
+        }
+        if (foundPath[2]) {
+          sel3.value = foundPath[2].id;
+        }
+      }
+    }
   }
   // Render checklist dengan preselected based on current relasi
   renderMaterialList(
@@ -660,9 +727,14 @@ async function processKonstruksiSubmission(isEditing) {
   const modulName = document.getElementById(`${prefix}modul-name`)
     ? document.getElementById(`${prefix}modul-name`).value.trim()
     : '';
-  const construction_id = document.getElementById(`${prefix}modul-construction-id`)
-    ? document.getElementById(`${prefix}modul-construction-id`).value
-    : '';
+  const sel3 = document.getElementById(`${prefix}modul-category-3`);
+  const sel2 = document.getElementById(`${prefix}modul-category-2`);
+  const sel1 = document.getElementById(`${prefix}modul-category-1`);
+  
+  let construction_id = null;
+  if (sel3 && sel3.value) construction_id = sel3.value;
+  else if (sel2 && sel2.value) construction_id = sel2.value;
+  else if (sel1 && sel1.value) construction_id = sel1.value;
   const modulDesc = document.getElementById(`${prefix}modul-desc`)
     ? document.getElementById(`${prefix}modul-desc`).value.trim()
     : '';
