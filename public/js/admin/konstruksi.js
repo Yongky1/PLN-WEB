@@ -27,6 +27,47 @@ async function loadAndRenderMaterialToolLists() {
   }
 }
 
+async function loadConstructionCategories() {
+  try {
+    const res = await fetchBackend('/api/construction/admin/all');
+    if (!res) return;
+    const select = document.getElementById('modul-construction-id');
+    const selectEdit = document.getElementById('edit-modul-construction-id');
+    
+    if (select) select.innerHTML = '<option value="">-- Tanpa Kategori (Root) --</option>';
+    if (selectEdit) selectEdit.innerHTML = '<option value="">-- Tanpa Kategori (Root) --</option>';
+    
+    // Recursive function to flatten tree with indentation
+    const buildOptions = (categories, depth = 0) => {
+      categories.forEach(cat => {
+        const prefix = depth > 0 ? '— '.repeat(depth) : '';
+        const val = cat.id;
+        const text = `${prefix}${cat.name}`;
+        
+        if (select) {
+          const opt = document.createElement('option');
+          opt.value = val;
+          opt.textContent = text;
+          select.appendChild(opt);
+        }
+        if (selectEdit) {
+          const optEdit = document.createElement('option');
+          optEdit.value = val;
+          optEdit.textContent = text;
+          selectEdit.appendChild(optEdit);
+        }
+        
+        if (cat.children && cat.children.length > 0) {
+          buildOptions(cat.children, depth + 1);
+        }
+      });
+    };
+    buildOptions(res);
+  } catch (err) {
+    console.error('Gagal memuat kategori konstruksi:', err);
+  }
+}
+
 // Global Filter State
 const globalSearchQuery = '';
 const moduleSearchQuery = '';
@@ -289,6 +330,10 @@ async function editKonstruksi(id) {
   const descCounter = document.getElementById('edit-modul-desc-counter');
   if (descCounter) descCounter.textContent = (m.description || '').length + '/2000';
   document.getElementById('edit-modul-status').value = m.status || 'Aktif';
+  
+  if (document.getElementById('edit-modul-construction-id')) {
+    document.getElementById('edit-modul-construction-id').value = m.construction_id || '';
+  }
   // Render checklist dengan preselected based on current relasi
   renderMaterialList(
     'edit-modul-materials-list',
@@ -615,6 +660,9 @@ async function processKonstruksiSubmission(isEditing) {
   const modulName = document.getElementById(`${prefix}modul-name`)
     ? document.getElementById(`${prefix}modul-name`).value.trim()
     : '';
+  const construction_id = document.getElementById(`${prefix}modul-construction-id`)
+    ? document.getElementById(`${prefix}modul-construction-id`).value
+    : '';
   const modulDesc = document.getElementById(`${prefix}modul-desc`)
     ? document.getElementById(`${prefix}modul-desc`).value.trim()
     : '';
@@ -692,6 +740,7 @@ async function processKonstruksiSubmission(isEditing) {
       title: modulName,
       description: modulDesc,
       status: status,
+      construction_id: construction_id,
       materials: selectedMaterials,
       tools: selectedTools,
     };
@@ -838,6 +887,7 @@ document.addEventListener('DOMContentLoaded', () => {
   addKonstruksiCard();
   loadKonstruksiSaved();
   loadAndRenderMaterialToolLists();
+  loadConstructionCategories();
 
   // Search Material Selection
   const searchMat = document.getElementById('search-select-material');

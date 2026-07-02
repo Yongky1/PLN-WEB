@@ -26,10 +26,16 @@ var _onChange = typeof previewOnChange    !== 'undefined' ? previewOnChange    :
 
       <div class="rd-section-block">
         <div class="rd-section-head"><div class="rd-section-title"><span class="num">1</span> Informasi Modul</div></div>
-        <div class="rd-field-row cols-2">
+        <div class="rd-field-row cols-3">
           <div class="rd-field-group">
             <label class="rd-field-label">Nama Modul <span class="req">*</span></label>
             <input type="text" id="edit-modul-name" class="rd-input" placeholder="Contoh: Tower SUTT 150kV" style="background: #ffffff;" />
+          </div>
+          <div class="rd-field-group">
+            <label class="rd-field-label">Kategori Konstruksi</label>
+            <select id="edit-modul-construction-id" class="rd-select" style="background: #ffffff;">
+              <option value="">-- Tanpa Kategori (Root) --</option>
+            </select>
           </div>
           <div class="rd-field-group">
             <label class="rd-field-label">Status</label>
