@@ -17,12 +17,11 @@
             <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 border-b border-[var(--color-border)]">
                 <!-- Left: Title + Subtitle -->
                 <div class="gsap-reveal">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-primary)]/5 border border-[var(--color-primary)]/10 mb-4">
-                        <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] shadow-sm shadow-[var(--color-primary)]"></div>
-                        <span class="text-[10px] font-bold tracking-[0.18em] text-[var(--color-primary)] uppercase">Laboratorium 3D · PLN</span>
+                    <div class="mb-2">
+                        <span class="text-sm font-semibold tracking-widest text-[var(--color-primary)] uppercase">Laboratorium 3D · PLN</span>
                     </div>
-                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight">
-                        <span class="text-[var(--color-text-primary)]">Modul </span><span class="gradient-text-blue">Konstruksi</span>
+                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight text-[var(--color-text-primary)]">
+                        Modul Konstruksi
                     </h1>
                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-lg">
                         Pilih modul standar konstruksi jaringan untuk memulai simulasi interaktif dalam ruang 3 dimensi.
@@ -69,7 +68,7 @@
             <div id="v3-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gsap-stagger-container">
                 <% if (activeModules.length===0) { %>
                     <div class="col-span-full flex flex-col items-center justify-center py-20 gap-4">
-                        <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                        <div class="w-16 h-16 rounded-lg bg-[var(--color-bg-surface-alt)] flex items-center justify-center">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><path d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                         </div>
                         <span class="text-sm text-[var(--color-text-muted)]">Belum ada modul aktif yang dirilis ke publik.</span>
@@ -80,7 +79,7 @@
                     <a href="/ModulKonstruksi/<%= mod.id %>" class="gsap-stagger-item group block" data-title="<%= mod.title.toLowerCase() %>">
                         <div class="card-elevated overflow-hidden h-full flex flex-col">
                             <!-- Image -->
-                            <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                            <div class="aspect-[16/10] relative overflow-hidden bg-[rgba(0,0,0,0.02)]">
                                 <% if (mod.image) { %>
                                     <img src="<%= mod.image %>" alt="<%= mod.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                                 <% } else { %>
@@ -92,7 +91,6 @@
                                     </div>
                                 <% } %>
                                 <!-- Gradient overlay -->
-                                <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
                             </div>
 
                             <!-- Body -->
@@ -104,10 +102,9 @@
                                     <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
                                         <%= mod.description %><br>&nbsp;<br>&nbsp;
                                     </p>
-                                    <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                                    <p class="absolute inset-0 text-sm text-[var(--color-text-secondary)] leading-relaxed overflow-hidden">
                                         <%= mod.description %>
                                     </p>
-                                    <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                                 </div>
                                 <div class="mt-auto">
                                     <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
@@ -132,7 +129,6 @@
                             </div>
 
                             <!-- Bottom accent line -->
-                            <div class="h-0.5 bg-gradient-to-r from-[var(--color-primary)] via-[var(--color-cyan)] to-[var(--color-accent)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                         </div>
                     </a>
                 <% }) %>

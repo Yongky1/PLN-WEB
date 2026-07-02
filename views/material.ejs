@@ -13,14 +13,14 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
             <!-- Header -->
-            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 border-b border-[var(--color-border)]">
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 border-b border-[var(--color-border)] relative">
+                <div class="ambient-mesh mesh-split"></div>
                 <div class="gsap-reveal">
-                    <div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[var(--color-accent)]/8 border border-[var(--color-accent)]/15 mb-4">
-                        <div class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] shadow-sm shadow-[var(--color-accent)]"></div>
-                        <span class="text-[10px] font-bold tracking-[0.18em] text-[var(--color-accent-dark)] uppercase">Katalog Material · PLN</span>
+                    <div class="mb-2">
+                        <span class="text-sm font-semibold tracking-widest text-[var(--color-primary)] uppercase">Katalog Material · PLN</span>
                     </div>
-                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight">
-                        <span class="text-[var(--color-text-primary)]">Material </span><span class="gradient-text-blue">Jaringan PLN</span>
+                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight text-[var(--color-text-primary)]">
+                        Material Jaringan PLN
                     </h1>
                     <p class="text-sm text-[var(--color-text-secondary)] leading-relaxed max-w-lg">
                         Klik pada material untuk menampilkan visualisasi 3D interaktif beserta spesifikasi teknis lengkap.
@@ -45,7 +45,7 @@
                         <div id="mat-filter-menu" class="absolute top-full right-0 mt-2 min-w-[160px] rounded-xl bg-white border border-[var(--color-border)] shadow-xl z-50 hidden overflow-hidden">
                             <div class="p-1.5">
                                 <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] text-[var(--color-primary)] bg-[var(--color-primary)]/5" onclick="v3SelectMatFilter('all','Semua')">Semua</div>
-                                <% categories.forEach(cat => { %>
+                                <% categories.forEach(function(cat) { %>
                                     <div class="px-3 py-2 rounded-lg text-xs font-semibold cursor-pointer transition-colors hover:bg-[var(--color-primary)]/5 hover:text-[var(--color-primary)] text-[var(--color-text-secondary)]" onclick="v3SelectMatFilter('<%= cat.id %>','<%= cat.name %>')"><%= cat.name %></div>
                                 <% }); %>
                             </div>
@@ -60,11 +60,11 @@
             </div>
 
             <!-- Grid -->
-            <% const validMaterials = materialData.filter(m => m.name && m.name.trim() !== ''); %>
+            <% const validMaterials = materialData.filter(function(m) { return m.name && m.name.trim() !== ''; }); %>
             <div id="material-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gsap-stagger-container">
                 <% if (validMaterials.length === 0) { %>
                 <div class="col-span-full flex flex-col items-center justify-center py-20 gap-4">
-                    <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                    <div class="w-16 h-16 rounded-lg bg-[var(--color-bg-surface-alt)] flex items-center justify-center">
                         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
                     </div>
                     <span class="text-sm text-[var(--color-text-muted)]">Belum ada material yang tersedia.</span>
@@ -75,7 +75,7 @@
                 <div class="gsap-stagger-item mat-card-item" data-category="<%= mat.category %>">
                     <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col" data-id="<%= mat.id %>">
                         <!-- Image -->
-                        <div class="aspect-[16/10] relative overflow-hidden bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                        <div class="aspect-[16/10] relative overflow-hidden bg-[rgba(0,0,0,0.02)]">
                             <% if (mat.image) { %>
                                 <img src="<%= mat.image %>" alt="<%= mat.name %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700">
                             <% } else { %>
@@ -92,7 +92,6 @@
                                     <%= mat.categoryLabel %>
                                 </span>
                             </div>
-                            <div class="absolute bottom-0 left-0 right-0 h-16 bg-gradient-to-t from-white/80 to-transparent pointer-events-none"></div>
                         </div>
 
                         <!-- Body -->
@@ -102,10 +101,9 @@
                                 <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
                                     <%= mat.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
                                 </p>
-                                <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
+                                <p class="absolute inset-0 text-sm text-[var(--color-text-secondary)] leading-relaxed overflow-hidden">
                                     <%= mat.description || 'Deskripsi belum tersedia.' %>
                                 </p>
-                                <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
                             </div>
                             <div class="mt-auto">
                                 <div class="h-px bg-[var(--color-border-light)] mb-4"></div>
@@ -127,7 +125,6 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="h-0.5 bg-gradient-to-r from-[var(--color-accent)] via-[var(--color-cyan)] to-[var(--color-primary)] transform scale-x-0 group-hover:scale-x-100 transition-transform duration-500 origin-left"></div>
                     </div>
                 </div>
                 <% }); %>
@@ -135,7 +132,7 @@
 
             <!-- No results -->
             <div id="no-results" class="hidden flex-col items-center justify-center py-20 gap-4" style="display:none;">
-                <div class="w-16 h-16 rounded-2xl bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] flex items-center justify-center">
+                <div class="w-16 h-16 rounded-lg bg-[var(--color-bg-surface-alt)] flex items-center justify-center">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-text-muted)" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
                 </div>
                 <span class="text-sm text-[var(--color-text-muted)]">Tidak ada material untuk kategori ini.</span>
@@ -145,7 +142,12 @@
 
     <%- include('partials/catalog-modal-material') %>
 
-    <script>var __MATERIAL_DATA__ = <%- JSON.stringify(materialData) %>;</script>
+    <script id="material-data" type="text/template">
+        <%- JSON.stringify(materialData) %>
+    </script>
+    <script>
+        var __MATERIAL_DATA__ = JSON.parse(document.getElementById('material-data').textContent);
+    </script>
     <%- include('partials/footer') %>
     <script src="/js/main.js"></script>
     <script src="/js/catalog-modal.js"></script>
