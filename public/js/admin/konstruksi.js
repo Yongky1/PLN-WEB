@@ -105,7 +105,7 @@ window.handleLevelChange = function(levelChanged, isEdit) {
     }
   }
 };
->>>>>>> 241f9b9b0d466dd8be48535da3125a29bdcc17ab
+
 
 // Global Filter State
 const globalSearchQuery = '';
@@ -407,7 +407,6 @@ async function editKonstruksi(id) {
   } else {
     const s1 = document.getElementById('edit-modul-construction-level1');
     if(s1) { s1.value = ''; window.handleLevelChange(1, true); }
-  }
   }
   // Render checklist dengan preselected based on current relasi
   renderMaterialList(
