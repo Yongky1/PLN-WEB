@@ -92,7 +92,15 @@ router.get('/material', async (req, res) => {
 router.get('/ModulKonstruksi', async (req, res) => {
   try {
     const sort = req.query.sort || 'newest';
-    let dbModules = await cachedFetch(`${BACKEND_URL}/api/modules?sort=${sort}`);
+    const category = req.query.category || '';
+    const l1 = req.query.l1 || '';
+    const l2 = req.query.l2 || '';
+    const l3 = req.query.l3 || '';
+    
+    let apiUrl = `${BACKEND_URL}/api/modules?sort=${sort}`;
+    if (category) apiUrl += `&category=${category}`;
+    
+    let dbModules = await cachedFetch(apiUrl);
 
     if (!Array.isArray(dbModules)) {
       console.error('[/ModulKonstruksi] Backend tidak mengembalikan array:', dbModules);
@@ -114,6 +122,8 @@ router.get('/ModulKonstruksi', async (req, res) => {
       activeModules,
       inactiveModules: [],
       currentSort: sort,
+      currentCategory: category,
+      l1, l2, l3,
       currentPage: 'konstruksi',
     });
   } catch (err) {
@@ -123,6 +133,8 @@ router.get('/ModulKonstruksi', async (req, res) => {
       activeModules: [],
       inactiveModules: [],
       currentSort: 'newest',
+      currentCategory: '',
+      l1: '', l2: '', l3: '',
       currentPage: 'konstruksi',
     });
   }

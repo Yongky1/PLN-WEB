@@ -272,7 +272,7 @@ function buildRow(item, indent) {
     : '';
     
   var dataStr = encodeURIComponent(JSON.stringify(item));
-  return '<div class="item-row" style="padding-left:'+pl+'px;border-left:'+(indent>0?'2px solid rgba(255,255,255,0.06)':'none')+'">' +
+  return '<div class="item-row" style="display:flex;align-items:center;gap:16px;border-bottom:1px solid rgba(255,255,255,0.05);padding:12px 20px;padding-left:'+pl+'px;border-left:'+(indent>0?'2px solid rgba(255,255,255,0.06)':'none')+'">' +
     '<div style="flex:1;display:flex;align-items:center;gap:8px;min-width:0;">' +
       '<span style="color:var(--text-muted);font-size:12px;flex-shrink:0;">'+connector+'</span>' +
       '<span style="font-weight:600;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+item.name+'">'+item.name+'</span>' +
