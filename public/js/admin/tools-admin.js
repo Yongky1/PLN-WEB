@@ -88,8 +88,8 @@ async function loadToolsSaved(categoryFilter = '') {
                     ${hasFile ? 'Ada' : '-'}
                 </div>
                 <div style="width:130px; display:flex; gap:6px; justify-content:center;">
-                    <button class="rd-btn rd-btn-secondary rd-btn-sm" onclick="editTool('${t.id}')">Edit</button>
-                    <button class="rd-btn rd-btn-danger rd-btn-sm" onclick="deleteTool('${t.id}', this)">Hapus</button>
+                    <button class="btn-soft-edit" onclick="editTool('${t.id}')">Edit</button>
+                    <button class="btn-soft-delete" onclick="deleteTool('${t.id}', this)">Hapus</button>
                 </div>
             `;
       saved.appendChild(row);
