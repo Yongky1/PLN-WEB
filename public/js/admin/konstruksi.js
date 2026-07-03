@@ -27,151 +27,16 @@ async function loadAndRenderMaterialToolLists() {
   }
 }
 
-<<<<<<< HEAD
-window._allConstructionCategories = [];
-=======
-window._allConstructionsGlobal = [];
->>>>>>> 241f9b9b0d466dd8be48535da3125a29bdcc17ab
 
 async function loadConstructionCategories() {
   try {
     const res = await fetchBackend('/api/construction/tree');
     if (!res) return;
-<<<<<<< HEAD
-    window._allConstructionCategories = res; // Menyimpan tree (Level 1 berisi Level 2, dst)
-    
-    // Inisialisasi dropdown untuk modal Add
-    initCascadingDropdowns('', window._allConstructionCategories);
-    // Inisialisasi dropdown untuk modal Edit
-    initCascadingDropdowns('edit-', window._allConstructionCategories);
-=======
-    
-    window._allConstructionsGlobal = res;
-    
-    // Populate Level 1 for create
-    const select1 = document.getElementById('modul-construction-level1');
-    if (select1) {
-      select1.innerHTML = '<option value="">-- Pilih Level 1 --</option>';
-      res.filter(c => c.level === 1).forEach(c => {
-        select1.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-      });
-    }
-
-    // Populate Level 1 for edit
-    const selectEdit1 = document.getElementById('edit-modul-construction-level1');
-    if (selectEdit1) {
-      selectEdit1.innerHTML = '<option value="">-- Pilih Level 1 --</option>';
-      res.filter(c => c.level === 1).forEach(c => {
-        selectEdit1.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-      });
-    }
-    
->>>>>>> 241f9b9b0d466dd8be48535da3125a29bdcc17ab
   } catch (err) {
     console.error('Gagal memuat kategori konstruksi:', err);
   }
 }
 
-<<<<<<< HEAD
-function initCascadingDropdowns(prefix, dataTree) {
-  const sel1 = document.getElementById(prefix + 'modul-category-1');
-  const sel2 = document.getElementById(prefix + 'modul-category-2');
-  const sel3 = document.getElementById(prefix + 'modul-category-3');
-  
-  if (!sel1 || !sel2 || !sel3) return;
-
-  // Populate Level 1
-  sel1.innerHTML = '<option value="">-- Pilih Kategori 1 --</option>';
-  dataTree.forEach(c => {
-    const opt = document.createElement('option');
-    opt.value = c.id;
-    opt.textContent = c.name;
-    sel1.appendChild(opt);
-  });
-
-  // Level 1 change event
-  sel1.addEventListener('change', () => {
-    sel2.innerHTML = '<option value="">-- Pilih Kategori 2 --</option>';
-    sel3.innerHTML = '<option value="">-- Pilih Kategori 3 --</option>';
-    
-    const selectedL1 = dataTree.find(c => c.id === sel1.value);
-    if (selectedL1 && selectedL1.children && selectedL1.children.length > 0) {
-      selectedL1.children.forEach(c => {
-        const opt = document.createElement('option');
-        opt.value = c.id;
-        opt.textContent = c.name;
-        sel2.appendChild(opt);
-      });
-    }
-  });
-
-  // Level 2 change event
-  sel2.addEventListener('change', () => {
-    sel3.innerHTML = '<option value="">-- Pilih Kategori 3 --</option>';
-    
-    const selectedL1 = dataTree.find(c => c.id === sel1.value);
-    if (selectedL1 && selectedL1.children) {
-      const selectedL2 = selectedL1.children.find(c => c.id === sel2.value);
-      if (selectedL2 && selectedL2.children && selectedL2.children.length > 0) {
-        selectedL2.children.forEach(c => {
-          const opt = document.createElement('option');
-          opt.value = c.id;
-          opt.textContent = c.name;
-          sel3.appendChild(opt);
-        });
-      }
-    }
-  });
-}
-=======
-window.handleLevelChange = function(levelChanged, isEdit) {
-  const prefix = isEdit ? 'edit-' : '';
-  const constructions = window._allConstructionsGlobal || [];
-  
-  if (levelChanged === 1) {
-    const level1Id = document.getElementById(`${prefix}modul-construction-level1`).value;
-    const select2 = document.getElementById(`${prefix}modul-construction-level2`);
-    const select3 = document.getElementById(`${prefix}modul-construction-level3`);
-    
-    if(select2) select2.innerHTML = '<option value="">-- Pilih Level 2 --</option>';
-    if(select3) select3.innerHTML = '<option value="">-- Pilih Level 3 --</option>';
-    if(select3) select3.disabled = true;
-    
-    if (level1Id) {
-      const children = constructions.filter(c => c.parent_id === level1Id);
-      if (children.length > 0 && select2) {
-        select2.disabled = false;
-        children.forEach(c => {
-          select2.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
-      } else if (select2) {
-        select2.disabled = true;
-      }
-    } else if (select2) {
-      select2.disabled = true;
-    }
-  } else if (levelChanged === 2) {
-    const level2Id = document.getElementById(`${prefix}modul-construction-level2`).value;
-    const select3 = document.getElementById(`${prefix}modul-construction-level3`);
-    
-    if(select3) select3.innerHTML = '<option value="">-- Pilih Level 3 --</option>';
-    
-    if (level2Id) {
-      const children = constructions.filter(c => c.parent_id === level2Id);
-      if (children.length > 0 && select3) {
-        select3.disabled = false;
-        children.forEach(c => {
-          select3.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
-      } else if (select3) {
-        select3.disabled = true;
-      }
-    } else if (select3) {
-      select3.disabled = true;
-    }
-  }
-};
->>>>>>> 241f9b9b0d466dd8be48535da3125a29bdcc17ab
 
 // Global Filter State
 const globalSearchQuery = '';
@@ -436,88 +301,6 @@ async function editKonstruksi(id) {
   if (descCounter) descCounter.textContent = (m.description || '').length + '/2000';
   document.getElementById('edit-modul-status').value = m.status || 'Aktif';
   
-<<<<<<< HEAD
-  // Populasikan Kategori 3 Level
-  const sel1 = document.getElementById('edit-modul-category-1');
-  const sel2 = document.getElementById('edit-modul-category-2');
-  const sel3 = document.getElementById('edit-modul-category-3');
-  
-  if (sel1 && sel2 && sel3) {
-    sel1.value = '';
-    sel1.dispatchEvent(new Event('change')); // Reset L2 & L3
-    
-    if (m.construction_id && window._allConstructionCategories) {
-      let foundPath = null;
-      // Fungsi rekursif untuk mencari path (Level 1 -> 2 -> 3) dari ID kategori
-      const findPath = (nodes, targetId, currentPath) => {
-        for (const node of nodes) {
-          const path = [...currentPath, node];
-          if (node.id === targetId) {
-            foundPath = path;
-            return true;
-          }
-          if (node.children && findPath(node.children, targetId, path)) {
-            return true;
-          }
-        }
-        return false;
-      };
-      
-      findPath(window._allConstructionCategories, m.construction_id, []);
-      
-      if (foundPath) {
-        if (foundPath[0]) {
-          sel1.value = foundPath[0].id;
-          sel1.dispatchEvent(new Event('change'));
-        }
-        if (foundPath[1]) {
-          sel2.value = foundPath[1].id;
-          sel2.dispatchEvent(new Event('change'));
-        }
-        if (foundPath[2]) {
-          sel3.value = foundPath[2].id;
-        }
-      }
-    }
-=======
-  // Set Category Hierarchy
-  if (m.construction_id) {
-    const constructions = window._allConstructionsGlobal || [];
-    let current = constructions.find(c => c.id === m.construction_id);
-    let l1 = '', l2 = '', l3 = '';
-    
-    if (current) {
-      if (current.level === 3) {
-        l3 = current.id;
-        l2 = current.parent_id;
-        const parent = constructions.find(c => c.id === l2);
-        l1 = parent ? parent.parent_id : '';
-      } else if (current.level === 2) {
-        l2 = current.id;
-        l1 = current.parent_id;
-      } else if (current.level === 1) {
-        l1 = current.id;
-      }
-    }
-    
-    const s1 = document.getElementById('edit-modul-construction-level1');
-    if (s1 && l1) {
-      s1.value = l1;
-      window.handleLevelChange(1, true);
-      const s2 = document.getElementById('edit-modul-construction-level2');
-      if (s2 && l2) {
-        s2.value = l2;
-        window.handleLevelChange(2, true);
-        const s3 = document.getElementById('edit-modul-construction-level3');
-        if (s3 && l3) {
-          s3.value = l3;
-        }
-      }
-    }
-  } else {
-    const s1 = document.getElementById('edit-modul-construction-level1');
-    if(s1) { s1.value = ''; window.handleLevelChange(1, true); }
->>>>>>> 241f9b9b0d466dd8be48535da3125a29bdcc17ab
   }
   // Render checklist dengan preselected based on current relasi
   renderMaterialList(
@@ -845,21 +628,6 @@ async function processKonstruksiSubmission(isEditing) {
   const modulName = document.getElementById(`${prefix}modul-name`)
     ? document.getElementById(`${prefix}modul-name`).value.trim()
     : '';
-<<<<<<< HEAD
-  const sel3 = document.getElementById(`${prefix}modul-category-3`);
-  const sel2 = document.getElementById(`${prefix}modul-category-2`);
-  const sel1 = document.getElementById(`${prefix}modul-category-1`);
-  
-  let construction_id = null;
-  if (sel3 && sel3.value) construction_id = sel3.value;
-  else if (sel2 && sel2.value) construction_id = sel2.value;
-  else if (sel1 && sel1.value) construction_id = sel1.value;
-=======
-  const cLevel3 = document.getElementById(`${prefix}modul-construction-level3`) ? document.getElementById(`${prefix}modul-construction-level3`).value : '';
-  const cLevel2 = document.getElementById(`${prefix}modul-construction-level2`) ? document.getElementById(`${prefix}modul-construction-level2`).value : '';
-  const cLevel1 = document.getElementById(`${prefix}modul-construction-level1`) ? document.getElementById(`${prefix}modul-construction-level1`).value : '';
-  const construction_id = cLevel3 || cLevel2 || cLevel1 || null;
->>>>>>> 241f9b9b0d466dd8be48535da3125a29bdcc17ab
   const modulDesc = document.getElementById(`${prefix}modul-desc`)
     ? document.getElementById(`${prefix}modul-desc`).value.trim()
     : '';
