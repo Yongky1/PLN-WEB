@@ -283,8 +283,8 @@ function buildRow(item, indent) {
     '<div style="width:120px;color:var(--text-muted);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="'+parentName+'">'+parentName+'</div>' +
     '<div style="width:180px;display:flex;gap:5px;justify-content:center;flex-shrink:0;">' +
       addChildBtn +
-      '<button class="btn-warning rd-btn-sm" onclick="openEditFromEncoded(\''+dataStr+'\')">Edit</button>' +
-      '<button class="btn-danger rd-btn-sm" onclick="deleteItem(\''+item.id+'\',\''+item.name.replace(/'/g,"\\'")+'\')" >Hapus</button>' +
+      '<button class="btn-soft-edit" onclick="openEditFromEncoded(\''+dataStr+'\')">Edit</button>' +
+      '<button class="btn-soft-delete" onclick="deleteItem(\''+item.id+'\',\''+item.name.replace(/'/g,"\\'")+'\')" >Hapus</button>' +
     '</div>' +
   '</div>';
 }
