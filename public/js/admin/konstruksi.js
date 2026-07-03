@@ -336,11 +336,11 @@ async function loadKonstruksiSaved(search = '', status = '') {
                     ${eqCount}
                 </div>
                 <div style="width:160px; display:flex; gap:6px; justify-content:center;">
-                    <button class="btn-warning" onclick="editKonstruksi('${m.id}')">Edit</button>
-                    <button class="btn-blue" title="Mesh Mapping" style="padding:6px 9px; display:flex; align-items:center; justify-content:center;" onclick="event.stopPropagation(); window.location.href='/admin/konstruksi/${m.id}/mapping'">
+                    <button class="rd-btn rd-btn-secondary rd-btn-sm" onclick="editKonstruksi('${m.id}')">Edit</button>
+                    <button class="rd-btn rd-btn-primary rd-btn-sm" title="Mesh Mapping" style="padding:6px 9px;" onclick="event.stopPropagation(); window.location.href='/admin/konstruksi/${m.id}/mapping'">
                         <span style="font-weight:900; font-size:12px; line-height:1;">M</span>
                     </button>
-                    <button class="btn-danger" onclick="deleteKonstruksi('${m.id}', this)">Hapus</button>
+                    <button class="rd-btn rd-btn-danger rd-btn-sm" onclick="deleteKonstruksi('${m.id}', this)">Hapus</button>
                 </div>
             `;
       saved.appendChild(row);

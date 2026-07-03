@@ -90,8 +90,8 @@ async function loadMaterialSaved(categoryFilter = '') {
                     ${variantsCount}
                 </div>
                 <div style="width:130px; display:flex; gap:6px; justify-content:center;">
-                    <button class="btn-warning rd-btn-sm" onclick="editMaterial('${m.id}')">Edit</button>
-                    <button class="btn-danger rd-btn-sm" onclick="deleteMaterial('${m.id}', this)">Hapus</button>
+                    <button class="rd-btn rd-btn-secondary rd-btn-sm" onclick="editMaterial('${m.id}')">Edit</button>
+                    <button class="rd-btn rd-btn-danger rd-btn-sm" onclick="deleteMaterial('${m.id}', this)">Hapus</button>
                 </div>
             `;
       saved.appendChild(row);
