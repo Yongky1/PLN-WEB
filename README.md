@@ -1,119 +1,64 @@
-# Frontend Web — PLN Pusdiklat
+# Frontend Web PLN (Pusdiklat LMS)
 
-Aplikasi web untuk visualisasi interaktif modul konstruksi dan peralatan jaringan listrik PLN Pusdiklat, dilengkapi dengan viewer 3D dan panel admin.
+Ini adalah repositori frontend untuk proyek Web PLN (Learning Management System). Proyek ini dibangun menggunakan Node.js, Express.js (sebagai view renderer server), EJS (View Engine), dan Tailwind CSS.
 
-> [!CAUTION]
-> **STATUS: UNDER DEVELOPMENT** — Project ini masih dalam tahap pengembangan aktif dan belum merupakan versi final.
+## Persyaratan Sistem (Prerequisites)
 
----
+Pastikan perangkat Anda telah memenuhi prasyarat berikut sebelum menjalankan aplikasi:
 
-## Tech Stack
+1. **Node.js** (Sangat diwajibkan menggunakan versi **v20.6.0** atau lebih baru)
+   - Proyek frontend ini menggunakan fitur *native* Node.js untuk membaca environment variables (`node --env-file`), sehingga memerlukan versi Node.js yang memadai (v20.6.0+).
+   - Anda dapat mengunduh Node.js dari [nodejs.org](https://nodejs.org/).
+   - Untuk memverifikasi versi, jalankan: `node -v`
+2. **Backend Server**
+   - Pastikan **Backend Web PLN** dan **Database PostgreSQL** sudah Anda setup dan sedang berjalan secara lokal di perangkat Anda (Biasanya di port 3000).
+3. **Git**
+   - Untuk mengunduh (clone) repositori.
 
-- **Runtime**: Node.js + Express.js
-- **Templating**: EJS
-- **Styling**: Tailwind CSS v4
-- **3D Viewer**: Google `<model-viewer>`
-- **Bundler**: Vite + PostCSS
+## Panduan Instalasi dan Menjalankan Proyek
 
----
+### 1. Clone Repositori
 
-## Setup dari Awal
-
-### 1. Prasyarat
-
-Pastikan sudah terinstall:
-- [Node.js](https://nodejs.org/) v18 atau lebih baru
-- Backend API sudah berjalan (lihat README di `Backend-Web-PLN`)
-
-### 2. Clone & Install
+Buka terminal Anda dan lakukan *clone* repositori frontend ini, lalu masuk ke foldernya:
 
 ```bash
-git clone <url-repo>
+git clone <URL_REPO_FRONTEND_INI>
 cd PLN-WEB
+```
+
+### 2. Instalasi Dependensi (Package)
+
+Jalankan perintah npm ini untuk menginstal semua *package* (termasuk Tailwind CSS dan library lain):
+
+```bash
 npm install
 ```
 
-### 3. Konfigurasi `.env`
+### 3. Konfigurasi Environment Variables
 
-Buat file `.env` di root folder `PLN-WEB`:
+1. Buat sebuah file baru bernama `.env` di folder utama (root) repositori `PLN-WEB`.
+2. Masukkan konfigurasi Anda. Contoh isi dari file `.env`:
+
+```env
+# Port lokal untuk menjalankan frontend server ini
+PORT=4000
+# URL menuju backend server yang sudah Anda jalankan (sesuaikan jika port backend Anda berbeda)
+BACKEND_URL=http://localhost:3000
+```
+
+### 4. Menjalankan Server Frontend
+
+Proyek ini telah dikonfigurasi menggunakan *npm-run-all* untuk menjalankan *compiler* Tailwind CSS beserta server Node.js secara bersamaan (parallel). 
+
+Untuk menjalankannya di mode *development*, ketik perintah berikut di terminal:
 
 ```bash
-cp .env.example .env
-```
-
-Isi nilai di `.env`:
-
-| Variabel | Default | Keterangan |
-|---|---|---|
-| `BACKEND_URL` | `http://localhost:4000` | URL backend API yang sedang berjalan |
-| `PORT` | `3000` | Port server frontend |
-
-Contoh isi `.env`:
-
-```
-BACKEND_URL=http://localhost:4000
-PORT=3000
-```
-
-> [!NOTE]
-> Jika backend dan frontend berjalan di mesin yang berbeda (misal akses via IP lokal), ubah `BACKEND_URL` ke alamat IP mesin backend, contoh: `http://192.168.1.10:4000`.
-
-### 4. Jalankan Server
-
-```bash
-# Mode pengembangan (server + Tailwind CSS watch berjalan paralel)
 npm run dev
-
-# Mode produksi (build CSS terlebih dahulu, lalu jalankan server)
-npm run build:css && npm start
 ```
 
-Server berjalan di `http://localhost:3000` (atau sesuai nilai `PORT` di `.env`).
-
-Saat server aktif, terminal akan menampilkan:
-- URL lokal: `http://localhost:3000`
-- URL jaringan lokal (untuk akses dari HP/device lain di jaringan yang sama)
-- URL backend yang terhubung
+Jika proses berjalan tanpa error, aplikasi web akan langsung bisa Anda akses melalui web browser favorit Anda di alamat:  
+`http://localhost:4000` (Atau menyesuaikan port yang Anda konfigurasi di dalam file `.env`).
 
 ---
 
-## Halaman yang Tersedia
-
-| URL | Keterangan | Butuh Login |
-|---|---|---|
-| `/` | Halaman utama / katalog modul | — |
-| `/login` | Halaman login admin | — |
-| `/admin` | Dashboard admin | Ya |
-| `/admin/konstruksi` | Kelola modul konstruksi | Ya |
-| `/admin/material` | Kelola material | Ya |
-| `/admin/tools` | Kelola alat K3 | Ya |
-| `/admin/users` | Kelola pengguna admin | Ya |
-
----
-
-## Struktur Folder
-
-```
-PLN-WEB/
-├── config/          # Konfigurasi server (helmet, dll)
-├── middleware/      # Auth guard, error handler
-├── public/          # Aset statis (CSS, JS client, gambar)
-│   └── js/admin/    # Script halaman admin
-├── routes/          # Routing halaman, proxy API, session
-├── src/             # Source Tailwind CSS
-├── utils/           # Cache helper
-├── views/           # Template EJS
-│   └── admin/       # Template halaman admin
-└── server.js
-```
-
----
-
-## Catatan Pengembangan
-
-- Semua request API dari halaman admin diproksikan melalui server frontend ke backend — token auth disimpan di HttpOnly cookie, tidak terekspos ke JavaScript client.
-- File CSS (`public/css/output.css`) di-generate dari `src/` oleh Tailwind CLI. Jangan edit `output.css` secara manual.
-
----
-
-Developed for **PLN Pusdiklat**.
+**Penting:** Jika beberapa fitur seperti login atau load data pada halaman gagal dijalankan (menampilkan *loading* terus atau pesan error API), pastikan sekali lagi bahwa terminal yang menjalankan **Backend Server** masih aktif dan *running* dengan koneksi database PostgreSQL yang benar.
