@@ -116,8 +116,8 @@ function buildRows(items) {
             <div style="flex:2;font-weight:600;color:var(--text-primary);">${c.name}</div>
             <div style="flex:1;color:var(--text-secondary);" class="rd-mono">${c.value}</div>
             <div style="width:130px;display:flex;gap:6px;justify-content:center;">
-                <button class="btn-warning rd-btn-sm" onclick='editCategory(${JSON.stringify(c)})'>Edit</button>
-                <button class="btn-danger rd-btn-sm" onclick="deleteCategory('${c.id}')">Hapus</button>
+                <button class="btn-soft-edit" onclick='editCategory(${JSON.stringify(c)})'>Edit</button>
+                <button class="btn-soft-delete" onclick="deleteCategory('${c.id}')">Hapus</button>
             </div>
         </div>
     `).join('');

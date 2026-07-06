@@ -1634,3 +1634,34 @@ body.rd-body {
   box-shadow: var(--shadow-lg) !important;
   color: var(--text-primary) !important;
 }
+.btn-soft-edit {
+    padding: 4px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: #d1fae5;
+    color: #10b981;
+    border: 1px solid #a7f3d0;
+    transition: all 0.2s ease;
+}
+.btn-soft-edit:hover {
+    background-color: #10b981;
+    color: white;
+}
+
+.btn-soft-delete {
+    padding: 4px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    background-color: #fef3c7;
+    color: #f59e0b;
+    border: 1px solid #fde68a;
+    transition: all 0.2s ease;
+}
+.btn-soft-delete:hover {
+    background-color: #f59e0b;
+    color: white;
+}
