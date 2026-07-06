@@ -12,14 +12,19 @@ async function loadMatCategories() {
     const res = await fetchBackend('/api/categories?type=material');
     window.matCategories = res;
 
-    const opts =
-      res.length > 0
-        ? res.map((c) => `<option value="${c.id}">${c.name}</option>`).join('')
-        : '<option value="">Belum ada kategori</option>';
-    const catSelect1 = document.getElementById('mat-modul-cat');
-    const catSelect2 = document.getElementById('edit-mat-modul-cat');
-    if (catSelect1) catSelect1.innerHTML = opts;
-    if (catSelect2) catSelect2.innerHTML = opts;
+    const checkboxHtml = res.length > 0
+      ? res.map(c => `
+        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding: 4px 0;">
+          <input type="checkbox" value="${c.id}" class="mat-cat-checkbox" style="cursor:pointer; accent-color: var(--primary);">
+          <span style="font-size:13px; color:var(--text-primary);">${c.name}</span>
+        </label>
+      `).join('')
+      : '<span style="color:var(--text-muted); font-size:13px;">Belum ada kategori</span>';
+      
+    const catContainer1 = document.getElementById('mat-modul-cat-container');
+    const catContainer2 = document.getElementById('edit-mat-modul-cat-container');
+    if (catContainer1) catContainer1.innerHTML = checkboxHtml;
+    if (catContainer2) catContainer2.innerHTML = checkboxHtml.replace(/mat-cat-checkbox/g, 'edit-mat-cat-checkbox');
 
     // Render dynamic dropdown items using data-attributes (avoids quote escaping issues)
     const ddItems = document.getElementById('mat-cat-dd-items');
@@ -53,7 +58,12 @@ async function loadMaterialSaved(categoryFilter = '') {
       window.allMaterials = await fetchBackend('/api/materials?all=true');
     }
     const materials = categoryFilter
-      ? window.allMaterials.filter((m) => (m.category_id || m.category?.id) === categoryFilter)
+      ? window.allMaterials.filter((m) => {
+          if (m.categories && m.categories.length > 0) {
+             return m.categories.some(c => c.id === categoryFilter);
+          }
+          return false;
+        })
       : window.allMaterials;
 
     saved.innerHTML = '';
@@ -66,7 +76,7 @@ async function loadMaterialSaved(categoryFilter = '') {
 
     materials.forEach((m) => {
       const variantsCount = m.assets ? m.assets.length : 0;
-      const cat = m.category?.name || '-';
+      const cat = (m.categories && m.categories.length > 0) ? m.categories.map(c => c.name).join(', ') : '-';
 
       const row = document.createElement('div');
       row.className = 'item-row';
@@ -125,9 +135,18 @@ async function editMaterial(id) {
     const counter = document.getElementById('desc-char-count');
     if (counter) counter.textContent = desc.length + '/2000';
   }
-  if (document.getElementById('edit-mat-modul-cat'))
-    document.getElementById('edit-mat-modul-cat').value =
-      m.category_id || (m.category ? m.category.id : '');
+  
+  const catContainer = document.getElementById('edit-mat-modul-cat-container');
+  if (catContainer) {
+    const checkboxes = catContainer.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+    if (m.categories && m.categories.length > 0) {
+      const selectedIds = m.categories.map(c => c.id);
+      checkboxes.forEach(cb => {
+        if (selectedIds.includes(cb.value)) cb.checked = true;
+      });
+    }
+  }
 
   const imgPreviewContainer = document.getElementById('edit-mat-modul-image-preview-container');
   const imgPreview = document.getElementById('edit-mat-modul-image-preview');
@@ -369,8 +388,14 @@ async function processMaterialSubmission(isEditing) {
   const modulDesc = document.getElementById(`${prefix}mat-modul-desc`)
     ? document.getElementById(`${prefix}mat-modul-desc`).value.trim()
     : '';
-  const catEl = document.getElementById(`${prefix}mat-modul-cat`);
-  const category = catEl ? catEl.value : 'Lainnya';
+  
+  const catContainer = document.getElementById(`${prefix}mat-modul-cat-container`);
+  const selectedCategories = [];
+  if (catContainer) {
+    const checked = catContainer.querySelectorAll('input[type="checkbox"]:checked');
+    checked.forEach(cb => selectedCategories.push(cb.value));
+  }
+
   const imageInput = document.getElementById(`${prefix}mat-modul-image`);
   const imageFile = imageInput && imageInput.files ? imageInput.files[0] : null;
 
@@ -444,7 +469,7 @@ async function processMaterialSubmission(isEditing) {
       name: modulName,
       code: modulCode,
       description: modulDesc,
-      category_id: category,
+      categories: selectedCategories,
     };
 
     if (uploadedImageUrl) {
@@ -551,8 +576,12 @@ function resetMaterialForm() {
     document.getElementById('mat-modul-code').value = '';
   if (document.getElementById('mat-modul-desc'))
     document.getElementById('mat-modul-desc').value = '';
-  if (document.getElementById('mat-modul-cat') && window.matCategories.length > 0)
-    document.getElementById('mat-modul-cat').value = window.matCategories[0].id;
+    
+  const catContainer = document.getElementById('mat-modul-cat-container');
+  if (catContainer) {
+    const checkboxes = catContainer.querySelectorAll('input[type="checkbox"]');
+    checkboxes.forEach(cb => cb.checked = false);
+  }
 
   const imgInput = document.getElementById('mat-modul-image');
   if (imgInput) {
