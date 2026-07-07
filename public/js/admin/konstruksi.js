@@ -38,7 +38,7 @@ async function loadConstructionCategories() {
     // Populate Level 1 for create
     const select1 = document.getElementById('modul-construction-level1');
     if (select1) {
-      select1.innerHTML = '<option value="">-- Pilih Level 1 --</option>';
+      select1.innerHTML = '<option value="">-- Pilih Sektor --</option>';
       res.filter(c => c.level === 1).forEach(c => {
         select1.innerHTML += `<option value="${c.id}">${c.name}</option>`;
       });
@@ -47,7 +47,7 @@ async function loadConstructionCategories() {
     // Populate Level 1 for edit
     const editSelect1 = document.getElementById('edit-modul-construction-level1');
     if (editSelect1) {
-      editSelect1.innerHTML = '<option value="">-- Pilih Level 1 --</option>';
+      editSelect1.innerHTML = '<option value="">-- Pilih Sektor --</option>';
       res.filter(c => c.level === 1).forEach(c => {
         editSelect1.innerHTML += `<option value="${c.id}">${c.name}</option>`;
       });
@@ -67,8 +67,8 @@ window.handleLevelChange = function(levelChanged, isEdit) {
     const select2 = document.getElementById(`${prefix}modul-construction-level2`);
     const select3 = document.getElementById(`${prefix}modul-construction-level3`);
     
-    if(select2) select2.innerHTML = '<option value="">-- Pilih Level 2 --</option>';
-    if(select3) select3.innerHTML = '<option value="">-- Pilih Level 3 --</option>';
+    if(select2) select2.innerHTML = '<option value="">-- Pilih Tipe --</option>';
+    if(select3) select3.innerHTML = '<option value="">-- Pilih Spesifikasi --</option>';
     if(select3) select3.disabled = true;
     
     if (level1Id) {
@@ -88,7 +88,7 @@ window.handleLevelChange = function(levelChanged, isEdit) {
     const level2Id = document.getElementById(`${prefix}modul-construction-level2`).value;
     const select3 = document.getElementById(`${prefix}modul-construction-level3`);
     
-    if(select3) select3.innerHTML = '<option value="">-- Pilih Level 3 --</option>';
+    if(select3) select3.innerHTML = '<option value="">-- Pilih Spesifikasi --</option>';
     
     if (level2Id) {
       const children = constructions.filter(c => c.parent_id === level2Id);

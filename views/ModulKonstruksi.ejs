@@ -71,21 +71,21 @@
             <!-- Category Filter -->
             <div class="mb-8 grid grid-cols-1 md:grid-cols-3 gap-4" id="v3-category-filters">
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold tracking-[0.05em] text-[var(--color-text-muted)] uppercase">Kategori Level 1</label>
+                    <label class="text-[11px] font-bold tracking-[0.05em] text-[var(--color-text-muted)] uppercase">Sektor</label>
                     <select id="pub-level1" class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-3 text-sm text-[var(--color-text-primary)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all cursor-pointer" onchange="handlePubLevelChange(1)">
                         <option value="">-- Semua Kategori --</option>
                     </select>
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold tracking-[0.05em] text-[var(--color-text-muted)] uppercase">Kategori Level 2</label>
+                    <label class="text-[11px] font-bold tracking-[0.05em] text-[var(--color-text-muted)] uppercase">Tipe</label>
                     <select id="pub-level2" disabled class="w-full bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] rounded-xl py-2.5 px-3 text-sm text-[var(--color-text-muted)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all cursor-not-allowed" onchange="handlePubLevelChange(2)">
-                        <option value="">-- Pilih Level 2 --</option>
+                        <option value="">-- Pilih Tipe --</option>
                     </select>
                 </div>
                 <div class="flex flex-col gap-1.5">
-                    <label class="text-[11px] font-bold tracking-[0.05em] text-[var(--color-text-muted)] uppercase">Kategori Level 3</label>
+                    <label class="text-[11px] font-bold tracking-[0.05em] text-[var(--color-text-muted)] uppercase">Spesifikasi</label>
                     <select id="pub-level3" disabled class="w-full bg-[var(--color-bg-surface-alt)] border border-[var(--color-border)] rounded-xl py-2.5 px-3 text-sm text-[var(--color-text-muted)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all cursor-not-allowed" onchange="handlePubLevelChange(3)">
-                        <option value="">-- Pilih Level 3 --</option>
+                        <option value="">-- Pilih Spesifikasi --</option>
                     </select>
                 </div>
             </div>
@@ -270,7 +270,8 @@
         function populatePubChild(level, parentId) {
             const s = document.getElementById('pub-level' + (level + 1));
             if (!s) return;
-            s.innerHTML = '<option value="">-- Pilih Level ' + (level + 1) + ' --</option>';
+            const labelName = (level + 1) === 2 ? 'Tipe' : ((level + 1) === 3 ? 'Spesifikasi' : 'Sektor');
+            s.innerHTML = '<option value="">-- Pilih ' + labelName + ' --</option>';
             if (!parentId) {
                 s.disabled = true;
                 s.classList.add('bg-[var(--color-bg-surface-alt)]', 'text-[var(--color-text-muted)]', 'cursor-not-allowed');

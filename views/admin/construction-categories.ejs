@@ -40,9 +40,9 @@
   <div style="display:flex; gap:6px; align-items:center;">
     <span style="font-size:12px; color:var(--text-muted); font-weight:600;">Level:</span>
     <button class="rd-filter-chip active" data-level="all"  onclick="setLevelFilter(this,'all')">Semua</button>
-    <button class="rd-filter-chip"        data-level="1"    onclick="setLevelFilter(this,1)">L1 - Root</button>
-    <button class="rd-filter-chip"        data-level="2"    onclick="setLevelFilter(this,2)">L2 - Sub</button>
-    <button class="rd-filter-chip"        data-level="3"    onclick="setLevelFilter(this,3)">L3 - Detail</button>
+    <button class="rd-filter-chip"        data-level="1"    onclick="setLevelFilter(this,1)">L1 - Sektor</button>
+    <button class="rd-filter-chip"        data-level="2"    onclick="setLevelFilter(this,2)">L2 - Tipe</button>
+    <button class="rd-filter-chip"        data-level="3"    onclick="setLevelFilter(this,3)">L3 - Spesifikasi</button>
   </div>
 </div>
 
@@ -103,7 +103,7 @@
         <label class="rd-field-label">Level <span class="req">*</span></label>
         <select id="cc-level" class="rd-select" onchange="onLevelChange()">
           <option value="1">1 - Root (Induk Utama)</option>
-          <option value="2">2 - Sub-Kategori (Level 2)</option>
+          <option value="2">2 - Sub-Tipe (Level 2)</option>
           <option value="3">3 - Detail / Spesifik (Level 3)</option>
         </select>
       </div>
