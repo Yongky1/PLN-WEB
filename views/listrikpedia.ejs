@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <%- include('partials/head') %>
+    <style>
+        .lp-hero-bg {
+            background: linear-gradient(135deg, var(--color-bg-surface) 0%, var(--color-bg-surface-alt) 100%);
+            border-bottom: 1px solid var(--color-border);
+        }
+        .term-card {
+            background: var(--color-bg-surface);
+            border: 1px solid var(--color-border);
+            border-radius: 16px;
+            padding: 24px;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .term-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--color-primary);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        .term-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0, 82, 163, 0.08);
+            border-color: var(--color-primary-light);
+        }
+        .term-card:hover::before {
+            opacity: 1;
+        }
+        .term-abbr {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--color-primary);
+            margin-bottom: 4px;
+            letter-spacing: -0.02em;
+        }
+        .term-name {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 12px;
+        }
+        .term-desc {
+            font-size: 0.95rem;
+            color: var(--color-text-primary);
+            line-height: 1.6;
+        }
+        .search-container {
+            position: relative;
+            max-w: 600px;
+            margin: 0 auto;
+        }
+        .search-input {
+            width: 100%;
+            padding: 16px 24px 16px 56px;
+            border-radius: 99px;
+            border: 1px solid var(--color-border);
+            background: var(--color-bg-main);
+            color: var(--color-text-primary);
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.02);
+        }
+        .search-input:focus {
+            outline: none;
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(0, 82, 163, 0.1);
+        }
+        .search-icon {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--color-text-muted);
+        }
+    </style>
+</head>
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+    <%- include('partials/navbar') %>
+
+    <!-- Hero Section -->
+    <div class="lp-hero-bg pt-32 pb-16 px-4 sm:px-8 text-center">
+        <div class="max-w-3xl mx-auto">
+            <span class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-[10px] font-bold tracking-[0.2em] uppercase border border-[var(--color-primary)]/20 mb-6">
+                <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
+                Kamus Interaktif
+            </span>
+            <h1 class="text-4xl md:text-6xl font-extrabold brand-font tracking-tight text-[var(--color-text-primary)] mb-6">
+                Listrik<span class="text-[var(--color-primary)]">Pedia</span>
+            </h1>
+            <p class="text-base md:text-lg text-[var(--color-text-secondary)] mb-10 max-w-2xl mx-auto leading-relaxed">
+                Ensiklopedia pintar yang berisi singkatan, istilah teknis, dan komponen standar kelistrikan PLN. Temukan maknanya di sini.
+            </p>
+            
+            <div class="search-container">
+                <svg class="search-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"></circle><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35"></path></svg>
+                <input type="text" id="lp-search" class="search-input" placeholder="Cari istilah atau singkatan (mis. SUTM, Trafo)..." autocomplete="off">
+            </div>
+        </div>
+    </div>
+
+    <main class="py-16 px-4 sm:px-8 relative min-h-[50vh]">
+        <div class="max-w-[1400px] mx-auto">
+            
+            <div class="flex items-center justify-between mb-8">
+                <h2 class="text-xl font-bold brand-font text-[var(--color-text-primary)]" id="result-count">Daftar Istilah (<span id="count-val">15</span>)</h2>
+                <div class="text-sm font-semibold text-[var(--color-text-muted)] tracking-wider uppercase">A-Z Sorted</div>
+            </div>
+
+            <!-- Grid Istilah -->
+            <div id="lp-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                <!-- Diisi via JS -->
+            </div>
+
+            <!-- No Results -->
+            <div id="lp-no-result" class="hidden flex-col items-center justify-center py-20 text-center">
+                <div class="w-20 h-20 bg-[var(--color-bg-surface-alt)] rounded-2xl flex items-center justify-center mb-4 border border-[var(--color-border)]">
+                    <svg class="w-8 h-8 text-[var(--color-text-muted)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+                <h3 class="text-lg font-bold brand-font text-[var(--color-text-primary)] mb-2">Istilah Tidak Ditemukan</h3>
+                <p class="text-[var(--color-text-secondary)] text-sm">Coba gunakan kata kunci lain atau singkatan yang lebih umum.</p>
+            </div>
+        </div>
+    </main>
+
+    <%- include('partials/footer') %>
+
+    <script>
+        const lpData = [
+            { abbr: 'APP', name: 'Alat Pengukur dan Pembatas', desc: 'Perangkat yang digunakan oleh PLN untuk mengukur pemakaian energi listrik (kWH meter) sekaligus membatasi daya yang digunakan oleh pelanggan.' },
+            { abbr: 'SUTM', name: 'Saluran Udara Tegangan Menengah', desc: 'Jaringan distribusi tenaga listrik 20 kV yang menyalurkan listrik dari Gardu Induk ke Gardu Distribusi menggunakan kabel telanjang atau berisolasi setengah di udara.' },
+            { abbr: 'SKTM', name: 'Saluran Kabel Tegangan Menengah', desc: 'Sama seperti SUTM, namun menggunakan kabel berisolasi penuh (kabel tanah) yang ditanam di bawah tanah untuk estetika dan keamanan ruang terbuka.' },
+            { abbr: 'SUTR', name: 'Saluran Udara Tegangan Rendah', desc: 'Jaringan distribusi akhir (220V/380V) yang mengalirkan listrik dari Gardu Distribusi langsung ke rumah-rumah pelanggan melalui tiang udara.' },
+            { abbr: 'SKTR', name: 'Saluran Kabel Tegangan Rendah', desc: 'Jaringan distribusi tegangan rendah yang kabel utamanya ditanam di bawah tanah, biasanya digunakan pada perumahan elit atau area perkotaan padat.' },
+            { abbr: 'Gardu Distribusi', name: 'Gardu Trafo / Gardu Induk', desc: 'Bangunan atau tiang (Gardu Portal/Cantol) yang berisi Transformator (Trafo) untuk menurunkan tegangan dari 20 kV (TM) menjadi 220V (TR) siap pakai.' },
+            { abbr: 'Trafo', name: 'Transformator', desc: 'Komponen utama kelistrikan yang berfungsi untuk menaikkan (Step-Up) atau menurunkan (Step-Down) tegangan listrik AC tanpa mengubah frekuensinya.' },
+            { abbr: 'FCO', name: 'Fused Cut Out', desc: 'Alat pengaman lebur (sekring) pada jaringan tegangan menengah yang berfungsi memutus arus apabila terjadi gangguan hubung singkat (short circuit).' },
+            { abbr: 'LBS', name: 'Load Break Switch', desc: 'Saklar pemutus beban pada jaringan 20 kV yang dapat dioperasikan (dibuka/ditutup) saat jaringan dalam keadaan berbeban.' },
+            { abbr: 'Recloser', name: 'Penutup Balik Otomatis', desc: 'Peralatan proteksi jaringan yang mendeteksi arus lebih dan dapat memutus arus sementara, lalu menyambungnya kembali secara otomatis (jika gangguan bersifat sementara).' },
+            { abbr: 'KWH Meter', name: 'Kilo Watt Hour Meter', desc: 'Alat ukur milik PLN yang dipasang di bangunan pelanggan untuk mencatat besaran pemakaian energi listrik dalam satuan kWh.' },
+            { abbr: 'NH Fuse', name: 'Pengaman Lebur TR', desc: 'Sekring tegangan rendah dengan kapasitas hantar arus tinggi yang dipasang di PHB-TR (Panel Hubung Bagi - Tegangan Rendah) pada Gardu Distribusi.' },
+            { abbr: 'Arrester', name: 'Lightning Arrester', desc: 'Alat proteksi yang dipasang di tiang jaringan atau gardu untuk mengamankan peralatan dari lonjakan tegangan ekstrem akibat sambaran petir.' },
+            { abbr: 'Tiang Beton', name: 'Tiang Listrik Beton', desc: 'Infrastruktur tiang penopang kabel distribusi yang terbuat dari konstruksi beton bertulang pratekan. Ukuran standarnya adalah 7 meter, 9 meter, 11 meter, hingga 14 meter.' },
+            { abbr: 'Isolator', name: 'Penyekat Arus', desc: 'Komponen (biasanya berbahan keramik, polimer, atau kaca) yang menahan konduktor bertegangan agar arusnya tidak bocor mengalir ke tiang penyangga.' }
+        ].sort((a, b) => a.abbr.localeCompare(b.abbr));
+
+        const grid = document.getElementById('lp-grid');
+        const searchInput = document.getElementById('lp-search');
+        const noResult = document.getElementById('lp-no-result');
+        const countVal = document.getElementById('count-val');
+
+        function renderCards(data) {
+            grid.innerHTML = '';
+            if (data.length === 0) {
+                grid.style.display = 'none';
+                noResult.style.display = 'flex';
+                countVal.textContent = '0';
+                return;
+            }
+            grid.style.display = 'grid';
+            noResult.style.display = 'none';
+            countVal.textContent = data.length;
+
+            data.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'term-card';
+                card.innerHTML = `
+                    <div class="term-abbr">${item.abbr}</div>
+                    <div class="term-name">${item.name}</div>
+                    <div class="term-desc">${item.desc}</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        searchInput.addEventListener('input', (e) => {
+            const q = e.target.value.toLowerCase();
+            const filtered = lpData.filter(item => 
+                item.abbr.toLowerCase().includes(q) || 
+                item.name.toLowerCase().includes(q) || 
+                item.desc.toLowerCase().includes(q)
+            );
+            renderCards(filtered);
+        });
+
+        // Initial render
+        renderCards(lpData);
+    </script>
+</body>
+</html>

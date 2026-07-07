@@ -15,6 +15,13 @@ router.get('/', (req, res) => {
   });
 });
 
+router.get('/listrikpedia', (req, res) => {
+  res.render('listrikpedia', {
+    title: 'ListrikPedia — Ensiklopedia Kelistrikan PLN',
+    currentPage: 'listrikpedia',
+  });
+});
+
 router.get('/tools', async (req, res) => {
   try {
     const [dbTools, categories] = await Promise.all([
