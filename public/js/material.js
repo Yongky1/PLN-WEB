@@ -78,16 +78,34 @@ window.prevMatVariant = function () {
   if (currentMatAssets.length <= 1) return;
   currentVarIdx = (currentVarIdx - 1 + currentMatAssets.length) % currentMatAssets.length;
   updateMatVariantUI();
+  const file = currentMatAssets[currentVarIdx].file;
+  const isImage = file.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || file.startsWith('data:image/');
   const mv = document.getElementById(MAT_IDS.modelViewer);
-  if (mv) mv.src = currentMatAssets[currentVarIdx].file;
+  const mv2d = document.getElementById(MAT_IDS.modelViewer + '-2d');
+  if (isImage) {
+      if (mv) mv.style.display = 'none';
+      if (mv2d) { mv2d.src = file; mv2d.style.display = 'block'; }
+  } else {
+      if (mv2d) mv2d.style.display = 'none';
+      if (mv) { mv.src = file; mv.style.display = 'block'; }
+  }
 };
 
 window.nextMatVariant = function () {
   if (currentMatAssets.length <= 1) return;
   currentVarIdx = (currentVarIdx + 1) % currentMatAssets.length;
   updateMatVariantUI();
+  const file = currentMatAssets[currentVarIdx].file;
+  const isImage = file.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || file.startsWith('data:image/');
   const mv = document.getElementById(MAT_IDS.modelViewer);
-  if (mv) mv.src = currentMatAssets[currentVarIdx].file;
+  const mv2d = document.getElementById(MAT_IDS.modelViewer + '-2d');
+  if (isImage) {
+      if (mv) mv.style.display = 'none';
+      if (mv2d) { mv2d.src = file; mv2d.style.display = 'block'; }
+  } else {
+      if (mv2d) mv2d.style.display = 'none';
+      if (mv) { mv.src = file; mv.style.display = 'block'; }
+  }
 };
 
 document.querySelectorAll('#material-grid .card-elevated[data-id]').forEach((card) => {

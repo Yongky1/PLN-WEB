@@ -37,21 +37,24 @@ function initDropZone(zone) {
     e.preventDefault();
     dragCounter = 0;
     zone.classList.remove('dragover');
-    const file = e.dataTransfer.files[0];
-    if (!file) return;
-    if (!file.name.match(/\.(glb|gltf)$/i)) {
-      showToast('Format file harus .glb atau .gltf', 'error');
-      return;
-    }
-    const input = zone.querySelector('input[type=file]');
-    const dt = new DataTransfer();
-    dt.items.add(file);
-    input.files = dt.files;
-    input._confirmedFile = file;
-    setFileSuccess(zone, file.name);
+    
+    // Jangan izinkan drop jika parent nya t-image-wrapper (ada handler sendiri)
+    if (zone.closest('.t-image-wrapper')) return;
 
-    if (typeof window.previewLocalFile === 'function') {
-      window.previewLocalFile(file);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      const file = e.dataTransfer.files[0];
+      if (!file) return;
+      if (!file.name.match(/\.(glb|gltf|png|jpe?g|webp)$/i)) {
+        showToast('Format file harus .glb, .gltf, .png, .jpg, atau .webp', 'error');
+        return;
+      }
+      const input = zone.querySelector('input[type=file]');
+      if (input) {
+        const dt = new DataTransfer();
+        dt.items.add(file);
+        input.files = dt.files;
+        handleFileSelect(input);
+      }
     }
   });
 
@@ -111,8 +114,8 @@ function handleFileSelect(input) {
   const zone = input.closest('.file-drop-zone');
   if (!input.files || !input.files[0]) return;
   const file = input.files[0];
-  if (!file.name.match(/\.(glb|gltf)$/i)) {
-    showToast('Format file harus .glb atau .gltf', 'error');
+  if (!file.name.match(/\.(glb|gltf|png|jpe?g|webp)$/i)) {
+    showToast('Format file harus .glb, .gltf, .png, .jpg, atau .webp', 'error');
     input.value = '';
     return;
   }

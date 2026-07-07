@@ -250,24 +250,83 @@ function refreshAdminPreviewSelector(assets) {
 
 window.changeAdminPreview = function () {
   const selector = document.getElementById('admin-preview-selector');
-  const viewer = document.getElementById('admin-preview-viewer');
+  const viewer3d = document.getElementById('admin-preview-viewer');
+  const viewer2d = document.getElementById('admin-preview-viewer-2d');
   const emptyState = document.getElementById('admin-preview-empty');
-  if (!selector || !viewer || !emptyState) return;
+  
+  if (!selector || (!viewer3d && !viewer2d) || !emptyState) return;
 
   if (selector.value) {
-    viewer.setAttribute('src', selector.value);
-    viewer.style.display = 'block';
+    const isImage = selector.value.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || selector.value.startsWith('data:image/');
+    
+    if (isImage) {
+      if (viewer3d) viewer3d.style.display = 'none';
+      if (viewer2d) {
+        viewer2d.src = selector.value;
+        viewer2d.style.display = 'block';
+      }
+    } else {
+      if (viewer2d) viewer2d.style.display = 'none';
+      if (viewer3d) {
+        viewer3d.setAttribute('src', selector.value);
+        viewer3d.style.display = 'block';
+        viewer3d.dismissPoster && viewer3d.dismissPoster();
+      }
+    }
     emptyState.style.display = 'none';
-    viewer.dismissPoster && viewer.dismissPoster();
   } else {
-    viewer.removeAttribute('src');
-    viewer.style.display = 'none';
+    if (viewer3d) {
+      viewer3d.removeAttribute('src');
+      viewer3d.style.display = 'none';
+    }
+    if (viewer2d) {
+      viewer2d.removeAttribute('src');
+      viewer2d.style.display = 'none';
+    }
     emptyState.style.display = 'flex';
+  }
+
+  // Toggle arrow visibility
+  const prevBtn = document.getElementById('admin-preview-prev-btn');
+  const nextBtn = document.getElementById('admin-preview-next-btn');
+  if (prevBtn && nextBtn) {
+    const validOptionsCount = Array.from(selector.options).filter(o => o.value !== '').length;
+    if (validOptionsCount > 1) {
+      prevBtn.style.display = 'flex';
+      nextBtn.style.display = 'flex';
+    } else {
+      prevBtn.style.display = 'none';
+      nextBtn.style.display = 'none';
+    }
   }
 };
 
+window.prevAdminPreview = function () {
+  const selector = document.getElementById('admin-preview-selector');
+  if (!selector) return;
+  const options = Array.from(selector.options).filter(o => o.value !== '');
+  if (options.length <= 1) return;
+  let idx = options.findIndex(o => o.value === selector.value);
+  if (idx === -1) idx = 0;
+  idx = (idx - 1 + options.length) % options.length;
+  selector.value = options[idx].value;
+  window.changeAdminPreview();
+};
+
+window.nextAdminPreview = function () {
+  const selector = document.getElementById('admin-preview-selector');
+  if (!selector) return;
+  const options = Array.from(selector.options).filter(o => o.value !== '');
+  if (options.length <= 1) return;
+  let idx = options.findIndex(o => o.value === selector.value);
+  if (idx === -1) idx = 0;
+  idx = (idx + 1) % options.length;
+  selector.value = options[idx].value;
+  window.changeAdminPreview();
+};
+
 window.previewLocalFile = function (file) {
-  if (file && (file.name.endsWith('.glb') || file.name.endsWith('.gltf'))) {
+  if (file && (file.name.match(/\.(glb|gltf|png|jpe?g|webp)$/i))) {
     window.syncAdminPreviewDropdown();
   }
 };

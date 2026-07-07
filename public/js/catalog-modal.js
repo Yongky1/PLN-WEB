@@ -47,6 +47,7 @@
 function openCatalogModal(ids, file3d, loadingMsg, populate) {
   const overlay = document.getElementById(ids.overlay);
   const modelViewer = document.getElementById(ids.modelViewer);
+  const viewer2d = document.getElementById(ids.modelViewer + '-2d');
   const emptyState = document.getElementById(ids.emptyState);
   const loadingOverlay = ids.loadingOverlay ? document.getElementById(ids.loadingOverlay) : null;
   const spinner = document.getElementById(ids.spinner);
@@ -54,41 +55,62 @@ function openCatalogModal(ids, file3d, loadingMsg, populate) {
 
   populate();
 
-  const hasGlb = file3d && file3d.trim() !== '' && file3d !== '-';
+  const hasFile = file3d && file3d.trim() !== '' && file3d !== '-';
 
-  if (hasGlb) {
+  if (hasFile) {
     emptyState.style.display = 'none';
+    
+    const isImage = file3d.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || file3d.startsWith('data:image/');
 
-    // Check if it's the exact same model URL (resolving relative to absolute for comparison)
-    const currentSrc = modelViewer.src ? new URL(modelViewer.src, window.location.origin).href : '';
-    const targetSrc = new URL(file3d, window.location.origin).href;
-
-    if (currentSrc !== targetSrc) {
-      if (loadingOverlay) loadingOverlay.style.display = 'flex';
-      if (spinner) spinner.style.display = 'flex';
-      if (loadingText) loadingText.textContent = loadingMsg;
-
-      // Use a named function to easily remove previous listeners if any
-      const onLoad = () => {
-        if (loadingOverlay) loadingOverlay.style.display = 'none';
-        modelViewer.removeEventListener('load', onLoad);
-      };
-      const onError = () => {
-        if (spinner) spinner.style.display = 'none';
-        if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
-        modelViewer.removeEventListener('error', onError);
-      };
-
-      modelViewer.addEventListener('load', onLoad);
-      modelViewer.addEventListener('error', onError);
-
-      modelViewer.src = file3d;
-    } else {
-      // Already loaded this exact model
+    if (isImage) {
+      if (modelViewer) modelViewer.style.display = 'none';
+      if (viewer2d) {
+        viewer2d.src = file3d;
+        viewer2d.style.display = 'block';
+      }
       if (loadingOverlay) loadingOverlay.style.display = 'none';
+    } else {
+      if (viewer2d) viewer2d.style.display = 'none';
+      if (modelViewer) modelViewer.style.display = 'block';
+
+      // Check if it's the exact same model URL (resolving relative to absolute for comparison)
+      const currentSrc = modelViewer.src ? new URL(modelViewer.src, window.location.origin).href : '';
+      const targetSrc = new URL(file3d, window.location.origin).href;
+  
+      if (currentSrc !== targetSrc) {
+        if (loadingOverlay) loadingOverlay.style.display = 'flex';
+        if (spinner) spinner.style.display = 'flex';
+        if (loadingText) loadingText.textContent = loadingMsg;
+  
+        // Use a named function to easily remove previous listeners if any
+        const onLoad = () => {
+          if (loadingOverlay) loadingOverlay.style.display = 'none';
+          modelViewer.removeEventListener('load', onLoad);
+        };
+        const onError = () => {
+          if (spinner) spinner.style.display = 'none';
+          if (loadingText) loadingText.textContent = 'Objek 3D tidak tersedia.';
+          modelViewer.removeEventListener('error', onError);
+        };
+  
+        modelViewer.addEventListener('load', onLoad);
+        modelViewer.addEventListener('error', onError);
+  
+        modelViewer.src = file3d;
+      } else {
+        // Already loaded this exact model
+        if (loadingOverlay) loadingOverlay.style.display = 'none';
+      }
     }
   } else {
-    modelViewer.removeAttribute('src');
+    if (modelViewer) {
+      modelViewer.removeAttribute('src');
+      modelViewer.style.display = 'none';
+    }
+    if (viewer2d) {
+      viewer2d.removeAttribute('src');
+      viewer2d.style.display = 'none';
+    }
     emptyState.style.display = 'flex';
     if (loadingOverlay) loadingOverlay.style.display = 'none';
     if (spinner) spinner.style.display = 'none';

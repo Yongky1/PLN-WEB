@@ -655,9 +655,9 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                 </div>
 
                 <div>
-                    <label class="admin-label" style="color: #1b2b4b; font-weight: 600;">File Model 3D (.glb / .gltf)</label>
+                    <label class="admin-label" style="color: #1b2b4b; font-weight: 600;">File Media (.glb / .gltf / .png / .jpg / .webp)</label>
                     <div class="file-drop-zone" style="background: #ffffff; border: 1.5px dashed #cbd5e1; border-radius: 8px;">
-                        <input type="file" class="k-file-3d" accept=".glb,.gltf"
+                        <input type="file" class="k-file-3d" accept=".glb,.gltf,.png,.jpg,.jpeg,.webp"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
                         <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.6);"
@@ -666,9 +666,9 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                                   d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
                         </svg>
                         <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.7);">
-                            Drag & drop atau klik untuk upload (Timpa file lama)
+                            Drag & drop atau klik untuk upload
                         </span>
-                        <span style="font-size:11px;color:rgba(27,43,75,0.5);">Format: .glb, .gltf (maks. 50MB)</span>
+                        <span style="font-size:11px;color:rgba(27,43,75,0.5);">Format: .glb, .gltf, .png, .jpg, .webp (maks. 50MB)</span>
                     </div>
                 </div>
                 

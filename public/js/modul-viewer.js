@@ -9,6 +9,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
 
 // ── DOM refs ──────────────────────────────────────────────────────────────────
 const canvas = document.getElementById('three-canvas');
+const viewer2d = document.getElementById('viewer-2d');
 const container = document.getElementById('viewer-container');
 const spinnerEl = document.getElementById('loading-spinner');
 const loadingTextEl = document.getElementById('loading-text');
@@ -370,8 +371,22 @@ function loadVariant(index) {
     currentModel = null;
   }
 
+  if (viewer2d) viewer2d.style.display = 'none';
+  if (canvas) canvas.style.display = 'block';
+
   if (!src) {
     setLoadingState(false, 'Belum ada file 3D yang diunggah.');
+    return;
+  }
+
+  const isImage = src.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || src.startsWith('data:image/');
+  if (isImage) {
+    if (canvas) canvas.style.display = 'none';
+    if (viewer2d) {
+      viewer2d.src = src;
+      viewer2d.style.display = 'block';
+    }
+    setLoadingState(false);
     return;
   }
 

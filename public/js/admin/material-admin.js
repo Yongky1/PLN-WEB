@@ -321,9 +321,9 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
                 </div>
 
                 <div>
-                    <label class="admin-label" style="color: #1b2b4b; font-weight: 600;">File Model 3D (.glb / .gltf)</label>
+                    <label class="admin-label" style="color: #1b2b4b; font-weight: 600;">File Media (.glb / .gltf / .png / .jpg / .webp)</label>
                     <div class="file-drop-zone" style="background: #ffffff; border: 1.5px dashed #cbd5e1; border-radius: 8px;">
-                        <input type="file" class="m-file-3d" accept=".glb,.gltf"
+                        <input type="file" class="m-file-3d" accept=".glb,.gltf,.png,.jpg,.jpeg,.webp"
                                onchange="handleFileSelect(this)"
                                style="display:none;">
                         <svg class="drop-icon" style="width:22px;height:22px;color:rgba(27,43,75,0.6);"
@@ -334,7 +334,7 @@ function createMaterialCard(index, removable, containerId = 'material-cards') {
                         <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.7);">
                             Drag & drop atau klik untuk upload
                         </span>
-                        <span style="font-size:11px;color:rgba(27,43,75,0.5);">Format: .glb, .gltf (maks. 50MB)</span>
+                        <span style="font-size:11px;color:rgba(27,43,75,0.5);">Format: .glb, .gltf, .png, .jpg, .webp (maks. 50MB)</span>
                     </div>
                 </div>
 

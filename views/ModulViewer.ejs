@@ -214,6 +214,7 @@
                     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-primary)]/5 blur-[60px] pointer-events-none"></div>
 
                     <canvas id="three-canvas" tabindex="-1"></canvas>
+                    <img id="viewer-2d" src="" style="width:100%;height:100%;object-fit:contain;display:none;position:absolute;inset:0;z-index:4;background:transparent;" />
 
                     <!-- Loading poster -->
                     <div id="poster-container" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 bg-[#FFFFFF] pointer-events-none" style="z-index:5;">
@@ -595,16 +596,34 @@
             if (currentMatAssets.length <= 1) return;
             currentVarIdx = (currentVarIdx - 1 + currentMatAssets.length) % currentMatAssets.length;
             updateMatVariantUI();
+            var file = currentMatAssets[currentVarIdx].file;
+            var isImage = file.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || file.startsWith('data:image/');
             var mv = document.getElementById(MAT_IDS.modelViewer);
-            if (mv) mv.src = currentMatAssets[currentVarIdx].file;
+            var mv2d = document.getElementById(MAT_IDS.modelViewer + '-2d');
+            if (isImage) {
+                if (mv) mv.style.display = 'none';
+                if (mv2d) { mv2d.src = file; mv2d.style.display = 'block'; }
+            } else {
+                if (mv2d) mv2d.style.display = 'none';
+                if (mv) { mv.src = file; mv.style.display = 'block'; }
+            }
         };
 
         window.nextMatVariant = function() {
             if (currentMatAssets.length <= 1) return;
             currentVarIdx = (currentVarIdx + 1) % currentMatAssets.length;
             updateMatVariantUI();
+            var file = currentMatAssets[currentVarIdx].file;
+            var isImage = file.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || file.startsWith('data:image/');
             var mv = document.getElementById(MAT_IDS.modelViewer);
-            if (mv) mv.src = currentMatAssets[currentVarIdx].file;
+            var mv2d = document.getElementById(MAT_IDS.modelViewer + '-2d');
+            if (isImage) {
+                if (mv) mv.style.display = 'none';
+                if (mv2d) { mv2d.src = file; mv2d.style.display = 'block'; }
+            } else {
+                if (mv2d) mv2d.style.display = 'none';
+                if (mv) { mv.src = file; mv.style.display = 'block'; }
+            }
         };
 
         document.querySelectorAll('.mat-card').forEach(function(card) {

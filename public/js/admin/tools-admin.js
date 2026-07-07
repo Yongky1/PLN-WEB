@@ -336,22 +336,22 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                 </div>
 
                 <div class="rd-field-group">
-                    <label class="rd-field-label">File Model 3D (.glb / .gltf)</label>
-                    <div class="file-drop-zone" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 2px dashed #cbd5e1; border-radius: 10px; background: #ffffff; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                        <input type="file" class="t-file-3d" accept=".glb,.gltf"
-                               onchange="handleFileSelect(this)"
-                               style="display:none;">
-                        <svg class="drop-icon" style="width:24px;height:24px;color:var(--text-tertiary); margin-bottom:8px;"
-                             fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
-                        </svg>
-                        <span class="drop-label" style="font-size:13px; font-weight:500; color:var(--text-secondary);">
-                            Drag & drop atau klik untuk upload (Timpa file lama)
-                        </span>
-                        <span style="font-size:11px; color:var(--text-muted); margin-top:4px;">Format: .glb, .gltf (maks. 50MB)</span>
-                    </div>
-                </div>
+                      <label class="rd-field-label">File Media (.glb / .gltf / .png / .jpg / .webp)</label>
+                      <div class="file-drop-zone" style="cursor: pointer; position: relative; overflow: hidden; padding: 20px; text-align: center; border: 2px dashed #cbd5e1; border-radius: 10px; background: #ffffff; transition: all 0.2s; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                          <input type="file" class="t-file-3d" accept=".glb,.gltf,.png,.jpg,.jpeg,.webp"
+                                 onchange="handleFileSelect(this)"
+                                 style="display:none;">
+                          <svg class="drop-icon" style="width:24px;height:24px;color:var(--text-tertiary); margin-bottom:8px;"
+                               fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                          </svg>
+                          <span class="drop-label" style="font-size:12px;color:var(--text-secondary);font-weight:500;">
+                              Drag & drop atau klik untuk upload
+                          </span>
+                          <span style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Format: .glb, .gltf, .png, .jpg, .webp (maks. 50MB)</span>
+                      </div>
+                  </div>
 
                 <!-- Internal 3D Preview (Only for Create Form, Edit Modal has separate large viewer) -->
                 ${
