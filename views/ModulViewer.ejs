@@ -530,9 +530,16 @@
                 if (!file3d && currentMatAssets.length > 0) file3d = currentMatAssets[0].file;
 
                 openCatalogModal(MAT_IDS, file3d, 'Memuat Skema Spasial...', function() {
-                    var catEl = document.getElementById('mat-modal-category');
-                    var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
-                    if (catEl) catEl.innerHTML = '<span class="w-1 h-1 rounded-full bg-[var(--color-primary)] opacity-70 animate-pulse"></span>' + catName;
+                    var tagsContainer = document.getElementById('mat-modal-tags');
+                    if (tagsContainer) {
+                        if (item.categories && item.categories.length > 0) {
+                            tagsContainer.innerHTML = item.categories.map(function(c) {
+                                return '<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-[var(--color-bg-surface-alt)] border-[var(--color-border)] text-[var(--color-text-secondary)]">' + (c.name || '-') + '</span>';
+                            }).join('');
+                        } else {
+                            tagsContainer.innerHTML = '';
+                        }
+                    }
                     var nameEl = document.getElementById('mat-modal-name');
                     if (nameEl) nameEl.textContent = item.name || '';
                     var codeEl = document.getElementById('mat-modal-code');

@@ -63,8 +63,9 @@ router.get('/material', async (req, res) => {
       id: m.id,
       name: m.name,
       code: m.code || '',
-      category: m.category?.id || 'lainnya',
-      categoryLabel: m.category?.name || 'Lainnya',
+      categories: m.categories || [],
+      category: (m.categories && m.categories.length > 0) ? m.categories[0].id : 'lainnya',
+      categoryLabel: (m.categories && m.categories.length > 0) ? m.categories.map(c => c.name).join(', ') : 'Lainnya',
       bgGradient: m.bgGradient || 'linear-gradient(135deg, #1a2030 0%, #0d1520 100%)',
       description: m.description || '',
       image: normalizeUrl(m.image),
@@ -107,7 +108,7 @@ router.get('/ModulKonstruksi', async (req, res) => {
       dbModules = [];
     }
 
-    const activeModules = dbModules.map((m) => ({
+    let activeModules = dbModules.map((m) => ({
       id: m.id,
       title: m.title,
       description: m.description,
@@ -116,6 +117,17 @@ router.get('/ModulKonstruksi', async (req, res) => {
       equipmentCount: m.equipmentCount || 0,
       assets: (m.assets || []).map((a) => ({ ...a, file: normalizeUrl(a.file) })),
     }));
+
+    // Deduplicate activeModules by title so we don't show shadow modules multiple times
+    const uniqueModules = [];
+    const seenTitles = new Set();
+    for (const m of activeModules) {
+      if (!seenTitles.has(m.title)) {
+        seenTitles.add(m.title);
+        uniqueModules.push(m);
+      }
+    }
+    activeModules = uniqueModules;
 
     res.render('ModulKonstruksi', {
       title: 'Modul Pembelajaran — PLN Pusdiklat',
@@ -155,7 +167,8 @@ router.get('/ModulKonstruksi/:id', async (req, res) => {
       assets: (moduleItem.assets || []).map((a) => ({ ...a, file: normalizeUrl(a.file) })),
       materials: (moduleItem.materials || []).map((m) => {
         if (m.material) {
-          m.material.categoryLabel = m.material.category?.name || 'Lainnya';
+          m.material.categories = m.material.categories || [];
+          m.material.categoryLabel = (m.material.categories && m.material.categories.length > 0) ? m.material.categories.map(c => c.name).join(', ') : 'Lainnya';
           m.material.category = m.material.category?.value || 'lainnya';
           m.material.image = normalizeUrl(m.material.image);
           m.material.file3d = normalizeUrl(m.material.file3d);

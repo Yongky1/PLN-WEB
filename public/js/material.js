@@ -29,8 +29,17 @@ function openModal(id) {
   const initialFile = currentMatAssets.length > 0 ? currentMatAssets[0].file : mat.file3d;
 
   openCatalogModal(MAT_IDS, initialFile, 'Memuat Skema Spasial...', () => {
-    const catEl = document.getElementById('mat-modal-category');
-    catEl.innerHTML = `<span class="w-1 h-1 rounded-full bg-[var(--color-pln-yellow)] opacity-70 animate-pulse"></span>${mat.categoryLabel || ''}`;
+    // Populate new category tags container
+    const tagsContainer = document.getElementById('mat-modal-tags');
+    if (tagsContainer) {
+      if (mat.categories && mat.categories.length > 0) {
+        tagsContainer.innerHTML = mat.categories.map(c => 
+          `<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-[var(--color-bg-surface-alt)] border-[var(--color-border)] text-[var(--color-text-secondary)]">${c.name || '-'}</span>`
+        ).join('');
+      } else {
+        tagsContainer.innerHTML = '';
+      }
+    }
     document.getElementById('mat-modal-name').textContent = mat.name || '';
     document.getElementById('mat-modal-code').textContent = mat.code || '';
 
