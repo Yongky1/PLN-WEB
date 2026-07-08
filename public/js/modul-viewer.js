@@ -259,14 +259,20 @@ function showMeshPanel(mesh) {
   const displayName = (meshDisplayNameMap[meshName] || '').trim() || meshName;
   if (meshPanelName) meshPanelName.textContent = displayName || 'Unnamed Object';
 
+  const hasAnyMaterialMapping = moduleMaterials.some(r => Array.isArray(r.meshes) ? r.meshes.length > 0 : !!r.mesh_name);
+  const hasAnyToolMapping = moduleTools.some(r => !!r.mesh_name);
+
   // Materials use many-to-many via r.meshes (array of {mesh_name})
-  const mats = moduleMaterials.filter((r) =>
+  let mats = moduleMaterials.filter((r) =>
     Array.isArray(r.meshes)
       ? r.meshes.some((m) => m.mesh_name === meshName)
       : r.mesh_name === meshName
   );
+  if (!hasAnyMaterialMapping) mats = [...moduleMaterials];
+
   // Tools use single r.mesh_name
-  const tools = moduleTools.filter((r) => r.mesh_name === meshName);
+  let tools = moduleTools.filter((r) => r.mesh_name === meshName);
+  if (!hasAnyToolMapping) tools = [...moduleTools];
 
   const panelEmpty = document.getElementById('panel-empty');
   const panelMatsSection = document.getElementById('panel-mats-section');
@@ -452,8 +458,8 @@ canvas.addEventListener('click', (e) => {
   if (currentModel) {
     currentModel.traverse((obj) => {
       if (!obj.isMesh) return;
-      // null = belum ter-fetch (izinkan semua), Set = filter hanya yang terhubung
-      if (mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
+      const hasAnyMapping = moduleMaterials.some(r => Array.isArray(r.meshes) ? r.meshes.length > 0 : !!r.mesh_name) || moduleTools.some(r => !!r.mesh_name);
+      if (!hasAnyMapping || mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
     });
   }
 
@@ -515,7 +521,8 @@ canvas.addEventListener('mousemove', (e) => {
   const meshes = [];
   currentModel.traverse((obj) => {
     if (!obj.isMesh) return;
-    if (mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
+    const hasAnyMapping = moduleMaterials.some(r => Array.isArray(r.meshes) ? r.meshes.length > 0 : !!r.mesh_name) || moduleTools.some(r => !!r.mesh_name);
+    if (!hasAnyMapping || mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
   });
 
   const hit = raycaster.intersectObjects(meshes, false)[0]?.object ?? null;
