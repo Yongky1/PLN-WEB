@@ -1,5 +1,6 @@
 @import 'tailwindcss';
-
+@source "../../views/**/*.ejs";
+@source "../../public/js/**/*.js";
 @theme {
   /* ═══ PLN JALA — Light Theme Design System ═══ */
   
