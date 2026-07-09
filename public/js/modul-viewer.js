@@ -154,6 +154,29 @@ function focusCameraOnMesh(mesh) {
   };
 }
 
+function focusCameraToCoords(camPos, targetPos, useOrbit) {
+  const fromPos = camera.position.clone();
+  const fromTarget = controls.target.clone();
+
+  _focusAnim = {
+    fromPos,
+    fromTarget,
+    toPos: new THREE.Vector3(camPos.x, camPos.y, camPos.z),
+    toTarget: new THREE.Vector3(targetPos.x, targetPos.y, targetPos.z),
+    t: 0,
+    duration: 60,
+  };
+  
+  if (useOrbit) {
+    isManuallyPaused = false;
+    controls.autoRotate = true;
+  } else {
+    isManuallyPaused = true;
+    controls.autoRotate = false;
+  }
+  if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
+}
+
 function restoreCamera() {
   if (!_savedCamPos) return;
   _focusAnim = {
@@ -409,8 +432,37 @@ function loadVariant(index) {
       scene.add(currentModel);
 
       const dist = maxDim * scale * 1.6;
-      camera.position.set(0, size.y * scale * 0.3, dist);
-      controls.target.set(0, 0, 0);
+
+      // Check for custom camera target and position
+      if (
+        asset.cam_pos_x != null || asset.cam_pos_y != null || asset.cam_pos_z != null ||
+        asset.target_x != null || asset.target_y != null || asset.target_z != null
+      ) {
+        // Use custom camera controls for this variant
+        const cx = asset.cam_pos_x != null ? asset.cam_pos_x : 0;
+        const cy = asset.cam_pos_y != null ? asset.cam_pos_y : (size.y * scale * 0.3);
+        const cz = asset.cam_pos_z != null ? asset.cam_pos_z : dist;
+        const tx = asset.target_x != null ? asset.target_x : 0;
+        const ty = asset.target_y != null ? asset.target_y : 0;
+        const tz = asset.target_z != null ? asset.target_z : 0;
+
+        camera.position.set(cx, cy, cz);
+        controls.target.set(tx, ty, tz);
+        
+        if (asset.animation === 'orbit') {
+          isManuallyPaused = false;
+          controls.autoRotate = true;
+        } else {
+          isManuallyPaused = true;
+          controls.autoRotate = false;
+        }
+        if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
+      } else {
+        // Default behavior
+        camera.position.set(0, size.y * scale * 0.3, dist);
+        controls.target.set(0, 0, 0);
+      }
+      
       controls.update();
 
       setLoadingState(false);
@@ -616,6 +668,8 @@ function init() {
     if (currentAssets.length <= 1) return;
     loadVariant((currentIndex + 1) % currentAssets.length);
   };
+
+  // DEBUG HELPER: (Dihapus sesuai permintaan user)
 
   if ('ontouchstart' in window && hintText) {
     const span = hintText.querySelector('span');

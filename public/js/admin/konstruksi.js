@@ -454,6 +454,15 @@ async function editKonstruksi(id) {
         card.dataset.oldFile = a.file;
         card.querySelector('.k-name').value = a.name;
 
+        // Populate camera settings if any
+        if (a.cam_pos_x !== null) card.querySelector('.k-cam-x').value = a.cam_pos_x;
+        if (a.cam_pos_y !== null) card.querySelector('.k-cam-y').value = a.cam_pos_y;
+        if (a.cam_pos_z !== null) card.querySelector('.k-cam-z').value = a.cam_pos_z;
+        if (a.target_x !== null) card.querySelector('.k-tar-x').value = a.target_x;
+        if (a.target_y !== null) card.querySelector('.k-tar-y').value = a.target_y;
+        if (a.target_z !== null) card.querySelector('.k-tar-z').value = a.target_z;
+        if (a.animation === 'orbit') card.querySelector('.k-anim').checked = true;
+
         if (a.file && a.file !== '-') {
           const dropLabel = card.querySelector('.drop-label');
           const fileName = decodeURIComponent(a.file.split('-3d/').pop());
@@ -686,6 +695,34 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                     : ''
                 }
 
+                <div style="background:#f1f5f9; border:1px solid #e2e8f0; border-radius:8px; padding:10px; margin-top:4px;">
+                    <div style="font-size:11px; font-weight:600; color:#475569; margin-bottom:8px;">Pengaturan Kamera (Opsional)</div>
+                    <div style="display:flex; gap:12px; flex-wrap:wrap;">
+                        <div style="flex:1; min-width:120px;">
+                            <label class="admin-label" style="color: #475569; font-weight: 600; font-size:10px;">Posisi Kamera (X, Y, Z)</label>
+                            <div style="display:flex; gap:4px;">
+                                <input type="number" step="0.01" class="admin-input k-cam-x" placeholder="X" style="background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; width:100%; font-size:11px;">
+                                <input type="number" step="0.01" class="admin-input k-cam-y" placeholder="Y" style="background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; width:100%; font-size:11px;">
+                                <input type="number" step="0.01" class="admin-input k-cam-z" placeholder="Z" style="background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; width:100%; font-size:11px;">
+                            </div>
+                        </div>
+                        <div style="flex:1; min-width:120px;">
+                            <label class="admin-label" style="color: #475569; font-weight: 600; font-size:10px;">Target/Fokus Pusat (X, Y, Z)</label>
+                            <div style="display:flex; gap:4px;">
+                                <input type="number" step="0.01" class="admin-input k-tar-x" placeholder="X" style="background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; width:100%; font-size:11px;">
+                                <div style="display:flex; flex-direction:column; gap:2px; width:100%;">
+                                   <input type="number" step="0.01" class="admin-input k-tar-y" placeholder="Y" style="background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; width:100%; font-size:11px;">
+                                </div>
+                                <input type="number" step="0.01" class="admin-input k-tar-z" placeholder="Z" style="background:#fff; border:1px solid #cbd5e1; border-radius:4px; padding:4px; width:100%; font-size:11px;">
+                            </div>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:6px; margin-top:8px;">
+                        <input type="checkbox" class="k-anim" id="kanim-${index}">
+                        <label for="kanim-${index}" style="font-size:11px; color:#475569; cursor:pointer;">Animasi Orbit (Berputar mengelilingi target)</label>
+                    </div>
+                </div>
+
             </div>
         </div>
     `;
@@ -780,7 +817,26 @@ async function processKonstruksiSubmission(isEditing) {
       if (nameEl) nameEl.style.borderColor = '#EF4444';
     } else {
       if (nameEl) nameEl.style.borderColor = '';
-      variants.push({ name, file });
+      
+      const cx = card.querySelector('.k-cam-x');
+      const cy = card.querySelector('.k-cam-y');
+      const cz = card.querySelector('.k-cam-z');
+      const tx = card.querySelector('.k-tar-x');
+      const ty = card.querySelector('.k-tar-y');
+      const tz = card.querySelector('.k-tar-z');
+      const anim = card.querySelector('.k-anim');
+
+      variants.push({ 
+        name, 
+        file,
+        cam_pos_x: cx && cx.value ? parseFloat(cx.value) : undefined,
+        cam_pos_y: cy && cy.value ? parseFloat(cy.value) : undefined,
+        cam_pos_z: cz && cz.value ? parseFloat(cz.value) : undefined,
+        target_x: tx && tx.value ? parseFloat(tx.value) : undefined,
+        target_y: ty && ty.value ? parseFloat(ty.value) : undefined,
+        target_z: tz && tz.value ? parseFloat(tz.value) : undefined,
+        animation: anim && anim.checked ? 'orbit' : 'none'
+      });
     }
   });
 
@@ -844,7 +900,17 @@ async function processKonstruksiSubmission(isEditing) {
           assetUrl = uploadRes.publicUrl;
         }
 
-        const assetEntry = { name: variant.name, file: assetUrl };
+        const assetEntry = { 
+          name: variant.name, 
+          file: assetUrl,
+          cam_pos_x: variant.cam_pos_x,
+          cam_pos_y: variant.cam_pos_y,
+          cam_pos_z: variant.cam_pos_z,
+          target_x: variant.target_x,
+          target_y: variant.target_y,
+          target_z: variant.target_z,
+          animation: variant.animation
+        };
         if (card.dataset.assetId) assetEntry.id = card.dataset.assetId;
         finalAssets.push(assetEntry);
       }
@@ -882,6 +948,13 @@ async function processKonstruksiSubmission(isEditing) {
             module_id: newModuleId,
             name: variant.name,
             file: assetUrl || '-',
+            cam_pos_x: variant.cam_pos_x,
+            cam_pos_y: variant.cam_pos_y,
+            cam_pos_z: variant.cam_pos_z,
+            target_x: variant.target_x,
+            target_y: variant.target_y,
+            target_z: variant.target_z,
+            animation: variant.animation
           }),
         });
       }
