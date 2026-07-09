@@ -453,14 +453,14 @@
                 }
 
                 function handleSearch() {
-                    let filtered = allData;
+                    let filtered = allData.filter(item => item.type === currentTab);
                     
                     if (currentTab === 'istilah') {
                         const q = searchInput.value.toLowerCase();
                         if (q) {
-                            filtered = allData.filter(item =>
+                            filtered = filtered.filter(item =>
                                 item.abbr.toLowerCase().includes(q) ||
-                                item.name.toLowerCase().includes(q) ||
+                                (item.name && item.name.toLowerCase().includes(q)) ||
                                 (item.description && item.description.toLowerCase().includes(q))
                             );
                         }
