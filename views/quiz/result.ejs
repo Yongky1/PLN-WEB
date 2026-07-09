@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    .result-container {
+      padding-top: 150px;
+      padding-bottom: 80px;
+      text-align: center;
+      background: var(--color-bg-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .result-card {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-top: 10px solid var(--color-primary);
+      border-radius: 20px;
+      padding: 50px 40px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .result-title {
+      font-size: 1.5rem;
+      color: var(--color-text-secondary);
+      margin-bottom: 10px;
+    }
+    .score-circle {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: var(--color-bg-main);
+      border: 5px solid var(--color-primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 3rem;
+      font-weight: bold;
+      color: var(--color-primary);
+      margin: 0 auto 30px;
+    }
+    .participant-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 30px;
+    }
+    .btn-home {
+      display: inline-block;
+      padding: 12px 30px;
+      background: transparent;
+      border: 2px solid var(--color-primary);
+      color: var(--color-primary);
+      font-weight: 600;
+      border-radius: 12px;
+      text-decoration: none;
+      transition: all 0.3s;
+    }
+    .btn-home:hover {
+      background: var(--color-primary);
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="result-container">
+    <div class="result-card">
+      <h2 class="result-title">Hasil Kuis Anda</h2>
+      <div class="score-circle">
+        <%= score %>
+      </div>
+      <div class="participant-name"><%= participant %></div>
+      <p style="color:var(--color-text-secondary); margin-bottom: 30px;">
+        Jawaban Anda telah berhasil direkam dalam sistem.
+      </p>
+      <a href="/quiz" class="btn-home">Kembali ke Beranda Quiz</a>
+    </div>
+  </div>
+
+</body>
+</html>

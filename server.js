@@ -57,6 +57,7 @@ app.use('/uploads', async (req, res) => {
 app.use('/', pagesRouter);
 app.use('/', proxyRouter);
 app.use('/', sessionRouter);
+app.use('/quiz', require('./routes/quiz'));
 app.use('/admin', authGuard, adminRouter);
 
 app.use(errorHandler);

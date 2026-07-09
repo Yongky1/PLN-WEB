@@ -12,6 +12,9 @@ const router = express.Router();
 const ejs = require('ejs');
 const path = require('path');
 
+const BACKEND_URL = process.env.API_URL || 'http://localhost:4000';
+const API_URL = `${BACKEND_URL}/api`;
+
 // Helper: render halaman admin dengan layout
 function renderAdmin(res, page, title, subtitle, extraData = {}, currentUser = null) {
   const viewsDir = path.join(__dirname, '..', 'views', 'admin');
@@ -205,6 +208,29 @@ router.get('/settings', (req, res) => {
     },
     req.user
   );
+});
+
+// Data Kuis
+router.get('/quiz', async (req, res) => {
+  try {
+    const response = await fetch(`${API_URL}/quiz`, {
+      headers: { Authorization: `Bearer ${req.cookies.auth_token}` }
+    });
+    if (!response.ok) throw new Error('Gagal memuat data kuis');
+    const data = await response.json();
+
+    renderAdmin(
+      res,
+      'quiz',
+      'Data Kuis',
+      'Manajemen Kuis dan Hasil Peserta',
+      { quizzes: data.quizzes, allSubmissions: data.allSubmissions },
+      req.user
+    );
+  } catch (err) {
+    console.error('[Admin] Error loading quiz page:', err);
+    res.redirect('/admin');
+  }
 });
 
 module.exports = router;

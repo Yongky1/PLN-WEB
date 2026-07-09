@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    .quiz-hero {
+      padding-top: 150px;
+      padding-bottom: 80px;
+      text-align: center;
+      background: var(--color-bg-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .quiz-card {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+    .quiz-title {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+    }
+    .quiz-input {
+      width: 100%;
+      padding: 15px 20px;
+      font-size: 1.1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      background: var(--color-bg-main);
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+      text-align: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    .quiz-btn {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .btn-primary {
+      background: var(--color-primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--color-primary);
+      color: var(--color-primary);
+      margin-top: 15px;
+    }
+    .btn-outline:hover {
+      background: var(--color-primary);
+      color: #fff;
+    }
+    .divider {
+      margin: 30px 0;
+      display: flex;
+      align-items: center;
+      color: var(--color-text-secondary);
+      font-size: 0.9rem;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--color-border);
+      margin: 0 15px;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <section class="quiz-hero">
+    <div class="quiz-card">
+      <h1 class="quiz-title">Quizzsz - JALA</h1>
+      <p style="color: var(--color-text-secondary); margin-bottom: 30px;">
+        Masukkan kode unik untuk bergabung ke dalam kuis yang sudah dibuat.
+      </p>
+
+      <form id="joinQuizForm">
+        <input type="text" id="quizCode" class="quiz-input" placeholder="KODE KUIS" required maxlength="6">
+        <button type="submit" class="quiz-btn btn-primary">Join Quiz</button>
+      </form>
+
+      <div class="divider">ATAU</div>
+
+      <a href="/quiz/create">
+        <button class="quiz-btn btn-outline">Buat Quiz Baru</button>
+      </a>
+    </div>
+  </section>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    document.getElementById('joinQuizForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const code = document.getElementById('quizCode').value.trim().toUpperCase();
+      if (code) {
+        window.location.href = `/quiz/take/${code}`;
+      }
+    });
+  </script>
+</body>
+</html>
