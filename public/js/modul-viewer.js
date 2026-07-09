@@ -234,6 +234,39 @@ function clearSelection() {
 
 function closeMeshPanel() {
   if (meshPanel) meshPanel.classList.remove('active');
+  
+  const rightPanelTitle = document.getElementById('right-panel-title');
+  const rightPanelClose = document.getElementById('right-panel-close');
+  const defaultDesc = document.getElementById('default-module-desc');
+  const dynamicContent = document.getElementById('dynamic-panel-content');
+  
+  // Revert Deskripsi Konstruksi
+  if (rightPanelTitle) rightPanelTitle.textContent = 'Deskripsi Konstruksi';
+  if (rightPanelClose) rightPanelClose.classList.add('hidden');
+  if (defaultDesc) defaultDesc.style.display = 'block';
+  if (dynamicContent) dynamicContent.style.display = 'none';
+
+  // Revert Spesifikasi Komponen
+  const specPanel = document.getElementById('spec-panel-container');
+  const specTitle = document.getElementById('spec-panel-title');
+  const defaultSpec = document.getElementById('default-spec-content');
+  const dynamicSpec = document.getElementById('dynamic-spec-content');
+
+  if (specPanel) {
+    specPanel.style.background = 'linear-gradient(135deg, #0052A3, #003D7A)';
+    specPanel.style.color = '#fff';
+    specPanel.style.border = '1px solid rgba(255,255,255,0.3)';
+  }
+  if (specTitle) {
+    specTitle.textContent = 'Spesifikasi Komponen';
+    specTitle.classList.remove('text-[var(--color-primary)]');
+    specTitle.classList.add('text-white');
+  }
+  if (defaultSpec) defaultSpec.classList.remove('hidden');
+  if (dynamicSpec) {
+    dynamicSpec.classList.add('hidden');
+    dynamicSpec.innerHTML = '';
+  }
 }
 
 // ── Panel card builders ───────────────────────────────────────────────────────
@@ -274,55 +307,149 @@ function buildToolCard(row) {
     </div>`;
 }
 
-// ── Panel rendering ───────────────────────────────────────────────────────────
 function showMeshPanel(mesh) {
-  if (!meshPanel) return;
-
   const meshName = mesh.name || '';
   const displayName = (meshDisplayNameMap[meshName] || '').trim() || meshName;
-  if (meshPanelName) meshPanelName.textContent = displayName || 'Unnamed Object';
+  
+  // Elements for Deskripsi Konstruksi (we keep it unchanged)
+  // But we can show a close button if needed.
+  const rightPanelClose = document.getElementById('right-panel-close');
+  if (rightPanelClose) rightPanelClose.classList.remove('hidden');
 
-  // Materials use many-to-many via r.meshes (array of {mesh_name})
-  const mats = moduleMaterials.filter((r) =>
+  // Elements for Spesifikasi Komponen
+  const specPanel = document.getElementById('spec-panel-container');
+  const specTitle = document.getElementById('spec-panel-title');
+  const defaultSpec = document.getElementById('default-spec-content');
+  const dynamicSpec = document.getElementById('dynamic-spec-content');
+  
+  if (!specPanel || !dynamicSpec) return;
+  
+  specPanel.style.background = '#ffffff';
+  specPanel.style.color = '#1f2937';
+  specPanel.style.border = '1px solid #e5e7eb';
+  
+  if (defaultSpec) defaultSpec.classList.add('hidden');
+  dynamicSpec.classList.remove('hidden');
+
+  const hasAnyMaterialMapping = moduleMaterials.some(r => Array.isArray(r.meshes) ? r.meshes.length > 0 : !!r.mesh_name);
+  const hasAnyToolMapping = moduleTools.some(r => !!r.mesh_name);
+
+  let mats = moduleMaterials.filter((r) =>
     Array.isArray(r.meshes)
       ? r.meshes.some((m) => m.mesh_name === meshName)
       : r.mesh_name === meshName
   );
-  // Tools use single r.mesh_name
-  const tools = moduleTools.filter((r) => r.mesh_name === meshName);
+  if (!hasAnyMaterialMapping) mats = [...moduleMaterials];
 
-  const panelEmpty = document.getElementById('panel-empty');
-  const panelMatsSection = document.getElementById('panel-mats-section');
-  const panelToolsSection = document.getElementById('panel-tools-section');
-  const panelMaterials = document.getElementById('panel-materials');
-  const panelTools = document.getElementById('panel-tools');
+  let tools = moduleTools.filter((r) => r.mesh_name === meshName);
+  if (!hasAnyToolMapping) tools = [...moduleTools];
 
-  const hasData = mats.length > 0 || tools.length > 0;
-  if (panelEmpty) panelEmpty.style.display = hasData ? 'none' : 'flex';
-  if (panelMatsSection) panelMatsSection.style.display = mats.length > 0 ? 'block' : 'none';
-  if (panelToolsSection) panelToolsSection.style.display = tools.length > 0 ? 'block' : 'none';
+  const isTiang = meshName.toLowerCase().includes('tiang');
 
-  if (panelMaterials) {
-    panelMaterials.innerHTML = mats.map(buildMatCard).join('');
-    panelMaterials.querySelectorAll('.panel-item-card').forEach((card) => {
-      card.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (window.openModal) window.openModal(card.dataset.itemId, card.dataset.itemType);
-      });
-    });
+  // Determine a friendly title
+  let finalDisplayName = displayName;
+  if (finalDisplayName === meshName) {
+    if (isTiang) {
+      finalDisplayName = 'Tiang Listrik';
+    } else if (hasAnyMaterialMapping && mats.length > 0 && mats[0].material) {
+      finalDisplayName = mats[0].material.name;
+    } else if (hasAnyToolMapping && tools.length > 0 && tools[0].tool) {
+      finalDisplayName = tools[0].tool.name;
+    } else {
+      finalDisplayName = 'Komponen Konstruksi';
+    }
   }
 
-  if (panelTools) {
-    panelTools.innerHTML = tools.map(buildToolCard).join('');
-    panelTools.querySelectorAll('.panel-item-card').forEach((card) => {
-      card.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (window.openModal) window.openModal(card.dataset.itemId, card.dataset.itemType);
-      });
-    });
+  if (specTitle) {
+    specTitle.textContent = finalDisplayName;
+    specTitle.classList.remove('text-white');
+    specTitle.classList.add('text-[var(--color-primary)]');
   }
 
-  meshPanel.classList.add('active');
+  let bomHtml = '';
+
+  if (isTiang) {
+    const tiangBom = [
+      { name: 'Klem ikat tiang tipe 1/2', spec: 'Jika sudah ada klem ikat tiang material ini tidak dibutuhkan', sat: 'pcs', jml: 1 },
+      { name: 'Bolt & nut 400 full helix', spec: 'Jika menggunakan tipe 1 maka jumlahnya jadi 2', sat: 'pcs', jml: 3 },
+      { name: 'Klem ikat tiang tipe 2', spec: '', sat: 'pcs', jml: 1 },
+      { name: 'Klem kabel', spec: '', sat: 'pcs', jml: 2 },
+      { name: 'Konektor press', spec: '', sat: 'pcs', jml: 2 },
+      { name: 'Konduktor LVTC 2x10mm', spec: 'Panjang 30m', sat: 'm', jml: 30 },
+      { name: 'Strain hook', spec: '', sat: 'pcs', jml: 1 },
+      { name: 'Mur + fisher', spec: '', sat: 'set', jml: 1 },
+      { name: 'Kabel ties', spec: '', sat: 'pcs', jml: 4 },
+      { name: 'Klem omega', spec: '', sat: 'set', jml: 1 },
+      { name: 'KWH meter', spec: '', sat: 'pcs', jml: 1 },
+      { name: 'MCB', spec: '', sat: 'pcs', jml: 1 }
+    ];
+    bomHtml = tiangBom.map((m, i) => `
+      <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors">
+        <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${i + 1}</td>
+        <td class="py-3 px-4">
+          <div class="font-bold text-gray-800 text-sm">${m.name}</div>
+          ${m.spec ? `<div class="text-[11px] text-gray-500 mt-0.5">${m.spec}</div>` : ''}
+        </td>
+        <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">${m.sat}</td>
+        <td class="py-3 px-4 text-center text-sm font-bold text-[var(--color-primary)]">${m.jml}</td>
+      </tr>
+    `).join('');
+  } else {
+    let counter = 1;
+    bomHtml += mats.map(mRow => {
+      const m = mRow.material || {};
+      const qty = mRow.quantity || 1;
+      return `
+        <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${m.id}', 'material')">
+          <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${counter++}</td>
+          <td class="py-3 px-4">
+            <div class="font-bold text-gray-800 text-sm hover:text-[var(--color-primary)] transition-colors">${m.name || '-'}</div>
+            <div class="text-[11px] text-gray-400 mt-0.5">Klik untuk melihat detail katalog</div>
+          </td>
+          <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">pcs</td>
+          <td class="py-3 px-4 text-center text-sm font-bold text-[var(--color-primary)]">${qty}</td>
+        </tr>
+      `;
+    }).join('');
+    bomHtml += tools.map(tRow => {
+      const t = tRow.tool || {};
+      return `
+        <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${t.id}', 'tool')">
+          <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${counter++}</td>
+          <td class="py-3 px-4">
+            <div class="font-bold text-gray-800 text-sm hover:text-[var(--color-primary)] transition-colors">${t.name || '-'}</div>
+            <div class="text-[11px] text-gray-400 mt-0.5">Klik untuk melihat detail katalog</div>
+          </td>
+          <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">-</td>
+          <td class="py-3 px-4 text-center text-sm font-bold text-[var(--color-primary)]">1</td>
+        </tr>
+      `;
+    }).join('');
+
+    if (mats.length === 0 && tools.length === 0) {
+      bomHtml = `<tr><td colspan="4" class="py-8 text-center text-sm text-gray-400">Belum ada material yang dipetakan untuk komponen ini.</td></tr>`;
+    }
+  }
+
+  const tableHtml = `
+    <div class="overflow-hidden rounded-xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+      <table class="w-full text-left border-collapse">
+        <thead class="sticky top-0 bg-[#f4f7fb] z-10 border-b border-gray-200">
+          <tr class="text-[#2b4c7e] text-[11px] font-bold uppercase tracking-[0.1em]">
+            <th class="py-3 px-4 text-center w-12">No</th>
+            <th class="py-3 px-4">Nama Material</th>
+            <th class="py-3 px-4 text-center w-16">Sat</th>
+            <th class="py-3 px-4 text-center w-16">Jml</th>
+          </tr>
+        </thead>
+        <tbody class="text-sm text-gray-700 bg-white">
+          ${bomHtml}
+        </tbody>
+      </table>
+    </div>
+  `;
+
+  dynamicSpec.innerHTML = tableHtml;
 }
 
 // ── Mapped meshes + display names ─────────────────────────────────────────────
@@ -504,8 +631,8 @@ canvas.addEventListener('click', (e) => {
   if (currentModel) {
     currentModel.traverse((obj) => {
       if (!obj.isMesh) return;
-      // null = belum ter-fetch (izinkan semua), Set = filter hanya yang terhubung
-      if (mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
+      const hasAnyMapping = moduleMaterials.some(r => Array.isArray(r.meshes) ? r.meshes.length > 0 : !!r.mesh_name) || moduleTools.some(r => !!r.mesh_name);
+      if (!hasAnyMapping || mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
     });
   }
 
@@ -567,7 +694,8 @@ canvas.addEventListener('mousemove', (e) => {
   const meshes = [];
   currentModel.traverse((obj) => {
     if (!obj.isMesh) return;
-    if (mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
+    const hasAnyMapping = moduleMaterials.some(r => Array.isArray(r.meshes) ? r.meshes.length > 0 : !!r.mesh_name) || moduleTools.some(r => !!r.mesh_name);
+    if (!hasAnyMapping || mappedMeshSet === null || mappedMeshSet.has(obj.name)) meshes.push(obj);
   });
 
   const hit = raycaster.intersectObjects(meshes, false)[0]?.object ?? null;
@@ -603,6 +731,23 @@ if (meshPanelClose) {
     updateRotateButtonState();
   });
 }
+
+const compModal = document.getElementById('comp-detail-modal');
+const compBox = document.getElementById('comp-detail-box');
+const compClose = document.getElementById('comp-detail-close');
+const compOverlay = document.getElementById('comp-detail-overlay');
+
+function handleCompClose(e) {
+  if (e) e.stopPropagation();
+  clearSelection();
+  closeMeshPanel();
+  controls.autoRotate = !isManuallyPaused;
+  updateRotateButtonState();
+}
+
+if (compClose) compClose.addEventListener('click', handleCompClose);
+if (compOverlay) compOverlay.addEventListener('click', handleCompClose);
+if (compBox) compBox.addEventListener('click', (e) => e.stopPropagation());
 
 function updateRotateButtonState() {
   if (!iconPause || !iconPlay) return;

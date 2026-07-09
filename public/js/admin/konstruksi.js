@@ -335,7 +335,8 @@ async function loadKonstruksiSaved(search = '', status = '') {
                 <div style="width:90px; text-align:center; font-size:13px; font-weight:600; color:var(--text-primary);">
                     ${eqCount}
                 </div>
-                <div style="width:160px; display:flex; gap:6px; justify-content:center;">
+                <div style="width:230px; display:flex; gap:6px; justify-content:center;">
+                    <a href="/admin/konstruksi/${m.id}/mapping" class="btn-soft-edit" style="background:rgba(16,185,129,0.1); color:#10B981; border-color:rgba(16,185,129,0.2); text-decoration:none;">Pemetaan Mesh</a>
                     <button class="btn-soft-edit" onclick="editKonstruksi('${m.id}')">Edit</button>
                     <button class="btn-soft-delete" onclick="deleteKonstruksi('${m.id}', this)">Hapus</button>
                 </div>

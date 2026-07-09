@@ -1,0 +1,259 @@
+<!-- views/admin/listrikpedia.ejs -->
+<style>
+.rd-data-card .item-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 16px 20px;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+    background: #fff;
+    transition: background 0.2s;
+}
+.rd-data-card .item-row:hover {
+    background: #f8fafc;
+}
+.rd-data-card .item-row:last-child {
+    border-bottom: none;
+}
+.rd-table-head {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 16px 20px;
+}
+</style>
+<div class="rd-page-head">
+    <div class="rd-page-title-block">
+        <span class="rd-page-eyebrow">Manajemen Sistem</span>
+        <h1 class="rd-page-title">ListrikPedia</h1>
+        <p class="rd-page-subtitle">Kelola daftar singkatan dan istilah kelistrikan.</p>
+    </div>
+    <div class="rd-page-actions" style="display:flex; gap:12px;">
+        <button class="rd-btn rd-btn-primary" onclick="openTermModal('singkatan')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Singkatan
+        </button>
+        <button class="rd-btn rd-btn-secondary" onclick="openTermModal('istilah')">
+            <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Tambah Istilah
+        </button>
+    </div>
+</div>
+
+<div class="rd-toolbar">
+    <div class="rd-search">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" id="term-search" placeholder="Cari istilah atau singkatan..." oninput="renderTerms()" />
+    </div>
+</div>
+
+<div class="rd-section-label" style="margin-top:16px;">
+    Singkatan Kelistrikan
+</div>
+<div class="rd-data-card">
+    <div class="rd-table-head">
+        <div style="flex:1;">Singkatan</div>
+        <div style="flex:2;">Nama Kepanjangan</div>
+        <div style="flex:3;">Deskripsi</div>
+        <div style="width:130px;text-align:center;">Aksi</div>
+    </div>
+    <div id="singkatan-list"></div>
+</div>
+
+<div class="rd-section-label" style="margin-top:32px;">
+    Istilah Umum
+</div>
+<div class="rd-data-card">
+    <div class="rd-table-head">
+        <div style="flex:1;">Istilah</div>
+        <div style="flex:2;">-</div>
+        <div style="flex:3;">Deskripsi</div>
+        <div style="width:130px;text-align:center;">Aksi</div>
+    </div>
+    <div id="istilah-list"></div>
+</div>
+
+<!-- Modal -->
+<div id="term-modal" class="rd-modal-overlay" onclick="if(event.target===this)closeTermModal()">
+    <div class="rd-modal" style="max-width:600px;">
+        <div class="rd-modal-header">
+            <div class="rd-modal-title-block">
+                <div class="rd-modal-eyebrow">ListrikPedia</div>
+                <h2 class="rd-modal-title" id="term-modal-title">Tambah Data</h2>
+            </div>
+            <button class="rd-modal-close" onclick="closeTermModal()">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+        </div>
+        <div class="rd-modal-body">
+            <input type="hidden" id="term-id">
+            <input type="hidden" id="term-type-hidden">
+            
+            <div class="rd-field-group">
+                <label class="rd-field-label">Tipe Data <span class="req">*</span></label>
+                <select id="term-type" class="rd-select" disabled>
+                    <option value="singkatan">Singkatan</option>
+                    <option value="istilah">Istilah</option>
+                </select>
+            </div>
+
+            <div class="rd-field-group">
+                <label class="rd-field-label" id="label-abbr">Singkatan / Istilah <span class="req">*</span></label>
+                <input type="text" id="term-abbr" class="rd-input" placeholder="Contoh: SUTM / Energi" />
+            </div>
+            <div class="rd-field-group" id="group-name">
+                <label class="rd-field-label">Nama Kepanjangan</label>
+                <input type="text" id="term-name" class="rd-input" placeholder="Contoh: Saluran Udara Tegangan Menengah" />
+            </div>
+            <div class="rd-field-group">
+                <label class="rd-field-label">Deskripsi</label>
+                <textarea id="term-desc" class="rd-input" rows="4" placeholder="Masukkan penjelasan teknis..."></textarea>
+            </div>
+        </div>
+        <div class="rd-modal-footer">
+            <div class="rd-footer-meta"></div>
+            <div class="rd-footer-actions">
+                <button class="rd-btn rd-btn-ghost" onclick="closeTermModal()">Batal</button>
+                <button class="rd-btn rd-btn-primary" onclick="saveTerm()">Simpan Data</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let allTerms = [];
+
+function buildSkeleton(rows = 5) {
+    return Array.from({ length: rows }, () => `
+        <div class="rd-skeleton-row">
+            <div class="sk" style="flex:1;max-width:100px;"></div>
+            <div class="sk" style="flex:2;max-width:200px;"></div>
+            <div class="sk" style="flex:3;"></div>
+            <div class="sk" style="width:90px;margin-left:auto;"></div>
+        </div>
+    `).join('');
+}
+
+async function loadTerms() {
+    const sk = buildSkeleton(3);
+    document.getElementById('singkatan-list').innerHTML = sk;
+    document.getElementById('istilah-list').innerHTML = sk;
+    try {
+        allTerms = await fetchBackend('/api/listrikpedia');
+        renderTerms();
+    } catch (err) {
+        const errMsg = `<div style="padding:20px;text-align:center;color:#EF4444;">Gagal memuat: ${err.message}</div>`;
+        document.getElementById('singkatan-list').innerHTML = errMsg;
+        document.getElementById('istilah-list').innerHTML = errMsg;
+    }
+}
+
+function buildRows(items, type) {
+    if (items.length === 0) return `<div style="padding:20px;text-align:center;color:var(--text-muted);">Belum ada ${type}.</div>`;
+    return items.map(c => `
+        <div class="item-row">
+            <div style="flex:1;font-weight:700;color:var(--color-primary);">${c.abbr}</div>
+            <div style="flex:2;font-weight:600;color:var(--text-primary);">${c.name === c.abbr || !c.name ? '-' : c.name}</div>
+            <div style="flex:3;color:var(--text-secondary);font-size:0.9rem;">${c.description || '-'}</div>
+            <div style="width:130px;display:flex;gap:6px;justify-content:center;">
+                <button class="btn-soft-edit" onclick='editTerm(${JSON.stringify(c).replace(/'/g, "&#39;")})'>Edit</button>
+                <button class="btn-soft-delete" onclick="deleteTerm('${c.id}')">Hapus</button>
+            </div>
+        </div>
+    `).join('');
+}
+
+function renderTerms() {
+    const q = (document.getElementById('term-search')?.value || '').toLowerCase();
+    const filtered = (q ? allTerms.filter(c => 
+        c.abbr.toLowerCase().includes(q) || 
+        c.name.toLowerCase().includes(q) || 
+        (c.description && c.description.toLowerCase().includes(q))
+    ) : allTerms)
+    .slice().sort((a, b) => a.abbr.localeCompare(b.abbr, 'id'));
+    
+    document.getElementById('singkatan-list').innerHTML = buildRows(filtered.filter(c => c.type === 'singkatan'), 'singkatan');
+    document.getElementById('istilah-list').innerHTML = buildRows(filtered.filter(c => c.type === 'istilah'), 'istilah');
+}
+
+function openTermModal(type = 'singkatan') {
+    document.getElementById('term-id').value = '';
+    document.getElementById('term-abbr').value = '';
+    document.getElementById('term-name').value = '';
+    document.getElementById('term-desc').value = '';
+    document.getElementById('term-type-hidden').value = type;
+    document.getElementById('term-type').value = type;
+    
+    document.getElementById('term-modal-title').textContent = type === 'singkatan' ? 'Tambah Singkatan' : 'Tambah Istilah';
+    document.getElementById('label-abbr').innerHTML = type === 'singkatan' ? 'Singkatan <span class="req">*</span>' : 'Istilah <span class="req">*</span>';
+    document.getElementById('group-name').style.display = type === 'istilah' ? 'none' : 'block';
+
+    document.getElementById('term-modal').classList.add('active');
+}
+
+function closeTermModal() {
+    document.getElementById('term-modal').classList.remove('active');
+}
+
+function editTerm(term) {
+    document.getElementById('term-id').value = term.id;
+    document.getElementById('term-abbr').value = term.abbr;
+    document.getElementById('term-name').value = term.name || '';
+    document.getElementById('term-desc').value = term.description || '';
+    document.getElementById('term-type-hidden').value = term.type;
+    document.getElementById('term-type').value = term.type;
+    
+    document.getElementById('term-modal-title').textContent = term.type === 'singkatan' ? 'Edit Singkatan' : 'Edit Istilah';
+    document.getElementById('label-abbr').innerHTML = term.type === 'singkatan' ? 'Singkatan <span class="req">*</span>' : 'Istilah <span class="req">*</span>';
+    document.getElementById('group-name').style.display = term.type === 'istilah' ? 'none' : 'block';
+
+    document.getElementById('term-modal').classList.add('active');
+}
+
+async function saveTerm() {
+    const id = document.getElementById('term-id').value;
+    const abbr = document.getElementById('term-abbr').value.trim();
+    let name = document.getElementById('term-name').value.trim();
+    const desc = document.getElementById('term-desc').value.trim();
+    const type = document.getElementById('term-type-hidden').value;
+
+    if (type === 'istilah') name = abbr; // Auto fill name with abbr for istilah
+
+    if (!abbr || (type === 'singkatan' && !name)) {
+        return alert(type === 'singkatan' ? 'Kolom Singkatan dan Nama Kepanjangan harus diisi!' : 'Kolom Istilah harus diisi!');
+    }
+
+    const btn = event.currentTarget;
+    const originalText = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Menyimpan...';
+
+    try {
+        const method = id ? 'PUT' : 'POST';
+        const url = id ? '/api/listrikpedia/' + id : '/api/listrikpedia';
+        await fetchBackend(url, {
+            method,
+            body: JSON.stringify({ abbr, name, description: desc, type })
+        });
+        closeTermModal();
+        await loadTerms();
+    } catch (err) {
+        alert('Gagal menyimpan: ' + err.message);
+    } finally {
+        btn.disabled = false;
+        btn.textContent = originalText;
+    }
+}
+
+async function deleteTerm(id) {
+    if (!confirm('Yakin ingin menghapus data ini?')) return;
+    try {
+        await fetchBackend('/api/listrikpedia/' + id, { method: 'DELETE' });
+        await loadTerms();
+    } catch (err) {
+        alert('Gagal menghapus: ' + err.message);
+    }
+}
+
+document.addEventListener('DOMContentLoaded', loadTerms);
+</script>

@@ -152,6 +152,18 @@ router.get('/tools', (req, res) => {
   );
 });
 
+// Manajemen ListrikPedia
+router.get('/listrikpedia', (req, res) => {
+  renderAdmin(
+    res,
+    'listrikpedia',
+    'ListrikPedia',
+    'Kelola singkatan dan istilah kelistrikan',
+    {},
+    req.user
+  );
+});
+
 // Manajemen Kategori
 router.get('/categories', (req, res) => {
   renderAdmin(

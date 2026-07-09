@@ -37,7 +37,7 @@ app.use(
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 app.use('/uploads', async (req, res) => {
   try {
-    const targetUrl = `${BACKEND_URL}/uploads${req.path}`;
+    const targetUrl = `${BACKEND_URL}${req.originalUrl}`;
     const response = await fetch(targetUrl);
     if (!response.ok) return res.status(response.status).end();
     const contentType = response.headers.get('content-type') || 'application/octet-stream';
