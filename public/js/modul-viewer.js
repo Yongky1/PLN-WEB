@@ -509,7 +509,16 @@ function loadVariant(index) {
   if (typeof updateRotateButtonState === 'function') updateRotateButtonState();
 
   const asset = currentAssets[index];
-  const src = asset.file || '';
+  let src = asset.file || '';
+  if (src === '-') src = '';
+
+  // Jika varian ini tidak memiliki file, gunakan file dari varian pertama yang memiliki file
+  if (!src) {
+    const firstValidAsset = currentAssets.find(a => a.file && a.file !== '-');
+    if (firstValidAsset) {
+      src = firstValidAsset.file;
+    }
+  }
 
   if (variantNameEl) {
     variantNameEl.textContent = `Varian ${index + 1}/${currentAssets.length} : ${asset.name}`;
