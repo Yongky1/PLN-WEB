@@ -523,6 +523,8 @@ function loadVariant(index) {
 
   if (viewer2d) viewer2d.style.display = 'none';
   if (canvas) canvas.style.display = 'block';
+  if (hintText) hintText.style.opacity = '0';
+  if (toggleRotateBtn) toggleRotateBtn.style.display = 'none';
 
   if (!src) {
     setLoadingState(false, 'Belum ada file 3D yang diunggah.');
@@ -594,6 +596,7 @@ function loadVariant(index) {
 
       setLoadingState(false);
       if (hintText) hintText.style.opacity = '0.7';
+      if (toggleRotateBtn) toggleRotateBtn.style.display = 'flex';
     },
     undefined,
     () => {

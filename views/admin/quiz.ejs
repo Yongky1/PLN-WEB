@@ -1,76 +1,127 @@
-<div class="rd-page-header">
-  <h2 class="rd-page-title"><%= title %></h2>
+<div class="rd-page-head">
+  <div class="rd-page-title-block">
+    <span class="rd-page-eyebrow">Manajemen Modul</span>
+    <h1 class="rd-page-title">Data Kuis</h1>
+    <p class="rd-page-subtitle">Manajemen Kuis dan Hasil Peserta</p>
+  </div>
 </div>
 
-<!-- TABS -->
-<div class="rd-tabs" style="margin-bottom: 20px; display: flex; gap: 15px;">
-  <button class="rd-btn" id="tab-created" onclick="switchTab('created')" style="border-bottom: 3px solid var(--color-primary);">Kuis yang Dibuat</button>
-  <button class="rd-btn btn-outline" id="tab-taken" onclick="switchTab('taken')" style="border: none; background: transparent; color: var(--color-text-secondary);">Kuis yang Dikerjakan</button>
-</div>
-
-<!-- KUIS YANG DIBUAT (TAB 1) -->
-<div class="rd-card" id="view-created">
+<!-- BAGIAN 1: KUIS YANG DIBUAT -->
+<div class="rd-card" style="margin-bottom: 30px;">
   <div class="rd-card-header">
-    <h3 class="rd-card-title">Daftar Kuis yang Dibuat</h3>
+    <h3 class="rd-card-title">1. Kuis yang Telah Dibuat</h3>
+  </div>
+  <div class="rd-card-body">
+    <% if (quizzes && quizzes.length > 0) { %>
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        <% quizzes.forEach((quiz, index) => { %>
+          <div style="border: 1px solid var(--color-border); border-radius: 12px; padding: 20px; background: var(--color-bg-main);">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px;">
+              <div>
+                <h4 style="margin: 0; font-size: 1.2rem; color: var(--color-primary);"><%= index + 1 %>. <%= quiz.title %></h4>
+                <p style="margin: 5px 0 0 0; color: var(--color-text-secondary); font-size: 0.9rem;">
+                  Dibuat pada: <%= new Date(quiz.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+                </p>
+              </div>
+              <div style="text-align: right;">
+                <span style="font-size: 0.9rem; color: var(--color-text-secondary); display: block; margin-bottom: 5px;">Kode Unik Kuis:</span>
+                <span style="letter-spacing: 3px; font-weight: bold; font-size: 1.1rem; background: var(--color-bg-surface); padding: 5px 10px; border-radius: 6px; border: 1px solid var(--color-border);">
+                  <%= quiz.code %>
+                </span>
+              </div>
+            </div>
+
+            <!-- Detail Soal dan Kunci Jawaban -->
+            <details style="margin-bottom: 10px; background: var(--color-bg-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+              <summary style="padding: 15px; font-weight: 600; cursor: pointer; outline: none;">
+                Lihat Soal & Kunci Jawaban (<%= quiz.questions ? quiz.questions.length : 0 %> Soal)
+              </summary>
+              <div style="padding: 0 15px 15px 15px; border-top: 1px solid var(--color-border);">
+                <% if (quiz.questions && quiz.questions.length > 0) { %>
+                  <% quiz.questions.forEach((q, qIdx) => { %>
+                    <div style="margin-top: 15px; padding: 15px; background: var(--color-bg-main); border-radius: 8px;">
+                      <div style="font-weight: 600; margin-bottom: 10px;"><%= qIdx + 1 %>. <%= q.text %> <span style="font-size: 0.85em; font-weight: normal; color: var(--color-text-secondary);">(Tipe: <%= q.type %>)</span></div>
+                      <ul style="list-style: none; padding-left: 0; margin: 0;">
+                        <% if (q.options && q.options.length > 0) { %>
+                          <% q.options.forEach(opt => { %>
+                            <li style="margin-bottom: 5px; <%= opt.is_correct ? 'font-weight: bold; color: var(--color-success);' : 'color: var(--color-text-secondary);' %>">
+                              <%= opt.is_correct ? '✅' : '❌' %> <%= opt.text %>
+                            </li>
+                          <% }) %>
+                        <% } else { %>
+                          <li style="color: var(--color-text-secondary); font-style: italic;">Jawaban berupa teks (Essay bebas)</li>
+                        <% } %>
+                      </ul>
+                    </div>
+                  <% }) %>
+                <% } else { %>
+                  <p style="color: var(--color-text-secondary); margin-top: 15px;">Belum ada soal pada kuis ini.</p>
+                <% } %>
+              </div>
+            </details>
+
+            <!-- Detail Peserta dan Nilai -->
+            <details style="background: var(--color-bg-surface); border: 1px solid var(--color-border); border-radius: 8px;">
+              <summary style="padding: 15px; font-weight: 600; cursor: pointer; outline: none;">
+                Lihat Peserta & Nilai Kuis (<%= quiz.submissions ? quiz.submissions.length : 0 %> Peserta)
+              </summary>
+              <div style="padding: 0 15px 15px 15px; border-top: 1px solid var(--color-border);">
+                <% if (quiz.submissions && quiz.submissions.length > 0) { %>
+                  <div class="table-responsive" style="margin-top: 15px;">
+                    <table class="rd-table">
+                      <thead>
+                        <tr>
+                          <th>No</th>
+                          <th>Nama Peserta</th>
+                          <th>Nilai</th>
+                          <th>Waktu Mengerjakan</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <% quiz.submissions.forEach((sub, sIdx) => { %>
+                          <% 
+                            let scoreColor = 'var(--color-error)';
+                            if (sub.score >= 80) scoreColor = 'var(--color-success)';
+                            else if (sub.score >= 50) scoreColor = 'var(--color-warning)';
+                          %>
+                          <tr>
+                            <td><%= sIdx + 1 %></td>
+                            <td><strong><%= sub.participant_name %></strong></td>
+                            <td><strong style="color: <%= scoreColor %>"><%= Math.round(sub.score) %></strong> / 100</td>
+                            <td><%= new Date(sub.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
+                          </tr>
+                        <% }) %>
+                      </tbody>
+                    </table>
+                  </div>
+                <% } else { %>
+                  <p style="color: var(--color-text-secondary); margin-top: 15px;">Belum ada peserta yang mengerjakan kuis ini.</p>
+                <% } %>
+              </div>
+            </details>
+
+          </div>
+        <% }) %>
+      </div>
+    <% } else { %>
+      <div style="text-align: center; color: var(--color-text-secondary); padding: 40px;">
+        Belum ada kuis yang dibuat.
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<!-- BAGIAN 2: KUIS YANG PERNAH DIKERJAKAN -->
+<div class="rd-card">
+  <div class="rd-card-header">
+    <h3 class="rd-card-title">2. Kuis yang Pernah Dikerjakan Beserta Nilainya</h3>
   </div>
   <div class="rd-card-body p-0">
     <div class="table-responsive">
       <table class="rd-table">
         <thead>
           <tr>
-            <th>Judul Kuis</th>
-            <th>Kode</th>
-            <th>Jumlah Soal</th>
-            <th>Peserta</th>
-            <th>Dibuat Pada</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (quizzes && quizzes.length > 0) { %>
-            <% quizzes.forEach(quiz => { %>
-              <tr>
-                <td><strong><%= quiz.title %></strong></td>
-                <td><span style="letter-spacing: 2px; background: var(--color-bg-surface-alt); padding: 4px 8px; border-radius: 6px;"><%= quiz.code %></span></td>
-                <td><%= quiz._count.questions %></td>
-                <td><%= quiz._count.submissions %></td>
-                <td><%= new Date(quiz.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
-                <td>
-                  <button class="rd-btn rd-btn-sm" style="margin-right: 5px;" onclick="showQuizDetails('<%= quiz.id %>')">
-                    Lihat Detail Kuis
-                  </button>
-                  <button class="rd-btn rd-btn-sm" style="background: var(--color-success);" onclick="showSubmissions('<%= quiz.id %>')">
-                    Lihat Hasil Nilai
-                  </button>
-                  <script>
-                    window['quiz_<%= quiz.id %>'] = <%- JSON.stringify(quiz.submissions) %>;
-                    window['quiz_title_<%= quiz.id %>'] = "<%= quiz.title %>";
-                    window['quiz_data_<%= quiz.id %>'] = <%- JSON.stringify(quiz) %>;
-                  </script>
-                </td>
-              </tr>
-            <% }) %>
-          <% } else { %>
-            <tr>
-              <td colspan="6" style="text-align: center; color: var(--color-text-secondary); padding: 40px;">Belum ada kuis yang dibuat.</td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- KUIS YANG DIKERJAKAN (TAB 2) -->
-<div class="rd-card" id="view-taken" style="display: none;">
-  <div class="rd-card-header">
-    <h3 class="rd-card-title">Daftar Kuis yang Pernah Dikerjakan (Semua Peserta)</h3>
-  </div>
-  <div class="rd-card-body p-0">
-    <div class="table-responsive">
-      <table class="rd-table">
-        <thead>
-          <tr>
+            <th>No</th>
             <th>Nama Peserta</th>
             <th>Judul Kuis (Kode)</th>
             <th>Nilai Akhir</th>
@@ -79,22 +130,28 @@
         </thead>
         <tbody>
           <% if (allSubmissions && allSubmissions.length > 0) { %>
-            <% allSubmissions.forEach(sub => { %>
+            <% allSubmissions.forEach((sub, idx) => { %>
               <% 
                 let scoreColor = 'var(--color-error)';
                 if (sub.score >= 80) scoreColor = 'var(--color-success)';
                 else if (sub.score >= 50) scoreColor = 'var(--color-warning)';
               %>
               <tr>
+                <td><%= idx + 1 %></td>
                 <td><strong><%= sub.participant_name %></strong></td>
-                <td><%= sub.quiz.title %> <span style="color: var(--color-text-secondary); font-size: 0.9em;">(<%= sub.quiz.code %>)</span></td>
+                <td>
+                  <%= sub.quiz.title %> 
+                  <span style="color: var(--color-text-secondary); font-size: 0.9em; background: var(--color-bg-surface-alt); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--color-border); margin-left: 5px;">
+                    <%= sub.quiz.code %>
+                  </span>
+                </td>
                 <td><strong style="color: <%= scoreColor %>"><%= Math.round(sub.score) %></strong> / 100</td>
                 <td><%= new Date(sub.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
               </tr>
             <% }) %>
           <% } else { %>
             <tr>
-              <td colspan="4" style="text-align: center; color: var(--color-text-secondary); padding: 40px;">Belum ada peserta yang mengerjakan kuis apapun.</td>
+              <td colspan="5" style="text-align: center; color: var(--color-text-secondary); padding: 40px;">Belum ada peserta yang mengerjakan kuis apapun.</td>
             </tr>
           <% } %>
         </tbody>
@@ -103,137 +160,20 @@
   </div>
 </div>
 
-<!-- Modal Lihat Hasil Nilai (Per Quiz) -->
-<div class="rd-modal" id="submissionsModal">
-  <div class="rd-modal-content" style="max-width: 600px;">
-    <div class="rd-modal-header">
-      <h3 class="rd-modal-title" id="modalQuizTitle">Hasil Kuis</h3>
-      <button class="rd-modal-close" onclick="closeModal('submissionsModal')">×</button>
-    </div>
-    <div class="rd-modal-body">
-      <div class="table-responsive">
-        <table class="rd-table" id="submissionsTable">
-          <thead>
-            <tr>
-              <th>Nama Peserta</th>
-              <th>Nilai</th>
-              <th>Waktu Submit</th>
-            </tr>
-          </thead>
-          <tbody id="submissionsBody">
-            <!-- Injected via JS -->
-          </tbody>
-        </table>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Detail Kuis (Soal & Jawaban) -->
-<div class="rd-modal" id="detailsModal">
-  <div class="rd-modal-content" style="max-width: 700px;">
-    <div class="rd-modal-header">
-      <h3 class="rd-modal-title" id="detailQuizTitle">Detail Kuis</h3>
-      <button class="rd-modal-close" onclick="closeModal('detailsModal')">×</button>
-    </div>
-    <div class="rd-modal-body" id="detailsBody" style="max-height: 60vh; overflow-y: auto;">
-      <!-- Injected via JS -->
-    </div>
-  </div>
-</div>
-
-<script>
-  function switchTab(tab) {
-    if (tab === 'created') {
-      document.getElementById('view-created').style.display = 'block';
-      document.getElementById('view-taken').style.display = 'none';
-      document.getElementById('tab-created').style = 'border-bottom: 3px solid var(--color-primary);';
-      document.getElementById('tab-created').classList.remove('btn-outline');
-      document.getElementById('tab-taken').style = 'border: none; background: transparent; color: var(--color-text-secondary);';
-      document.getElementById('tab-taken').classList.add('btn-outline');
-    } else {
-      document.getElementById('view-created').style.display = 'none';
-      document.getElementById('view-taken').style.display = 'block';
-      document.getElementById('tab-taken').style = 'border-bottom: 3px solid var(--color-primary);';
-      document.getElementById('tab-taken').classList.remove('btn-outline');
-      document.getElementById('tab-created').style = 'border: none; background: transparent; color: var(--color-text-secondary);';
-      document.getElementById('tab-created').classList.add('btn-outline');
-    }
+<style>
+  details > summary {
+    list-style: none;
   }
-
-  function showSubmissions(quizId) {
-    const submissions = window[`quiz_${quizId}`];
-    const title = window[`quiz_title_${quizId}`];
-    
-    document.getElementById('modalQuizTitle').textContent = `Hasil Kuis: ${title}`;
-    const tbody = document.getElementById('submissionsBody');
-    tbody.innerHTML = '';
-
-    if (submissions && submissions.length > 0) {
-      submissions.forEach(sub => {
-        const tr = document.createElement('tr');
-        const date = new Date(sub.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
-        let scoreColor = 'var(--color-error)';
-        if (sub.score >= 80) scoreColor = 'var(--color-success)';
-        else if (sub.score >= 50) scoreColor = 'var(--color-warning)';
-
-        tr.innerHTML = `
-          <td>${sub.participant_name}</td>
-          <td><strong style="color: ${scoreColor}">${Math.round(sub.score)}</strong> / 100</td>
-          <td><small style="color: var(--color-text-secondary)">${date}</small></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    } else {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--color-text-secondary); padding: 20px;">Belum ada peserta yang mengerjakan kuis ini.</td></tr>`;
-    }
-
-    document.getElementById('submissionsModal').classList.add('active');
+  details > summary::-webkit-details-marker {
+    display: none;
   }
-
-  function showQuizDetails(quizId) {
-    const quiz = window[`quiz_data_${quizId}`];
-    
-    document.getElementById('detailQuizTitle').textContent = `Soal & Kunci Jawaban: ${quiz.title}`;
-    const body = document.getElementById('detailsBody');
-    
-    let html = `
-      <div style="margin-bottom: 20px; padding: 15px; background: var(--color-bg-surface-alt); border-radius: 8px;">
-        <strong>Kode Akses Kuis:</strong> <span style="font-family: monospace; font-size: 1.2em; background: #fff; padding: 2px 8px; border-radius: 4px; margin-left: 10px;">${quiz.code}</span>
-      </div>
-    `;
-
-    if (quiz.questions && quiz.questions.length > 0) {
-      quiz.questions.forEach((q, idx) => {
-        html += `
-          <div style="border: 1px solid var(--color-border); padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-            <div style="font-weight: 600; margin-bottom: 10px;">${idx + 1}. ${q.text} <span style="color: var(--color-text-secondary); font-weight: normal; font-size: 0.9em;">(${q.type})</span></div>
-            <ul style="list-style: none; padding-left: 0; margin: 0;">
-        `;
-        
-        if (q.options && q.options.length > 0) {
-          q.options.forEach(opt => {
-            const isCorrect = opt.is_correct;
-            const icon = isCorrect ? '<span style="color: var(--color-success);">✅</span>' : '<span style="color: var(--color-error);">❌</span>';
-            const style = isCorrect ? 'font-weight: 600; color: var(--color-success);' : 'color: var(--color-text-secondary);';
-            html += `<li style="margin-bottom: 5px; ${style}">${icon} ${opt.text}</li>`;
-          });
-        } else {
-          html += `<li style="color: var(--color-text-secondary); font-style: italic;">Tidak ada opsi (Essay bebas)</li>`;
-        }
-
-        html += `</ul></div>`;
-      });
-    } else {
-      html += `<p style="color: var(--color-text-secondary);">Kuis ini belum memiliki soal.</p>`;
-    }
-
-    body.innerHTML = html;
-    document.getElementById('detailsModal').classList.add('active');
+  details > summary::after {
+    content: '▼';
+    float: right;
+    font-size: 0.8em;
+    transition: transform 0.3s;
   }
-
-  function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
+  details[open] > summary::after {
+    transform: rotate(180deg);
   }
-</script>
+</style>
