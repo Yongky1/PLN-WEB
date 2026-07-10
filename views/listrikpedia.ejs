@@ -103,11 +103,19 @@
                 background: var(--color-bg-surface-alt);
                 padding: 6px;
                 border-radius: 99px;
-                margin-bottom: 48px;
                 border: 1px solid var(--color-border);
-                position: relative;
-                left: 50%;
-                transform: translateX(-50%);
+                box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+                backdrop-filter: blur(8px);
+            }
+
+            #lp-tabs-wrap {
+                transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+            }
+
+            #lp-tabs-wrap.is-hidden {
+                transform: translateY(-80px);
+                opacity: 0;
+                pointer-events: none;
             }
 
             .lp-tab-btn {
@@ -211,7 +219,7 @@
                         </path>
                     </svg>
                     <input type="text" id="lp-search" class="search-input"
-                        placeholder="Cari istilah atau singkatan (mis. SUTM, Trafo)..." autocomplete="off">
+                        placeholder="Cari istilah atau singkatan" autocomplete="off">
                 </div>
             </div>
         </div>
@@ -219,9 +227,11 @@
         <main class="py-16 px-4 sm:px-8 relative min-h-[50vh]">
             <div class="max-w-[1400px] mx-auto">
 
-                <div class="lp-tabs">
-                    <button class="lp-tab-btn active" id="tab-singkatan">Singkatan</button>
-                    <button class="lp-tab-btn" id="tab-istilah">Daftar Istilah</button>
+                <div id="lp-tabs-wrap" class="sticky top-24 z-40 flex justify-center mb-12 pointer-events-none">
+                    <div class="lp-tabs pointer-events-auto">
+                        <button class="lp-tab-btn active" id="tab-singkatan">Singkatan</button>
+                        <button class="lp-tab-btn" id="tab-istilah">Daftar Istilah</button>
+                    </div>
                 </div>
 
                 <div id="istilah-header" class="flex items-center justify-between mb-8" style="display: none;">
@@ -348,8 +358,11 @@
                     const grouped = {};
                     filteredData.forEach(item => {
                         const firstLetter = item.abbr.charAt(0).toUpperCase();
-                        if (!grouped[firstLetter]) grouped[firstLetter] = [];
-                        grouped[firstLetter].push(item);
+                        if (!grouped[firstLetter]) grouped[firstLetter] = {};
+                        
+                        const upperAbbr = item.abbr.toUpperCase();
+                        if (!grouped[firstLetter][upperAbbr]) grouped[firstLetter][upperAbbr] = [];
+                        grouped[firstLetter][upperAbbr].push(item);
                     });
 
                     const letters = Object.keys(grouped).sort();
@@ -366,28 +379,55 @@
                         const gridDiv = document.createElement('div');
                         gridDiv.className = 'flex flex-col gap-4';
 
-                        grouped[letter].forEach(item => {
-                            let descText = item.description || '';
-                            let sourceHtml = '';
-                            const sourceMatch = descText.match(/\[(.*?)\]\s*$/);
-                            if (sourceMatch) {
-                                sourceHtml = `<div class="mt-auto pt-2 text-right text-[13px] italic text-[var(--color-text-secondary)] opacity-80 border-t border-[var(--color-border)] mt-2">${sourceMatch[1]}</div>`;
-                                descText = descText.replace(/\[.*?\]\s*$/, '').trim();
-                            }
+                        const abbrKeys = Object.keys(grouped[letter]).sort();
+                        abbrKeys.forEach(abbrKey => {
+                            const items = grouped[letter][abbrKey];
+                            const mainAbbr = items[0].abbr; // Preserve original casing
 
                             const itemDiv = document.createElement('div');
                             itemDiv.className = 'term-card flex flex-col h-full';
                             
-                            let html = `
-                                <div class="term-abbr hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.abbr}</div>
-                                <div class="term-name hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.name}</div>
-                            `;
-                            if (descText && descText !== '') {
-                                html += `<div class="term-desc" style="flex-grow:1;">${descText}</div>`;
+                            let html = `<div class="term-abbr hover:text-[var(--color-primary)] transition-colors cursor-pointer">${mainAbbr}</div>`;
+                            
+                            if (items.length > 1) {
+                                html += `<ul class="mt-2 space-y-2">`;
+                                items.forEach(item => {
+                                    let descText = item.description || '';
+                                    let sourceHtml = '';
+                                    const sourceMatch = descText.match(/\[(.*?)\]\s*$/);
+                                    if (sourceMatch) {
+                                        sourceHtml = `<div class="pb-2 mb-2 text-right text-[12px] italic text-[var(--color-text-secondary)] opacity-80 border-b border-[rgba(0,0,0,0.3)]">${sourceMatch[1]}</div>`;
+                                        descText = descText.replace(/\[.*?\]\s*$/, '').trim();
+                                    }
+                                    html += `<li class="mb-3">
+                                        <div class="block">
+                                            <span class="term-name text-sm inline hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.name}</span>
+                                            ${descText ? `<span class="term-desc text-sm inline ml-1 text-[var(--color-text-muted)]">- ${descText}</span>` : ''}
+                                        </div>
+                                        ${sourceHtml}
+                                    </li>`;
+                                });
+                                html += `</ul>`;
+                            } else {
+                                const item = items[0];
+                                let descText = item.description || '';
+                                let sourceHtml = '';
+                                const sourceMatch = descText.match(/\[(.*?)\]\s*$/);
+                                if (sourceMatch) {
+                                    sourceHtml = `<div class="mt-auto pb-2 mb-2 text-right text-[13px] italic text-[var(--color-text-secondary)] opacity-80 border-b border-[rgba(0,0,0,0.3)]">${sourceMatch[1]}</div>`;
+                                    descText = descText.replace(/\[.*?\]\s*$/, '').trim();
+                                }
+                                if (item.name.toLowerCase() !== mainAbbr.toLowerCase()) {
+                                    html += `<div class="term-name hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.name}</div>`;
+                                }
+                                if (descText && descText !== '') {
+                                    html += `<div class="term-desc" style="flex-grow:1;">${descText}</div>`;
+                                }
+                                if (sourceHtml) {
+                                    html += sourceHtml;
+                                }
                             }
-                            if (sourceHtml) {
-                                html += sourceHtml;
-                            }
+                            
                             itemDiv.innerHTML = html;
                             gridDiv.appendChild(itemDiv);
                         });
@@ -400,34 +440,118 @@
 
                 function renderIstilah(data) {
                     lpGrid.innerHTML = '';
-                    if (data.length === 0) {
-                        lpGrid.style.display = 'none';
+                    
+                    // Generate alphabet buttons
+                    const alphabets = ['ALL', ...Array.from({length: 26}, (_, i) => String.fromCharCode(65 + i))];
+                    let alphaHtml = '<div class="flex flex-wrap gap-2 justify-center mb-10 mt-4">';
+                    alphabets.forEach(letter => {
+                        const isActive = activeFilterLetter === letter ? 'bg-[var(--color-primary)] text-white shadow-md' : 'bg-white text-[var(--color-text-secondary)] border border-[var(--color-border)] hover:border-[var(--color-primary)] hover:text-[var(--color-primary)]';
+                        alphaHtml += `<button onclick="setAlphaFilter('${letter}')" class="w-10 h-10 rounded-xl flex items-center justify-center text-sm font-bold transition-all ${isActive}">${letter}</button>`;
+                    });
+                    alphaHtml += '</div>';
+
+                    let filteredData = data;
+                    if (activeFilterLetter !== 'ALL') {
+                        filteredData = data.filter(item => item.abbr.charAt(0).toUpperCase() === activeFilterLetter);
+                    }
+
+                    if (filteredData.length === 0) {
+                        lpGrid.innerHTML = alphaHtml + '<div class="text-center py-20 text-[var(--color-text-muted)] font-medium">Tidak ada istilah yang ditemukan.</div>';
+                        lpGrid.style.display = 'block';
                         istilahHeader.style.display = 'none';
                         return false;
                     }
+
                     lpGrid.className = 'flex flex-col gap-4 mt-6';
-                    lpGrid.style.display = 'flex';
-                    istilahHeader.style.display = 'flex';
-                    countVal.textContent = data.length;
+                    lpGrid.style.display = 'block';
+                    istilahHeader.style.display = 'none';
 
-                    data.forEach(item => {
-                        let descText = item.description || '';
-                        let sourceHtml = '';
-                        const sourceMatch = descText.match(/\[(.*?)\]\s*$/);
-                        if (sourceMatch) {
-                            sourceHtml = `<div class="mt-auto pt-2 text-right text-[13px] italic text-[var(--color-text-secondary)] opacity-80 border-t border-[var(--color-border)] mt-2">${sourceMatch[1]}</div>`;
-                            descText = descText.replace(/\[.*?\]\s*$/, '').trim();
-                        }
+                    const headerHtml = `
+                    <div class="flex items-center justify-between mb-4">
+                        <h2 class="text-xl font-bold brand-font text-[var(--color-text-primary)]">Daftar Istilah (<span>${filteredData.length}</span>)</h2>
+                    </div>`;
+                    
+                    lpGrid.insertAdjacentHTML('beforeend', headerHtml + alphaHtml);
 
-                        const card = document.createElement('div');
-                        card.className = 'term-card flex flex-col h-full';
-                        card.innerHTML = `
-                    <div class="term-abbr hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.abbr}</div>
-                    <div class="term-name hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.name}</div>
-                    <div class="term-desc" style="flex-grow:1;">${descText}</div>
-                    ${sourceHtml}
-                `;
-                        lpGrid.appendChild(card);
+                    const grouped = {};
+                    filteredData.forEach(item => {
+                        const firstLetter = item.abbr.charAt(0).toUpperCase();
+                        if (!grouped[firstLetter]) grouped[firstLetter] = {};
+                        
+                        const upperAbbr = item.abbr.toUpperCase();
+                        if (!grouped[firstLetter][upperAbbr]) grouped[firstLetter][upperAbbr] = [];
+                        grouped[firstLetter][upperAbbr].push(item);
+                    });
+
+                    const letters = Object.keys(grouped).sort();
+
+                    letters.forEach(letter => {
+                        const groupDiv = document.createElement('div');
+                        groupDiv.className = 'singkatan-group mb-12';
+                        
+                        const letterTitle = document.createElement('div');
+                        letterTitle.className = 'text-3xl font-extrabold text-[var(--color-primary)] mb-6 border-b-2 border-[var(--color-primary)]/10 pb-3 pl-2';
+                        letterTitle.textContent = letter;
+                        groupDiv.appendChild(letterTitle);
+
+                        const gridDiv = document.createElement('div');
+                        gridDiv.className = 'flex flex-col gap-4';
+
+                        const abbrKeys = Object.keys(grouped[letter]).sort();
+                        abbrKeys.forEach(abbrKey => {
+                            const items = grouped[letter][abbrKey];
+                            const mainAbbr = items[0].abbr; // Preserve original casing
+
+                            const itemDiv = document.createElement('div');
+                            itemDiv.className = 'term-card flex flex-col h-full';
+                            
+                            let html = `<div class="term-abbr hover:text-[var(--color-primary)] transition-colors cursor-pointer">${mainAbbr}</div>`;
+                            
+                            if (items.length > 1) {
+                                html += `<ul class="mt-2 space-y-2">`;
+                                items.forEach(item => {
+                                    let descText = item.description || '';
+                                    let sourceHtml = '';
+                                    const sourceMatch = descText.match(/\[(.*?)\]\s*$/);
+                                    if (sourceMatch) {
+                                        sourceHtml = `<div class="pb-2 mb-2 text-right text-[12px] italic text-[var(--color-text-secondary)] opacity-80 border-b border-[rgba(0,0,0,0.3)]">${sourceMatch[1]}</div>`;
+                                        descText = descText.replace(/\[.*?\]\s*$/, '').trim();
+                                    }
+                                    html += `<li class="mb-3">
+                                        <div class="block">
+                                            <span class="term-name text-sm inline hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.name}</span>
+                                            ${descText ? `<span class="term-desc text-sm inline ml-1 text-[var(--color-text-muted)]">- ${descText}</span>` : ''}
+                                        </div>
+                                        ${sourceHtml}
+                                    </li>`;
+                                });
+                                html += `</ul>`;
+                            } else {
+                                const item = items[0];
+                                let descText = item.description || '';
+                                let sourceHtml = '';
+                                const sourceMatch = descText.match(/\[(.*?)\]\s*$/);
+                                if (sourceMatch) {
+                                    sourceHtml = `<div class="mt-auto pb-2 mb-2 text-right text-[13px] italic text-[var(--color-text-secondary)] opacity-80 border-b border-[rgba(0,0,0,0.3)]">${sourceMatch[1]}</div>`;
+                                    descText = descText.replace(/\[.*?\]\s*$/, '').trim();
+                                }
+                                if (item.name.toLowerCase() !== mainAbbr.toLowerCase()) {
+                                    html += `<div class="term-name hover:text-[var(--color-primary)] transition-colors cursor-pointer">${item.name}</div>`;
+                                }
+                                if (descText && descText !== '') {
+                                    html += `<div class="term-desc" style="flex-grow:1;">${descText}</div>`;
+                                }
+                                if (sourceHtml) {
+                                    html += sourceHtml;
+                                }
+                            }
+                            
+                            itemDiv.innerHTML = html;
+                            gridDiv.appendChild(itemDiv);
+                        });
+
+                        groupDiv.appendChild(gridDiv);
+                        lpGrid.appendChild(groupDiv);
                     });
                     return true;
                 }
@@ -437,7 +561,7 @@
                     if (currentTab === 'singkatan') {
                         lpGrid.style.display = 'none';
                         istilahHeader.style.display = 'none';
-                        searchContainer.style.display = 'none';
+                        searchContainer.style.display = 'block'; // Make search visible for Singkatan
                         hasData = renderSingkatan(data);
                     } else {
                         lpSingkatan.style.display = 'none';
@@ -453,7 +577,13 @@
                 }
 
                 function handleSearch() {
-                    let filtered = allData.filter(item => item.type === currentTab);
+                    const isAbbr = (abbr) => abbr === abbr.toUpperCase() && abbr.length <= 5 && !abbr.includes(' ');
+                    let filtered = allData.filter(item => {
+                        const itemType = isAbbr(item.abbr) ? 'singkatan' : 'istilah';
+                        // override specific cases
+                        if (['KWH Meter', 'NH Fuse'].includes(item.abbr)) return 'istilah' === currentTab;
+                        return itemType === currentTab;
+                    });
                     
                     if (currentTab === 'istilah') {
                         const q = searchInput.value.toLowerCase();
@@ -490,7 +620,22 @@
 
                 // Initial render
                 fetchListrikPedia();
+
+                // Sticky Tab Hide/Show Logic
+                const tabWrap = document.getElementById('lp-tabs-wrap');
+                let lastScroll = window.scrollY;
+                
+                window.addEventListener('scroll', () => {
+                    const currentScroll = window.scrollY;
+                    if (currentScroll <= 150) {
+                        tabWrap.classList.remove('is-hidden');
+                    } else if (currentScroll > lastScroll && currentScroll > 200) {
+                        tabWrap.classList.add('is-hidden');
+                    } else if (currentScroll < lastScroll) {
+                        tabWrap.classList.remove('is-hidden');
+                    }
+                    lastScroll = currentScroll;
+                }, { passive: true });
             </script>
 </body>
-
 </html>

@@ -128,11 +128,27 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
     return;
   }
   const selectedMap = {};
+  const selectedOrder = [];
   if (selected && selected.length) {
+    // Gunakan urutan asli (sequence) dari DB karena array `selected` sudah di-sort di backend
     selected.forEach((s) => {
-      selectedMap[s.material_id || (s.material && s.material.id)] = s.quantity || 1;
+      const id = s.material_id || (s.material && s.material.id);
+      selectedMap[id] = s.quantity || 1;
+      selectedOrder.push(id);
     });
   }
+
+  // Urutkan: Terpilih (sesuai urutan array) > Tidak terpilih (abjad)
+  filtered.sort((a, b) => {
+    const aSelected = selectedMap[a.id] !== undefined;
+    const bSelected = selectedMap[b.id] !== undefined;
+    if (aSelected && bSelected) {
+      return selectedOrder.indexOf(a.id) - selectedOrder.indexOf(b.id);
+    }
+    if (aSelected) return -1;
+    if (bSelected) return 1;
+    return a.name.localeCompare(b.name, 'id');
+  });
   el.innerHTML = filtered
     .map((m) => {
       const mid = m.id;
@@ -157,6 +173,17 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
         </div>`;
     })
     .join('');
+
+  if (typeof Sortable !== 'undefined') {
+    Sortable.create(el, {
+      animation: 150,
+      easing: "cubic-bezier(1, 0, 0, 1)",
+      ghostClass: "sortable-ghost",
+      onEnd: function (evt) {
+        // Biarkan DOM mengatur checkbox secara visual
+      }
+    });
+  }
 }
 
 window.toggleMatItem = function (el, mid) {
@@ -208,9 +235,27 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
     return;
   }
   const selectedIds = new Set();
+  const selectedOrder = [];
   if (selected && selected.length) {
-    selected.forEach((s) => selectedIds.add(s.tool_id || (s.tool && s.tool.id)));
+    selected.forEach((s) => {
+      const id = s.tool_id || (s.tool && s.tool.id);
+      selectedIds.add(id);
+      selectedOrder.push(id);
+    });
   }
+
+  // Urutkan: Terpilih (sesuai urutan array) > Tidak terpilih (abjad)
+  filtered.sort((a, b) => {
+    const aSelected = selectedIds.has(a.id);
+    const bSelected = selectedIds.has(b.id);
+    if (aSelected && bSelected) {
+      return selectedOrder.indexOf(a.id) - selectedOrder.indexOf(b.id);
+    }
+    if (aSelected) return -1;
+    if (bSelected) return 1;
+    return a.name.localeCompare(b.name, 'id');
+  });
+
   el.innerHTML = filtered
     .map((t) => {
       const tid = t.id;
@@ -229,6 +274,14 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
         </div>`;
     })
     .join('');
+
+  if (typeof Sortable !== 'undefined') {
+    Sortable.create(el, {
+      animation: 150,
+      easing: "cubic-bezier(1, 0, 0, 1)",
+      ghostClass: "sortable-ghost"
+    });
+  }
 }
 
 window.toggleToolItem = function (el, tid) {
@@ -1042,7 +1095,7 @@ document.addEventListener('DOMContentLoaded', () => {
       renderMaterialList(
         'modul-materials-list',
         window._allMaterialsGlobal,
-        [],
+        collectSelectedMaterials('modul-materials-list'),
         false,
         e.target.value
       );
@@ -1053,7 +1106,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const searchTool = document.getElementById('search-select-tools');
   if (searchTool) {
     searchTool.addEventListener('input', (e) => {
-      renderToolList('modul-tools-list', window._allToolsGlobal, [], false, e.target.value);
+      renderToolList('modul-tools-list', window._allToolsGlobal, collectSelectedTools('modul-tools-list'), false, e.target.value);
     });
   }
 
