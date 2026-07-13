@@ -203,9 +203,18 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
     cachedMeshes = [];
 
     const asset = assets[index];
-    const url = asset.file || '';
+    let url = asset.file || '';
+    if (url === '-') url = '';
 
-    if (assetLabelEl) assetLabelEl.textContent = `${index + 1} / ${assets.length} · ${asset.name || ''}`;
+    // Jika varian ini tidak memiliki file, cari varian pertama yang memiliki file
+    if (!url) {
+      const firstValidAsset = assets.find(a => a.file && a.file !== '-');
+      if (firstValidAsset) {
+        url = firstValidAsset.file;
+      }
+    }
+
+    if (assetLabelEl) assetLabelEl.textContent = `${index + 1} / ${assets.length} - ${asset.name || ''}`;
 
     if (currentModel) {
       scene.remove(currentModel);

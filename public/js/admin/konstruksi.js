@@ -158,8 +158,11 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
       const activeStyle = isChecked
         ? 'background:rgba(129,140,248,0.12);border-color:rgba(129,140,248,0.35);'
         : 'background:rgba(27,43,75,0.02);border-color:rgba(27,43,75,0.07);';
-      return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;" onclick="toggleMatItem(this,'${mid}')">
-            <input type="checkbox" class="mat-checkbox" data-id="${mid}" ${isChecked ? 'checked' : ''} style="display:none;">
+        return `<div class="mat-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;user-select:none;-webkit-user-select:none;" onclick="toggleMatItem(this,'${mid}')">
+              <div class="drag-handle" style="cursor:grab;color:rgba(27,43,75,0.3);display:flex;align-items:center;padding:0 2px;" title="Geser untuk mengurutkan">
+                <svg style="pointer-events:none;" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm5.5-11a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>
+              </div>
+              <input type="checkbox" class="mat-checkbox" data-id="${mid}" ${isChecked ? 'checked' : ''} style="display:none;">
             <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
             <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(27,43,75,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name || mid}</span>
             <div class="mat-qty-wrap" style="display:${isChecked ? 'flex' : 'none'};align-items:center;gap:6px;flex-shrink:0;">
@@ -175,11 +178,16 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
     .join('');
 
   if (typeof Sortable !== 'undefined') {
-    Sortable.create(el, {
-      animation: 150,
-      easing: "cubic-bezier(1, 0, 0, 1)",
-      ghostClass: "sortable-ghost",
-      onEnd: function (evt) {
+      const existingSortable = Sortable.get(el);
+      if (existingSortable) existingSortable.destroy();
+      Sortable.create(el, {
+        animation: 150,
+        easing: "cubic-bezier(1, 0, 0, 1)",
+        ghostClass: "sortable-ghost",
+        forceFallback: true,
+        fallbackOnBody: true,
+        fallbackClass: "sortable-fallback",
+        onEnd: function (evt) {
         // Biarkan DOM mengatur checkbox secara visual
       }
     });
@@ -264,8 +272,11 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
       const activeStyle = isChecked
         ? 'background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.35);'
         : 'background:rgba(27,43,75,0.02);border-color:rgba(27,43,75,0.07);';
-      return `<div class="tool-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;" onclick="toggleToolItem(this,'${tid}')">
-            <input type="checkbox" class="tool-checkbox" data-id="${tid}" ${isChecked ? 'checked' : ''} style="display:none;">
+        return `<div class="tool-item" style="display:flex;align-items:center;gap:9px;padding:7px 10px;border-radius:10px;border:1px solid;${activeStyle}cursor:pointer;transition:all .15s;user-select:none;-webkit-user-select:none;" onclick="toggleToolItem(this,'${tid}')">
+              <div class="drag-handle" style="cursor:grab;color:rgba(27,43,75,0.3);display:flex;align-items:center;padding:0 2px;" title="Geser untuk mengurutkan">
+                <svg style="pointer-events:none;" width="14" height="14" fill="currentColor" viewBox="0 0 16 16"><path d="M4 2.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm5.5-11a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0zm0 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/></svg>
+              </div>
+              <input type="checkbox" class="tool-checkbox" data-id="${tid}" ${isChecked ? 'checked' : ''} style="display:none;">
             <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
             <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(27,43,75,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.name || tid}</span>
             <span class="tool-check-badge" style="width:18px;height:18px;border-radius:50%;background:${isChecked ? '#F59E0B' : 'rgba(27,43,75,0.04)'};border:1.5px solid ${isChecked ? '#F59E0B' : 'rgba(27,43,75,0.1)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">
@@ -276,11 +287,16 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
     .join('');
 
   if (typeof Sortable !== 'undefined') {
-    Sortable.create(el, {
-      animation: 150,
-      easing: "cubic-bezier(1, 0, 0, 1)",
-      ghostClass: "sortable-ghost"
-    });
+      const existingSortable = Sortable.get(el);
+      if (existingSortable) existingSortable.destroy();
+      Sortable.create(el, {
+        animation: 150,
+        easing: "cubic-bezier(1, 0, 0, 1)",
+        ghostClass: "sortable-ghost",
+        forceFallback: true,
+        fallbackOnBody: true,
+        fallbackClass: "sortable-fallback"
+      });
   }
 }
 

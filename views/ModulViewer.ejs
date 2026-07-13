@@ -296,20 +296,10 @@
                     </div>
 
                     <!-- Spec Panel -->
-                    <div id="spec-panel-container" class="rounded-3xl p-6 lg:px-8 lg:pt-7 lg:pb-6 flex-1 flex flex-col min-h-0 overflow-hidden w-full transition-colors duration-300" style="background: linear-gradient(135deg, #0052A3, #003D7A); color: #fff; border: 1px solid rgba(255,255,255,0.3);">
-                        <h3 id="spec-panel-title" class="text-[10px] font-bold mb-4 lg:mb-5 text-white uppercase tracking-[0.2em] shrink-0">Spesifikasi Komponen</h3>
+                    <div id="spec-panel-container" class="rounded-3xl p-6 lg:px-8 lg:pt-7 lg:pb-6 flex-1 flex flex-col min-h-0 overflow-hidden w-full transition-colors duration-300" style="background: #ffffff; color: #1f2937; border: 1px solid #e5e7eb;">
+                        <h3 id="spec-panel-title" class="text-[10px] font-bold mb-4 lg:mb-5 text-[var(--color-primary)] uppercase tracking-[0.2em] shrink-0">Komponen Konstruksi</h3>
                         <div id="spec-panel-content" class="flex flex-col flex-1 min-h-0 relative">
-                            <div id="default-spec-content" class="flex flex-col justify-center flex-1 h-full">
-                                <div class="flex items-center justify-between border-b border-white/50 py-4">
-                                    <span class="text-white text-sm font-medium tracking-wide">Material</span>
-                                    <span class="font-extrabold text-3xl text-white brand-font"><%= module.materialCount %></span>
-                                </div>
-                                <div class="flex items-center justify-between py-4">
-                                    <span class="text-white text-sm font-medium tracking-wide">Alat Pendukung</span>
-                                    <span class="font-extrabold text-3xl text-white brand-font"><%= module.equipmentCount %></span>
-                                </div>
-                            </div>
-                            <div id="dynamic-spec-content" class="hidden flex-col h-full overflow-y-auto pr-1" style="scrollbar-width:thin; margin: -0.5rem; padding: 0.5rem;">
+                            <div id="dynamic-spec-content" class="flex-col h-full overflow-y-auto pr-1 flex" style="scrollbar-width:thin; margin: -0.5rem; padding: 0.5rem;">
                                 <!-- Table injected via JS -->
                             </div>
                         </div>
@@ -354,8 +344,15 @@
                     <% const m = row.material || {}; %>
                     <div class="mat-card mv-card" data-id="<%= m.id %>" data-type="material">
                         <div class="mv-card-img">
-                            <% if (m.image) { %>
-                                <img src="<%= m.image %>" alt="<%= m.name %>">
+                            <% 
+                               let displayImg = m.image;
+                               if (!displayImg && m.assets && m.assets.length > 0) {
+                                   const assetImg = m.assets.find(a => a.file && (a.file.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || a.file.startsWith('data:image/')));
+                                   if (assetImg) displayImg = '/uploads/assets-3d/' + assetImg.file;
+                               }
+                            %>
+                            <% if (displayImg) { %>
+                                <img src="<%= displayImg %>" alt="<%= m.name %>">
                             <% } else { %>
                                 <div class="mv-card-img-placeholder">
                                     <span style="font-size:2.2rem;"><%= m.icon || '📦' %></span>

@@ -1,0 +1,1552 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth overflow-x-hidden">
+<head>
+    <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0052A3">
+<title>
+  Konstruksi Rumah - PLN Pusdiklat 3D
+</title>
+<meta name="description" content="JALA — Platform Pembelajaran Interaktif 3D PLN untuk Peralatan, Konstruksi, dan Material Kelistrikan.">
+
+<!-- Fonts: Inter -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+
+
+<!-- GSAP + ScrollTrigger for award-winning scroll animations -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js" defer></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js" defer></script>
+
+<!-- Tailwind Styles -->
+<link rel="stylesheet" href="/css/style.css">
+<link rel="stylesheet" href="/css/output.css">
+<!-- Custom Styles -->
+<link rel="stylesheet" href="/css/custom.css">
+<!-- Navbar Styles -->
+<link rel="stylesheet" href="/css/navbar.css">
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "/scripts/three/three.module.js"
+        }
+    }
+    </script>
+    <style>
+        /* ── Component cards (light mode) ── */
+        .mv-card {
+            border-radius: 20px; overflow: hidden; cursor: pointer;
+            position: relative; display: block;
+            background: #fff;
+            border: 1px solid var(--color-border);
+            transition: transform .4s cubic-bezier(0.34,1.5,0.64,1), box-shadow .4s, border-color .3s;
+        }
+        .mv-card:hover {
+            transform: translateY(-7px) scale(1.02);
+            box-shadow: 0 24px 48px rgba(0,82,163,0.1);
+            border-color: var(--color-primary);
+        }
+        .mv-card-img {
+            width: 100%; height: 130px;
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, var(--color-bg-surface-alt), var(--color-bg-main));
+        }
+        .mv-card-img img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease-out; }
+        .mv-card:hover .mv-card-img img { transform: scale(1.05); }
+        .mv-card-img-placeholder {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            flex-direction: column; gap: 6px;
+        }
+        .mv-card-body {
+            padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 6px;
+        }
+        .mv-card-title {
+            font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+            font-size: 13px; color: var(--color-text-primary); line-height: 1.3;
+            letter-spacing: -0.2px; transition: color .2s;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .mv-card:hover .mv-card-title { color: var(--color-primary); }
+        .mv-card-desc {
+            font-size: 10px; color: var(--color-text-muted); line-height: 1.6;
+            display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+        }
+        .mv-card-divider { height: 1px; background: var(--color-border-light); margin: 2px 0; }
+        .mv-card-stats { display: flex; align-items: center; justify-content: space-between; }
+        .mv-card-stat { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+        .mv-card-stat-label {
+            font-size: 8px; font-weight: 700;
+            color: var(--color-text-muted); letter-spacing: 0.1em; text-transform: uppercase;
+        }
+        .mv-card-stat-val {
+            font-size: 12px; font-family: 'Space Grotesk', sans-serif; font-weight: 700;
+            color: var(--color-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 80px;
+        }
+        .mv-go-btn {
+            width: 28px; height: 28px; border-radius: 10px; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+            background: rgba(0,82,163,0.08); color: var(--color-primary);
+            transition: background .2s, transform .2s, color .2s;
+        }
+        .mv-card:hover .mv-go-btn { background: var(--color-primary); color: #fff; transform: rotate(-45deg) scale(1.1); }
+        .mv-accent-line {
+            position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+            background: linear-gradient(90deg, var(--color-primary), var(--color-cyan), var(--color-accent));
+            transform: scaleX(0); transition: transform .5s; transform-origin: left;
+        }
+        .mv-card:hover .mv-accent-line { transform: scaleX(1); }
+        .mv-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 16px; }
+        @media (max-width: 1280px) { .mv-grid { grid-template-columns: repeat(4, 1fr); } }
+        @media (max-width: 1024px) { .mv-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 640px) { .mv-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+        .mat-card.mv-hidden { display: none !important; }
+
+        /* ── Three.js canvas ── */
+        #three-canvas {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            display: block; cursor: grab; outline: none;
+        }
+        #three-canvas:active { cursor: grabbing; }
+
+        /* ── Mesh Info Panel (light theme) ── */
+        #mesh-info-panel {
+            position: absolute; top: 72px; right: 16px; z-index: 30;
+            width: 272px; max-height: calc(100% - 96px);
+            display: flex; flex-direction: column;
+            border-radius: 1.25rem;
+            border: 1px solid var(--color-border);
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            box-shadow: 0 16px 40px rgba(0,0,0,0.1);
+            transform: translateX(calc(100% + 20px)); opacity: 0;
+            transition: transform 0.35s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease;
+            pointer-events: none; overflow: hidden;
+        }
+        #mesh-info-panel.active { transform: translateX(0); opacity: 1; pointer-events: auto; }
+        #mesh-info-panel .panel-header {
+            display: flex; align-items: flex-start; justify-content: space-between;
+            gap: 8px; padding: 13px 14px 10px;
+            border-bottom: 1px solid var(--color-border-light); flex-shrink: 0;
+        }
+        #mesh-panel-name {
+            font-family: 'Space Grotesk', sans-serif; font-size: 13px; font-weight: 700;
+            color: var(--color-text-primary); line-height: 1.3; word-break: break-word;
+        }
+        #mesh-panel-close {
+            width: 22px; height: 22px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; background: var(--color-bg-surface-alt); border: 1px solid var(--color-border);
+            color: var(--color-text-secondary); cursor: pointer; flex-shrink: 0;
+            transition: background .2s, color .2s; font-size: 12px; line-height: 1;
+        }
+        #mesh-panel-close:hover { background: var(--color-primary); color: white; border-color: var(--color-primary); }
+        #panel-scroll {
+            flex: 1; overflow-y: auto; overflow-x: hidden;
+            scrollbar-width: thin; scrollbar-color: rgba(0,82,163,0.15) transparent;
+        }
+        #panel-scroll::-webkit-scrollbar { width: 3px; }
+        #panel-scroll::-webkit-scrollbar-track { background: transparent; }
+        #panel-scroll::-webkit-scrollbar-thumb { background: rgba(0,82,163,0.15); border-radius: 999px; }
+        #mesh-info-panel .panel-label {
+            font-size: 9px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 0.15em; color: var(--color-primary); padding: 10px 14px 5px;
+        }
+        #panel-empty {
+            flex-direction: column; align-items: center; justify-content: center;
+            text-align: center; padding: 20px 14px; gap: 8px;
+        }
+        #panel-empty svg { color: var(--color-text-muted); }
+        #panel-empty p { font-size: 12px; color: var(--color-text-muted); font-family: 'Space Grotesk', sans-serif; font-weight: 600; }
+        .panel-item-card {
+            display: flex; align-items: center; gap: 9px;
+            padding: 8px 10px; border-radius: 12px;
+            border: 1px solid var(--color-border); background: var(--color-bg-surface);
+            cursor: pointer; margin: 0 10px 6px;
+            transition: background 0.18s, border-color 0.18s, transform 0.14s, box-shadow 0.18s;
+        }
+        .panel-item-card:hover { background: var(--color-bg-surface-alt); border-color: var(--color-primary); transform: translateX(2px); box-shadow: 0 4px 12px rgba(0,82,163,0.08); }
+        .card-thumb {
+            width: 36px; height: 36px; border-radius: 9px;
+            background: var(--color-bg-main); border: 1px solid var(--color-border-light);
+            display: flex; align-items: center;
+            justify-content: center; overflow: hidden; flex-shrink: 0; font-size: 16px;
+        }
+        .card-info { flex: 1; min-width: 0; }
+        .card-name {
+            font-size: 12px; font-weight: 700; color: var(--color-text-primary);
+            font-family: 'Space Grotesk', sans-serif;
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; line-height: 1.3;
+        }
+        .card-qty { font-size: 9px; font-weight: 700; color: var(--color-primary); }
+        .card-cat {
+            font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em;
+            padding: 1.5px 5px; border-radius: 999px; border: 1px solid; display: inline-block; margin-top: 2px;
+        }
+        .card-cat.k3 { color: rgb(220,38,38); border-color: rgba(220,38,38,0.28); background: rgba(220,38,38,0.09); }
+        .card-cat.teknis { color: rgb(37,99,235); border-color: rgba(37,99,235,0.28); background: rgba(37,99,235,0.09); }
+        .card-cat.other { color: rgba(139,92,246,0.9); border-color: rgba(139,92,246,0.25); background: rgba(139,92,246,0.08); }
+        .card-arrow { color: var(--color-text-muted); flex-shrink: 0; transition: color 0.18s, transform 0.18s; }
+        .panel-item-card:hover .card-arrow { color: var(--color-primary); transform: translateX(2px); }
+        #mesh-info-panel .click-hint {
+            font-size: 10px; color: var(--color-text-muted); text-align: center;
+            padding: 7px 14px; border-top: 1px solid var(--color-border-light);
+            font-family: 'Inter', sans-serif; flex-shrink: 0;
+        }
+    </style>
+</head>
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+
+    <!-- ═══ AWWWARDS-LEVEL NAVBAR — JALA (Refined) ═══ -->
+
+
+
+<!-- ═══ FLOATING PILL NAVBAR ═══ -->
+<div id="jl-nav-wrap" class="jl-nav-wrap">
+  <nav id="jl-navbar" class="jl-navbar">
+
+    <!-- Scroll Progress Bar (inside pill) -->
+    <div class="jl-nav-progress-track">
+      <div id="jl-nav-progress" class="jl-nav-progress-bar"></div>
+    </div>
+
+    <!-- Brand -->
+    <a href="/listrikpedia" class="jl-brand" data-magnetic>
+      <span class="jl-brand-text" style="font-weight: 900; font-size: 1.25rem; letter-spacing: 0.05em; color: var(--color-text-primary);">Listrik<span style="color: #3b608a;">Pedia</span></span>
+    </a>
+
+    <!-- Divider (desktop) -->
+    <div class="jl-nav-divider"></div>
+
+    <!-- Desktop Links -->
+    <div class="jl-nav-links">
+      <!-- Sliding pill background -->
+      <div id="jl-link-pill" class="jl-link-pill"></div>
+
+      
+        <a href="/"
+           class="jl-nav-link "
+           data-idx="0"
+           data-magnetic>
+          <span class="jl-nav-link-text">Beranda</span>
+        </a>
+      
+        <a href="/tools"
+           class="jl-nav-link "
+           data-idx="1"
+           data-magnetic>
+          <span class="jl-nav-link-text">Peralatan</span>
+        </a>
+      
+        <a href="/ModulKonstruksi"
+           class="jl-nav-link "
+           data-idx="2"
+           data-magnetic>
+          <span class="jl-nav-link-text">Konstruksi</span>
+        </a>
+      
+        <a href="/material"
+           class="jl-nav-link "
+           data-idx="3"
+           data-magnetic>
+          <span class="jl-nav-link-text">Material</span>
+        </a>
+      
+        <a href="/quiz"
+           class="jl-nav-link "
+           data-idx="4"
+           data-magnetic>
+          <span class="jl-nav-link-text">QuizzZ</span>
+        </a>
+      
+    </div>
+
+    <!-- Right Section -->
+    <div class="jl-nav-right">
+      <!-- Hamburger Toggle (mobile only) -->
+
+      <!-- Hamburger Toggle (mobile only) -->
+      <button id="jl-menu-toggle" class="jl-menu-toggle" aria-label="Menu">
+        <div class="jl-toggle-inner">
+          <div class="jl-toggle-icon">
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </button>
+    </div>
+  </nav>
+</div>
+
+<!-- ═══ FULLSCREEN OVERLAY MENU ═══ -->
+<div id="jl-overlay" class="jl-overlay">
+
+  <!-- Background layers -->
+  <div class="jl-overlay-bg">
+    <div class="jl-overlay-bg-layer" style="--delay: 0;"></div>
+    <div class="jl-overlay-bg-layer" style="--delay: 1;"></div>
+    <div class="jl-overlay-bg-layer" style="--delay: 2;"></div>
+  </div>
+
+  <!-- Overlay Content -->
+  <div class="jl-overlay-content">
+
+    <!-- Left: Navigation -->
+    <div class="jl-overlay-nav">
+      <p class="jl-overlay-label">Navigasi</p>
+
+      
+        <a href="/"
+           class="jl-overlay-link "
+           data-desc="Halaman utama platform"
+           style="--i: 0;">
+          <span class="jl-ol-num">01</span>
+          <span class="jl-ol-text-wrap">
+            <span class="jl-ol-text">Beranda</span>
+          </span>
+          <span class="jl-ol-desc">Halaman utama platform</span>
+          <span class="jl-ol-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          
+        </a>
+      
+        <a href="/tools"
+           class="jl-overlay-link "
+           data-desc="Katalog peralatan 3D"
+           style="--i: 1;">
+          <span class="jl-ol-num">02</span>
+          <span class="jl-ol-text-wrap">
+            <span class="jl-ol-text">Peralatan</span>
+          </span>
+          <span class="jl-ol-desc">Katalog peralatan 3D</span>
+          <span class="jl-ol-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          
+        </a>
+      
+        <a href="/ModulKonstruksi"
+           class="jl-overlay-link "
+           data-desc="Modul pembelajaran konstruksi"
+           style="--i: 2;">
+          <span class="jl-ol-num">03</span>
+          <span class="jl-ol-text-wrap">
+            <span class="jl-ol-text">Konstruksi</span>
+          </span>
+          <span class="jl-ol-desc">Modul pembelajaran konstruksi</span>
+          <span class="jl-ol-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          
+        </a>
+      
+        <a href="/material"
+           class="jl-overlay-link "
+           data-desc="Database material kelistrikan"
+           style="--i: 3;">
+          <span class="jl-ol-num">04</span>
+          <span class="jl-ol-text-wrap">
+            <span class="jl-ol-text">Material</span>
+          </span>
+          <span class="jl-ol-desc">Database material kelistrikan</span>
+          <span class="jl-ol-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          
+        </a>
+      
+        <a href="/quiz"
+           class="jl-overlay-link "
+           data-desc="Kuis interaktif"
+           style="--i: 4;">
+          <span class="jl-ol-num">05</span>
+          <span class="jl-ol-text-wrap">
+            <span class="jl-ol-text">QuizzZ</span>
+          </span>
+          <span class="jl-ol-desc">Kuis interaktif</span>
+          <span class="jl-ol-arrow">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          
+        </a>
+      
+    </div>
+
+    <!-- Right: Info Column -->
+    <div class="jl-overlay-info">
+      <div class="jl-overlay-info-block">
+        <p class="jl-overlay-label">Platform</p>
+        <p class="jl-overlay-desc">
+          Platform pembelajaran kelistrikan berbasis 3D interaktif untuk karyawan & teknisi PT PLN (Persero).
+        </p>
+      </div>
+
+      <div class="jl-overlay-info-block">
+        <p class="jl-overlay-label">Kontak</p>
+        <a href="mailto:pusdiklat@pln.co.id" class="jl-overlay-contact">pusdiklat@pln.co.id</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <div class="jl-overlay-footer">
+    <span>&copy; 2026 PT PLN (Persero)</span>
+    <span>ListrikPedia — Ensiklopedia Kelistrikan</span>
+  </div>
+</div>
+
+
+    <main class="pt-32 pb-24 px-4 sm:px-8 min-h-screen relative overflow-x-hidden" style="background-color: var(--color-bg-main);">
+
+        <div class="max-w-[1400px] mx-auto flex flex-col items-center">
+
+            <!-- Header area -->
+            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-6 mb-10 pb-8 border-b border-[var(--color-border)]">
+                <div class="flex flex-col items-start w-full md:w-auto">
+                    <a href="/ModulKonstruksi" class="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors mb-4 group">
+                        <svg class="w-4 h-4 mr-1.5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                        Kembali
+                    </a>
+                    <h1 class="text-3xl md:text-5xl font-extrabold brand-font tracking-tight text-[var(--color-text-primary)]">
+                        Konstruksi Rumah
+                    </h1>
+                </div>
+                <div class="hidden md:flex flex-col items-end">
+                    <span class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[var(--color-primary)]/5 text-[var(--color-primary)] text-[10px] font-bold tracking-[0.2em] uppercase border border-[var(--color-primary)]/10">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
+                        Viewer Interaktif
+                    </span>
+                </div>
+            </div>
+
+            <!-- Data for JS -->
+            <script type="application/json" id="module-assets-data">
+                [{"id":"d4b7a83e-f6b2-4214-97e6-ac5f1db2013e","module_id":"f3ed4576-c0a0-4601-9f52-db483eb87cc0","name":"Konstruksi Rumah","file":"-","cam_pos_x":null,"cam_pos_y":null,"cam_pos_z":null,"target_x":null,"target_y":null,"target_z":null,"animation":"none"},{"id":"265adeff-11a6-49a8-a190-a28537b79a9d","module_id":"f3ed4576-c0a0-4601-9f52-db483eb87cc0","name":"Tiang Listrik","file":"/uploads/assets-3d/1782703161810_72513.glb","cam_pos_x":1.1,"cam_pos_y":1.21,"cam_pos_z":-0.2,"target_x":0.92,"target_y":1.19,"target_z":0.11,"animation":"none"},{"id":"f5ea3596-024c-4d7f-b2c5-8de26e55e570","module_id":"f3ed4576-c0a0-4601-9f52-db483eb87cc0","name":"Rumah","file":"-","cam_pos_x":-0.12,"cam_pos_y":0.77,"cam_pos_z":0.1,"target_x":-0.82,"target_y":0.57,"target_z":-0.47,"animation":"none"},{"id":"38bca97f-7fb7-4423-bfb9-1ae8431a79c7","module_id":"f3ed4576-c0a0-4601-9f52-db483eb87cc0","name":"Komponen Tiang Listrik","file":"/uploads/assets-3d/1783665304577_99873.jpeg","cam_pos_x":null,"cam_pos_y":null,"cam_pos_z":null,"target_x":null,"target_y":null,"target_z":null,"animation":"none"},{"id":"e16ee14b-e00f-4fe5-a66b-0bd7117d3e9c","module_id":"f3ed4576-c0a0-4601-9f52-db483eb87cc0","name":"Komponen Rumah","file":"/uploads/assets-3d/1783665332065_37899.jpeg","cam_pos_x":null,"cam_pos_y":null,"cam_pos_z":null,"target_x":null,"target_y":null,"target_z":null,"animation":"none"}]
+            </script>
+            <script type="application/json" id="module-data">
+                {"id":"f3ed4576-c0a0-4601-9f52-db483eb87cc0","materials":[{"id":"22b3741c-cd13-47bf-9da8-646555b1969e","quantity":2,"sequence":0,"meshes":[{"id":"a024c411-87c4-44eb-b41d-04e69a4d05bf","mesh_name":"Body569"},{"id":"c22f4631-0978-4e09-8e5d-c35252b284bb","mesh_name":"Body569"}],"material":{"id":"5fd1c537-6875-45b4-ad5b-6e3bd3185efa","name":"Service Klem","code":".","bgGradient":null,"description":"","image":"/uploads/images/1783569860655_69159.png","created_at":"2026-07-03T03:42:48.722Z","updated_at":"2026-07-09T11:04:20.720Z","assets":[{"id":"98f2f167-4e95-4966-811d-9ffb0200be12","material_id":"5fd1c537-6875-45b4-ad5b-6e3bd3185efa","name":"Klem Kabel","file":"/uploads/assets-3d/1783050168787_98200.glb"}],"categories":[{"id":"ef5f94e9-7b05-4784-aff3-f70041d0b793","name":"SKUTR","value":"skutr","type":"material","created_at":"2026-07-06T04:09:52.770Z"}],"categoryLabel":"SKUTR","category":"lainnya"}},{"id":"cba042a4-46a1-4b00-814d-bcb8d2ecd041","quantity":1,"sequence":1,"meshes":[{"id":"307c5d50-0c70-4eb4-b9e6-0904563978a6","mesh_name":"Body569"}],"material":{"id":"5ce3b952-e160-4160-a968-5cc213ed3982","name":"Klem Ikat Tiang Type 2","code":".","bgGradient":null,"description":"","image":"/uploads/images/1783570005954_87975.png","created_at":"2026-07-03T03:42:04.573Z","updated_at":"2026-07-09T11:06:45.985Z","assets":[{"id":"81fccb78-33a6-4c27-9efe-f3382998dacd","material_id":"5ce3b952-e160-4160-a968-5cc213ed3982","name":"Klem Ikat Tiang Type 2","file":"/uploads/assets-3d/1783050124621_95779.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"6948b9b5-a49d-48f5-a870-351cea8b3a04","quantity":4,"sequence":2,"meshes":[{"id":"2edddd98-f8ae-418b-a772-9de672ed0fa1","mesh_name":"Body569"}],"material":{"id":"0b5afad3-91ab-4201-afca-4a318470a738","name":"Cable Tie","code":"IEC","bgGradient":null,"description":"Cable Tie adalah material pengikat serbaguna sekali pakai yang terbuat dari plastik nilon tangguh. Di lingkungan operasional PLN, alat ini dirancang khusus untuk penggunaan luar ruangan (outdoor). Fun","image":"/uploads/images/1783570998725_27456.png","created_at":"2026-05-18T10:48:21.549Z","updated_at":"2026-07-09T11:23:18.744Z","assets":[{"id":"c6f0c37b-bfc7-4f43-919b-f0b5b648bf20","material_id":"0b5afad3-91ab-4201-afca-4a318470a738","name":"Cable Ties","file":"/uploads/assets-3d/1779076101784_2831.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"},{"id":"ef5f94e9-7b05-4784-aff3-f70041d0b793","name":"SKUTR","value":"skutr","type":"material","created_at":"2026-07-06T04:09:52.770Z"}],"categoryLabel":"SR, SKUTR","category":"lainnya"}},{"id":"693035a5-a803-4161-b4a0-a2a5e4e35f4f","quantity":1,"sequence":3,"meshes":[{"id":"9d7c254e-e586-42d0-95bf-d5a6a1926f4c","mesh_name":"Body569"}],"material":{"id":"75b4d1d4-a2f2-47cd-adc8-618f95686866","name":"Strain Hook","code":".","bgGradient":null,"description":"","image":"/uploads/images/1783569325357_19443.png","created_at":"2026-07-03T04:10:39.328Z","updated_at":"2026-07-09T11:33:04.086Z","assets":[{"id":"e19256cd-d3ff-4cb3-a77f-6d767e6a19e6","material_id":"75b4d1d4-a2f2-47cd-adc8-618f95686866","name":"Strain Hook","file":"/uploads/assets-3d/1783051839370_99012.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"c2350255-7395-479c-a1c9-3facb3c2ea60","quantity":2,"sequence":4,"meshes":[{"id":"6d653ae7-428c-4743-ad60-9340ca0e65b4","mesh_name":"Body569"}],"material":{"id":"973ef2c6-d2b5-482f-909e-b430709b6cbb","name":"Connector Press","code":"SPLN","bgGradient":null,"description":"Connector Press (sering disebut Compression Connector, Joint Sleeve Press, atau Konektor CCO) adalah material penyambung kelistrikan berbahan logam konduktif tinggi (seperti aluminium murni, bimetal, atau tembaga). Fungsinya adalah untuk menyambungkan dua kabel penghantar (konduktor) secara permanen, baik untuk sambungan lurus (sambungan antar ujung kabel) maupun percabangan (seperti T-Tap atau H-Tap). Proses pemasangan material ini wajib menggunakan alat press mekanis atau hidrolik (crimping tool) untuk memadatkan bodi konektor hingga menjepit kabel dengan sangat kuat. Metode press ini bertujuan untuk menyatukan konduktor secara sempurna guna memastikan aliran arus listrik yang optimal dan mencegah timbulnya titik panas (hotspot) akibat sambungan yang longgar.","image":"/uploads/images/1782701642446_58586.png","created_at":"2026-05-18T10:59:38.882Z","updated_at":"2026-07-06T13:58:20.493Z","assets":[{"id":"c61b4550-71da-4dcd-99a5-6434b9a8678b","material_id":"973ef2c6-d2b5-482f-909e-b430709b6cbb","name":"Connector Press (tanpa pelindung)","file":"/uploads/assets-3d/1779076778756_91867.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"},{"id":"ef5f94e9-7b05-4784-aff3-f70041d0b793","name":"SKUTR","value":"skutr","type":"material","created_at":"2026-07-06T04:09:52.770Z"},{"id":"a4a316d8-b283-489d-b16a-973b1ea50dd7","name":"SUTM","value":"sutm","type":"material","created_at":"2026-07-06T04:02:32.961Z"}],"categoryLabel":"SR, SKUTR, SUTM","category":"lainnya"}},{"id":"c63efe37-43c6-4cd5-a869-61bb6e419c3a","quantity":1,"sequence":5,"meshes":[{"id":"6367864a-8eb1-479e-8149-a0f9ca61e04e","mesh_name":"Body569"}],"material":{"id":"1c23544c-ecfb-4523-be2d-22e898610b25","name":"Screw","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:30:45.522Z","updated_at":null,"assets":[{"id":"71809d20-e4d6-4bcf-b825-963e9f9ffd93","material_id":"1c23544c-ecfb-4523-be2d-22e898610b25","name":"Screw","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"777d14db-ffc6-4772-8aa7-4c45d16b5a75","quantity":1,"sequence":6,"meshes":[{"id":"e3e9deeb-91ab-4a35-867b-8a6effbab20e","mesh_name":"Body569"}],"material":{"id":"9c0cd59b-837a-426f-8fa0-50c48cc45449","name":"Klem Omega","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:32:14.123Z","updated_at":null,"assets":[{"id":"95264490-4ac6-4b37-8eab-3f2f7d72cb08","material_id":"9c0cd59b-837a-426f-8fa0-50c48cc45449","name":"Klem Omega","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"2366d045-0946-4881-9728-e9b594bcad6e","quantity":1,"sequence":7,"meshes":[{"id":"a1907646-26f8-4b37-95d2-a3e6bb46944a","mesh_name":"Body569"}],"material":{"id":"7149b63e-8a67-4fff-a237-915da774dfb5","name":"Konduktor NFA 2X-T (LVTC) 2 x 10mm","code":"-","bgGradient":null,"description":"Twisted cable bla bla bla...","image":null,"created_at":"2026-07-09T01:35:17.909Z","updated_at":"2026-07-09T10:37:23.765Z","assets":[{"id":"69e2e384-e633-400e-937f-578aa5c4174b","material_id":"7149b63e-8a67-4fff-a237-915da774dfb5","name":"Konduktor NFA 2X-T (LVTC) 2 x 10mm","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"812475bd-60d8-4bfd-8c7d-c2d99e16b00e","quantity":1,"sequence":8,"meshes":[{"id":"a74774db-9504-42d4-a891-5d23a6d6ed59","mesh_name":"Body569"}],"material":{"id":"46164848-da02-42d9-8e03-7dadc2cc3c86","name":"KWH Meter","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:33:26.553Z","updated_at":null,"assets":[{"id":"d0be4000-072f-401b-8d27-fde31c630110","material_id":"46164848-da02-42d9-8e03-7dadc2cc3c86","name":"KWH Meter","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"cf03ee35-b55e-4868-bbc0-f81581f4708d","quantity":1,"sequence":9,"meshes":[{"id":"f2521d76-8cbd-4f44-afef-3a3a6655deab","mesh_name":"Body569"}],"material":{"id":"e6d613a5-fbe6-47ea-a7b1-6dcdc855c1b0","name":"Mastic","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:34:14.258Z","updated_at":null,"assets":[{"id":"831a8eb1-99e0-4f4e-99a2-8743d5c754af","material_id":"e6d613a5-fbe6-47ea-a7b1-6dcdc855c1b0","name":"Mastic","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"09ec33b5-8c03-44d5-be7b-a57cb8d37e31","quantity":1,"sequence":10,"meshes":[{"id":"c28c7c46-e388-4557-b1a7-2a6e612072c9","mesh_name":"Body569"}],"material":{"id":"814ecf20-d8e0-43d7-9906-6a0e048a6241","name":"Insulation Tape","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:34:47.596Z","updated_at":null,"assets":[{"id":"333acadc-00b2-4740-be48-886f0d3ada8b","material_id":"814ecf20-d8e0-43d7-9906-6a0e048a6241","name":"Insulation Tape","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"9ed98e14-e9ac-4b15-9119-34c40ecf7f89","quantity":1,"sequence":11,"meshes":[{"id":"b947cea1-9c5d-45c9-8ba7-74b65110b299","mesh_name":"Body569"}],"material":{"id":"6315bd7d-8af3-4713-9e4f-704e1bf5727b","name":"MCB","code":"-","bgGradient":null,"description":"-","image":"/uploads/images/1783570568620_69680.png","created_at":"2026-07-09T01:31:49.439Z","updated_at":"2026-07-09T11:16:08.661Z","assets":[{"id":"69ca766a-6a02-4302-bf87-9e201d27de40","material_id":"6315bd7d-8af3-4713-9e4f-704e1bf5727b","name":"MCB","file":"/uploads/assets-3d/1783560709520_77804.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"227e5861-8dca-46c5-af2c-9080b0e96a9c","quantity":3,"sequence":12,"meshes":[{"id":"9335182b-9205-4945-a9d2-972e562b5c00","mesh_name":"Body569"}],"material":{"id":"87a2a0e9-8f65-4b34-9224-bb99a5463071","name":"Bolt + Nut + Washer m12 x 45mm","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T04:39:13.911Z","updated_at":null,"assets":[{"id":"9d8aa547-6f97-4f7d-bf5b-3e6bdd18b50b","material_id":"87a2a0e9-8f65-4b34-9224-bb99a5463071","name":"Bolt + Nut + Washer m12 x 45mm","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}},{"id":"57e60b58-a871-418d-9844-92de7b4b6fd5","quantity":1,"sequence":13,"meshes":[{"id":"13b5aa93-485a-4e0a-8355-f992c963edbf","mesh_name":"Body569"}],"material":{"id":"c44e099d-98c3-49bc-9651-f451da9bf0c7","name":"Mur + Fisher","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-10T03:18:43.155Z","updated_at":null,"assets":[{"id":"97031feb-7c84-40a6-966b-d55d2d8e4fc0","material_id":"c44e099d-98c3-49bc-9651-f451da9bf0c7","name":"Mur dan Fisher","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya"}}],"tools":[]}
+            </script>
+
+            <!-- Viewer and Info Grid -->
+            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+                <!-- 3D Canvas -->
+                <div id="viewer-container" class="lg:col-span-8 relative w-full rounded-3xl overflow-hidden flex items-center justify-center group transition-all duration-500 shadow-xl border border-[var(--color-border)] min-h-[280px] md:h-[75vh] md:min-h-[500px] bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                    <!-- Ambient top glow -->
+                    <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-primary)]/5 blur-[60px] pointer-events-none"></div>
+
+                    <canvas id="three-canvas" tabindex="-1"></canvas>
+                    <img id="viewer-2d" src="" style="width:100%;height:100%;object-fit:contain;display:none;position:absolute;inset:0;z-index:4;background:transparent;" />
+
+                    <!-- Loading poster -->
+                    <div id="poster-container" class="absolute inset-0 flex flex-col items-center justify-center transition-all duration-500 bg-[#FFFFFF] pointer-events-none" style="z-index:5;">
+                        <div id="loading-spinner" class="animate-spin rounded-full h-10 w-10 border-2 border-t-[var(--color-primary)] border-r-[var(--color-primary)] border-b-transparent border-l-transparent mb-4"></div>
+                        <span id="loading-text" class="text-xs uppercase tracking-[0.15em] font-semibold text-[var(--color-text-secondary)]">Memuat Skema Spasial...</span>
+                    </div>
+
+                    <!-- Hint Text -->
+                    <div id="hint-text" class="absolute bottom-6 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-medium tracking-wide px-5 py-2.5 rounded-full pointer-events-none z-10 opacity-0 transition-opacity flex items-center gap-2 shadow-lg" style="z-index:10;">
+                        <svg class="w-4 h-4 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5M7.188 2.239l.777 2.897M5.136 7.965l-2.898-.777M13.95 4.05l-2.122 2.122m-5.657 5.656l-2.12 2.122"></path></svg>
+                        <span>Rotasi 360&deg; | Zoom via Scroll | Klik Objek untuk Detail</span>
+                    </div>
+
+                    <!-- Navigation Arrows -->
+                    <button id="viewer-prev-btn" onclick="prevVariant()" class="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all hidden z-20 border border-[var(--color-border)] shadow-md group-hover:scale-105">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                    </button>
+                    <button id="viewer-next-btn" onclick="nextVariant()" class="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all hidden z-20 border border-[var(--color-border)] shadow-md group-hover:scale-105">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </button>
+
+                    <!-- Variant Name -->
+                    <div id="viewer-variant-name" class="absolute top-6 left-1/2 -translate-x-1/2 px-6 py-2.5 bg-white/90 backdrop-blur-md text-[var(--color-text-primary)] text-[10px] font-bold rounded-full pointer-events-none z-10 hidden shadow-md border border-[var(--color-border)] uppercase tracking-[0.2em]">
+                        Varian -
+                    </div>
+
+                    <!-- Toggle Rotate -->
+                    <button id="toggle-rotate-btn" title="Pause/Play Rotation" class="absolute top-6 right-20 w-11 h-11 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                        <svg id="icon-pause" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 9v6m4-6v6"></path></svg>
+                        <svg id="icon-play" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path></svg>
+                    </button>
+
+                    <!-- Fullscreen Toggle -->
+                    <button id="fullscreen-btn" onclick="toggleFullscreen()" title="Full Screen" class="absolute top-6 right-6 w-11 h-11 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-md opacity-100 md:opacity-0 md:group-hover:opacity-100">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path></svg>
+                    </button>
+
+                    <!-- Mesh Info Panel -->
+                    <div id="mesh-info-panel">
+                        <div class="panel-header">
+                            <div style="min-width:0;">
+                                <p style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.15em;color:var(--color-primary);margin-bottom:2px;">Komponen</p>
+                                <p id="mesh-panel-name">-</p>
+                            </div>
+                            <button id="mesh-panel-close" title="Tutup">✕</button>
+                        </div>
+                        <div id="panel-scroll">
+                            <div id="panel-empty" style="display:none;">
+                                <svg width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0H4"/>
+                                </svg>
+                                <p>Tidak ada data untuk komponen ini</p>
+                            </div>
+                            <div id="panel-mats-section" style="display:none;">
+                                <p class="panel-label">Material</p>
+                                <div id="panel-materials"></div>
+                            </div>
+                            <div id="panel-tools-section" style="display:none;">
+                                <p class="panel-label">Peralatan & APD</p>
+                                <div id="panel-tools" style="padding-bottom:8px;"></div>
+                            </div>
+                        </div>
+                        <p class="click-hint">Klik area kosong untuk menutup</p>
+                    </div>
+                </div>
+
+                <!-- Info Cards (light theme) -->
+                <div class="lg:col-span-4 flex flex-col gap-6 h-[500px] lg:h-[75vh] lg:min-h-[500px] w-full">
+                    <!-- Description Panel -->
+                    <div id="right-panel-container" class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] shadow-sm rounded-3xl p-6 lg:px-8 lg:py-6 flex-none w-full">
+                        <div class="flex items-center justify-between mb-3 shrink-0">
+                            <h3 id="right-panel-title" class="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-[0.2em]">Deskripsi Konstruksi</h3>
+                        </div>
+                        <div id="right-panel-content">
+                            <div id="default-module-desc">
+                                <p class="text-[var(--color-text-secondary)] text-sm leading-relaxed break-words whitespace-pre-wrap">contoh pada konstruksi ini adalah kons. sambungan rumah satu phasa menggunakan material strain hook.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Spec Panel -->
+                    <div id="spec-panel-container" class="rounded-3xl p-6 lg:px-8 lg:pt-7 lg:pb-6 flex-1 flex flex-col min-h-0 overflow-hidden w-full transition-colors duration-300" style="background: #ffffff; color: #1f2937; border: 1px solid #e5e7eb;">
+                        <h3 id="spec-panel-title" class="text-[10px] font-bold mb-4 lg:mb-5 text-[var(--color-primary)] uppercase tracking-[0.2em] shrink-0">Komponen Konstruksi</h3>
+                        <div id="spec-panel-content" class="flex flex-col flex-1 min-h-0 relative">
+                            <div id="dynamic-spec-content" class="flex-col h-full overflow-y-auto pr-1 flex" style="scrollbar-width:thin; margin: -0.5rem; padding: 0.5rem;">
+                                <!-- Table injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== SECTION: MATERIAL & PERALATAN ===== -->
+        
+        <div class="w-full max-w-[1400px] mx-auto mt-20">
+
+            <!-- Divider + Search -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-6 mb-14">
+                <div class="flex items-center gap-4 flex-1 min-w-0">
+                    <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+                    <span class="text-[10px] font-bold uppercase tracking-[0.25em] text-[var(--color-text-muted)] whitespace-nowrap">Komponen Konstruksi</span>
+                    <div class="flex-1 h-px bg-[var(--color-border)]"></div>
+                </div>
+                <div class="relative shrink-0 max-w-[340px]">
+                    <div class="absolute left-3.5 top-1/2 transform -translate-y-1/2 text-[var(--color-text-muted)] pointer-events-none">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+                    </div>
+                    <input class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 pl-10 pr-4 text-sm text-[var(--color-text-primary)] placeholder-[var(--color-text-muted)] outline-none focus:border-[var(--color-primary)] focus:ring-2 focus:ring-[var(--color-primary)]/10 transition-all" id="mv-search" type="text" placeholder="Cari komponen..." oninput="mvFilterComponents(this.value)">
+                </div>
+            </div>
+
+            <!-- MATERIAL -->
+            
+            <div class="mb-16">
+                <div class="flex flex-wrap items-center gap-3 mb-6">
+                    <span class="inline-flex items-center gap-2 py-1.5 px-3 rounded-full bg-[var(--color-accent)]/8 text-[var(--color-accent-dark)] text-[10px] font-bold tracking-[0.15em] uppercase border border-[var(--color-accent)]/15">
+                        <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-accent)] animate-pulse"></span>
+                        Katalog Material
+                    </span>
+                    <span class="text-[11px] font-semibold px-2.5 py-0.5 rounded-full bg-[var(--color-accent)]/8 text-[var(--color-accent-dark)] border border-[var(--color-accent)]/10">14 item</span>
+                </div>
+
+                <div class="mv-grid">
+                    
+                    
+                    <div class="mat-card mv-card" data-id="5fd1c537-6875-45b4-ad5b-6e3bd3185efa" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <img src="/uploads/images/1783569860655_69159.png" alt="Service Klem">
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SKUTR">
+                                    SKUTR
+                                </span>
+                            </div>
+                            
+                            <div style="position:absolute;bottom:8px;left:8px;z-index:20;">
+                                <span class="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/15">× 2</span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Service Klem</div>
+                            <div class="mv-card-desc"></div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SKUTR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">.</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="5ce3b952-e160-4160-a968-5cc213ed3982" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <img src="/uploads/images/1783570005954_87975.png" alt="Klem Ikat Tiang Type 2">
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Klem Ikat Tiang Type 2</div>
+                            <div class="mv-card-desc"></div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">.</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="0b5afad3-91ab-4201-afca-4a318470a738" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <img src="/uploads/images/1783570998725_27456.png" alt="Cable Tie">
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR, SKUTR">
+                                    SR, SKUTR
+                                </span>
+                            </div>
+                            
+                            <div style="position:absolute;bottom:8px;left:8px;z-index:20;">
+                                <span class="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/15">× 4</span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Cable Tie</div>
+                            <div class="mv-card-desc">Cable Tie adalah material pengikat serbaguna sekali pakai yang terbuat dari plastik nilon tangguh. Di lingkungan operasional PLN, alat ini dirancang khusus untuk penggunaan luar ruangan (outdoor). Fun</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR, SKUTR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">IEC</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="75b4d1d4-a2f2-47cd-adc8-618f95686866" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <img src="/uploads/images/1783569325357_19443.png" alt="Strain Hook">
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Strain Hook</div>
+                            <div class="mv-card-desc"></div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">.</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="973ef2c6-d2b5-482f-909e-b430709b6cbb" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <img src="/uploads/images/1782701642446_58586.png" alt="Connector Press">
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR, SKUTR, SUTM">
+                                    SR, SKUTR, SUTM
+                                </span>
+                            </div>
+                            
+                            <div style="position:absolute;bottom:8px;left:8px;z-index:20;">
+                                <span class="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/15">× 2</span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Connector Press</div>
+                            <div class="mv-card-desc">Connector Press (sering disebut Compression Connector, Joint Sleeve Press, atau Konektor CCO) adalah material penyambung kelistrikan berbahan logam konduktif tinggi (seperti aluminium murni, bimetal, atau tembaga). Fungsinya adalah untuk menyambungkan dua kabel penghantar (konduktor) secara permanen, baik untuk sambungan lurus (sambungan antar ujung kabel) maupun percabangan (seperti T-Tap atau H-Tap). Proses pemasangan material ini wajib menggunakan alat press mekanis atau hidrolik (crimping tool) untuk memadatkan bodi konektor hingga menjepit kabel dengan sangat kuat. Metode press ini bertujuan untuk menyatukan konduktor secara sempurna guna memastikan aliran arus listrik yang optimal dan mencegah timbulnya titik panas (hotspot) akibat sambungan yang longgar.</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR, SKUTR, SUTM</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">SPLN</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="1c23544c-ecfb-4523-be2d-22e898610b25" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Screw</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="9c0cd59b-837a-426f-8fa0-50c48cc45449" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Klem Omega</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="7149b63e-8a67-4fff-a237-915da774dfb5" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Konduktor NFA 2X-T (LVTC) 2 x 10mm</div>
+                            <div class="mv-card-desc">Twisted cable bla bla bla...</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="46164848-da02-42d9-8e03-7dadc2cc3c86" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">KWH Meter</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="e6d613a5-fbe6-47ea-a7b1-6dcdc855c1b0" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Mastic</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="814ecf20-d8e0-43d7-9906-6a0e048a6241" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Insulation Tape</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="6315bd7d-8af3-4713-9e4f-704e1bf5727b" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <img src="/uploads/images/1783570568620_69680.png" alt="MCB">
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">MCB</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="87a2a0e9-8f65-4b34-9224-bb99a5463071" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                            <div style="position:absolute;bottom:8px;left:8px;z-index:20;">
+                                <span class="text-[8px] font-bold px-2 py-0.5 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] border border-[var(--color-primary)]/15">× 3</span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Bolt + Nut + Washer m12 x 45mm</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                    
+                    <div class="mat-card mv-card" data-id="c44e099d-98c3-49bc-9651-f451da9bf0c7" data-type="material">
+                        <div class="mv-card-img">
+                            
+                                <div class="mv-card-img-placeholder">
+                                    <span style="font-size:2.2rem;">📦</span>
+                                </div>
+                            
+                            <div style="position:absolute;top:8px;right:8px;z-index:20;">
+                                <span class="max-w-[120px] truncate inline-block align-bottom text-[8px] font-bold uppercase tracking-[0.08em] px-2 py-0.5 rounded-full bg-white/90 text-[var(--color-text-secondary)] border border-[var(--color-border)]" title="SR">
+                                    SR
+                                </span>
+                            </div>
+                            
+                        </div>
+                        <div class="mv-card-body">
+                            <div class="mv-card-title">Mur + Fisher</div>
+                            <div class="mv-card-desc">-</div>
+                            <div class="mv-card-divider"></div>
+                            <div class="mv-card-stats">
+                                <div style="display:flex;gap:12px;min-width:0;flex:1;">
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kategori</span>
+                                        <span class="mv-card-stat-val">SR</span>
+                                    </div>
+                                    
+                                    <div style="width:1px;background:var(--color-border-light);flex-shrink:0;"></div>
+                                    <div class="mv-card-stat">
+                                        <span class="mv-card-stat-label">Kode</span>
+                                        <span class="mv-card-stat-val" style="color:var(--color-cyan);">-</span>
+                                    </div>
+                                    
+                                </div>
+                                <div class="mv-go-btn" style="margin-left:8px;">
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mv-accent-line"></div>
+                    </div>
+                    
+                </div>
+            </div>
+            
+
+            <!-- PERALATAN -->
+            
+
+        </div>
+        
+        
+    <!-- ====================================================
+         MODAL – Material Detail & 3D Viewer
+    ==================================================== -->
+    <div id="mat-modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none;">
+
+        <div id="mat-modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+
+            <!-- LEFT: 3D Viewer -->
+            <div id="mat-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 blur-[60px] pointer-events-none bg-[var(--color-accent)]/5"></div>
+                <model-viewer id="mat-model-viewer" src="" camera-controls auto-rotate rotation-per-second="25deg"
+                    interaction-prompt="none" shadow-intensity="1" environment-image="neutral" exposure="1"
+                    class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+                </model-viewer>
+                <img id="mat-model-viewer-2d" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;z-index:10;background:transparent;" />
+                <div id="mat-loading-overlay" class="pln-3d-loading absolute inset-0 z-10">
+                    <div id="mat-loading-spinner" class="pln-3d-loader">
+                        <span class="pln-dot bg-[var(--color-accent)]"></span>
+                        <span class="pln-dot bg-[var(--color-accent)]"></span>
+                        <span class="pln-dot bg-[var(--color-accent)]"></span>
+                    </div>
+                    <span id="mat-loading-text" class="pln-3d-label text-[var(--color-text-secondary)]"></span>
+                </div>
+                <div id="mat-empty-state" class="absolute inset-0 flex-col items-center justify-center text-[var(--color-text-muted)] z-10 hidden" style="display:none;">
+                    <svg class="w-16 h-16 mb-4 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <span class="text-sm font-medium tracking-wide brand-font">Belum ada file 3D</span>
+                </div>
+                <div id="mat-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-lg">
+                    <svg class="w-3.5 h-3.5 text-[var(--color-accent)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
+                    Rotasi 360° · Zoom via Scroll
+                </div>
+                <button id="mat-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-sm opacity-0 group-hover:opacity-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                </button>
+
+                <!-- Variant Navigation Arrows -->
+                <button id="mat-viewer-prev-btn" onclick="prevMatVariant()" class="absolute left-3 md:left-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all hidden z-20 border border-[var(--color-border)] shadow-md group-hover:scale-105">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                </button>
+                <button id="mat-viewer-next-btn" onclick="nextMatVariant()" class="absolute right-3 md:right-6 top-1/2 -translate-y-1/2 w-10 h-10 md:w-12 md:h-12 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all hidden z-20 border border-[var(--color-border)] shadow-md group-hover:scale-105">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                </button>
+
+                <!-- Variant Display Name -->
+                <div id="mat-viewer-variant-name" class="absolute top-4 left-1/2 -translate-x-1/2 px-5 py-2 bg-white/90 backdrop-blur-md text-[var(--color-text-primary)] text-[10px] font-bold rounded-full pointer-events-none z-10 hidden shadow-md border border-[var(--color-border)] uppercase tracking-[0.2em]">
+                    Varian -
+                </div>
+            </div>
+
+            <!-- RIGHT: Info Panel -->
+            <div id="mat-info-wrap" class="flex-1 flex flex-col min-h-0 relative" style="overflow-y: auto;">
+                <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
+                    <div class="absolute top-5 right-5 z-20">
+                        <button id="mat-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-bg-surface-alt)] hover:bg-[var(--color-primary)]/5">
+                            <svg class="w-4 h-4 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 mb-4 pr-12 flex-wrap">
+                        <span id="mat-modal-category" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 bg-[var(--color-accent)]/10 border-[var(--color-accent)]/20 text-[var(--color-accent-dark)] shrink-0">
+                            <span class="w-1 h-1 rounded-full animate-pulse bg-[var(--color-accent)] opacity-80"></span>
+                            MATERIAL
+                        </span>
+                        <div id="mat-modal-tags" class="flex items-center gap-1.5 flex-wrap"></div>
+                    </div>
+                    <h2 id="mat-modal-name" class="text-2xl font-bold text-[var(--color-text-primary)] leading-tight mb-1 brand-font tracking-tight"></h2>
+                    <p id="mat-modal-code" class="text-[11px] font-mono tracking-wider text-[var(--color-cyan)] font-semibold"></p>
+                    <div class="mt-3 h-px bg-[var(--color-border-light)]"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3">
+                    <p id="mat-modal-desc" class="text-[13px] text-[var(--color-text-secondary)] leading-relaxed mb-5"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        
+    <!-- ====================================================
+         MODAL – Tool Detail & 3D Viewer
+    ==================================================== -->
+    <div id="modal-overlay" class="fixed inset-0 z-50 hidden items-center justify-center p-4 sm:p-6" style="display: none;">
+
+        <div id="modal-card" class="relative w-full max-w-5xl flex flex-col md:flex-row rounded-[2.5rem] overflow-hidden shadow-2xl border border-[var(--color-border)] bg-[var(--color-bg-surface)]">
+
+            <!-- LEFT: 3D Viewer -->
+            <div id="modal-canvas-wrap" class="w-full md:w-[52%] shrink-0 relative overflow-hidden flex items-center justify-center group h-[260px] md:h-auto bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 blur-[60px] pointer-events-none bg-[var(--color-primary)]/5"></div>
+                <model-viewer id="modal-model-viewer" src="" camera-controls auto-rotate rotation-per-second="25deg"
+                    interaction-prompt="none" shadow-intensity="1" environment-image="neutral" exposure="1"
+                    class="w-full h-full z-0 outline-none cursor-grab active:cursor-grabbing">
+                </model-viewer>
+                <img id="modal-model-viewer-2d" src="" style="position:absolute;inset:0;width:100%;height:100%;object-fit:contain;display:none;z-index:10;background:transparent;" />
+                <div id="modal-loading-overlay" class="pln-3d-loading absolute inset-0 z-10">
+                    <div id="modal-loading-spinner" class="pln-3d-loader">
+                        <span class="pln-dot bg-[var(--color-primary)]"></span>
+                        <span class="pln-dot bg-[var(--color-primary)]"></span>
+                        <span class="pln-dot bg-[var(--color-primary)]"></span>
+                    </div>
+                    <span id="modal-loading-text" class="pln-3d-label text-[var(--color-text-secondary)]"></span>
+                </div>
+                <div id="modal-empty-state" class="absolute inset-0 flex-col items-center justify-center text-[var(--color-text-muted)] z-10 hidden" style="display:none;">
+                    <svg class="w-16 h-16 mb-4 text-[var(--color-text-muted)] opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                    <span class="text-sm font-medium tracking-wide brand-font">Belum ada file 3D</span>
+                </div>
+                <div id="modal-hint-text" class="absolute bottom-5 left-1/2 -translate-x-1/2 bg-white/90 backdrop-blur-md border border-[var(--color-border)] text-[var(--color-text-secondary)] text-[11px] font-medium tracking-wide px-4 py-2 rounded-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center gap-2 shadow-lg">
+                    <svg class="w-3.5 h-3.5 text-[var(--color-primary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 15l-2 5L9 9l11 4-5 2zm0 0l5 5"/></svg>
+                    Rotasi 360° · Zoom via Scroll
+                </div>
+                <button id="modal-fullscreen-btn" title="Layar Penuh" class="absolute top-4 right-4 w-10 h-10 bg-white/80 backdrop-blur-md rounded-full flex items-center justify-center text-[var(--color-text-secondary)] hover:text-[var(--color-primary)] hover:bg-white transition-all z-20 border border-[var(--color-border)] shadow-sm opacity-0 group-hover:opacity-100">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/></svg>
+                </button>
+            </div>
+
+            <!-- RIGHT: Info Panel -->
+            <div id="modal-info-wrap" class="flex-1 flex flex-col min-h-0 relative" style="overflow-y: auto;">
+                <div class="shrink-0 px-7 md:px-9 pt-5 md:pt-7 pb-3 relative">
+                    <div class="absolute top-5 right-5 z-20">
+                        <button id="modal-btn-close" class="w-9 h-9 flex items-center justify-center rounded-full transition-all border border-[var(--color-border)] hover:border-[var(--color-primary)] bg-[var(--color-bg-surface-alt)] hover:bg-[var(--color-primary)]/5">
+                            <svg class="w-4 h-4 text-[var(--color-text-secondary)]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center gap-3 mb-4 pr-12">
+                        <span id="modal-category-label" class="text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 bg-[var(--color-primary)]/10 border-[var(--color-primary)]/20 text-[var(--color-primary)]"></span>
+                    </div>
+                    <h2 id="modal-name" class="text-2xl font-bold text-[var(--color-text-primary)] leading-tight mb-1 brand-font tracking-tight"></h2>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">Standar:</span>
+                            <span id="modal-standard" class="text-[11px] font-bold text-[var(--color-primary)]"></span>
+                        </div>
+                        <div class="w-px h-3 bg-[var(--color-border)]"></div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] uppercase tracking-wider text-[var(--color-text-muted)] font-semibold">Status:</span>
+                            <span id="modal-status" class="text-[11px] font-bold text-[var(--color-success)]"></span>
+                        </div>
+                    </div>
+                    <div class="mt-3 h-px bg-[var(--color-border-light)]"></div>
+                </div>
+                <div class="flex-1 overflow-y-auto px-7 md:px-9 pb-7 pt-3">
+                    <p id="modal-desc" class="text-[13px] text-[var(--color-text-secondary)] leading-relaxed mb-5"></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    </main>
+
+    <!-- ═══ UNIFIED PREMIUM FOOTER (JALA Light) ═══ -->
+<footer id="landing-footer" style="margin-top: auto;">
+  <div class="footer-inner">
+    <div class="footer-top">
+      <!-- Brand -->
+      <div class="footer-brand">
+        <a href="/" class="footer-logo">
+          <span>ListrikPedia</span>
+        </a>
+        <p class="footer-desc">
+          Platform pembelajaran kelistrikan berbasis 3D interaktif untuk karyawan,
+          teknisi, dan masyarakat. Oleh PT PLN (Persero).
+        </p>
+      </div>
+
+      <!-- Link columns -->
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h4>Modul</h4>
+          <a href="/tools">Peralatan</a>
+          <a href="/ModulKonstruksi">Konstruksi</a>
+          <a href="/material">Material</a>
+        </div>
+        <div class="footer-col">
+          <h4>Informasi</h4>
+          <a href="#">Tentang Platform</a>
+          <a href="#">Kebijakan Privasi</a>
+          <a href="#">Syarat Penggunaan</a>
+        </div>
+        <div class="footer-col">
+          <h4>Kontak</h4>
+          <a href="mailto:pusdiklat@pln.co.id">pusdiklat@pln.co.id</a>
+          <span>Jl. HR. Rasuna Said, Jakarta Selatan</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bottom bar -->
+    <div class="footer-bottom">
+      <p class="footer-copy">&copy; 2026 PT PLN (Persero) — ListrikPedia</p>
+      <p class="footer-note">Didukung oleh Divisi TI &amp; Transformasi Digital</p>
+    </div>
+  </div>
+</footer>
+<script src="/js/navbar.js"></script>
+
+    <script src="/js/main.js"></script>
+    <script src="/js/catalog-modal.js"></script>
+    <script type="module" src="/js/modul-viewer.js"></script>
+
+    <script>
+        function mvFilterComponents(query) {
+            var q = (query || '').toLowerCase().trim();
+            document.querySelectorAll('.mat-card').forEach(function(card) {
+                var titleEl = card.querySelector('.mv-card-title');
+                var name = titleEl ? titleEl.textContent.toLowerCase() : '';
+                card.classList.toggle('mv-hidden', q !== '' && !name.includes(q));
+            });
+        }
+
+        function toggleFullscreen() {
+            var container = document.getElementById('viewer-container');
+            if (!document.fullscreenElement) {
+                var req = container.requestFullscreen || container.webkitRequestFullscreen || container.msRequestFullscreen;
+                if (req) req.call(container).catch(function(err) { console.error(err); });
+            } else {
+                var exit = document.exitFullscreen || document.webkitExitFullscreen || document.msExitFullscreen;
+                if (exit) exit.call(document);
+            }
+        }
+
+        document.addEventListener('fullscreenchange', function() {
+            var container = document.getElementById('viewer-container');
+            if (document.fullscreenElement === container) {
+                container.style.borderRadius = '0px';
+                container.style.border = 'none';
+            } else if (container) {
+                container.style.borderRadius = '1.5rem';
+                container.style.border = '1px solid var(--color-border)';
+            }
+        });
+
+        var modalData = [{"id":"5fd1c537-6875-45b4-ad5b-6e3bd3185efa","name":"Service Klem","code":".","bgGradient":null,"description":"","image":"/uploads/images/1783569860655_69159.png","created_at":"2026-07-03T03:42:48.722Z","updated_at":"2026-07-09T11:04:20.720Z","assets":[{"id":"98f2f167-4e95-4966-811d-9ffb0200be12","material_id":"5fd1c537-6875-45b4-ad5b-6e3bd3185efa","name":"Klem Kabel","file":"/uploads/assets-3d/1783050168787_98200.glb"}],"categories":[{"id":"ef5f94e9-7b05-4784-aff3-f70041d0b793","name":"SKUTR","value":"skutr","type":"material","created_at":"2026-07-06T04:09:52.770Z"}],"categoryLabel":"SKUTR","category":"lainnya","type":"material"},{"id":"5ce3b952-e160-4160-a968-5cc213ed3982","name":"Klem Ikat Tiang Type 2","code":".","bgGradient":null,"description":"","image":"/uploads/images/1783570005954_87975.png","created_at":"2026-07-03T03:42:04.573Z","updated_at":"2026-07-09T11:06:45.985Z","assets":[{"id":"81fccb78-33a6-4c27-9efe-f3382998dacd","material_id":"5ce3b952-e160-4160-a968-5cc213ed3982","name":"Klem Ikat Tiang Type 2","file":"/uploads/assets-3d/1783050124621_95779.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"0b5afad3-91ab-4201-afca-4a318470a738","name":"Cable Tie","code":"IEC","bgGradient":null,"description":"Cable Tie adalah material pengikat serbaguna sekali pakai yang terbuat dari plastik nilon tangguh. Di lingkungan operasional PLN, alat ini dirancang khusus untuk penggunaan luar ruangan (outdoor). Fun","image":"/uploads/images/1783570998725_27456.png","created_at":"2026-05-18T10:48:21.549Z","updated_at":"2026-07-09T11:23:18.744Z","assets":[{"id":"c6f0c37b-bfc7-4f43-919b-f0b5b648bf20","material_id":"0b5afad3-91ab-4201-afca-4a318470a738","name":"Cable Ties","file":"/uploads/assets-3d/1779076101784_2831.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"},{"id":"ef5f94e9-7b05-4784-aff3-f70041d0b793","name":"SKUTR","value":"skutr","type":"material","created_at":"2026-07-06T04:09:52.770Z"}],"categoryLabel":"SR, SKUTR","category":"lainnya","type":"material"},{"id":"75b4d1d4-a2f2-47cd-adc8-618f95686866","name":"Strain Hook","code":".","bgGradient":null,"description":"","image":"/uploads/images/1783569325357_19443.png","created_at":"2026-07-03T04:10:39.328Z","updated_at":"2026-07-09T11:33:04.086Z","assets":[{"id":"e19256cd-d3ff-4cb3-a77f-6d767e6a19e6","material_id":"75b4d1d4-a2f2-47cd-adc8-618f95686866","name":"Strain Hook","file":"/uploads/assets-3d/1783051839370_99012.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"973ef2c6-d2b5-482f-909e-b430709b6cbb","name":"Connector Press","code":"SPLN","bgGradient":null,"description":"Connector Press (sering disebut Compression Connector, Joint Sleeve Press, atau Konektor CCO) adalah material penyambung kelistrikan berbahan logam konduktif tinggi (seperti aluminium murni, bimetal, atau tembaga). Fungsinya adalah untuk menyambungkan dua kabel penghantar (konduktor) secara permanen, baik untuk sambungan lurus (sambungan antar ujung kabel) maupun percabangan (seperti T-Tap atau H-Tap). Proses pemasangan material ini wajib menggunakan alat press mekanis atau hidrolik (crimping tool) untuk memadatkan bodi konektor hingga menjepit kabel dengan sangat kuat. Metode press ini bertujuan untuk menyatukan konduktor secara sempurna guna memastikan aliran arus listrik yang optimal dan mencegah timbulnya titik panas (hotspot) akibat sambungan yang longgar.","image":"/uploads/images/1782701642446_58586.png","created_at":"2026-05-18T10:59:38.882Z","updated_at":"2026-07-06T13:58:20.493Z","assets":[{"id":"c61b4550-71da-4dcd-99a5-6434b9a8678b","material_id":"973ef2c6-d2b5-482f-909e-b430709b6cbb","name":"Connector Press (tanpa pelindung)","file":"/uploads/assets-3d/1779076778756_91867.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"},{"id":"ef5f94e9-7b05-4784-aff3-f70041d0b793","name":"SKUTR","value":"skutr","type":"material","created_at":"2026-07-06T04:09:52.770Z"},{"id":"a4a316d8-b283-489d-b16a-973b1ea50dd7","name":"SUTM","value":"sutm","type":"material","created_at":"2026-07-06T04:02:32.961Z"}],"categoryLabel":"SR, SKUTR, SUTM","category":"lainnya","type":"material"},{"id":"1c23544c-ecfb-4523-be2d-22e898610b25","name":"Screw","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:30:45.522Z","updated_at":null,"assets":[{"id":"71809d20-e4d6-4bcf-b825-963e9f9ffd93","material_id":"1c23544c-ecfb-4523-be2d-22e898610b25","name":"Screw","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"9c0cd59b-837a-426f-8fa0-50c48cc45449","name":"Klem Omega","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:32:14.123Z","updated_at":null,"assets":[{"id":"95264490-4ac6-4b37-8eab-3f2f7d72cb08","material_id":"9c0cd59b-837a-426f-8fa0-50c48cc45449","name":"Klem Omega","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"7149b63e-8a67-4fff-a237-915da774dfb5","name":"Konduktor NFA 2X-T (LVTC) 2 x 10mm","code":"-","bgGradient":null,"description":"Twisted cable bla bla bla...","image":null,"created_at":"2026-07-09T01:35:17.909Z","updated_at":"2026-07-09T10:37:23.765Z","assets":[{"id":"69e2e384-e633-400e-937f-578aa5c4174b","material_id":"7149b63e-8a67-4fff-a237-915da774dfb5","name":"Konduktor NFA 2X-T (LVTC) 2 x 10mm","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"46164848-da02-42d9-8e03-7dadc2cc3c86","name":"KWH Meter","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:33:26.553Z","updated_at":null,"assets":[{"id":"d0be4000-072f-401b-8d27-fde31c630110","material_id":"46164848-da02-42d9-8e03-7dadc2cc3c86","name":"KWH Meter","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"e6d613a5-fbe6-47ea-a7b1-6dcdc855c1b0","name":"Mastic","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:34:14.258Z","updated_at":null,"assets":[{"id":"831a8eb1-99e0-4f4e-99a2-8743d5c754af","material_id":"e6d613a5-fbe6-47ea-a7b1-6dcdc855c1b0","name":"Mastic","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"814ecf20-d8e0-43d7-9906-6a0e048a6241","name":"Insulation Tape","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T01:34:47.596Z","updated_at":null,"assets":[{"id":"333acadc-00b2-4740-be48-886f0d3ada8b","material_id":"814ecf20-d8e0-43d7-9906-6a0e048a6241","name":"Insulation Tape","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"6315bd7d-8af3-4713-9e4f-704e1bf5727b","name":"MCB","code":"-","bgGradient":null,"description":"-","image":"/uploads/images/1783570568620_69680.png","created_at":"2026-07-09T01:31:49.439Z","updated_at":"2026-07-09T11:16:08.661Z","assets":[{"id":"69ca766a-6a02-4302-bf87-9e201d27de40","material_id":"6315bd7d-8af3-4713-9e4f-704e1bf5727b","name":"MCB","file":"/uploads/assets-3d/1783560709520_77804.glb"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"87a2a0e9-8f65-4b34-9224-bb99a5463071","name":"Bolt + Nut + Washer m12 x 45mm","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-09T04:39:13.911Z","updated_at":null,"assets":[{"id":"9d8aa547-6f97-4f7d-bf5b-3e6bdd18b50b","material_id":"87a2a0e9-8f65-4b34-9224-bb99a5463071","name":"Bolt + Nut + Washer m12 x 45mm","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"},{"id":"c44e099d-98c3-49bc-9651-f451da9bf0c7","name":"Mur + Fisher","code":"-","bgGradient":null,"description":"-","image":null,"created_at":"2026-07-10T03:18:43.155Z","updated_at":null,"assets":[{"id":"97031feb-7c84-40a6-966b-d55d2d8e4fc0","material_id":"c44e099d-98c3-49bc-9651-f451da9bf0c7","name":"Mur dan Fisher","file":"-"}],"categories":[{"id":"5e4f0d92-51f9-4455-9851-a969ef92508d","name":"SR","value":"sr","type":"material","created_at":"2026-06-30T03:20:00.427Z"}],"categoryLabel":"SR","category":"lainnya","type":"material"}];
+
+        var MAT_IDS = {
+            overlay: 'mat-modal-overlay', card: 'mat-modal-card',
+            modelViewer: 'mat-model-viewer', canvasWrap: 'mat-canvas-wrap',
+            emptyState: 'mat-empty-state', loadingOverlay: 'mat-loading-overlay',
+            spinner: 'mat-loading-spinner', loadingText: 'mat-loading-text',
+        };
+        var TOOLS_IDS = {
+            overlay: 'modal-overlay', card: 'modal-card',
+            modelViewer: 'modal-model-viewer', canvasWrap: 'modal-canvas-wrap',
+            emptyState: 'modal-empty-state', loadingOverlay: 'modal-loading-overlay',
+            spinner: 'modal-loading-spinner', loadingText: 'modal-loading-text',
+        };
+
+        var currentMatAssets = [];
+        var currentVarIdx = 0;
+
+        window.openModal = function openModal(id, type) {
+            var item = modalData.find(function(m) { return String(m.id) === String(id) && m.type === type; });
+            if (!item) return;
+
+            if (type === 'material') {
+                currentMatAssets = (item.assets && item.assets.length > 0) ? item.assets : [];
+                currentVarIdx = 0;
+                var file3d = item.file3d;
+                if (!file3d && currentMatAssets.length > 0) file3d = currentMatAssets[0].file;
+
+                openCatalogModal(MAT_IDS, file3d, 'Memuat Skema Spasial...', function() {
+                    var tagsContainer = document.getElementById('mat-modal-tags');
+                    if (tagsContainer) {
+                        if (item.categories && item.categories.length > 0) {
+                            tagsContainer.innerHTML = item.categories.map(function(c) {
+                                return '<span class="text-[9px] font-bold uppercase tracking-wider px-2 py-1 rounded border bg-[var(--color-bg-surface-alt)] border-[var(--color-border)] text-[var(--color-text-secondary)]">' + (c.name || '-') + '</span>';
+                            }).join('');
+                        } else {
+                            tagsContainer.innerHTML = '';
+                        }
+                    }
+                    var nameEl = document.getElementById('mat-modal-name');
+                    if (nameEl) nameEl.textContent = item.name || '';
+                    var codeEl = document.getElementById('mat-modal-code');
+                    if (codeEl) codeEl.textContent = item.code || '';
+                    var descEl = document.getElementById('mat-modal-desc');
+                    if (descEl) descEl.textContent = item.description || item.shortDesc || '';
+
+                    var prevBtn = document.getElementById('mat-viewer-prev-btn');
+                    var nextBtn = document.getElementById('mat-viewer-next-btn');
+                    var varName = document.getElementById('mat-viewer-variant-name');
+                    if (currentMatAssets.length > 1) {
+                        if (prevBtn) prevBtn.style.display = 'flex';
+                        if (nextBtn) nextBtn.style.display = 'flex';
+                        if (varName) { varName.style.display = 'block'; varName.textContent = 'Varian 1/' + currentMatAssets.length + ': ' + (currentMatAssets[0].name || '-'); }
+                    } else {
+                        if (prevBtn) prevBtn.style.display = 'none';
+                        if (nextBtn) nextBtn.style.display = 'none';
+                        if (varName) varName.style.display = 'none';
+                    }
+                });
+            } else {
+                openCatalogModal(TOOLS_IDS, item.file3d, 'Memuat Model 3D...', function() {
+                    var catLabel = document.getElementById('modal-category-label');
+                    var catName = (item.category && item.category.name) || (typeof item.category === 'string' ? item.category : '') || item.categoryLabel || '';
+                    if (catLabel) {
+                        catLabel.className = 'text-[9px] font-black uppercase tracking-[0.2em] px-3 py-1.5 rounded-full border inline-flex items-center gap-1.5 cat-badge-teknis';
+                        catLabel.innerHTML = '<span class="w-1 h-1 rounded-full opacity-70 animate-pulse bg-current"></span>' + catName;
+                    }
+                    var nameEl = document.getElementById('modal-name');
+                    if (nameEl) nameEl.textContent = item.name || '';
+                    var stdEl = document.getElementById('modal-standard');
+                    if (stdEl) stdEl.textContent = item.standard || '-';
+                    var statusEl = document.getElementById('modal-status');
+                    if (statusEl) {
+                        statusEl.textContent = item.status || '-';
+                        statusEl.className = 'text-[11px] font-bold ' + (item.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
+                    }
+                    var descEl = document.getElementById('modal-desc');
+                    if (descEl) descEl.textContent = item.description || 'Deskripsi belum tersedia.';
+                });
+            }
+        }
+
+        function updateMatVariantUI() {
+            var varName = document.getElementById('mat-viewer-variant-name');
+            if (varName && currentMatAssets.length > 1) {
+                var asset = currentMatAssets[currentVarIdx];
+                varName.textContent = 'Varian ' + (currentVarIdx + 1) + '/' + currentMatAssets.length + ': ' + (asset.name || '-');
+            }
+        }
+
+        window.prevMatVariant = function() {
+            if (currentMatAssets.length <= 1) return;
+            currentVarIdx = (currentVarIdx - 1 + currentMatAssets.length) % currentMatAssets.length;
+            updateMatVariantUI();
+            var file = currentMatAssets[currentVarIdx].file;
+            var isImage = file.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || file.startsWith('data:image/');
+            var mv = document.getElementById(MAT_IDS.modelViewer);
+            var mv2d = document.getElementById(MAT_IDS.modelViewer + '-2d');
+            if (isImage) {
+                if (mv) mv.style.display = 'none';
+                if (mv2d) { mv2d.src = file; mv2d.style.display = 'block'; }
+            } else {
+                if (mv2d) mv2d.style.display = 'none';
+                if (mv) { mv.src = file; mv.style.display = 'block'; }
+            }
+        };
+
+        window.nextMatVariant = function() {
+            if (currentMatAssets.length <= 1) return;
+            currentVarIdx = (currentVarIdx + 1) % currentMatAssets.length;
+            updateMatVariantUI();
+            var file = currentMatAssets[currentVarIdx].file;
+            var isImage = file.match(/\.(png|jpe?g|webp|gif)($|\?)/i) || file.startsWith('data:image/');
+            var mv = document.getElementById(MAT_IDS.modelViewer);
+            var mv2d = document.getElementById(MAT_IDS.modelViewer + '-2d');
+            if (isImage) {
+                if (mv) mv.style.display = 'none';
+                if (mv2d) { mv2d.src = file; mv2d.style.display = 'block'; }
+            } else {
+                if (mv2d) mv2d.style.display = 'none';
+                if (mv) { mv.src = file; mv.style.display = 'block'; }
+            }
+        };
+
+        document.querySelectorAll('.mat-card').forEach(function(card) {
+            card.addEventListener('click', function() {
+                openModal(card.dataset.id, card.dataset.type);
+            });
+        });
+
+        var _matBtnClose = document.getElementById('mat-btn-close');
+        var _matBtnFs = document.getElementById('mat-fullscreen-btn');
+        if (_matBtnClose) _matBtnClose.addEventListener('click', function() { closeCatalogModal(MAT_IDS); });
+        if (_matBtnFs) _matBtnFs.addEventListener('click', function() { toggleCatalogFullscreen('mat-canvas-wrap'); });
+        document.getElementById('mat-modal-overlay').addEventListener('click', function(e) {
+            if (e.target === document.getElementById('mat-modal-overlay')) closeCatalogModal(MAT_IDS);
+        });
+        initCatalogFullscreen('mat-canvas-wrap');
+
+        var _toolBtnClose = document.getElementById('modal-btn-close');
+        var _toolBtnFs = document.getElementById('modal-fullscreen-btn');
+        if (_toolBtnClose) _toolBtnClose.addEventListener('click', function() { closeCatalogModal(TOOLS_IDS); });
+        if (_toolBtnFs) _toolBtnFs.addEventListener('click', function() { toggleCatalogFullscreen('modal-canvas-wrap'); });
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === document.getElementById('modal-overlay')) closeCatalogModal(TOOLS_IDS);
+        });
+        initCatalogFullscreen('modal-canvas-wrap');
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key !== 'Escape') return;
+            var matOv = document.getElementById('mat-modal-overlay');
+            var toolOv = document.getElementById('modal-overlay');
+            if (matOv && matOv.style.display === 'flex') closeCatalogModal(MAT_IDS);
+            if (toolOv && toolOv.style.display === 'flex') closeCatalogModal(TOOLS_IDS);
+        });
+    </script>
+    <script src="/js/navbar.js"></script>
+</body>
+</html>
