@@ -1,0 +1,219 @@
+<!-- views/admin/katalog-instruktur.ejs -->
+
+<div class="rd-page-head">
+  <div class="rd-page-title-block">
+    <div class="rd-page-eyebrow">Pembelajaran</div>
+    <h1 class="rd-page-title">Katalog Instruktur</h1>
+    <p class="rd-page-subtitle">Kelola daftar instruktur, status kepegawaian, keahlian, dan total Jam Pelajaran (JP).</p>
+  </div>
+  <% if (currentUser && currentUser.role === 'UPDL') { %>
+  <div class="rd-page-actions">
+    <button class="rd-btn rd-btn-primary" onclick="openAddModal()">
+      <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Tambah Instruktur
+    </button>
+  </div>
+  <% } %>
+</div>
+
+<div class="rd-data-card">
+  <div class="rd-table-head" style="display:grid; grid-template-columns: 40px 120px 2fr 1.2fr 1.2fr 1.2fr 90px 90px <%= (currentUser && currentUser.role === 'UPDL') ? '120px' : '' %>; gap: 10px;">
+    <span>No</span>
+    <span>NIP</span>
+    <span>Nama Instruktur</span>
+    <span>Status</span>
+    <span>Keahlian</span>
+    <span>Unit</span>
+    <span style="text-align:center;">JP Bulan Ini</span>
+    <span style="text-align:center;">JP 5 Tahun</span>
+    <% if (currentUser && currentUser.role === 'UPDL') { %>
+    <span style="text-align:center;">Aksi</span>
+    <% } %>
+  </div>
+
+  <div id="katalog-list">
+    <% if (katalogData && katalogData.length > 0) { %>
+      <% katalogData.forEach((item, index) => { %>
+        <div class="rd-table-row" style="display:grid; grid-template-columns: 40px 120px 2fr 1.2fr 1.2fr 1.2fr 90px 90px <%= (currentUser && currentUser.role === 'UPDL') ? '120px' : '' %>; gap: 10px; align-items:center; padding: 12px 16px; border-bottom: 1px solid var(--rd-border);">
+          <span style="color: var(--rd-text-muted);"><%= index + 1 %></span>
+          <span style="font-size:13px;"><%= item.nip %></span>
+          <span style="font-weight: 500; color: var(--rd-text-primary);"><%= item.nama_instruktur %></span>
+          <span>
+            <% 
+              let statusClass = 'background: #F3F4F6; color: #374151;';
+              if (item.status === 'Instruktur Tetap') statusClass = 'background: #D1FAE5; color: #065F46;';
+              else if (item.status === 'Instruktur Tidak Tetap') statusClass = 'background: #FEF3C7; color: #92400E;';
+              else if (item.status === 'Instruktur Eksternal') statusClass = 'background: #DBEAFE; color: #1E40AF;';
+            %>
+            <span style="padding: 3px 8px; border-radius: 99px; font-size: 11px; font-weight: 600; <%= statusClass %>">
+              <%= item.status || 'Instruktur Tetap' %>
+            </span>
+          </span>
+          <span style="color: var(--rd-text-secondary); font-size: 13px;"><%= item.keahlian || '-' %></span>
+          <span style="color: var(--rd-text-secondary); font-size: 13px;"><%= item.unit || '-' %></span>
+          <span style="text-align:center;"><%= item.total_jp_bulan_ini || 0 %></span>
+          <span style="text-align:center;"><%= item.total_jp_5_tahun || 0 %></span>
+          <% if (currentUser && currentUser.role === 'UPDL') { %>
+          <div style="display:flex; gap: 6px; justify-content:center;">
+            <button class="rd-btn rd-btn-secondary rd-btn-sm btn-edit"
+              data-id="<%= item.id %>"
+              data-nip="<%= item.nip %>"
+              data-nama="<%= item.nama_instruktur %>"
+              data-status="<%= item.status %>"
+              data-keahlian="<%= item.keahlian || '' %>"
+              data-unit="<%= item.unit || '' %>">Edit</button>
+            <button class="rd-btn rd-btn-secondary rd-btn-sm btn-hapus"
+              style="color: var(--rd-error); border-color: #fee2e2; background: #fef2f2;"
+              data-id="<%= item.id %>">Hapus</button>
+          </div>
+          <% } %>
+        </div>
+      <% }); %>
+    <% } else { %>
+      <div class="rd-empty" style="padding: 40px; text-align: center; color: var(--rd-text-muted);">
+        <p>Belum ada data katalog instruktur.</p>
+      </div>
+    <% } %>
+  </div>
+</div>
+
+<% if (currentUser && currentUser.role === 'UPDL') { %>
+<!-- Modal Tambah/Edit Katalog -->
+<div id="katalogModal" class="rd-modal-overlay" style="display: none; justify-content: center; align-items: center; z-index: 1000;" onclick="if(event.target===this)closeModal()">
+  <div class="rd-modal" style="max-width: 500px; width: 100%;">
+    <div class="rd-modal-header">
+      <div class="rd-modal-title-block">
+        <h3 id="modalTitle" class="rd-page-title" style="font-size: 1.25rem;">Tambah Instruktur</h3>
+      </div>
+      <button type="button" onclick="closeModal()" class="rd-modal-close" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">×</button>
+    </div>
+    <form id="katalogForm" onsubmit="submitForm(event)">
+      <div class="rd-modal-body" style="display:flex; flex-direction:column; gap:16px;">
+        <input type="hidden" id="instrukturId">
+        
+        <div class="rd-field">
+          <label>NIP</label>
+          <input type="text" id="nip" required class="rd-input" placeholder="Masukkan NIP">
+        </div>
+        
+        <div class="rd-field">
+          <label>Nama Instruktur</label>
+          <input type="text" id="nama" required class="rd-input">
+        </div>
+        
+        <div class="rd-field">
+          <label>Status</label>
+          <select id="status" required class="rd-input">
+            <option value="Instruktur Tetap">Instruktur Tetap</option>
+            <option value="Instruktur Tidak Tetap">Instruktur Tidak Tetap</option>
+            <option value="Instruktur Eksternal">Instruktur Eksternal</option>
+          </select>
+        </div>
+
+        <div class="rd-field">
+          <label>Keahlian</label>
+          <input type="text" id="keahlian" class="rd-input" placeholder="Contoh: Teknik Distribusi, Proteksi Jaringan">
+          <small style="color: var(--rd-text-muted); margin-top: 4px; display:block;">Pisahkan dengan koma jika lebih dari satu keahlian</small>
+        </div>
+
+        <div class="rd-field">
+          <label>Unit</label>
+          <input type="text" id="unit" class="rd-input" placeholder="Contoh: UPDL Padang, PLN Pusdiklat">
+        </div>
+      </div>
+      <div class="rd-modal-footer">
+        <button type="button" class="rd-btn rd-btn-secondary" onclick="closeModal()">Batal</button>
+        <button type="submit" class="rd-btn rd-btn-primary">Simpan</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const modal = document.getElementById('katalogModal');
+  const API_URL = '/api/pembelajaran/katalog-instruktur';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('katalog-list').addEventListener('click', (e) => {
+      const editBtn = e.target.closest('.btn-edit');
+      const hapusBtn = e.target.closest('.btn-hapus');
+
+      if (editBtn) {
+        const d = editBtn.dataset;
+        editData(d.id, d.nip, d.nama, d.status, d.keahlian, d.unit);
+      }
+      if (hapusBtn) {
+        deleteData(hapusBtn.dataset.id);
+      }
+    });
+  });
+
+  function openAddModal() {
+    document.getElementById('modalTitle').textContent = 'Tambah Instruktur';
+    document.getElementById('katalogForm').reset();
+    document.getElementById('instrukturId').value = '';
+    modal.style.display = 'flex';
+  }
+
+  function editData(id, nip, nama, status, keahlian, unit) {
+    document.getElementById('modalTitle').textContent = 'Edit Instruktur';
+    document.getElementById('instrukturId').value = id;
+    document.getElementById('nip').value = nip;
+    document.getElementById('nama').value = nama;
+    document.getElementById('status').value = status;
+    document.getElementById('keahlian').value = keahlian || '';
+    document.getElementById('unit').value = unit || '';
+    modal.style.display = 'flex';
+  }
+
+  function closeModal() {
+    modal.style.display = 'none';
+  }
+
+  async function deleteData(id) {
+    if (!confirm('Hapus instruktur ini?')) return;
+    try {
+      const res = await fetch(`${API_URL}/${id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (res.ok) window.location.reload();
+      else {
+        const err = await res.json();
+        alert(err.error || 'Gagal menghapus data');
+      }
+    } catch (e) {
+      alert('Terjadi kesalahan koneksi');
+    }
+  }
+
+  async function submitForm(e) {
+    e.preventDefault();
+    const id = document.getElementById('instrukturId').value;
+    const payload = {
+      nip: document.getElementById('nip').value.trim(),
+      nama_instruktur: document.getElementById('nama').value,
+      status: document.getElementById('status').value,
+      keahlian: document.getElementById('keahlian').value,
+      unit: document.getElementById('unit').value
+    };
+
+    try {
+      const res = await fetch(id ? `${API_URL}/${id}` : API_URL, {
+        method: id ? 'PUT' : 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        window.location.reload();
+      } else {
+        const err = await res.json();
+        alert(err.error || 'Gagal menyimpan data');
+      }
+    } catch (err) {
+      alert('Terjadi kesalahan koneksi');
+    }
+  }
+</script>
+<% } %>

@@ -1800,3 +1800,20 @@ h1, h2, h3, h4, h5, h6, .brand-font {
 #mat-info-wrap::-webkit-scrollbar-track { background: transparent; }
 #mat-info-wrap::-webkit-scrollbar-thumb { background: rgba(0,82,163,0.1); border-radius: 999px; }
 #mat-info-wrap::-webkit-scrollbar-thumb:hover { background: rgba(0,82,163,0.25); }
+
+/* Pembelajaran Dropdown CSS */
+.jl-nav-dropdown-wrap { position: relative; display: flex; align-items: center; cursor: pointer; }
+.jl-nav-dropdown-icon { margin-left: 0.25rem; transition: transform 0.3s ease; }
+.jl-nav-dropdown-wrap:hover .jl-nav-dropdown-icon { transform: rotate(180deg); }
+.jl-nav-dropdown-menu { position: absolute; top: 100%; left: 0; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 0.5rem; padding: 0.5rem 0; min-width: 200px; opacity: 0; visibility: hidden; transform: translateY(10px); transition: all 0.3s cubic-bezier(0.22,1,0.36,1); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05); z-index: 100; }
+.jl-nav-dropdown-wrap:hover .jl-nav-dropdown-menu { opacity: 1; visibility: visible; transform: translateY(0); }
+.jl-nav-dropdown-item { display: block; padding: 0.75rem 1rem; color: var(--color-text-primary); text-decoration: none; font-size: 0.875rem; transition: background-color 0.2s, color 0.2s; font-weight: 500; }
+.jl-nav-dropdown-item:hover { background-color: var(--color-bg-hover); color: var(--color-brand-primary); }
+.jl-overlay-dropdown-wrap { display: flex; flex-direction: column; width: 100%; }
+.jl-overlay-dropdown-menu { display: none; flex-direction: column; padding-left: 2rem; margin-top: 0.5rem; border-left: 1px solid var(--color-border); margin-left: 1.5rem; }
+.jl-overlay-dropdown-wrap.is-open .jl-overlay-dropdown-menu { display: flex; animation: fadeInDown 0.3s forwards; }
+@keyframes fadeInDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.jl-overlay-dropdown-wrap.is-open .jl-arrow-down { transform: rotate(180deg); }
+.jl-arrow-down { transition: transform 0.3s ease; }
+.jl-overlay-sublink { color: var(--color-text-muted); text-decoration: none; font-size: 1.25rem; padding: 0.5rem 0; transition: color 0.3s ease; font-weight: 500; letter-spacing: -0.01em; }
+.jl-overlay-sublink:hover { color: var(--color-brand-primary); }

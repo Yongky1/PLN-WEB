@@ -1,13 +1,42 @@
 <!-- ═══ AWWWARDS-LEVEL NAVBAR — JALA (Refined) ═══ -->
-<% const current = typeof currentPage !== 'undefined' ? currentPage : (typeof isLanding !== 'undefined' && isLanding ? 'home' : ''); %>
 <%
+  // Determine user role from session (set by optionalAuth middleware via res.locals)
+  const _role = (typeof userRole !== 'undefined' && userRole) ? userRole : null;
+  const _isPeserta = !_role || _role === 'Peserta';
+  const _isUPDL = _role === 'UPDL';
+  const _isInstruktur = _role === 'Instruktur';
+
+  // Build pembelajaran sub-items based on role
+  let pembelajaranSubs = [];
+  if (_isUPDL) {
+    pembelajaranSubs = [
+      { href: '/pembelajaran/katalog', label: 'Katalog Instruktur' },
+      { href: '/pembelajaran/jadwal', label: 'Jadwal Instruktur' },
+    ];
+  } else if (_isInstruktur) {
+    pembelajaranSubs = [
+      { href: '/pembelajaran/katalog', label: 'Katalog Instruktur' },
+      { href: '/pembelajaran/jadwal', label: 'Jadwal Instruktur' },
+      { href: '/quiz', label: 'Quiz' },
+    ];
+  }
+
   const navItems = [
     { href: '/', label: 'Beranda', key: 'home', desc: 'Halaman utama platform' },
     { href: '/tools', label: 'Peralatan', key: 'tools', desc: 'Katalog peralatan 3D' },
     { href: '/ModulKonstruksi', label: 'Konstruksi', key: 'konstruksi', desc: 'Modul pembelajaran konstruksi' },
     { href: '/material', label: 'Material', key: 'material', desc: 'Database material kelistrikan' },
-    { href: '/quiz', label: 'QuizzZ', key: 'quiz', desc: 'Kuis interaktif' }
+    // Pembelajaran: if Peserta/guest → direct link to quiz; otherwise dropdown built via subs
+    {
+      href: _isPeserta ? '/quiz' : '#',
+      label: 'Pembelajaran',
+      key: 'pembelajaran',
+      desc: 'Pembelajaran & Kuis interaktif',
+      subs: _isPeserta ? [] : pembelajaranSubs
+    }
   ];
+
+  const current = typeof currentPage !== 'undefined' ? currentPage : (typeof isLanding !== 'undefined' && isLanding ? 'home' : '');
 %>
 
 <!-- ═══ FLOATING PILL NAVBAR ═══ -->
@@ -33,12 +62,30 @@
       <div id="jl-link-pill" class="jl-link-pill"></div>
 
       <% navItems.forEach((item, idx) => { %>
-        <a href="<%= item.href %>"
-           class="jl-nav-link <%= current === item.key ? 'is-active' : '' %>"
-           data-idx="<%= idx %>"
-           data-magnetic>
-          <span class="jl-nav-link-text"><%= item.label %></span>
-        </a>
+        <% if (item.subs && item.subs.length > 0) { %>
+          <div class="jl-nav-dropdown-wrap" data-magnetic>
+            <a href="#"
+               class="jl-nav-link <%= current === item.key ? 'is-active' : '' %>"
+               data-idx="<%= idx %>">
+              <span class="jl-nav-link-text"><%= item.label %></span>
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" class="jl-nav-dropdown-icon">
+                <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <div class="jl-nav-dropdown-menu">
+              <% item.subs.forEach(sub => { %>
+                <a href="<%= sub.href %>" class="jl-nav-dropdown-item"><%= sub.label %></a>
+              <% }) %>
+            </div>
+          </div>
+        <% } else { %>
+          <a href="<%= item.href %>"
+             class="jl-nav-link <%= current === item.key ? 'is-active' : '' %>"
+             data-idx="<%= idx %>"
+             data-magnetic>
+            <span class="jl-nav-link-text"><%= item.label %></span>
+          </a>
+        <% } %>
       <% }); %>
     </div>
 
@@ -77,24 +124,46 @@
       <p class="jl-overlay-label">Navigasi</p>
 
       <% navItems.forEach((item, idx) => { %>
-        <a href="<%= item.href %>"
-           class="jl-overlay-link <%= current === item.key ? 'is-active' : '' %>"
-           data-desc="<%= item.desc %>"
-           style="--i: <%= idx %>;">
-          <span class="jl-ol-num">0<%= idx + 1 %></span>
-          <span class="jl-ol-text-wrap">
-            <span class="jl-ol-text"><%= item.label %></span>
-          </span>
-          <span class="jl-ol-desc"><%= item.desc %></span>
-          <span class="jl-ol-arrow">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-              <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </span>
-          <% if (current === item.key) { %>
-            <span class="jl-ol-active-dot"></span>
-          <% } %>
-        </a>
+        <% if (item.subs && item.subs.length > 0) { %>
+          <div class="jl-overlay-dropdown-wrap">
+            <a href="#"
+               class="jl-overlay-link jl-overlay-dropdown-toggle <%= current === item.key ? 'is-active' : '' %>"
+               data-desc="<%= item.desc %>"
+               style="--i: <%= idx %>;">
+              <span class="jl-ol-num">0<%= idx + 1 %></span>
+              <span class="jl-ol-text-wrap">
+                <span class="jl-ol-text"><%= item.label %></span>
+              </span>
+              <span class="jl-ol-desc"><%= item.desc %></span>
+              <span class="jl-ol-arrow jl-arrow-down">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                  <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </span>
+            </a>
+            <div class="jl-overlay-dropdown-menu">
+              <% item.subs.forEach(sub => { %>
+                <a href="<%= sub.href %>" class="jl-overlay-sublink"><%= sub.label %></a>
+              <% }) %>
+            </div>
+          </div>
+        <% } else { %>
+          <a href="<%= item.href %>"
+             class="jl-overlay-link <%= current === item.key ? 'is-active' : '' %>"
+             data-desc="<%= item.desc %>"
+             style="--i: <%= idx %>;">
+            <span class="jl-ol-num">0<%= idx + 1 %></span>
+            <span class="jl-ol-text-wrap">
+              <span class="jl-ol-text"><%= item.label %></span>
+            </span>
+            <span class="jl-ol-desc"><%= item.desc %></span>
+            <span class="jl-ol-arrow">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                <path d="M7 17L17 7M17 7H7M17 7V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+          </a>
+        <% } %>
       <% }); %>
     </div>
 

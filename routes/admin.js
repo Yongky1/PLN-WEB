@@ -245,4 +245,34 @@ router.get('/quiz', async (req, res) => {
   }
 });
 
+// Katalog Instruktur
+router.get('/katalog-instruktur', async (req, res) => {
+  try {
+    const response = await fetch(`${API_URL}/pembelajaran/katalog-instruktur`);
+    if (!response.ok) throw new Error('Gagal memuat data katalog');
+    const data = await response.json();
+    renderAdmin(res, 'katalog-instruktur', 'Katalog Instruktur', 'Kelola data instruktur dan status', { katalogData: data }, req.user);
+  } catch (err) {
+    console.error('[Admin] Error loading katalog page:', err);
+    renderAdmin(res, 'katalog-instruktur', 'Katalog Instruktur', 'Kelola data instruktur dan status', { katalogData: [] }, req.user);
+  }
+});
+
+// Jadwal Instruktur
+router.get('/jadwal-instruktur', async (req, res) => {
+  try {
+    const [jadwalRes, katalogRes] = await Promise.all([
+      fetch(`${API_URL}/pembelajaran/jadwal-instruktur`),
+      fetch(`${API_URL}/pembelajaran/katalog-instruktur`),
+    ]);
+    if (!jadwalRes.ok || !katalogRes.ok) throw new Error('Gagal memuat data jadwal');
+    const jadwalData = await jadwalRes.json();
+    const katalogData = await katalogRes.json();
+    renderAdmin(res, 'jadwal-instruktur', 'Jadwal Instruktur', 'Kelola jadwal mengajar instruktur', { jadwalData, katalogData }, req.user);
+  } catch (err) {
+    console.error('[Admin] Error loading jadwal page:', err);
+    renderAdmin(res, 'jadwal-instruktur', 'Jadwal Instruktur', 'Kelola jadwal mengajar instruktur', { jadwalData: [], katalogData: [] }, req.user);
+  }
+});
+
 module.exports = router;

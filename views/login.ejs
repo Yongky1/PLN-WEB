@@ -892,20 +892,20 @@
         .then(function(result) {
           if (result.ok && result.data.token) {
             localStorage.setItem('token', result.data.token);
+            var isUserAdmin = result.data.user && result.data.user.email === 'admin@gmail.com';
             return fetch('/set-session', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ token: result.data.token })
+            }).then(function(sessionRes) {
+              if (sessionRes.ok) {
+                window.location.href = isUserAdmin ? '/admin' : '/';
+              } else {
+                throw new Error('Gagal mengatur sesi');
+              }
             });
           } else {
             throw new Error(result.data.message || result.data.error || 'Login gagal');
-          }
-        })
-        .then(function(sessionRes) {
-          if (sessionRes && sessionRes.ok) {
-            window.location.href = '/admin';
-          } else if (sessionRes) {
-            throw new Error('Gagal mengatur sesi');
           }
         })
         .catch(function(err) {

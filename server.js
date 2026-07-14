@@ -54,10 +54,21 @@ app.use('/uploads', async (req, res) => {
   }
 });
 
+const { optionalAuth } = require('./middleware/optionalAuth');
+
+// Attach session user info to every request (non-blocking)
+app.use(optionalAuth);
+app.use((req, res, next) => {
+  res.locals.sessionUser = req.sessionUser || null;
+  res.locals.userRole = req.sessionUser ? req.sessionUser.role : null;
+  next();
+});
+
 app.use('/', pagesRouter);
 app.use('/', proxyRouter);
 app.use('/', sessionRouter);
 app.use('/quiz', require('./routes/quiz'));
+app.use('/pembelajaran', require('./routes/pembelajaran'));
 app.use('/admin', authGuard, adminRouter);
 
 app.use(errorHandler);
