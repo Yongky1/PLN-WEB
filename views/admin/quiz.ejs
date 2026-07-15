@@ -32,8 +32,8 @@
               <tr>
                 <td><strong><%= quiz.title %></strong></td>
                 <td><span style="letter-spacing: 2px; background: var(--color-bg-surface-alt); padding: 4px 8px; border-radius: 6px;"><%= quiz.code %></span></td>
-                <td><%= quiz._count.questions %></td>
-                <td><%= quiz._count.submissions %></td>
+                <td><%= quiz.questions ? quiz.questions.length : 0 %></td>
+                <td><%= quiz.submissions ? quiz.submissions.length : 0 %></td>
                 <td><%= new Date(quiz.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
                 <td>
                   <button class="rd-btn rd-btn-sm" style="margin-right: 5px;" onclick="showQuizDetails('<%= quiz.id %>')">
