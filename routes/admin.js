@@ -22,7 +22,7 @@ function renderAdmin(res, page, title, subtitle, extraData = {}, currentUser = n
   const bodyPath = path.join(viewsDir, `${page}.ejs`);
 
   // Render body dulu, lalu inject ke layout
-  ejs.renderFile(bodyPath, { ...extraData }, (errBody, bodyHtml) => {
+  ejs.renderFile(bodyPath, { ...extraData, currentUser }, (errBody, bodyHtml) => {
     if (errBody) {
       console.error(`[Admin] Error rendering ${page}.ejs:`, errBody);
       return res.status(500).send('Error rendering page');
@@ -50,19 +50,35 @@ function renderAdmin(res, page, title, subtitle, extraData = {}, currentUser = n
 }
 
 /* =====================================================
+   MIDDLEWARE KHUSUS ADMIN (UPDL)
+   ===================================================== */
+const updlOnly = (req, res, next) => {
+  if (req.user) {
+    return next();
+  }
+  // Jika belum login, ke katalog instruktur (atau halaman login)
+  return res.redirect('/admin/katalog-instruktur');
+};
+
+/* =====================================================
    ROUTES
    ===================================================== */
 
-// Redirect /admin → /admin/konstruksi
-router.get('/', (req, res) => res.redirect('/admin/konstruksi'));
+// Redirect /admin → /admin/konstruksi (Atau katalog instruktur jika bukan admin)
+router.get('/', (req, res) => {
+  if (req.user) {
+    return res.redirect('/admin/konstruksi');
+  }
+  return res.redirect('/admin/katalog-instruktur');
+});
 
 // Manajemen User
-router.get('/users', (req, res) => {
+router.get('/users', updlOnly, (req, res) => {
   renderAdmin(res, 'users', 'Manajemen User', 'Kelola akun dan akses pengguna', {}, req.user);
 });
 
 // Modul Konten
-router.get('/modules', async (req, res) => {
+router.get('/modules', updlOnly, async (req, res) => {
   const base = process.env.BACKEND_URL || 'http://localhost:4000';
   try {
     const [modulesRes, materialsRes, toolsRes] = await Promise.all([
@@ -105,7 +121,7 @@ router.get('/modules', async (req, res) => {
 });
 
 // Manajemen Konstruksi
-router.get('/konstruksi', (req, res) => {
+router.get('/konstruksi', updlOnly, (req, res) => {
   renderAdmin(
     res,
     'konstruksi',
@@ -117,7 +133,7 @@ router.get('/konstruksi', (req, res) => {
 });
 
 // Kategori Konstruksi 3 Level
-router.get('/construction-categories', (req, res) => {
+router.get('/construction-categories', updlOnly, (req, res) => {
   renderAdmin(
     res,
     'construction-categories',
@@ -129,7 +145,7 @@ router.get('/construction-categories', (req, res) => {
 });
 
 // Manajemen Material
-router.get('/material', (req, res) => {
+router.get('/material', updlOnly, (req, res) => {
   renderAdmin(
     res,
     'material',
@@ -141,7 +157,7 @@ router.get('/material', (req, res) => {
 });
 
 // Manajemen Peralatan (Tools)
-router.get('/tools', (req, res) => {
+router.get('/tools', updlOnly, (req, res) => {
   renderAdmin(
     res,
     'tools',
@@ -153,7 +169,7 @@ router.get('/tools', (req, res) => {
 });
 
 // Manajemen ListrikPedia
-router.get('/listrikpedia', (req, res) => {
+router.get('/listrikpedia', updlOnly, (req, res) => {
   renderAdmin(
     res,
     'listrikpedia',
@@ -165,7 +181,7 @@ router.get('/listrikpedia', (req, res) => {
 });
 
 // Manajemen Kategori
-router.get('/categories', (req, res) => {
+router.get('/categories', updlOnly, (req, res) => {
   renderAdmin(
     res,
     'categories',
@@ -177,7 +193,7 @@ router.get('/categories', (req, res) => {
 });
 
 // Mesh Mapping — per modul
-router.get('/konstruksi/:id/mapping', async (req, res) => {
+router.get('/konstruksi/:id/mapping', updlOnly, async (req, res) => {
   const base = process.env.BACKEND_URL || 'http://localhost:4000';
   const { id } = req.params;
   try {
@@ -209,7 +225,7 @@ router.get('/konstruksi/:id/mapping', async (req, res) => {
 });
 
 // Pengaturan
-router.get('/settings', (req, res) => {
+router.get('/settings', updlOnly, (req, res) => {
   renderAdmin(
     res,
     'settings',
@@ -223,7 +239,7 @@ router.get('/settings', (req, res) => {
 });
 
 // Data Kuis
-router.get('/quiz', async (req, res) => {
+router.get('/quiz', updlOnly, async (req, res) => {
   try {
     const response = await fetch(`${API_URL}/quiz`, {
       headers: { Authorization: `Bearer ${req.cookies.auth_token}` }

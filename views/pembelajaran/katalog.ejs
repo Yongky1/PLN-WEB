@@ -7,14 +7,24 @@
     <%- include('../partials/navbar') %>
 
 <div class="jl-container px-6 md:px-12" style="padding-top: 120px; min-height: 80vh;">
-  <div class="flex justify-between items-center mb-6">
+  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
     <h1 class="text-3xl font-bold text-[var(--color-text-primary)]">Katalog Instruktur</h1>
-    <% if (sessionUser && sessionUser.role === 'UPDL') { %>
-      <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
-        Tambah Instruktur
-      </button>
-    <% } %>
+    
+    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+      <div class="relative w-full sm:w-64 lg:w-80">
+        <input type="text" id="searchInput" onkeyup="searchTable()" class="w-full pl-10 pr-4 py-2.5 bg-white border border-[var(--color-border)] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm text-[var(--color-text-primary)]" placeholder="Cari nama, NIP, keahlian...">
+        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+        </svg>
+      </div>
+
+      <% if (sessionUser && sessionUser.role === 'UPDL') { %>
+        <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+          Tambah Instruktur
+        </button>
+      <% } %>
+    </div>
   </div>
 
   <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden shadow-sm">
@@ -38,7 +48,7 @@
         <tbody id="katalog-tbody">
           <% if (katalogData && katalogData.length > 0) { %>
             <% katalogData.forEach((item, index) => { %>
-              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] transition-colors">
+              <tr class="katalog-row border-b border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] transition-colors">
                 <td class="p-4 text-[var(--color-text-primary)]"><%= index + 1 %></td>
                 <td class="p-4 text-[var(--color-text-primary)]"><%= item.nip %></td>
                 <td class="p-4 font-medium text-[var(--color-brand-primary)]"><%= item.nama_instruktur %></td>
@@ -74,6 +84,11 @@
                 <% } %>
               </tr>
             <% }); %>
+            <tr id="no-results-row" style="display: none;">
+              <td colspan="<%= (sessionUser && sessionUser.role === 'UPDL') ? 9 : 8 %>" class="p-8 text-center text-[var(--color-text-muted)]">
+                Pencarian tidak ditemukan.
+              </td>
+            </tr>
           <% } else { %>
             <tr>
               <td colspan="<%= (sessionUser && sessionUser.role === 'UPDL') ? 9 : 8 %>" class="p-8 text-center text-[var(--color-text-muted)]">
@@ -232,6 +247,49 @@
     }
   </script>
 <% } %>
+
+<script>
+  function searchTable() {
+    const input = document.getElementById('searchInput');
+    const filter = input.value.toLowerCase();
+    const tbody = document.getElementById('katalog-tbody');
+    if (!tbody) return;
+    
+    const rows = tbody.getElementsByClassName('katalog-row');
+    let visibleCount = 0;
+
+    for (let i = 0; i < rows.length; i++) {
+      // NIP: index 1, Nama: index 2, Keahlian: index 4
+      const nipCell = rows[i].getElementsByTagName('td')[1];
+      const namaCell = rows[i].getElementsByTagName('td')[2];
+      const keahlianCell = rows[i].getElementsByTagName('td')[4];
+      
+      if (nipCell && namaCell && keahlianCell) {
+        const nip = nipCell.textContent || nipCell.innerText;
+        const nama = namaCell.textContent || namaCell.innerText;
+        const keahlian = keahlianCell.textContent || keahlianCell.innerText;
+        
+        if (nip.toLowerCase().indexOf(filter) > -1 || 
+            nama.toLowerCase().indexOf(filter) > -1 || 
+            keahlian.toLowerCase().indexOf(filter) > -1) {
+          rows[i].style.display = "";
+          visibleCount++;
+        } else {
+          rows[i].style.display = "none";
+        }
+      }
+    }
+    
+    const noResultsRow = document.getElementById('no-results-row');
+    if (noResultsRow) {
+      if (visibleCount === 0 && rows.length > 0) {
+        noResultsRow.style.display = "";
+      } else {
+        noResultsRow.style.display = "none";
+      }
+    }
+  }
+</script>
 
 <%- include('../partials/footer') %>
 </body>

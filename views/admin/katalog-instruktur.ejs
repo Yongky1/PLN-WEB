@@ -6,7 +6,7 @@
     <h1 class="rd-page-title">Katalog Instruktur</h1>
     <p class="rd-page-subtitle">Kelola daftar instruktur, status kepegawaian, keahlian, dan total Jam Pelajaran (JP).</p>
   </div>
-  <% if (currentUser && currentUser.role === 'UPDL') { %>
+  <% if (currentUser && ['UPDL', 'Admin', 'admin', 'Superadmin'].includes(currentUser.role)) { %>
   <div class="rd-page-actions">
     <button class="rd-btn rd-btn-primary" onclick="openAddModal()">
       <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
@@ -17,7 +17,7 @@
 </div>
 
 <div class="rd-data-card">
-  <div class="rd-table-head" style="display:grid; grid-template-columns: 40px 120px 2fr 1.2fr 1.2fr 1.2fr 90px 90px <%= (currentUser && currentUser.role === 'UPDL') ? '120px' : '' %>; gap: 10px;">
+  <div class="rd-table-head" style="display:grid; grid-template-columns: 40px 120px 2fr 1.2fr 1.2fr 1.2fr 90px 90px <%= (currentUser && ['UPDL', 'Admin', 'admin', 'Superadmin'].includes(currentUser.role)) ? '120px' : '' %>; gap: 10px;">
     <span>No</span>
     <span>NIP</span>
     <span>Nama Instruktur</span>
@@ -26,7 +26,7 @@
     <span>Unit</span>
     <span style="text-align:center;">JP Bulan Ini</span>
     <span style="text-align:center;">JP 5 Tahun</span>
-    <% if (currentUser && currentUser.role === 'UPDL') { %>
+    <% if (currentUser && ['UPDL', 'Admin', 'admin', 'Superadmin'].includes(currentUser.role)) { %>
     <span style="text-align:center;">Aksi</span>
     <% } %>
   </div>
@@ -34,7 +34,7 @@
   <div id="katalog-list">
     <% if (katalogData && katalogData.length > 0) { %>
       <% katalogData.forEach((item, index) => { %>
-        <div class="rd-table-row" style="display:grid; grid-template-columns: 40px 120px 2fr 1.2fr 1.2fr 1.2fr 90px 90px <%= (currentUser && currentUser.role === 'UPDL') ? '120px' : '' %>; gap: 10px; align-items:center; padding: 12px 16px; border-bottom: 1px solid var(--rd-border);">
+        <div class="rd-table-row" style="display:grid; grid-template-columns: 40px 120px 2fr 1.2fr 1.2fr 1.2fr 90px 90px <%= (currentUser && ['UPDL', 'Admin', 'admin', 'Superadmin'].includes(currentUser.role)) ? '120px' : '' %>; gap: 10px; align-items:center; padding: 12px 16px; border-bottom: 1px solid var(--rd-border);">
           <span style="color: var(--rd-text-muted);"><%= index + 1 %></span>
           <span style="font-size:13px;"><%= item.nip %></span>
           <span style="font-weight: 500; color: var(--rd-text-primary);"><%= item.nama_instruktur %></span>
@@ -53,7 +53,7 @@
           <span style="color: var(--rd-text-secondary); font-size: 13px;"><%= item.unit || '-' %></span>
           <span style="text-align:center;"><%= item.total_jp_bulan_ini || 0 %></span>
           <span style="text-align:center;"><%= item.total_jp_5_tahun || 0 %></span>
-          <% if (currentUser && currentUser.role === 'UPDL') { %>
+          <% if (currentUser && ['UPDL', 'Admin', 'admin', 'Superadmin'].includes(currentUser.role)) { %>
           <div style="display:flex; gap: 6px; justify-content:center;">
             <button class="rd-btn rd-btn-secondary rd-btn-sm btn-edit"
               data-id="<%= item.id %>"
@@ -77,7 +77,7 @@
   </div>
 </div>
 
-<% if (currentUser && currentUser.role === 'UPDL') { %>
+<% if (currentUser && ['UPDL', 'Admin', 'admin', 'Superadmin'].includes(currentUser.role)) { %>
 <!-- Modal Tambah/Edit Katalog -->
 <div id="katalogModal" class="rd-modal-overlay" style="display: none; justify-content: center; align-items: center; z-index: 1000;" onclick="if(event.target===this)closeModal()">
   <div class="rd-modal" style="max-width: 500px; width: 100%;">
