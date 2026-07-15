@@ -12,13 +12,15 @@ document.addEventListener("DOMContentLoaded", () => {
   let lastScrollY = window.scrollY;
   let ticking = false;
 
+  const navLinksContainer = document.querySelector('.jl-nav-links');
+
   // ── SLIDING PILL on nav links ──
   function movePill(target) {
-    if (!linkPill || !target) return;
+    if (!linkPill || !target || !navLinksContainer) return;
     const rect = target.getBoundingClientRect();
-    const parentRect = target.parentElement.getBoundingClientRect();
+    const containerRect = navLinksContainer.getBoundingClientRect();
     linkPill.style.width = rect.width + 'px';
-    linkPill.style.left = (rect.left - parentRect.left) + 'px';
+    linkPill.style.left = (rect.left - containerRect.left) + 'px';
     linkPill.style.opacity = '1';
   }
 
@@ -85,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   // Close overlay on nav link click
-  document.querySelectorAll('.jl-overlay-link, .jl-overlay-cta').forEach(l => {
+  document.querySelectorAll('.jl-overlay-link:not(.jl-overlay-dropdown-toggle), .jl-overlay-cta').forEach(l => {
     l.addEventListener('click', () => {
       if (menuOpen) closeMenu();
     });

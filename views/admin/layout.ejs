@@ -59,6 +59,7 @@
 
     <!-- Nav -->
     <nav class="rd-nav">
+
       <div>
         <div class="rd-nav-group-label">Manajemen Modul</div>
         <a href="/admin/konstruksi" class="rd-nav-item <%= page==='konstruksi' ? 'active' : '' %>" data-tooltip="Konstruksi">
@@ -85,15 +86,30 @@
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
           <span class="nav-label">Kategori Tag</span>
         </a>
-        <a href="/admin/quiz" class="rd-nav-item <%= page==='quiz' ? 'active' : '' %>" data-tooltip="Data Kuis">
-          <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
-          <span class="nav-label">Data Kuis</span>
-        </a>
+
         <a href="/admin/listrikpedia" class="rd-nav-item <%= page==='listrikpedia' ? 'active' : '' %>" data-tooltip="ListrikPedia">
           <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
           <span class="nav-label">ListrikPedia</span>
         </a>
       </div>
+
+
+      <div>
+        <div class="rd-nav-group-label">Pembelajaran</div>
+        <a href="/admin/katalog-instruktur" class="rd-nav-item <%= typeof page !== 'undefined' && page === 'katalog-instruktur' ? 'active' : '' %>" data-tooltip="Katalog Instruktur">
+          <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+          <span class="nav-label">Katalog Instruktur</span>
+        </a>
+        <a href="/admin/jadwal-instruktur" class="rd-nav-item <%= typeof page !== 'undefined' && page === 'jadwal-instruktur' ? 'active' : '' %>" data-tooltip="Jadwal Instruktur">
+          <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+          <span class="nav-label">Jadwal Instruktur</span>
+        </a>
+        <a href="/admin/quiz" class="rd-nav-item <%= page==='quiz' ? 'active' : '' %>" data-tooltip="Data Kuis">
+          <svg class="nav-i" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
+          <span class="nav-label">Data Kuis</span>
+        </a>
+      </div>
+
 
       <div>
         <div class="rd-nav-group-label">Pengaturan</div>
@@ -106,6 +122,7 @@
           <span class="nav-label">Settings</span>
         </a>
       </div>
+
     </nav>
 
     <!-- Footer user card -->

@@ -54,4 +54,16 @@ document.addEventListener('DOMContentLoaded', () => {
       el.classList.add('active');
     });
   }, 300);
+
+  // Overlay Menu Dropdown Toggle
+  const dropdownToggles = document.querySelectorAll('.jl-overlay-dropdown-toggle');
+  dropdownToggles.forEach(toggle => {
+    toggle.addEventListener('click', (e) => {
+      e.preventDefault();
+      const wrap = toggle.closest('.jl-overlay-dropdown-wrap');
+      if (wrap) {
+        wrap.classList.toggle('is-open');
+      }
+    });
+  });
 });

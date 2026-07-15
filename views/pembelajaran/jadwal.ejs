@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth overflow-x-hidden">
+<head>
+    <%- include('../partials/head') %>
+</head>
+<body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+    <%- include('../partials/navbar') %>
+
+<div class="jl-container px-6 md:px-12" style="padding-top: 120px; min-height: 80vh;">
+  <div class="flex justify-between items-center mb-6">
+    <h1 class="text-3xl font-bold text-[var(--color-text-primary)]">Jadwal Instruktur</h1>
+    <% if (sessionUser && sessionUser.role === 'UPDL') { %>
+      <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+        Tambah Jadwal
+      </button>
+    <% } %>
+  </div>
+
+  <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden shadow-sm">
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]">
+            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">No</th>
+            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">UPDL</th>
+            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Nama Instruktur</th>
+            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Mata Pelajaran</th>
+            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Tanggal Mulai</th>
+            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Tanggal Selesai</th>
+            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Jumlah JP</th>
+            <% if (sessionUser && sessionUser.role === 'UPDL') { %>
+              <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Aksi</th>
+            <% } %>
+          </tr>
+        </thead>
+        <tbody>
+          <% if (jadwalData && jadwalData.length > 0) { %>
+            <% jadwalData.forEach((item, index) => { %>
+              <tr class="border-b border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] transition-colors">
+                <td class="p-4 text-[var(--color-text-primary)]"><%= index + 1 %></td>
+                <td class="p-4 font-medium text-[var(--color-text-primary)]"><%= item.updl %></td>
+                <td class="p-4 text-[var(--color-brand-primary)]"><%= item.katalog ? item.katalog.nama_instruktur : '-' %></td>
+                <td class="p-4 text-[var(--color-text-primary)]"><%= item.mata_pelajaran %></td>
+                <td class="p-4 text-[var(--color-text-muted)] text-sm"><%= new Date(item.tanggal_mulai).toLocaleDateString('id-ID') %></td>
+                <td class="p-4 text-[var(--color-text-muted)] text-sm"><%= new Date(item.tanggal_selesai).toLocaleDateString('id-ID') %></td>
+                <td class="p-4 text-[var(--color-text-primary)]"><%= item.jumlah_jp %></td>
+                <% if (sessionUser && sessionUser.role === 'UPDL') { %>
+                  <td class="p-4">
+                    <div class="flex gap-2">
+                      <button class="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-600 hover:text-white transition-colors text-sm font-medium" onclick="editData('<%= item.id %>', '<%= item.katalog_id %>', '<%= item.updl %>', '<%= item.mata_pelajaran %>', '<%= item.tanggal_mulai %>', '<%= item.tanggal_selesai %>', '<%= item.jumlah_jp %>')">Edit</button>
+                      <button class="px-3 py-1.5 bg-red-50 text-red-600 border border-red-200 rounded-md hover:bg-red-600 hover:text-white transition-colors text-sm font-medium" onclick="deleteData('<%= item.id %>')">Hapus</button>
+                    </div>
+                  </td>
+                <% } %>
+              </tr>
+            <% }); %>
+          <% } else { %>
+            <tr>
+              <td colspan="<%= (sessionUser && sessionUser.role === 'UPDL') ? 8 : 7 %>" class="p-8 text-center text-[var(--color-text-muted)]">
+                Belum ada data jadwal instruktur.
+              </td>
+            </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<% if (sessionUser && sessionUser.role === 'UPDL') { %>
+  <!-- Modal Tambah/Edit Jadwal -->
+  <div id="jadwalModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
+    <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-transform" id="jadwalModalCard">
+      <div class="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+        <h3 id="modalTitle" class="text-lg font-bold text-gray-800">Tambah Jadwal</h3>
+        <button onclick="closeModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18M6 6l12 12"></path></svg>
+        </button>
+      </div>
+      <form id="jadwalForm" onsubmit="submitForm(event)">
+        <div class="px-6 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+          <input type="hidden" id="jadwalId">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">UPDL</label>
+            <select id="updl" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white">
+              <option value="">Pilih UPDL...</option>
+              <option value="Padang">Padang</option>
+              <option value="Tuntungan">Tuntungan</option>
+              <option value="Palembang">Palembang</option>
+              <option value="Suralaya">Suralaya</option>
+              <option value="Jakarta">Jakarta</option>
+              <option value="Bogor">Bogor</option>
+              <option value="Semarang">Semarang</option>
+              <option value="Surabaya">Surabaya</option>
+              <option value="Pandaan">Pandaan</option>
+              <option value="Banjar Baru">Banjar Baru</option>
+              <option value="Makassar">Makassar</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Instruktur</label>
+            <select id="katalog_id" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-white">
+              <option value="">Pilih Instruktur...</option>
+              <% if (katalogData && katalogData.length > 0) { %>
+                <% katalogData.forEach(instruktur => { %>
+                  <option value="<%= instruktur.id %>"><%= instruktur.nama_instruktur %> (<%= instruktur.nip %>)</option>
+                <% }) %>
+              <% } %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Mata Pelajaran</label>
+            <input type="text" id="mata_pelajaran" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Mulai</label>
+              <input type="date" id="tanggal_mulai" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Selesai</label>
+              <input type="date" id="tanggal_selesai" required class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+            </div>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Jumlah JP</label>
+            <input type="number" id="jumlah_jp" required min="1" value="1" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all">
+          </div>
+        </div>
+        <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3 bg-gray-50/50">
+          <button type="button" onclick="closeModal()" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">Batal</button>
+          <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-sm">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const modal = document.getElementById('jadwalModal');
+    const modalCard = document.getElementById('jadwalModalCard');
+    const API_URL = '/api/pembelajaran/jadwal-instruktur';
+    
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'Tambah Jadwal';
+      document.getElementById('jadwalForm').reset();
+      document.getElementById('jadwalId').value = '';
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => modalCard.classList.remove('scale-95'), 10);
+    }
+
+    function editData(id, katalog_id, updl, mata_pelajaran, tanggal_mulai, tanggal_selesai, jumlah_jp) {
+      document.getElementById('modalTitle').textContent = 'Edit Jadwal';
+      document.getElementById('jadwalId').value = id;
+      document.getElementById('katalog_id').value = katalog_id;
+      document.getElementById('updl').value = updl;
+      document.getElementById('mata_pelajaran').value = mata_pelajaran;
+      document.getElementById('tanggal_mulai').value = tanggal_mulai ? new Date(tanggal_mulai).toISOString().split('T')[0] : '';
+      document.getElementById('tanggal_selesai').value = tanggal_selesai ? new Date(tanggal_selesai).toISOString().split('T')[0] : '';
+      document.getElementById('jumlah_jp').value = jumlah_jp;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      setTimeout(() => modalCard.classList.remove('scale-95'), 10);
+    }
+
+    function closeModal() {
+      modalCard.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.remove('flex');
+        modal.classList.add('hidden');
+      }, 200);
+    }
+
+    async function submitForm(e) {
+      e.preventDefault();
+      const id = document.getElementById('jadwalId').value;
+      const payload = {
+        katalog_id: document.getElementById('katalog_id').value,
+        updl: document.getElementById('updl').value,
+        mata_pelajaran: document.getElementById('mata_pelajaran').value,
+        tanggal_mulai: document.getElementById('tanggal_mulai').value,
+        tanggal_selesai: document.getElementById('tanggal_selesai').value,
+        jumlah_jp: parseInt(document.getElementById('jumlah_jp').value) || 1,
+      };
+
+      try {
+        const res = await fetch(id ? `${API_URL}/${id}` : API_URL, {
+          method: id ? 'PUT' : 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          const err = await res.json();
+          alert('Gagal: ' + (err.error || 'Terjadi kesalahan'));
+        }
+      } catch (error) {
+        alert('Gagal menghubungi server');
+      }
+    }
+
+    async function deleteData(id) {
+      if (!confirm('Apakah Anda yakin ingin menghapus jadwal ini?')) return;
+      try {
+        const res = await fetch(`${API_URL}/${id}`, {
+          method: 'DELETE',
+          credentials: 'same-origin'
+        });
+        if (res.ok) {
+          window.location.reload();
+        } else {
+          alert('Gagal menghapus data');
+        }
+      } catch (error) {
+        alert('Gagal menghubungi server');
+      }
+    }
+  </script>
+<% } %>
+
+<%- include('../partials/footer') %>
+</body>
+</html>
