@@ -358,7 +358,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                   containerId !== 'edit-tools-cards'
                     ? `
                 <div class="card-model-viewer-container" style="display:none; margin-top:4px; height:200px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); position:relative;">
-                    <model-viewer class="internal-viewer" src="" 
+                    <model-viewer class="internal-viewer" src="" orientation="-90deg 0 0" 
                         style="width: 100%; height: 100%; background: #ffffff;" 
                         camera-controls auto-rotate interaction-prompt="none" shadow-intensity="1">
                     </model-viewer>

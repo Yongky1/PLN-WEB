@@ -502,6 +502,9 @@ function loadVariant(index) {
     (gltf) => {
       currentModel = gltf.scene;
 
+      // FIX UNTUK AUTODESK INVENTOR (Z-Up ke Y-Up)
+      currentModel.rotation.x = -Math.PI / 2;
+
       const box = new THREE.Box3().setFromObject(currentModel);
       const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
