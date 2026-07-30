@@ -192,11 +192,12 @@
 </head>
 
 <body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+    <%- include('partials/dynamic-bg') %>
     <%- include('partials/navbar') %>
 
         <!-- Hero Section -->
         <div class="lp-hero-bg pt-32 pb-16 px-4 sm:px-8 text-center">
-            <div class="max-w-3xl mx-auto">
+            <div class="max-w-3xl mx-auto bg-contrast-text">
                 <span
                     class="inline-flex items-center gap-2 py-1.5 px-4 rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)] text-[10px] font-bold tracking-[0.2em] uppercase border border-[var(--color-primary)]/20 mb-6">
                     <span class="w-1.5 h-1.5 rounded-full bg-[var(--color-primary)] animate-pulse"></span>
@@ -224,7 +225,7 @@
             </div>
         </div>
 
-        <main class="py-16 px-4 sm:px-8 relative min-h-[50vh]">
+        <main class="w-full bg-[var(--color-bg-main)] py-16 px-4 sm:px-8 relative z-10 min-h-[50vh]">
             <div class="max-w-[1400px] mx-auto">
 
                 <div id="lp-tabs-wrap" class="sticky top-24 z-40 flex justify-center mb-12 pointer-events-none">

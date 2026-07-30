@@ -9,12 +9,13 @@ router.post('/set-session', (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
+    path: '/',
   });
   res.json({ success: true });
 });
 
 router.get('/clear-session', (req, res) => {
-  res.clearCookie('auth_token');
+  res.clearCookie('auth_token', { path: '/' });
   res.json({ success: true });
 });
 
@@ -31,7 +32,7 @@ router.get('/admin-logout', async (req, res) => {
       console.error('Gagal logout di backend:', err.message);
     }
   }
-  res.clearCookie('auth_token');
+  res.clearCookie('auth_token', { path: '/' });
   res.redirect('/login');
 });
 

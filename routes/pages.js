@@ -2,6 +2,16 @@ const express = require('express');
 const { cachedFetch } = require('../utils/cache');
 
 const router = express.Router();
+
+// Prevent browser from caching dynamic HTML pages so session changes reflect immediately on navigation
+router.use((req, res, next) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.setHeader('Surrogate-Control', 'no-store');
+  next();
+});
+
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
 // Normalisasi URL: ganti absolute URL backend → relative path
