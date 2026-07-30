@@ -188,6 +188,7 @@ function addProcRow(containerId) {
 /* ---- Logout ---- */
 function handleLogout() {
   if (confirm('Apakah Anda yakin ingin keluar?')) {
+    localStorage.removeItem('token');
     window.location.href = '/admin-logout';
   }
 }

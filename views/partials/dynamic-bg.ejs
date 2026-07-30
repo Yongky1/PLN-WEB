@@ -1,0 +1,86 @@
+<style>
+  #dynamic-bg-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: -10;
+    pointer-events: none;
+    background-color: var(--color-bg-main, #0A1628);
+  }
+  
+  .dynamic-bg-slide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 1.5s ease-in-out;
+  }
+  
+  .dynamic-bg-slide.active {
+    opacity: 1; /* Opacity 100% untuk me-replace warna background putih sepenuhnya */
+  }
+
+  /* Make body background transparent so the dynamic bg is visible */
+  body {
+    background-color: transparent !important;
+  }
+
+  /* Utility untuk teks agar selalu kontras dengan background */
+  .bg-contrast-text, .bg-contrast-text * {
+    color: #ffffff !important;
+    mix-blend-mode: difference !important;
+  }
+</style>
+
+<div id="dynamic-bg-container">
+  <!-- Slides akan dimuat melalui script -->
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      const res = await fetch('/api/backgrounds');
+      if (!res.ok) return;
+      const backgrounds = await res.json();
+      
+      if (!backgrounds || backgrounds.length === 0) return;
+
+      const container = document.getElementById('dynamic-bg-container');
+      
+      // Jika hanya ada 1 background, tampilkan statis
+      if (backgrounds.length === 1) {
+        const img = document.createElement('img');
+        img.src = `<%= process.env.BACKEND_URL || 'http://localhost:4000' %>${backgrounds[0].file}`;
+        img.className = 'dynamic-bg-slide active';
+        container.appendChild(img);
+        return;
+      }
+
+      // Jika lebih dari 1, buat slideshow
+      const slides = [];
+      backgrounds.forEach((bg, index) => {
+        const img = document.createElement('img');
+        img.src = `<%= process.env.BACKEND_URL || 'http://localhost:4000' %>${bg.file}`;
+        img.className = 'dynamic-bg-slide';
+        if (index === 0) img.classList.add('active');
+        container.appendChild(img);
+        slides.push(img);
+      });
+
+      let currentSlide = 0;
+      setInterval(() => {
+        slides[currentSlide].classList.remove('active');
+        currentSlide = (currentSlide + 1) % slides.length;
+        slides[currentSlide].classList.add('active');
+      }, 5000); // 5 detik
+      
+    } catch (err) {
+      console.error('Gagal memuat background dinamis:', err);
+    }
+  });
+</script>

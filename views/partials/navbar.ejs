@@ -1,10 +1,10 @@
 <!-- ═══ AWWWARDS-LEVEL NAVBAR — JALA (Refined) ═══ -->
 <%
   // Determine user role from session (set by optionalAuth middleware via res.locals)
-  const _role = (typeof userRole !== 'undefined' && userRole) ? userRole : null;
-  const _isPeserta = !_role || _role === 'Peserta';
-  const _isUPDL = _role === 'UPDL';
-  const _isInstruktur = _role === 'Instruktur';
+  const _role = (typeof userRole !== 'undefined' && userRole) ? String(userRole).trim().toLowerCase() : null;
+  const _isPeserta = !_role || _role === 'peserta';
+  const _isUPDL = _role === 'updl';
+  const _isInstruktur = _role === 'instruktur';
 
   // Build pembelajaran sub-items based on role
   let pembelajaranSubs = [];

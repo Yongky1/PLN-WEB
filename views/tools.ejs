@@ -6,6 +6,7 @@
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+    <%- include('partials/dynamic-bg') %>
 
     <%- include('partials/navbar') %>
 
@@ -15,7 +16,7 @@
             <!-- Header -->
             <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 border-b border-[var(--color-border)] relative">
                 <div class="ambient-mesh mesh-left"></div>
-                <div class="gsap-reveal">
+                <div class="gsap-reveal bg-contrast-text">
                     <div class="mb-2">
                         <span class="text-sm font-semibold tracking-widest text-[var(--color-primary)] uppercase">Peralatan Lapangan · PLN</span>
                     </div>
@@ -58,7 +59,9 @@
                     </button>
                 </div>
             </div>
-
+        </div>
+        <div class="w-full bg-[var(--color-bg-main)] relative z-10" style="min-height: 100vh; padding-bottom: 64px;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
             <!-- Grid -->
             <div id="tools-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 gsap-stagger-container">
                 <% if (!toolsData || toolsData.length === 0) { %>
@@ -138,6 +141,8 @@
                 </div>
                 <span class="text-sm text-[var(--color-text-muted)]">Tidak ada peralatan yang cocok.</span>
             </div>
+            </div>
+        </div>
         </div>
     </main>
 

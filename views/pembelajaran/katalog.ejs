@@ -4,54 +4,61 @@
     <%- include('../partials/head') %>
 </head>
 <body class="antialiased" style="background-color: var(--color-bg-main); color: var(--color-text-primary);">
+    <%- include('../partials/dynamic-bg') %>
     <%- include('../partials/navbar') %>
 
-<div class="jl-container px-6 md:px-12" style="padding-top: 120px; min-height: 80vh;">
-  <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4">
-    <h1 class="text-3xl font-bold text-[var(--color-text-primary)]">Katalog Instruktur</h1>
-    
-    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-      <div class="relative w-full sm:w-64 lg:w-80">
-        <input type="text" id="searchInput" onkeyup="searchTable()" class="w-full pl-10 pr-4 py-2.5 bg-white border border-[var(--color-border)] rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm text-[var(--color-text-primary)]" placeholder="Cari nama, NIP, keahlian...">
-        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
-          <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
-        </svg>
+<main class="relative" style="padding-top: 120px; min-height: 100vh;">
+  <div class="jl-container px-6 md:px-12 mb-8 relative">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+      <div class="gsap-reveal bg-contrast-text">
+        <h1 class="text-3xl font-bold text-gray-800">Katalog Instruktur</h1>
       </div>
+      
+      <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+        <div class="relative w-full sm:w-64 lg:w-80">
+          <input type="text" id="searchInput" onkeyup="searchTable()" class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm text-gray-800" placeholder="Cari nama, NIP, keahlian...">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+            <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+          </svg>
+        </div>
 
-      <% if (sessionUser && sessionUser.role === 'UPDL') { %>
-        <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
-          Tambah Instruktur
-        </button>
-      <% } %>
+        <% if (sessionUser && ['UPDL', 'Admin', 'admin', 'Superadmin', 'Super Admin', 'Super Admin Pusat'].includes(sessionUser.role)) { %>
+          <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center justify-center gap-2 whitespace-nowrap w-full sm:w-auto">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+            Tambah Instruktur
+          </button>
+        <% } %>
+      </div>
     </div>
   </div>
 
-  <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden shadow-sm">
-    <div class="overflow-x-auto">
+  <div class="w-full bg-white relative z-10" style="min-height: 100vh; padding-bottom: 64px;">
+    <div class="jl-container px-6 md:px-12 pt-8">
+      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-md">
+        <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="bg-[var(--color-bg-hover)] border-b border-[var(--color-border)]">
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">No</th>
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">NIP</th>
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Nama Instruktur</th>
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Status</th>
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Keahlian</th>
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Unit</th>
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Total JP Bulan Ini</th>
-            <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Total JP 5 Tahun</th>
-            <% if (sessionUser && sessionUser.role === 'UPDL') { %>
-              <th class="p-4 font-semibold text-[var(--color-text-muted)] text-sm">Aksi</th>
+          <tr class="bg-gray-50 border-b border-gray-200">
+            <th class="p-4 font-semibold text-gray-500 text-sm">No</th>
+            <th class="p-4 font-semibold text-gray-500 text-sm">NIP</th>
+            <th class="p-4 font-semibold text-gray-500 text-sm">Nama Instruktur</th>
+            <th class="p-4 font-semibold text-gray-500 text-sm">Status</th>
+            <th class="p-4 font-semibold text-gray-500 text-sm">Keahlian</th>
+            <th class="p-4 font-semibold text-gray-500 text-sm">Unit</th>
+            <th class="p-4 font-semibold text-gray-500 text-sm">Total JP Bulan Ini</th>
+            <th class="p-4 font-semibold text-gray-500 text-sm">Total JP 5 Tahun</th>
+            <% if (sessionUser && ['UPDL', 'Admin', 'admin', 'Superadmin', 'Super Admin', 'Super Admin Pusat'].includes(sessionUser.role)) { %>
+              <th class="p-4 font-semibold text-gray-500 text-sm">Aksi</th>
             <% } %>
           </tr>
         </thead>
         <tbody id="katalog-tbody">
           <% if (katalogData && katalogData.length > 0) { %>
             <% katalogData.forEach((item, index) => { %>
-              <tr class="katalog-row border-b border-[var(--color-border)] hover:bg-[var(--color-bg-hover)] transition-colors">
-                <td class="p-4 text-[var(--color-text-primary)]"><%= index + 1 %></td>
-                <td class="p-4 text-[var(--color-text-primary)]"><%= item.nip %></td>
-                <td class="p-4 font-medium text-[var(--color-brand-primary)]"><%= item.nama_instruktur %></td>
+              <tr class="katalog-row border-b border-gray-200 hover:bg-gray-50 transition-colors">
+                <td class="p-4 text-gray-800"><%= index + 1 %></td>
+                <td class="p-4 text-gray-800"><%= item.nip %></td>
+                <td class="p-4 font-medium text-blue-600"><%= item.nama_instruktur %></td>
                 <td class="p-4">
                   <% 
                     let statusClass = 'bg-gray-100 text-gray-700';
@@ -63,11 +70,11 @@
                     <%= item.status || 'Instruktur Tetap' %>
                   </span>
                 </td>
-                <td class="p-4 text-[var(--color-text-secondary)]"><%= item.keahlian || '-' %></td>
-                <td class="p-4 text-[var(--color-text-secondary)]"><%= item.unit || '-' %></td>
-                <td class="p-4 text-[var(--color-text-primary)]"><%= item.total_jp_bulan_ini || 0 %></td>
-                <td class="p-4 text-[var(--color-text-primary)]"><%= item.total_jp_5_tahun || 0 %></td>
-                <% if (sessionUser && sessionUser.role === 'UPDL') { %>
+                <td class="p-4 text-gray-600"><%= item.keahlian || '-' %></td>
+                <td class="p-4 text-gray-600"><%= item.unit || '-' %></td>
+                <td class="p-4 text-gray-800"><%= item.total_jp_bulan_ini || 0 %></td>
+                <td class="p-4 text-gray-800"><%= item.total_jp_5_tahun || 0 %></td>
+                <% if (sessionUser && ['UPDL', 'Admin', 'admin', 'Superadmin', 'Super Admin', 'Super Admin Pusat'].includes(sessionUser.role)) { %>
                   <td class="p-4">
                     <div class="flex gap-2">
                       <button class="px-3 py-1.5 bg-blue-50 text-blue-600 border border-blue-200 rounded-md hover:bg-blue-600 hover:text-white transition-colors text-sm font-medium btn-edit"
@@ -85,13 +92,13 @@
               </tr>
             <% }); %>
             <tr id="no-results-row" style="display: none;">
-              <td colspan="<%= (sessionUser && sessionUser.role === 'UPDL') ? 9 : 8 %>" class="p-8 text-center text-[var(--color-text-muted)]">
+              <td colspan="<%= (sessionUser && ['UPDL', 'Admin', 'admin', 'Superadmin', 'Super Admin', 'Super Admin Pusat'].includes(sessionUser.role)) ? 9 : 8 %>" class="p-8 text-center text-gray-500">
                 Pencarian tidak ditemukan.
               </td>
             </tr>
           <% } else { %>
             <tr>
-              <td colspan="<%= (sessionUser && sessionUser.role === 'UPDL') ? 9 : 8 %>" class="p-8 text-center text-[var(--color-text-muted)]">
+              <td colspan="<%= (sessionUser && ['UPDL', 'Admin', 'admin', 'Superadmin', 'Super Admin', 'Super Admin Pusat'].includes(sessionUser.role)) ? 9 : 8 %>" class="p-8 text-center text-gray-500">
                 Belum ada data katalog instruktur.
               </td>
             </tr>
@@ -99,10 +106,11 @@
         </tbody>
       </table>
     </div>
+    </div>
   </div>
-</div>
+</main>
 
-<% if (sessionUser && sessionUser.role === 'UPDL') { %>
+<% if (sessionUser && ['UPDL', 'Admin', 'admin', 'Superadmin', 'Super Admin', 'Super Admin Pusat'].includes(sessionUser.role)) { %>
   <!-- Modal Tambah/Edit Katalog -->
   <div id="katalogModal" class="fixed inset-0 z-[200] hidden items-center justify-center bg-black/50 backdrop-blur-sm transition-opacity">
     <div class="bg-white rounded-xl shadow-2xl w-full max-w-md overflow-hidden transform scale-95 transition-transform" id="katalogModalCard">

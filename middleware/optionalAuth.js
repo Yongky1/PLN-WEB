@@ -1,13 +1,9 @@
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
 
-/**
- * Middleware that optionally reads the user's session token and attaches
- * req.sessionUser (with role, name, etc.) without redirecting or blocking
- * unauthenticated visitors.
- */
 const optionalAuth = async (req, res, next) => {
   req.sessionUser = null;
   const token = req.cookies.auth_token;
+  console.log(`[optionalAuth] Route: ${req.originalUrl} | Token exists: ${!!token}`);
   if (!token) return next();
 
   try {
@@ -17,13 +13,13 @@ const optionalAuth = async (req, res, next) => {
     });
     if (verifyRes.ok) {
       const data = await verifyRes.json();
-      req.sessionUser = data.user; // { id, email, name, unit, status, role }
-      console.log('[optionalAuth] sessionUser loaded:', req.sessionUser.email, req.sessionUser.role);
+      req.sessionUser = data.user;
+      console.log(`[optionalAuth] Route: ${req.originalUrl} | sessionUser loaded: ${req.sessionUser.email}, role: ${req.sessionUser.role}`);
     } else {
-      console.log('[optionalAuth] verifyRes not ok:', verifyRes.status);
+      console.log(`[optionalAuth] Route: ${req.originalUrl} | verifyRes not ok: ${verifyRes.status}`);
     }
   } catch (err) {
-    console.error('[optionalAuth] error:', err.message);
+    console.error(`[optionalAuth] Route: ${req.originalUrl} | error:`, err.message);
   }
   next();
 };

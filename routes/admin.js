@@ -291,4 +291,19 @@ router.get('/jadwal-instruktur', async (req, res) => {
   }
 });
 
+// Background Dinamis
+router.get('/background', async (req, res) => {
+  try {
+    const response = await fetch(`${API_URL}/backgrounds`);
+    let backgrounds = [];
+    if (response.ok) {
+      backgrounds = await response.json();
+    }
+    renderAdmin(res, 'background', 'Background Dinamis', 'Kelola background slideshow untuk halaman publik', { backgrounds }, req.user);
+  } catch (err) {
+    console.error('[Admin] Error loading background page:', err);
+    renderAdmin(res, 'background', 'Background Dinamis', 'Kelola background slideshow untuk halaman publik', { backgrounds: [] }, req.user);
+  }
+});
+
 module.exports = router;

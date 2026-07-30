@@ -1,203 +1,89 @@
-<div class="rd-page-header">
-  <h2 class="rd-page-title"><%= title %></h2>
+<div class="rd-page-head" style="margin-bottom: 24px;">
+  <div class="rd-page-title-block">
+    <span class="rd-page-eyebrow">Pembelajaran</span>
+    <h1 class="rd-page-title">Data Kuis</h1>
+    <p class="rd-page-subtitle">Manajemen kuis dan lihat hasil dari peserta.</p>
+  </div>
 </div>
 
-<!-- TABS -->
-<div class="rd-tabs" style="margin-bottom: 20px; display: flex; gap: 15px;">
-  <button class="rd-btn" id="tab-created" onclick="switchTab('created')" style="border-bottom: 3px solid var(--color-primary);">Kuis yang Dibuat</button>
-  <button class="rd-btn btn-outline" id="tab-taken" onclick="switchTab('taken')" style="border: none; background: transparent; color: var(--color-text-secondary);">Kuis yang Dikerjakan</button>
-</div>
 
 <!-- KUIS YANG DIBUAT (TAB 1) -->
-<div class="rd-card" id="view-created">
-  <div class="rd-card-header">
-    <h3 class="rd-card-title">Daftar Kuis yang Dibuat</h3>
+<div class="rd-data-card" id="view-created">
+  <div class="rd-table-head" style="display:grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 1.5fr 1.5fr; gap: 10px;">
+    <span>Judul Kuis</span>
+    <span>Kode</span>
+    <span style="text-align:center;">Jumlah Soal</span>
+    <span style="text-align:center;">Peserta</span>
+    <span>Dibuat Pada</span>
+    <span style="text-align:center;">Aksi</span>
   </div>
-  <div class="rd-card-body p-0">
-    <div class="table-responsive">
-      <table class="rd-table">
-        <thead>
-          <tr>
-            <th>Judul Kuis</th>
-            <th>Kode</th>
-            <th>Jumlah Soal</th>
-            <th>Peserta</th>
-            <th>Dibuat Pada</th>
-            <th>Aksi</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (quizzes && quizzes.length > 0) { %>
-            <% quizzes.forEach(quiz => { %>
-              <tr>
-                <td><strong><%= quiz.title %></strong></td>
-                <td><span style="letter-spacing: 2px; background: var(--color-bg-surface-alt); padding: 4px 8px; border-radius: 6px;"><%= quiz.code %></span></td>
-                <td><%= quiz._count.questions %></td>
-                <td><%= quiz._count.submissions %></td>
-                <td><%= new Date(quiz.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
-                <td>
-                  <button class="rd-btn rd-btn-sm" style="margin-right: 5px;" onclick="showQuizDetails('<%= quiz.id %>')">
-                    Lihat Detail Kuis
-                  </button>
-                  <button class="rd-btn rd-btn-sm" style="background: var(--color-success);" onclick="showSubmissions('<%= quiz.id %>')">
-                    Lihat Hasil Nilai
-                  </button>
-                  <script>
-                    window['quiz_<%= quiz.id %>'] = <%- JSON.stringify(quiz.submissions) %>;
-                    window['quiz_title_<%= quiz.id %>'] = "<%= quiz.title %>";
-                    window['quiz_data_<%= quiz.id %>'] = <%- JSON.stringify(quiz) %>;
-                  </script>
-                </td>
-              </tr>
-            <% }) %>
-          <% } else { %>
-            <tr>
-              <td colspan="6" style="text-align: center; color: var(--color-text-secondary); padding: 40px;">Belum ada kuis yang dibuat.</td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- KUIS YANG DIKERJAKAN (TAB 2) -->
-<div class="rd-card" id="view-taken" style="display: none;">
-  <div class="rd-card-header">
-    <h3 class="rd-card-title">Daftar Kuis yang Pernah Dikerjakan (Semua Peserta)</h3>
-  </div>
-  <div class="rd-card-body p-0">
-    <div class="table-responsive">
-      <table class="rd-table">
-        <thead>
-          <tr>
-            <th>Nama Peserta</th>
-            <th>Judul Kuis (Kode)</th>
-            <th>Nilai Akhir</th>
-            <th>Waktu Submit</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% if (allSubmissions && allSubmissions.length > 0) { %>
-            <% allSubmissions.forEach(sub => { %>
-              <% 
-                let scoreColor = 'var(--color-error)';
-                if (sub.score >= 80) scoreColor = 'var(--color-success)';
-                else if (sub.score >= 50) scoreColor = 'var(--color-warning)';
-              %>
-              <tr>
-                <td><strong><%= sub.participant_name %></strong></td>
-                <td><%= sub.quiz.title %> <span style="color: var(--color-text-secondary); font-size: 0.9em;">(<%= sub.quiz.code %>)</span></td>
-                <td><strong style="color: <%= scoreColor %>"><%= Math.round(sub.score) %></strong> / 100</td>
-                <td><%= new Date(sub.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></td>
-              </tr>
-            <% }) %>
-          <% } else { %>
-            <tr>
-              <td colspan="4" style="text-align: center; color: var(--color-text-secondary); padding: 40px;">Belum ada peserta yang mengerjakan kuis apapun.</td>
-            </tr>
-          <% } %>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- Modal Lihat Hasil Nilai (Per Quiz) -->
-<div class="rd-modal" id="submissionsModal">
-  <div class="rd-modal-content" style="max-width: 600px;">
-    <div class="rd-modal-header">
-      <h3 class="rd-modal-title" id="modalQuizTitle">Hasil Kuis</h3>
-      <button class="rd-modal-close" onclick="closeModal('submissionsModal')">×</button>
-    </div>
-    <div class="rd-modal-body">
-      <div class="table-responsive">
-        <table class="rd-table" id="submissionsTable">
-          <thead>
-            <tr>
-              <th>Nama Peserta</th>
-              <th>Nilai</th>
-              <th>Waktu Submit</th>
-            </tr>
-          </thead>
-          <tbody id="submissionsBody">
-            <!-- Injected via JS -->
-          </tbody>
-        </table>
+  <div id="created-list">
+    <% if (quizzes && quizzes.length > 0) { %>
+      <% quizzes.forEach(quiz => { %>
+        <div class="rd-table-row" style="display:grid; grid-template-columns: 2.5fr 1fr 1fr 1fr 1.5fr 1.5fr; gap: 10px; align-items:center; padding: 12px 16px; border-bottom: 1px solid var(--rd-border);">
+          <span style="font-weight: 500; color: var(--rd-text-primary);"><%= quiz.title %></span>
+          <span><span style="letter-spacing: 2px; background: #F3F4F6; color: #374151; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600;"><%= quiz.code %></span></span>
+          <span style="text-align:center;"><%= quiz.questions ? quiz.questions.length : 0 %></span>
+          <span style="text-align:center;"><%= quiz.submissions ? quiz.submissions.length : 0 %></span>
+          <span style="color: var(--rd-text-secondary); font-size: 13px;"><%= new Date(quiz.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) %></span>
+          <div style="display:flex; gap: 6px; justify-content:center;">
+            <button class="rd-btn rd-btn-primary rd-btn-sm" onclick="showQuizCombined('<%= quiz.id %>')">Detail & Hasil</button>
+            <script>
+              window['quiz_<%= quiz.id %>'] = <%- JSON.stringify(quiz.submissions) %>;
+              window['quiz_title_<%= quiz.id %>'] = "<%= quiz.title %>";
+              window['quiz_data_<%= quiz.id %>'] = <%- JSON.stringify(quiz) %>;
+            </script>
+          </div>
+        </div>
+      <% }) %>
+    <% } else { %>
+      <div class="rd-empty" style="padding: 40px; text-align: center; color: var(--rd-text-muted);">
+        <p>Belum ada kuis yang dibuat.</p>
       </div>
-    </div>
+    <% } %>
   </div>
 </div>
 
-<!-- Modal Detail Kuis (Soal & Jawaban) -->
-<div class="rd-modal" id="detailsModal">
-  <div class="rd-modal-content" style="max-width: 700px;">
+
+<!-- Inline Card Detail & Hasil Kuis -->
+<div class="rd-modal" id="combinedModal" style="display: none; max-width: 100%; width: 100%; margin: 24px auto 0 auto; margin-bottom: 40px;">
     <div class="rd-modal-header">
-      <h3 class="rd-modal-title" id="detailQuizTitle">Detail Kuis</h3>
-      <button class="rd-modal-close" onclick="closeModal('detailsModal')">×</button>
+      <h3 class="rd-modal-title" id="combinedQuizTitle">Detail & Hasil Kuis</h3>
+      <button class="rd-modal-close" onclick="closeModal('combinedModal')">×</button>
     </div>
-    <div class="rd-modal-body" id="detailsBody" style="max-height: 60vh; overflow-y: auto;">
-      <!-- Injected via JS -->
+    <div class="rd-modal-body" style="max-height: 70vh; overflow-y: auto;">
+      
+      <div style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 30px; align-items: flex-start;">
+        <!-- Kiri: Detail Soal -->
+        <div>
+          <h4 style="margin-bottom: 15px; border-bottom: 1px solid var(--rd-border); padding-bottom: 8px; color: var(--text-primary);">Detail Soal</h4>
+          <div id="combinedDetailsBody">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+        
+        <!-- Kanan: Papan Peringkat -->
+        <div>
+          <h4 style="margin-bottom: 15px; border-bottom: 1px solid var(--rd-border); padding-bottom: 8px; color: var(--text-primary);">Papan Peringkat (Top 3)</h4>
+          <div id="combinedSubmissionsBody" style="display: flex; flex-direction: column; gap: 10px;">
+            <!-- Injected via JS -->
+          </div>
+        </div>
+      </div>
+      
     </div>
-  </div>
 </div>
 
 <script>
-  function switchTab(tab) {
-    if (tab === 'created') {
-      document.getElementById('view-created').style.display = 'block';
-      document.getElementById('view-taken').style.display = 'none';
-      document.getElementById('tab-created').style = 'border-bottom: 3px solid var(--color-primary);';
-      document.getElementById('tab-created').classList.remove('btn-outline');
-      document.getElementById('tab-taken').style = 'border: none; background: transparent; color: var(--color-text-secondary);';
-      document.getElementById('tab-taken').classList.add('btn-outline');
-    } else {
-      document.getElementById('view-created').style.display = 'none';
-      document.getElementById('view-taken').style.display = 'block';
-      document.getElementById('tab-taken').style = 'border-bottom: 3px solid var(--color-primary);';
-      document.getElementById('tab-taken').classList.remove('btn-outline');
-      document.getElementById('tab-created').style = 'border: none; background: transparent; color: var(--color-text-secondary);';
-      document.getElementById('tab-created').classList.add('btn-outline');
-    }
-  }
 
-  function showSubmissions(quizId) {
+  function showQuizCombined(quizId) {
+    const quiz = window[`quiz_data_${quizId}`];
     const submissions = window[`quiz_${quizId}`];
     const title = window[`quiz_title_${quizId}`];
     
-    document.getElementById('modalQuizTitle').textContent = `Hasil Kuis: ${title}`;
-    const tbody = document.getElementById('submissionsBody');
-    tbody.innerHTML = '';
-
-    if (submissions && submissions.length > 0) {
-      submissions.forEach(sub => {
-        const tr = document.createElement('tr');
-        const date = new Date(sub.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-        
-        let scoreColor = 'var(--color-error)';
-        if (sub.score >= 80) scoreColor = 'var(--color-success)';
-        else if (sub.score >= 50) scoreColor = 'var(--color-warning)';
-
-        tr.innerHTML = `
-          <td>${sub.participant_name}</td>
-          <td><strong style="color: ${scoreColor}">${Math.round(sub.score)}</strong> / 100</td>
-          <td><small style="color: var(--color-text-secondary)">${date}</small></td>
-        `;
-        tbody.appendChild(tr);
-      });
-    } else {
-      tbody.innerHTML = `<tr><td colspan="3" style="text-align: center; color: var(--color-text-secondary); padding: 20px;">Belum ada peserta yang mengerjakan kuis ini.</td></tr>`;
-    }
-
-    document.getElementById('submissionsModal').classList.add('active');
-  }
-
-  function showQuizDetails(quizId) {
-    const quiz = window[`quiz_data_${quizId}`];
+    document.getElementById('combinedQuizTitle').textContent = `Detail & Hasil: ${title}`;
     
-    document.getElementById('detailQuizTitle').textContent = `Soal & Kunci Jawaban: ${quiz.title}`;
-    const body = document.getElementById('detailsBody');
-    
+    const detailsBody = document.getElementById('combinedDetailsBody');
     let html = `
       <div style="margin-bottom: 20px; padding: 15px; background: var(--color-bg-surface-alt); border-radius: 8px;">
         <strong>Kode Akses Kuis:</strong> <span style="font-family: monospace; font-size: 1.2em; background: #fff; padding: 2px 8px; border-radius: 4px; margin-left: 10px;">${quiz.code}</span>
@@ -229,11 +115,83 @@
       html += `<p style="color: var(--color-text-secondary);">Kuis ini belum memiliki soal.</p>`;
     }
 
-    body.innerHTML = html;
-    document.getElementById('detailsModal').classList.add('active');
+    detailsBody.innerHTML = html;
+
+    const tbody = document.getElementById('combinedSubmissionsBody');
+    tbody.innerHTML = '';
+
+    let sortedSubmissions = [];
+    if (submissions && submissions.length > 0) {
+      sortedSubmissions = [...submissions].sort((a, b) => {
+        if (b.score !== a.score) {
+          return b.score - a.score;
+        }
+        return new Date(a.created_at) - new Date(b.created_at);
+      });
+    }
+
+    if (sortedSubmissions.length > 0) {
+      sortedSubmissions.forEach((sub, index) => {
+        const row = document.createElement('div');
+        const date = new Date(sub.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+        
+        let bgStyle = 'background: var(--bg-surface);';
+        let borderStyle = 'border: 1px solid var(--rd-border);';
+        let medalIcon = '';
+        let rankColor = 'var(--text-secondary)';
+
+        if (index === 0) {
+          bgStyle = 'background: linear-gradient(135deg, #FFFDE7, #FFF8E1);';
+          borderStyle = 'border: 1px solid #FDE047; border-left: 4px solid #EAB308;';
+          medalIcon = '🥇';
+          rankColor = '#CA8A04';
+        } else if (index === 1) {
+          bgStyle = 'background: linear-gradient(135deg, #F3F4F6, #F9FAFB);';
+          borderStyle = 'border: 1px solid #E5E7EB; border-left: 4px solid #9CA3AF;';
+          medalIcon = '🥈';
+          rankColor = '#6B7280';
+        } else if (index === 2) {
+          bgStyle = 'background: linear-gradient(135deg, #FFF7ED, #FFEDD5);';
+          borderStyle = 'border: 1px solid #FED7AA; border-left: 4px solid #F97316;';
+          medalIcon = '🥉';
+          rankColor = '#C2410C';
+        } else {
+          borderStyle = 'border: 1px solid var(--rd-border); border-left: 4px solid transparent;';
+        }
+
+        row.style.cssText = `display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 8px; ${bgStyle} ${borderStyle}`;
+        
+        let scoreColor = 'var(--color-error)';
+        if (sub.score >= 80) scoreColor = 'var(--color-success)';
+        else if (sub.score >= 50) scoreColor = 'var(--color-warning)';
+
+        row.innerHTML = `
+          <div style="font-size: 1.2rem; font-weight: 700; color: ${rankColor}; width: 30px; text-align: center;">
+            ${medalIcon ? medalIcon : (index + 1)}
+          </div>
+          <div style="flex: 1; min-width: 0;">
+            <div style="font-weight: 600; color: var(--text-primary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${sub.participant_name}</div>
+            <div style="font-size: 11px; color: var(--text-tertiary);">${date}</div>
+          </div>
+          <div style="text-align: right;">
+            <div style="font-weight: 700; font-size: 1.1rem; color: ${scoreColor};">${Math.round(sub.score)}</div>
+            <div style="font-size: 10px; color: var(--text-muted); font-weight: 600;">SKOR</div>
+          </div>
+        `;
+        tbody.appendChild(row);
+      });
+    } else {
+      tbody.innerHTML = `<div style="text-align: center; color: var(--text-secondary); padding: 30px; background: var(--bg-surface-2); border-radius: 8px;">Belum ada peserta yang mengerjakan kuis ini.</div>`;
+    }
+
+    const modal = document.getElementById('combinedModal');
+    modal.style.display = 'flex';
+    setTimeout(() => {
+      modal.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 100);
   }
 
   function closeModal(id) {
-    document.getElementById(id).classList.remove('active');
+    document.getElementById(id).style.display = 'none';
   }
 </script>
