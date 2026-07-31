@@ -234,8 +234,17 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
     loader.load(url, gltf => {
       currentModel = gltf.scene;
 
-      // FIX UNTUK AUTODESK INVENTOR (Z-Up ke Y-Up)
-      currentModel.rotation.x = -Math.PI / 2;
+      // Fix rotasi khusus untuk tiang/SKUTR yang dari Autodesk Inventor (Z-Up)
+      const moduleDataEl = document.getElementById('mapping-module-data');
+      if (moduleDataEl) {
+        try {
+          const modData = JSON.parse(moduleDataEl.textContent);
+          const title = (modData.title || '').toLowerCase();
+          if (title.includes('tiang') || title.includes('skutr')) {
+            currentModel.rotation.x = -Math.PI / 2;
+          }
+        } catch(e) {}
+      }
 
       const box = new THREE.Box3().setFromObject(currentModel);
       const size = box.getSize(new THREE.Vector3());

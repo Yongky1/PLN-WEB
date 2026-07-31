@@ -502,8 +502,11 @@ function loadVariant(index) {
     (gltf) => {
       currentModel = gltf.scene;
 
-      // FIX UNTUK AUTODESK INVENTOR (Z-Up ke Y-Up)
-      currentModel.rotation.x = -Math.PI / 2;
+      // Fix rotasi khusus untuk tiang/SKUTR yang dari Autodesk Inventor (Z-Up)
+      const title = (asset.name || '').toLowerCase();
+      if (title.includes('tiang') || title.includes('skutr')) {
+        currentModel.rotation.x = -Math.PI / 2;
+      }
 
       const box = new THREE.Box3().setFromObject(currentModel);
       const size = box.getSize(new THREE.Vector3());

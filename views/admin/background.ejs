@@ -86,20 +86,13 @@
     formData.append('file', fileInput.files[0]);
 
     try {
-      const res = await fetch('/api/backgrounds', {
+      await fetchBackend('/api/backgrounds', {
         method: 'POST',
         body: formData
       });
-      if (res.ok) {
-        window.location.reload();
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Gagal mengunggah background');
-        btn.disabled = false;
-        btn.innerHTML = 'Upload';
-      }
+      window.location.reload();
     } catch (err) {
-      alert('Terjadi kesalahan');
+      alert(err.message || 'Terjadi kesalahan');
       btn.disabled = false;
       btn.innerHTML = 'Upload';
     }
@@ -108,15 +101,10 @@
   async function deleteBackground(id) {
     if (!confirm('Apakah Anda yakin ingin menghapus background ini?')) return;
     try {
-      const res = await fetch(`/api/backgrounds/${id}`, { method: 'DELETE' });
-      if (res.ok) {
-        window.location.reload();
-      } else {
-        const data = await res.json();
-        alert(data.error || 'Gagal menghapus');
-      }
+      await fetchBackend(`/api/backgrounds/${id}`, { method: 'DELETE' });
+      window.location.reload();
     } catch (err) {
-      alert('Terjadi kesalahan');
+      alert(err.message || 'Terjadi kesalahan saat menghapus');
     }
   }
 </script>

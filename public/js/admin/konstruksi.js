@@ -115,9 +115,19 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
   const el = document.getElementById(containerId);
   if (!el) return;
 
-  // Filter logic
+  const selectedMap = {};
+  const selectedOrder = [];
+  if (selected && selected.length) {
+    selected.forEach((s) => {
+      const id = s.material_id || (s.material && s.material.id);
+      selectedMap[id] = s.quantity || 1;
+      selectedOrder.push(id);
+    });
+  }
+
+  // Filter logic (selalu tampilkan yang sudah terpilih agar tidak hilang saat search)
   const filtered = filter
-    ? allMaterials.filter((m) => m.name.toLowerCase().includes(filter.toLowerCase()))
+    ? allMaterials.filter((m) => m.name.toLowerCase().includes(filter.toLowerCase()) || selectedMap[m.id] !== undefined)
     : allMaterials;
 
   if (!filtered || filtered.length === 0) {
@@ -126,16 +136,6 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
             <span style="font-size:11px;color:rgba(27,43,75,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada material<br>tersedia'}</span>
         </div>`;
     return;
-  }
-  const selectedMap = {};
-  const selectedOrder = [];
-  if (selected && selected.length) {
-    // Gunakan urutan asli (sequence) dari DB karena array `selected` sudah di-sort di backend
-    selected.forEach((s) => {
-      const id = s.material_id || (s.material && s.material.id);
-      selectedMap[id] = s.quantity || 1;
-      selectedOrder.push(id);
-    });
   }
 
   // Urutkan: Terpilih (sesuai urutan array) > Tidak terpilih (abjad)
@@ -209,6 +209,14 @@ window.toggleMatItem = function (el, mid) {
     badge.innerHTML =
       '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
     if (qtyWrap) qtyWrap.style.display = 'flex';
+    
+    // Pindahkan elemen ini ke akhir grup "terpilih"
+    const firstUnchecked = Array.from(el.parentNode.children).find(child => !child.querySelector('.mat-checkbox').checked && child !== el);
+    if (firstUnchecked) {
+      el.parentNode.insertBefore(el, firstUnchecked);
+    } else {
+      el.parentNode.appendChild(el);
+    }
   } else {
     el.style.background = 'rgba(27,43,75,0.02)';
     el.style.borderColor = 'rgba(27,43,75,0.07)';
@@ -230,18 +238,6 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
   const el = document.getElementById(containerId);
   if (!el) return;
 
-  // Filter logic
-  const filtered = filter
-    ? allTools.filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()))
-    : allTools;
-
-  if (!filtered || filtered.length === 0) {
-    el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;">
-            <span style="font-size:22px;">🔧</span>
-            <span style="font-size:11px;color:rgba(27,43,75,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada peralatan<br>tersedia'}</span>
-        </div>`;
-    return;
-  }
   const selectedIds = new Set();
   const selectedOrder = [];
   if (selected && selected.length) {
@@ -250,6 +246,19 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
       selectedIds.add(id);
       selectedOrder.push(id);
     });
+  }
+
+  // Filter logic (selalu tampilkan yang sudah terpilih agar tidak hilang saat search)
+  const filtered = filter
+    ? allTools.filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()) || selectedIds.has(t.id))
+    : allTools;
+
+  if (!filtered || filtered.length === 0) {
+    el.innerHTML = `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:6px;">
+            <span style="font-size:22px;">🔧</span>
+            <span style="font-size:11px;color:rgba(27,43,75,0.3);text-align:center;">${filter ? 'Tidak ada hasil' : 'Belum ada peralatan<br>tersedia'}</span>
+        </div>`;
+    return;
   }
 
   // Urutkan: Terpilih (sesuai urutan array) > Tidak terpilih (abjad)
@@ -313,6 +322,14 @@ window.toggleToolItem = function (el, tid) {
     badge.style.borderColor = '#F59E0B';
     badge.innerHTML =
       '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+      
+    // Pindahkan elemen ini ke akhir grup "terpilih"
+    const firstUnchecked = Array.from(el.parentNode.children).find(child => !child.querySelector('.tool-checkbox').checked && child !== el);
+    if (firstUnchecked) {
+      el.parentNode.insertBefore(el, firstUnchecked);
+    } else {
+      el.parentNode.appendChild(el);
+    }
   } else {
     el.style.background = 'rgba(27,43,75,0.02)';
     el.style.borderColor = 'rgba(27,43,75,0.07)';
@@ -606,7 +623,15 @@ window.changeAdminPreview = function () {
   const emptyState = document.getElementById('admin-preview-empty');
   if (!selector || !viewer || !emptyState) return;
 
-  if (selector.value) {
+  if (selector.value && selector.selectedIndex >= 0) {
+    const selectedOpt = selector.options[selector.selectedIndex];
+    const title = (selectedOpt.dataset.title || '').toLowerCase();
+    if (title.includes('tiang') || title.includes('skutr')) {
+      viewer.setAttribute('orientation', '-90deg 0 0');
+    } else {
+      viewer.setAttribute('orientation', '0deg 0 0');
+    }
+
     viewer.setAttribute('src', selector.value);
     viewer.style.display = 'block';
     emptyState.style.display = 'none';
@@ -652,6 +677,7 @@ window.syncAdminPreviewDropdown = function () {
       const opt = document.createElement('option');
       opt.value = fileUrl;
       opt.textContent = isLocal ? `[Baru] ${nameText}` : nameText;
+      opt.dataset.title = nameText;
       selector.appendChild(opt);
       hasValidOption = true;
     }
@@ -756,7 +782,7 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                   containerId !== 'edit-konstruksi-cards'
                     ? `
                 <div class="card-model-viewer-container" style="display:none; margin-top:4px; height:200px; border-radius:10px; overflow:hidden; border:1px solid rgba(255,255,255,0.08); position:relative;">
-                    <model-viewer class="internal-viewer" src="" orientation="-90deg 0 0" 
+                    <model-viewer class="internal-viewer" src="" orientation="0deg 0 0" 
                         style="width: 100%; height: 100%; background: #ffffff;" 
                         camera-controls auto-rotate interaction-prompt="none" shadow-intensity="1">
                     </model-viewer>

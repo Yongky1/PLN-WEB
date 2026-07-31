@@ -44,7 +44,7 @@
 <script>
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      const res = await fetch('/api/backgrounds');
+      const res = await fetch('<%= process.env.BACKEND_URL || "http://localhost:4000" %>/api/backgrounds');
       if (!res.ok) return;
       const backgrounds = await res.json();
       

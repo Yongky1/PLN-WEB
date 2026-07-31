@@ -151,6 +151,15 @@ function setFileSuccess(zone, fileName) {
           URL.revokeObjectURL(internalViewer._objectUrl);
         }
         const url = URL.createObjectURL(file);
+        
+        const nameEl = card.querySelector('.k-name');
+        const title = (nameEl ? nameEl.value : '').toLowerCase();
+        if (title.includes('tiang') || title.includes('skutr')) {
+          internalViewer.setAttribute('orientation', '-90deg 0 0');
+        } else {
+          internalViewer.setAttribute('orientation', '0deg 0 0');
+        }
+        
         internalViewer._objectUrl = url;
         internalViewer.src = url;
         viewerContainer.style.display = 'block';
