@@ -5,7 +5,7 @@
     <%- include('partials/head') %>
         <style>
             .lp-hero-bg {
-                background: linear-gradient(135deg, var(--color-bg-surface) 0%, var(--color-bg-surface-alt) 100%);
+                background: transparent;
                 border-bottom: 1px solid var(--color-border);
             }
 
@@ -76,7 +76,7 @@
                 padding: 16px 24px 16px 56px;
                 border-radius: 99px;
                 border: 1px solid var(--color-border);
-                background: var(--color-bg-main);
+                background: #ffffff;
                 color: var(--color-text-primary);
                 font-size: 1.1rem;
                 transition: all 0.3s ease;
@@ -212,16 +212,16 @@
                     Ensiklopedia pintar yang berisi singkatan, istilah teknis, dan komponen standar kelistrikan PLN.
                     Temukan maknanya di sini.
                 </p>
-
-                <div class="search-container">
-                    <svg class="search-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <circle cx="11" cy="11" r="8"></circle>
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35">
-                        </path>
-                    </svg>
-                    <input type="text" id="lp-search" class="search-input"
-                        placeholder="Cari istilah atau singkatan" autocomplete="off">
-                </div>
+            </div>
+            
+            <div class="search-container mt-2">
+                <svg class="search-icon w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="m21 21-4.35-4.35">
+                    </path>
+                </svg>
+                <input type="text" id="lp-search" class="search-input"
+                    placeholder="Cari istilah atau singkatan" autocomplete="off">
             </div>
         </div>
 
