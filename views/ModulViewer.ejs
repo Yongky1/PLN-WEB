@@ -290,7 +290,7 @@
                         </div>
                         <div id="right-panel-content">
                             <div id="default-module-desc">
-                                <p class="text-[var(--color-text-secondary)] text-sm leading-relaxed break-words whitespace-pre-wrap"><%= module.description %></p>
+                                <p class="text-[var(--color-text-secondary)] text-sm leading-relaxed break-words whitespace-pre-wrap"><%- formatDescription(module.description) %></p>
                             </div>
                         </div>
                     </div>
@@ -371,7 +371,7 @@
                         </div>
                         <div class="mv-card-body">
                             <div class="mv-card-title"><%= m.name || '-' %></div>
-                            <div class="mv-card-desc"><%= m.shortDesc || m.description || '' %></div>
+                            <div class="mv-card-desc"><%- formatDescription(m.shortDesc || m.description || '') %></div>
                             <div class="mv-card-divider"></div>
                             <div class="mv-card-stats">
                                 <div style="display:flex;gap:12px;min-width:0;flex:1;">
@@ -433,7 +433,7 @@
                         </div>
                         <div class="mv-card-body">
                             <div class="mv-card-title"><%= t.name || '-' %></div>
-                            <div class="mv-card-desc"><%= t.description || '' %></div>
+                            <div class="mv-card-desc"><%- formatDescription(t.description || '') %></div>
                             <div class="mv-card-divider"></div>
                             <div class="mv-card-stats">
                                 <div style="display:flex;gap:12px;min-width:0;flex:1;">
@@ -551,7 +551,7 @@
                     var codeEl = document.getElementById('mat-modal-code');
                     if (codeEl) codeEl.textContent = item.code || '';
                     var descEl = document.getElementById('mat-modal-desc');
-                    if (descEl) descEl.textContent = item.description || item.shortDesc || '';
+                    if (descEl) descEl.innerHTML = window.formatDescription(item.description || item.shortDesc || '');
 
                     var prevBtn = document.getElementById('mat-viewer-prev-btn');
                     var nextBtn = document.getElementById('mat-viewer-next-btn');
@@ -584,7 +584,7 @@
                         statusEl.className = 'text-[11px] font-bold ' + (item.status === 'Wajib' ? 'text-red-400' : 'text-emerald-400');
                     }
                     var descEl = document.getElementById('modal-desc');
-                    if (descEl) descEl.textContent = item.description || 'Deskripsi belum tersedia.';
+                    if (descEl) descEl.innerHTML = window.formatDescription(item.description || 'Deskripsi belum tersedia.');
                 });
             }
         }

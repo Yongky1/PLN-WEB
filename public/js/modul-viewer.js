@@ -303,6 +303,7 @@ function renderBomList(mats, tools) {
   bomHtml += mats.map(mRow => {
     const m = mRow.material || {};
     const qty = mRow.quantity || 1;
+    const unit = mRow.unit || 'PCS';
     const globalNo = moduleMaterials.indexOf(mRow) + 1;
     return `
       <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${m.id}', 'material')">
@@ -311,7 +312,7 @@ function renderBomList(mats, tools) {
           <div class="font-bold text-gray-800 text-sm hover:text-[var(--color-primary)] transition-colors">${m.name || '-'}</div>
           <div class="text-[11px] text-gray-400 mt-0.5">Klik untuk melihat detail katalog</div>
         </td>
-        <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">pcs</td>
+        <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">${unit}</td>
         <td class="py-3 px-4 text-center text-sm font-bold text-[var(--color-primary)]">${qty}</td>
       </tr>
     `;

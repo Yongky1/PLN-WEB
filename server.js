@@ -20,6 +20,29 @@ const PORT = process.env.PORT || 3000;
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
+app.locals.formatDescription = (desc) => {
+  if (!desc || typeof desc !== 'string') return 'Deskripsi belum tersedia.';
+  
+  // 1. Sanitize HTML
+  let formatted = desc
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+    
+  // 2. Parse bold (**text**)
+  formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  
+  // 3. Parse source ([Source]) at the end
+  const sourceMatch = formatted.match(/\[(.*?)\]\s*$/);
+  let sourceHtml = '';
+  if (sourceMatch) {
+    formatted = formatted.replace(/\[(.*?)\]\s*$/, '').trim();
+    sourceHtml = `<div class="mt-3 pt-2 text-right text-[12px] italic text-[var(--color-text-secondary)] opacity-80 border-t border-[rgba(0,0,0,0.1)]">${sourceMatch[1]}</div>`;
+  }
+  
+  return formatted + sourceHtml;
+};
+
 app.use(cookieParser());
 app.use(helmet(helmetOptions));
 app.use(compression());

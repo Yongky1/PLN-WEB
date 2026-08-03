@@ -261,10 +261,10 @@
               <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= m.title %></h3>
               <div class="relative flex-grow mb-4">
                   <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
-                      <%= m.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                      <%- formatDescription(m.description) %><br>&nbsp;<br>&nbsp;
                   </p>
                   <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
-                      <%= m.description || 'Deskripsi belum tersedia.' %>
+                      <%- formatDescription(m.description) %>
                   </p>
                   <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
               </div>
@@ -364,10 +364,10 @@
               <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= m.name %></h3>
               <div class="relative flex-grow mb-4">
                   <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
-                      <%= m.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                      <%- formatDescription(m.description) %><br>&nbsp;<br>&nbsp;
                   </p>
                   <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
-                      <%= m.description || 'Deskripsi belum tersedia.' %>
+                      <%- formatDescription(m.description) %>
                   </p>
                   <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
               </div>
@@ -472,10 +472,10 @@
               <h3 class="v3-card-title text-base font-bold text-[var(--color-text-primary)] brand-font leading-snug mb-1.5 group-hover:text-[var(--color-primary)] transition-colors"><%= t.name %></h3>
               <div class="relative flex-grow mb-4">
                   <p class="text-xs leading-relaxed line-clamp-2 opacity-0 pointer-events-none select-none" aria-hidden="true">
-                      <%= t.description || 'Deskripsi belum tersedia.' %><br>&nbsp;<br>&nbsp;
+                      <%- formatDescription(t.description) %><br>&nbsp;<br>&nbsp;
                   </p>
                   <p class="absolute inset-0 text-xs text-[var(--color-text-muted)] leading-relaxed overflow-hidden">
-                      <%= t.description || 'Deskripsi belum tersedia.' %>
+                      <%- formatDescription(t.description) %>
                   </p>
                   <div class="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none"></div>
               </div>

@@ -118,11 +118,11 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
   const selectedMap = {};
   const selectedOrder = [];
   if (selected && selected.length) {
-    selected.forEach((s) => {
-      const id = s.material_id || (s.material && s.material.id);
-      selectedMap[id] = s.quantity || 1;
-      selectedOrder.push(id);
-    });
+      selected.forEach((s) => {
+        const id = s.material_id || (s.material && s.material.id);
+        selectedMap[id] = { quantity: s.quantity || 1, unit: s.unit || 'PCS' };
+        selectedOrder.push(id);
+      });
   }
 
   // Filter logic (selalu tampilkan yang sudah terpilih agar tidak hilang saat search)
@@ -150,10 +150,11 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
     return a.name.localeCompare(b.name, 'id');
   });
   el.innerHTML = filtered
-    .map((m) => {
-      const mid = m.id;
-      const qty = selectedMap[mid] || 1;
-      const isChecked = selectedMap[mid] !== undefined;
+      .map((m) => {
+        const mid = m.id;
+        const qty = selectedMap[mid] ? selectedMap[mid].quantity : 1;
+        const unit = selectedMap[mid] ? selectedMap[mid].unit : 'PCS';
+        const isChecked = selectedMap[mid] !== undefined;
       const icon = m.icon || '📦';
       const activeStyle = isChecked
         ? 'background:rgba(129,140,248,0.12);border-color:rgba(129,140,248,0.35);'
@@ -167,10 +168,11 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
             <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(27,43,75,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name || mid}</span>
             <div class="mat-qty-wrap" style="display:${isChecked ? 'flex' : 'none'};align-items:center;gap:6px;flex-shrink:0;">
                 <button type="button" onclick="event.stopPropagation();stepQty(this,-1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">-</button>
-                <input type="number" class="mat-qty" data-id="${mid}" value="${qty}" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:#ffffff;border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">
-                <button type="button" onclick="event.stopPropagation();stepQty(this,1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">+</button>
-            </div>
-            <span class="mat-check-badge" style="width:18px;height:18px;border-radius:50%;background:${isChecked ? '#818CF8' : 'rgba(27,43,75,0.04)'};border:1.5px solid ${isChecked ? '#818CF8' : 'rgba(27,43,75,0.1)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">
+                  <input type="number" class="mat-qty" data-id="${mid}" value="${qty}" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:#ffffff;border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">
+                  <button type="button" onclick="event.stopPropagation();stepQty(this,1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">+</button>
+                  <input type="text" class="mat-unit" data-id="${mid}" value="${unit}" onclick="event.stopPropagation()" placeholder="Sat" oninput="this.value=this.value.toUpperCase()" style="width:40px;height:20px;padding:0 4px;margin:0;box-sizing:border-box;background:#ffffff;border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:10px;font-weight:700;text-transform:uppercase;text-align:center;line-height:18px;outline:none;">
+              </div>
+              <span class="mat-check-badge" style="width:18px;height:18px;border-radius:50%;background:${isChecked ? '#818CF8' : 'rgba(27,43,75,0.04)'};border:1.5px solid ${isChecked ? '#818CF8' : 'rgba(27,43,75,0.1)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">
                 ${isChecked ? '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
             </span>
         </div>`;
@@ -345,7 +347,12 @@ function collectSelectedMaterials(listId) {
   document.querySelectorAll(`#${listId} .mat-checkbox:checked`).forEach((cb) => {
     const mid = cb.dataset.id;
     const qtyEl = document.querySelector(`#${listId} .mat-qty[data-id="${mid}"]`);
-    result.push({ material_id: mid, quantity: qtyEl ? parseInt(qtyEl.value) || 1 : 1 });
+    const unitEl = document.querySelector(`#${listId} .mat-unit[data-id="${mid}"]`);
+    result.push({ 
+      material_id: mid, 
+      quantity: qtyEl ? parseInt(qtyEl.value) || 1 : 1,
+      unit: unitEl ? unitEl.value : 'PCS'
+    });
   });
   return result;
 }
