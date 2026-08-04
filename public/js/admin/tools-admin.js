@@ -349,7 +349,7 @@ function createToolsCard(index, removable, containerId = 'tools-cards') {
                           <span class="drop-label" style="font-size:12px;color:var(--text-secondary);font-weight:500;">
                               Drag & drop atau klik untuk upload
                           </span>
-                          <span style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Format: .glb, .gltf, .png, .jpg, .webp (maks. 50MB)</span>
+                          <span style="font-size:11px;color:var(--text-tertiary);margin-top:4px;">Format: .glb, .gltf, .png, .jpg, .webp (maks. 100MB)</span>
                       </div>
                   </div>
 

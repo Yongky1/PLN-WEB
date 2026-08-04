@@ -796,7 +796,7 @@ function createKonstruksiCard(index, removable, containerId = 'konstruksi-cards'
                         <span class="drop-label" style="font-size:12px;color:rgba(27,43,75,0.7);">
                             Drag & drop atau klik untuk upload
                         </span>
-                        <span style="font-size:11px;color:rgba(27,43,75,0.5);">Format: .glb, .gltf, .png, .jpg, .webp (maks. 50MB)</span>
+                        <span style="font-size:11px;color:rgba(27,43,75,0.5);">Format: .glb, .gltf, .png, .jpg, .webp (maks. 100MB)</span>
                     </div>
                 </div>
                 
