@@ -180,7 +180,7 @@
         <div class="max-w-[1400px] mx-auto flex flex-col items-center">
 
             <!-- Header area -->
-            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-6 mb-10 pb-8 border-b border-[var(--color-border)]">
+            <div class="w-full flex flex-col md:flex-row items-center justify-between gap-6 mb-6">
                 <div class="flex flex-col items-start w-full md:w-auto">
                     <a href="<%= backUrl %>" class="inline-flex items-center text-[11px] font-semibold uppercase tracking-[0.15em] text-[var(--color-text-muted)] hover:text-[var(--color-primary)] transition-colors mb-4 group">
                         <svg class="w-4 h-4 mr-1.5 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
@@ -198,6 +198,13 @@
                 </div>
             </div>
 
+            <!-- Description -->
+            <div class="w-full mb-10 pb-8 border-b border-[var(--color-border)]">
+                <div class="border-l-[3px] border-[var(--color-primary)] pl-5 md:pl-6 py-1">
+                    <p class="text-slate-600 text-base md:text-lg leading-relaxed md:leading-8 tracking-wide whitespace-pre-wrap max-w-5xl"><%- formatDescription(module.description) %></p>
+                </div>
+            </div>
+
             <!-- Data for JS -->
             <script type="application/json" id="module-assets-data">
                 <%- JSON.stringify(module.assets || []) %>
@@ -207,9 +214,9 @@
             </script>
 
             <!-- Viewer and Info Grid -->
-            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            <div class="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8">
                 <!-- 3D Canvas -->
-                <div id="viewer-container" class="lg:col-span-8 relative w-full rounded-3xl overflow-hidden flex items-center justify-center group transition-all duration-500 shadow-xl border border-[var(--color-border)] min-h-[280px] md:h-[75vh] md:min-h-[500px] bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
+                <div id="viewer-container" class="lg:col-span-7 relative w-full rounded-3xl overflow-hidden flex items-center justify-center group transition-all duration-500 shadow-xl border border-[var(--color-border)] min-h-[280px] md:h-[75vh] md:min-h-[500px] bg-gradient-to-br from-[var(--color-bg-surface-alt)] to-[var(--color-bg-main)]">
                     <!-- Ambient top glow -->
                     <div class="absolute top-0 left-1/2 -translate-x-1/2 w-3/4 h-32 bg-[var(--color-primary)]/5 blur-[60px] pointer-events-none"></div>
 
@@ -282,18 +289,7 @@
                 </div>
 
                 <!-- Info Cards (light theme) -->
-                <div class="lg:col-span-4 flex flex-col gap-6 h-[500px] lg:h-[75vh] lg:min-h-[500px] w-full">
-                    <!-- Description Panel -->
-                    <div id="right-panel-container" class="bg-[var(--color-bg-surface)] border border-[var(--color-border)] shadow-sm rounded-3xl p-6 lg:px-8 lg:py-6 flex-none w-full">
-                        <div class="flex items-center justify-between mb-3 shrink-0">
-                            <h3 id="right-panel-title" class="text-[10px] font-bold text-[var(--color-primary)] uppercase tracking-[0.2em]">Deskripsi Konstruksi</h3>
-                        </div>
-                        <div id="right-panel-content">
-                            <div id="default-module-desc">
-                                <p class="text-[var(--color-text-secondary)] text-sm leading-relaxed break-words whitespace-pre-wrap"><%- formatDescription(module.description) %></p>
-                            </div>
-                        </div>
-                    </div>
+                <div class="lg:col-span-5 flex flex-col gap-6 h-[500px] lg:h-[75vh] lg:min-h-[500px] w-full">
 
                     <!-- Spec Panel -->
                     <div id="spec-panel-container" class="rounded-3xl p-6 lg:px-8 lg:pt-7 lg:pb-6 flex-1 flex flex-col min-h-0 overflow-hidden w-full transition-colors duration-300" style="background: #ffffff; color: #1f2937; border: 1px solid #e5e7eb;">

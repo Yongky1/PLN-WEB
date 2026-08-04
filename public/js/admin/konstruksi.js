@@ -118,11 +118,11 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
   const selectedMap = {};
   const selectedOrder = [];
   if (selected && selected.length) {
-      selected.forEach((s) => {
-        const id = s.material_id || (s.material && s.material.id);
-        selectedMap[id] = { quantity: s.quantity || 1, unit: s.unit || 'PCS' };
-        selectedOrder.push(id);
-      });
+        selected.forEach((s) => {
+          const id = s.material_id || (s.material && s.material.id);
+          selectedMap[id] = { quantity: s.quantity || 1, unit: s.unit || 'PCS', keterangan: s.keterangan || '' };
+          selectedOrder.push(id);
+        });
   }
 
   // Filter logic (selalu tampilkan yang sudah terpilih agar tidak hilang saat search)
@@ -154,6 +154,7 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
         const mid = m.id;
         const qty = selectedMap[mid] ? selectedMap[mid].quantity : 1;
         const unit = selectedMap[mid] ? selectedMap[mid].unit : 'PCS';
+        const ket = selectedMap[mid] ? selectedMap[mid].keterangan : '';
         const isChecked = selectedMap[mid] !== undefined;
       const icon = m.icon || '📦';
       const activeStyle = isChecked
@@ -167,6 +168,7 @@ function renderMaterialList(containerId, allMaterials, selected, isEdit, filter 
             <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
             <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(27,43,75,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${m.name || mid}</span>
             <div class="mat-qty-wrap" style="display:${isChecked ? 'flex' : 'none'};align-items:center;gap:6px;flex-shrink:0;">
+                <input type="text" class="mat-ket" data-id="${mid}" value="${ket}" onclick="event.stopPropagation()" placeholder="Ket (opsional)" style="width:80px;height:20px;padding:0 4px;margin:0;box-sizing:border-box;background:#ffffff;border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:10px;text-align:left;line-height:18px;outline:none;">
                 <button type="button" onclick="event.stopPropagation();stepQty(this,-1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">-</button>
                   <input type="number" class="mat-qty" data-id="${mid}" value="${qty}" min="1" onclick="event.stopPropagation()" oninput="this.value=Math.max(1,parseInt(this.value)||1)" style="width:36px;height:20px;padding:0;margin:0;box-sizing:border-box;background:#ffffff;border:1px solid rgba(129,140,248,0.3);border-radius:6px;color:#818CF8;font-size:11px;font-weight:700;text-align:center;line-height:18px;outline:none;">
                   <button type="button" onclick="event.stopPropagation();stepQty(this,1,'${mid}')" style="width:20px;height:20px;border-radius:50%;background:rgba(129,140,248,0.2);border:none;color:#818CF8;font-size:14px;padding:0 0 1px 0;cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:0;">+</button>
@@ -240,19 +242,19 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
   const el = document.getElementById(containerId);
   if (!el) return;
 
-  const selectedIds = new Set();
+  const selectedMap = {};
   const selectedOrder = [];
   if (selected && selected.length) {
     selected.forEach((s) => {
       const id = s.tool_id || (s.tool && s.tool.id);
-      selectedIds.add(id);
+      selectedMap[id] = { keterangan: s.keterangan || '' };
       selectedOrder.push(id);
     });
   }
 
   // Filter logic (selalu tampilkan yang sudah terpilih agar tidak hilang saat search)
   const filtered = filter
-    ? allTools.filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()) || selectedIds.has(t.id))
+    ? allTools.filter((t) => t.name.toLowerCase().includes(filter.toLowerCase()) || selectedMap[t.id] !== undefined)
     : allTools;
 
   if (!filtered || filtered.length === 0) {
@@ -265,8 +267,8 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
 
   // Urutkan: Terpilih (sesuai urutan array) > Tidak terpilih (abjad)
   filtered.sort((a, b) => {
-    const aSelected = selectedIds.has(a.id);
-    const bSelected = selectedIds.has(b.id);
+    const aSelected = selectedMap[a.id] !== undefined;
+    const bSelected = selectedMap[b.id] !== undefined;
     if (aSelected && bSelected) {
       return selectedOrder.indexOf(a.id) - selectedOrder.indexOf(b.id);
     }
@@ -278,7 +280,8 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
   el.innerHTML = filtered
     .map((t) => {
       const tid = t.id;
-      const isChecked = selectedIds.has(tid);
+      const isChecked = selectedMap[tid] !== undefined;
+      const ket = selectedMap[tid] ? selectedMap[tid].keterangan : '';
       const icon = t.icon || '🔧';
       const activeStyle = isChecked
         ? 'background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.35);'
@@ -290,6 +293,9 @@ function renderToolList(containerId, allTools, selected, isEdit, filter = '') {
               <input type="checkbox" class="tool-checkbox" data-id="${tid}" ${isChecked ? 'checked' : ''} style="display:none;">
             <span style="font-size:16px;flex-shrink:0;line-height:1;display:flex;align-items:center;justify-content:center;">${icon}</span>
             <span style="flex:1;font-size:11.5px;font-weight:500;color:rgba(27,43,75,${isChecked ? '0.9' : '0.55'});white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${t.name || tid}</span>
+            <div class="tool-qty-wrap" style="display:${isChecked ? 'flex' : 'none'};align-items:center;gap:6px;flex-shrink:0;">
+                <input type="text" class="tool-ket" data-id="${tid}" value="${ket}" onclick="event.stopPropagation()" placeholder="Ket (opsional)" style="width:80px;height:20px;padding:0 4px;margin:0;box-sizing:border-box;background:#ffffff;border:1px solid rgba(245,158,11,0.3);border-radius:6px;color:#F59E0B;font-size:10px;text-align:left;line-height:18px;outline:none;">
+            </div>
             <span class="tool-check-badge" style="width:18px;height:18px;border-radius:50%;background:${isChecked ? '#F59E0B' : 'rgba(27,43,75,0.04)'};border:1.5px solid ${isChecked ? '#F59E0B' : 'rgba(27,43,75,0.1)'};flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;">
                 ${isChecked ? '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24" style="display:block;"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
             </span>
@@ -315,6 +321,7 @@ window.toggleToolItem = function (el, tid) {
   const cb = el.querySelector('.tool-checkbox');
   const badge = el.querySelector('.tool-check-badge');
   const nameEl = el.querySelector('span:nth-child(3)');
+  const qtyWrap = el.querySelector('.tool-qty-wrap');
   cb.checked = !cb.checked;
   if (cb.checked) {
     el.style.background = 'rgba(245,158,11,0.1)';
@@ -324,6 +331,7 @@ window.toggleToolItem = function (el, tid) {
     badge.style.borderColor = '#F59E0B';
     badge.innerHTML =
       '<svg width="10" height="10" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>';
+    if (qtyWrap) qtyWrap.style.display = 'flex';
       
     // Pindahkan elemen ini ke akhir grup "terpilih"
     const firstUnchecked = Array.from(el.parentNode.children).find(child => !child.querySelector('.tool-checkbox').checked && child !== el);
@@ -339,6 +347,7 @@ window.toggleToolItem = function (el, tid) {
     badge.style.background = 'rgba(27,43,75,0.04)';
     badge.style.borderColor = 'rgba(27,43,75,0.1)';
     badge.innerHTML = '';
+    if (qtyWrap) qtyWrap.style.display = 'none';
   }
 };
 
@@ -348,10 +357,12 @@ function collectSelectedMaterials(listId) {
     const mid = cb.dataset.id;
     const qtyEl = document.querySelector(`#${listId} .mat-qty[data-id="${mid}"]`);
     const unitEl = document.querySelector(`#${listId} .mat-unit[data-id="${mid}"]`);
+    const ketEl = document.querySelector(`#${listId} .mat-ket[data-id="${mid}"]`);
     result.push({ 
       material_id: mid, 
       quantity: qtyEl ? parseInt(qtyEl.value) || 1 : 1,
-      unit: unitEl ? unitEl.value : 'PCS'
+      unit: unitEl ? unitEl.value : 'PCS',
+      keterangan: ketEl ? ketEl.value : ''
     });
   });
   return result;
@@ -360,7 +371,12 @@ function collectSelectedMaterials(listId) {
 function collectSelectedTools(listId) {
   const result = [];
   document.querySelectorAll(`#${listId} .tool-checkbox:checked`).forEach((cb) => {
-    result.push({ tool_id: cb.dataset.id });
+    const tid = cb.dataset.id;
+    const ketEl = document.querySelector(`#${listId} .tool-ket[data-id="${tid}"]`);
+    result.push({ 
+      tool_id: tid,
+      keterangan: ketEl ? ketEl.value : ''
+    });
   });
   return result;
 }
@@ -1156,6 +1172,27 @@ document.addEventListener('DOMContentLoaded', () => {
   if (searchTool) {
     searchTool.addEventListener('input', (e) => {
       renderToolList('modul-tools-list', window._allToolsGlobal, collectSelectedTools('modul-tools-list'), false, e.target.value);
+    });
+  }
+
+  // Edit Modal Search
+  const editSearchMat = document.getElementById('edit-search-material');
+  if (editSearchMat) {
+    editSearchMat.addEventListener('input', (e) => {
+      renderMaterialList(
+        'edit-modul-materials-list',
+        window._allMaterialsGlobal,
+        collectSelectedMaterials('edit-modul-materials-list'),
+        true,
+        e.target.value
+      );
+    });
+  }
+  
+  const editSearchTool = document.getElementById('edit-search-tools');
+  if (editSearchTool) {
+    editSearchTool.addEventListener('input', (e) => {
+      renderToolList('edit-modul-tools-list', window._allToolsGlobal, collectSelectedTools('edit-modul-tools-list'), true, e.target.value);
     });
   }
 

@@ -17,7 +17,7 @@ window.formatDescription = function(desc) {
   let sourceHtml = '';
   if (sourceMatch) {
     formatted = formatted.replace(/\[(.*?)\]\s*$/, '').trim();
-    sourceHtml = `<div class="mt-3 pt-2 text-right text-[12px] italic text-[var(--color-text-secondary)] opacity-80 border-t border-[rgba(0,0,0,0.1)]">${sourceMatch[1]}</div>`;
+    sourceHtml = ` <span class="text-[12px] italic text-[var(--color-text-secondary)] opacity-80">${sourceMatch[1]}</span>`;
   }
   
   return formatted + sourceHtml;

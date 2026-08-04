@@ -298,63 +298,114 @@ function renderBomList(mats, tools) {
   const dynamicSpec = document.getElementById('dynamic-spec-content');
   if (!dynamicSpec) return;
 
-  let bomHtml = '';
-  
-  bomHtml += mats.map(mRow => {
-    const m = mRow.material || {};
-    const qty = mRow.quantity || 1;
-    const unit = mRow.unit || 'PCS';
-    const globalNo = moduleMaterials.indexOf(mRow) + 1;
-    return `
-      <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${m.id}', 'material')">
-        <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${globalNo}</td>
-        <td class="py-3 px-4">
-          <div class="font-bold text-gray-800 text-sm hover:text-[var(--color-primary)] transition-colors">${m.name || '-'}</div>
-          <div class="text-[11px] text-gray-400 mt-0.5">Klik untuk melihat detail katalog</div>
-        </td>
-        <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">${unit}</td>
-        <td class="py-3 px-4 text-center text-sm font-bold text-[var(--color-primary)]">${qty}</td>
-      </tr>
-    `;
-  }).join('');
-  
-  bomHtml += tools.map(tRow => {
-    const t = tRow.tool || {};
-    const globalNo = moduleMaterials.length + moduleTools.indexOf(tRow) + 1;
-    return `
-      <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${t.id}', 'tool')">
-        <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${globalNo}</td>
-        <td class="py-3 px-4">
-          <div class="font-bold text-gray-800 text-sm hover:text-[var(--color-primary)] transition-colors">${t.name || '-'}</div>
-          <div class="text-[11px] text-gray-400 mt-0.5">Klik untuk melihat detail katalog</div>
-        </td>
-        <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">-</td>
-        <td class="py-3 px-4 text-center text-sm font-bold text-[var(--color-primary)]">1</td>
-      </tr>
-    `;
-  }).join('');
-
   if (mats.length === 0 && tools.length === 0) {
-    bomHtml = `<tr><td colspan="4" class="py-8 text-center text-sm text-gray-400">Belum ada material yang dipetakan untuk komponen ini.</td></tr>`;
+    dynamicSpec.innerHTML = `
+      <div class="overflow-hidden shrink-0 rounded-xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+        <table class="w-full text-left border-collapse">
+          <tbody class="text-sm text-gray-700 bg-white">
+            <tr><td colspan="4" class="py-8 text-center text-sm text-gray-400">Belum ada material atau peralatan yang dipetakan untuk komponen ini.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    `;
+    return;
   }
 
-  dynamicSpec.innerHTML = `
-    <div class="overflow-hidden shrink-0 rounded-xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
-      <table class="w-full text-left border-collapse">
-        <thead class="sticky top-0 bg-[#f4f7fb] z-10 border-b border-gray-200">
-          <tr class="text-[#2b4c7e] text-[11px] font-bold uppercase tracking-[0.1em]">
-            <th class="py-3 px-4 text-center w-12">No</th>
-            <th class="py-3 px-4">Nama Material</th>
-            <th class="py-3 px-4 text-center w-16">Sat</th>
-            <th class="py-3 px-4 text-center w-16">Jml</th>
-          </tr>
-        </thead>
-        <tbody class="text-sm text-gray-700 bg-white">
-          ${bomHtml}
-        </tbody>
-      </table>
-    </div>
-  `;
+  let finalHtml = '';
+
+  if (mats.length > 0) {
+    let matsHtml = mats.map((mRow, i) => {
+      const m = mRow.material || {};
+      const qty = mRow.quantity || 1;
+      const unit = mRow.unit || 'PCS';
+      const ket = mRow.keterangan || '-';
+      const globalNo = i + 1;
+      return `
+        <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${m.id}', 'material')">
+          <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${globalNo}</td>
+          <td class="py-3 px-4">
+            <div class="font-bold text-gray-800 text-sm hover:text-[var(--color-primary)] transition-colors">${m.name || '-'}</div>
+            <div class="text-[11px] text-gray-400 mt-0.5">Klik untuk melihat detail katalog</div>
+          </td>
+          <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">${unit}</td>
+          <td class="py-3 px-4 text-center text-sm font-bold text-[var(--color-primary)]">${qty}</td>
+          <td class="py-3 px-4 text-[11px] text-gray-600 min-w-[200px]">${ket}</td>
+        </tr>
+      `;
+    }).join('');
+
+    finalHtml += `
+      <div class="${tools.length > 0 ? 'mb-6' : ''}">
+        <h4 class="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--color-text-muted)] mb-2 px-1 flex items-center gap-2">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          Material (${mats.length})
+        </h4>
+        <div class="overflow-x-auto shrink-0 rounded-xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)]">
+          <table class="w-full text-left border-collapse bg-white">
+            <thead class="sticky top-0 bg-[#f4f7fb] z-10 border-b border-gray-200">
+              <tr class="text-[#2b4c7e] text-[11px] font-bold uppercase tracking-[0.1em]">
+                <th class="py-3 px-4 text-center w-12">No</th>
+                <th class="py-3 px-4 min-w-[220px]">Nama Material</th>
+                <th class="py-3 px-4 text-center w-16">Sat</th>
+                <th class="py-3 px-4 text-center w-16">Jml</th>
+                <th class="py-3 px-4 min-w-[100px]">Ket</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+              ${matsHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  if (tools.length > 0) {
+    let toolsHtml = tools.map((tRow, i) => {
+      const t = tRow.tool || {};
+      const ket = tRow.keterangan || '-';
+      const globalNo = i + 1;
+      return `
+        <tr class="hover:bg-amber-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${t.id}', 'tool')">
+          <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${globalNo}</td>
+          <td class="py-3 px-4">
+            <div class="font-bold text-gray-800 text-sm hover:text-amber-600 transition-colors">${t.name || '-'}</div>
+            <div class="text-[11px] text-gray-400 mt-0.5">Klik untuk melihat detail katalog</div>
+          </td>
+          <td class="py-3 px-4 text-center text-[11px] font-semibold uppercase tracking-wider text-gray-500">-</td>
+          <td class="py-3 px-4 text-center text-sm font-bold text-amber-600">1</td>
+          <td class="py-3 px-4 text-[11px] text-gray-600 min-w-[200px]">${ket}</td>
+        </tr>
+      `;
+    }).join('');
+
+    finalHtml += `
+      <div>
+        <h4 class="text-[10px] font-bold uppercase tracking-[0.1em] text-[var(--color-text-muted)] mb-2 px-1 flex items-center gap-2">
+          <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Peralatan (${tools.length})
+        </h4>
+        <div class="overflow-x-auto shrink-0 rounded-xl border border-gray-100 shadow-[0_2px_10px_-3px_rgba(245,158,11,0.1)]">
+          <table class="w-full text-left border-collapse bg-white">
+            <thead class="sticky top-0 bg-[#fffbeb] z-10 border-b border-amber-100">
+              <tr class="text-amber-800 text-[11px] font-bold uppercase tracking-[0.1em]">
+                <th class="py-3 px-4 text-center w-12">No</th>
+                <th class="py-3 px-4 min-w-[220px]">Nama Peralatan</th>
+                <th class="py-3 px-4 text-center w-16">Sat</th>
+                <th class="py-3 px-4 text-center w-16">Jml</th>
+                <th class="py-3 px-4 min-w-[100px]">Ket</th>
+              </tr>
+            </thead>
+            <tbody class="text-sm text-gray-700">
+              ${toolsHtml}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  dynamicSpec.innerHTML = finalHtml;
 }
 
 function showMeshPanel(mesh) {

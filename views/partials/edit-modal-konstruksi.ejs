@@ -115,10 +115,18 @@ var _onChange = typeof previewOnChange    !== 'undefined' ? previewOnChange    :
         <div class="rd-field-row cols-2">
           <div class="rd-field-group">
             <label class="rd-field-label">Material</label>
+            <div style="position:relative; margin-bottom:8px;">
+              <input type="text" id="edit-search-material" class="rd-input" placeholder="Cari material..." style="padding-left:36px; background: #ffffff;" />
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
             <div id="edit-modul-materials-list" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding:8px;background:#ffffff;border:1px solid var(--border-default);border-radius:8px;"></div>
           </div>
           <div class="rd-field-group">
             <label class="rd-field-label">Peralatan</label>
+            <div style="position:relative; margin-bottom:8px;">
+              <input type="text" id="edit-search-tools" class="rd-input" placeholder="Cari peralatan..." style="padding-left:36px; background: #ffffff;" />
+              <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text-muted);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            </div>
             <div id="edit-modul-tools-list" style="max-height:160px;overflow-y:auto;display:flex;flex-direction:column;gap:4px;padding:8px;background:#ffffff;border:1px solid var(--border-default);border-radius:8px;"></div>
           </div>
         </div>
