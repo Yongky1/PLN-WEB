@@ -52,22 +52,22 @@
             <div class="flex flex-col md:flex-row gap-4 mb-8">
                 <div class="flex-1 flex flex-col gap-1.5">
                     <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Sektor</label>
-                    <select id="filter-sektor" class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-sm font-semibold text-[var(--color-text-secondary)] outline-none focus:border-[var(--color-primary)] transition-all cursor-pointer appearance-none" style="background-image: url('data:image/svg+xml;utf8,<svg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;" onchange="v3FilterChange()">
+                    <select id="filter-sektor" class="w-full bg-white border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-sm font-semibold text-[var(--color-text-secondary)] outline-none focus:border-[var(--color-primary)] transition-all cursor-pointer appearance-none" style="background-image: url('data:image/svg+xml;utf8,<svg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'currentColor\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;" onchange="updateMatFilterDropdowns(1)">
                         <option value="all">Semua Kategori</option>
-                        <% categories.forEach(function(cat) { %>
-                            <option value="<%= cat.id %>"><%= cat.name %></option>
-                        <% }); %>
+                        <option value="Distribusi">Distribusi</option>
+                        <option value="Pembangkit">Pembangkit</option>
+                        <option value="Transmisi">Transmisi</option>
                     </select>
                 </div>
                 <div class="flex-1 flex flex-col gap-1.5">
                     <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Tipe</label>
-                    <select id="filter-tipe" class="w-full bg-[#f8f9fa] border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-sm font-semibold text-[var(--color-text-muted)] outline-none appearance-none" style="background-image: url('data:image/svg+xml;utf8,<svg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#adb5bd\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;" disabled>
+                    <select id="filter-tipe" class="w-full bg-[#f8f9fa] border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-sm font-semibold text-[var(--color-text-muted)] outline-none appearance-none cursor-not-allowed" style="background-image: url('data:image/svg+xml;utf8,<svg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#adb5bd\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;" disabled onchange="updateMatFilterDropdowns(2)">
                         <option value="all">Semua Tipe</option>
                     </select>
                 </div>
                 <div class="flex-1 flex flex-col gap-1.5">
                     <label class="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider">Spesifikasi</label>
-                    <select id="filter-spesifikasi" class="w-full bg-[#f8f9fa] border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-sm font-semibold text-[var(--color-text-muted)] outline-none appearance-none" style="background-image: url('data:image/svg+xml;utf8,<svg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#adb5bd\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;" disabled>
+                    <select id="filter-spesifikasi" class="w-full bg-[#f8f9fa] border border-[var(--color-border)] rounded-xl py-2.5 px-4 text-sm font-semibold text-[var(--color-text-muted)] outline-none appearance-none cursor-not-allowed" style="background-image: url('data:image/svg+xml;utf8,<svg width=\'24\' height=\'24\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'#adb5bd\' stroke-width=\'2\' stroke-linecap=\'round\' stroke-linejoin=\'round\'><polyline points=\'6 9 12 15 18 9\'></polyline></svg>'); background-repeat: no-repeat; background-position: right 1rem center; background-size: 1em;" disabled onchange="v3FilterChange()">
                         <option value="all">Semua Spesifikasi</option>
                     </select>
                 </div>
@@ -86,7 +86,7 @@
                 <% } %>
 
                 <% validMaterials.forEach((mat, i) => { %>
-                <div class="gsap-stagger-item mat-card-item" data-category="<%= mat.category %>">
+                <div class="gsap-stagger-item mat-card-item" data-categories="<%= (mat.categoryLabel || '').toLowerCase() %>">
                     <div class="card-elevated overflow-hidden h-full cursor-pointer group flex flex-col" data-id="<%= mat.id %>">
                         <!-- Image -->
                         <div class="aspect-[16/10] relative overflow-hidden bg-[rgba(0,0,0,0.02)]">
@@ -178,6 +178,17 @@
         var _currentPage = 1;
         var _itemsPerPage = 40;
         
+        const matHierarchy = {
+            'Distribusi': {
+                'SR': [],
+                'JTR': ['SKTR', 'SKUTR', 'SUTR'],
+                'JTM': ['SKTM', 'SKUTM', 'SUTM'],
+                'Gardu': ['Gardu Beton', 'Gardu Portal', 'Gardu Cantol']
+            },
+            'Pembangkit': {},
+            'Transmisi': {}
+        };
+        
         (function() { var items = document.getElementById('material-grid').querySelectorAll('.mat-card-item'); items.forEach(function(el, i) { el.dataset.origIdx = i; }); })();
 
         function v3ToggleMatSort() {
@@ -200,6 +211,55 @@
             v3MatFilter();
         }
         
+        function updateMatFilterDropdowns(level) {
+            var selSektor = document.getElementById('filter-sektor');
+            var selTipe = document.getElementById('filter-tipe');
+            var selSpesifikasi = document.getElementById('filter-spesifikasi');
+            
+            var sektorVal = selSektor.value;
+            var tipeVal = selTipe.value;
+            
+            if (level === 1) {
+                // Sektor changed, update Tipe
+                selTipe.innerHTML = '<option value="all">Semua Tipe</option>';
+                selSpesifikasi.innerHTML = '<option value="all">Semua Spesifikasi</option>';
+                
+                if (sektorVal !== 'all' && matHierarchy[sektorVal]) {
+                    selTipe.disabled = false;
+                    selTipe.classList.remove('bg-[#f8f9fa]', 'text-[var(--color-text-muted)]', 'cursor-not-allowed');
+                    selTipe.classList.add('bg-white', 'text-[var(--color-text-secondary)]', 'cursor-pointer');
+                    Object.keys(matHierarchy[sektorVal]).forEach(function(tipe) {
+                        selTipe.innerHTML += '<option value="' + tipe + '">' + tipe + '</option>';
+                    });
+                } else {
+                    selTipe.disabled = true;
+                    selTipe.classList.add('bg-[#f8f9fa]', 'text-[var(--color-text-muted)]', 'cursor-not-allowed');
+                    selTipe.classList.remove('bg-white', 'text-[var(--color-text-secondary)]', 'cursor-pointer');
+                }
+                
+                selSpesifikasi.disabled = true;
+                selSpesifikasi.classList.add('bg-[#f8f9fa]', 'text-[var(--color-text-muted)]', 'cursor-not-allowed');
+                selSpesifikasi.classList.remove('bg-white', 'text-[var(--color-text-secondary)]', 'cursor-pointer');
+            } else if (level === 2) {
+                // Tipe changed, update Spesifikasi
+                selSpesifikasi.innerHTML = '<option value="all">Semua Spesifikasi</option>';
+                
+                if (sektorVal !== 'all' && tipeVal !== 'all' && matHierarchy[sektorVal][tipeVal] && matHierarchy[sektorVal][tipeVal].length > 0) {
+                    selSpesifikasi.disabled = false;
+                    selSpesifikasi.classList.remove('bg-[#f8f9fa]', 'text-[var(--color-text-muted)]', 'cursor-not-allowed');
+                    selSpesifikasi.classList.add('bg-white', 'text-[var(--color-text-secondary)]', 'cursor-pointer');
+                    matHierarchy[sektorVal][tipeVal].forEach(function(spesifikasi) {
+                        selSpesifikasi.innerHTML += '<option value="' + spesifikasi + '">' + spesifikasi + '</option>';
+                    });
+                } else {
+                    selSpesifikasi.disabled = true;
+                    selSpesifikasi.classList.add('bg-[#f8f9fa]', 'text-[var(--color-text-muted)]', 'cursor-not-allowed');
+                    selSpesifikasi.classList.remove('bg-white', 'text-[var(--color-text-secondary)]', 'cursor-pointer');
+                }
+            }
+            v3FilterChange();
+        }
+        
         function v3GoToPage(page) {
             _currentPage = page;
             v3MatFilter();
@@ -209,11 +269,47 @@
         function v3MatFilter() {
             var q = (document.getElementById('mat-search').value || '').toLowerCase().trim();
             var selSektor = document.getElementById('filter-sektor');
+            var selTipe = document.getElementById('filter-tipe');
+            var selSpesifikasi = document.getElementById('filter-spesifikasi');
+            
             var sektorVal = selSektor ? selSektor.value : 'all';
+            var tipeVal = selTipe ? selTipe.value : 'all';
+            var spesVal = selSpesifikasi ? selSpesifikasi.value : 'all';
+            
+            // Build array of allowed category names based on selection
+            var allowedCategories = [];
+            if (spesVal !== 'all') {
+                allowedCategories.push(spesVal.toLowerCase());
+            } else if (tipeVal !== 'all') {
+                allowedCategories.push(tipeVal.toLowerCase());
+                if (matHierarchy[sektorVal] && matHierarchy[sektorVal][tipeVal]) {
+                    matHierarchy[sektorVal][tipeVal].forEach(function(s) {
+                        allowedCategories.push(s.toLowerCase());
+                    });
+                }
+            } else if (sektorVal !== 'all') {
+                allowedCategories.push(sektorVal.toLowerCase());
+                if (matHierarchy[sektorVal]) {
+                    Object.keys(matHierarchy[sektorVal]).forEach(function(t) {
+                        allowedCategories.push(t.toLowerCase());
+                        matHierarchy[sektorVal][t].forEach(function(s) {
+                            allowedCategories.push(s.toLowerCase());
+                        });
+                    });
+                }
+            }
             
             var matchedItems = [];
             document.querySelectorAll('.mat-card-item').forEach(function(item) {
-                var matchCat = sektorVal === 'all' || item.dataset.category === sektorVal;
+                var itemCats = (item.dataset.categories || '').split(',').map(c => c.trim());
+                
+                var matchCat = true;
+                if (allowedCategories.length > 0) {
+                    matchCat = itemCats.some(function(c) {
+                        return allowedCategories.includes(c);
+                    });
+                }
+                
                 var nameEl = item.querySelector('.v3-card-title');
                 var name = nameEl ? nameEl.textContent.toLowerCase() : '';
                 var matchQ = q === '' || name.includes(q);
