@@ -319,7 +319,7 @@ function renderBomList(mats, tools) {
       const qty = mRow.quantity || 1;
       const unit = mRow.unit || 'PCS';
       const ket = mRow.keterangan || '-';
-      const globalNo = i + 1;
+      const globalNo = moduleMaterials.indexOf(mRow) + 1;
       return `
         <tr class="hover:bg-blue-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${m.id}', 'material')">
           <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${globalNo}</td>
@@ -364,7 +364,7 @@ function renderBomList(mats, tools) {
     let toolsHtml = tools.map((tRow, i) => {
       const t = tRow.tool || {};
       const ket = tRow.keterangan || '-';
-      const globalNo = i + 1;
+      const globalNo = moduleTools.indexOf(tRow) + 1;
       return `
         <tr class="hover:bg-amber-50/50 border-b border-gray-100 transition-colors cursor-pointer" onclick="if(window.openModal) window.openModal('${t.id}', 'tool')">
           <td class="py-3 px-4 text-center text-sm font-semibold text-gray-500">${globalNo}</td>
@@ -555,8 +555,9 @@ function loadVariant(index) {
       currentModel = gltf.scene;
 
       // Fix rotasi khusus untuk tiang/SKUTR yang dari Autodesk Inventor (Z-Up)
+      // Hanya terapkan untuk SKUTR karena model Tiang Listrik sudah Y-Up
       const title = (asset.name || '').toLowerCase();
-      if (title.includes('tiang') || title.includes('skutr')) {
+      if (title.includes('skutr')) {
         currentModel.rotation.x = -Math.PI / 2;
       }
 
@@ -564,7 +565,7 @@ function loadVariant(index) {
       const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
       const maxDim = Math.max(size.x, size.y, size.z);
-      const scale = 2.5 / maxDim;
+      const scale = 2.5 / (maxDim || 1);
 
       currentModel.scale.setScalar(scale);
       currentModel.position.sub(center.multiplyScalar(scale));

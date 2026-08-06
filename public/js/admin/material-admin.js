@@ -7,24 +7,150 @@ let mCardCount = 0;
 window.currentEditingId = null;
 window.allMaterials = [];
 window.matCategories = [];
+const matHierarchy = {
+    'Distribusi': {
+        'Material Distribusi Utama (MDU)': {
+            'SR': ['SR'],
+            'JTR': ['SKUTR', 'SKTR', 'SUTR'],
+            'JTM': ['SKTM', 'SKUTM', 'SUTM'],
+            'Gardu': ['Gardu Cantol', 'Gardu Portal', 'Gardu Beton']
+        },
+        'Material non Distribusi utama (non MDU)': {
+            'SR': ['SR'],
+            'JTR': ['SKUTR', 'SKTR', 'SUTR'],
+            'JTM': ['SKTM', 'SKUTM', 'SUTM'],
+            'Gardu': ['Gardu Cantol', 'Gardu Portal', 'Gardu Beton']
+        }
+    },
+    'Transmisi': {
+        'Material Transmisi Utama': {},
+        'Material non Transmisi utama': {}
+    },
+    'Pembangkit': {
+        'Material Pembangkit Utama': {},
+        'Material non Pembangkit utama': {}
+    }
+};
+
+function initAdminDropdowns() {
+    ['add', 'edit'].forEach(prefix => {
+        const sektorSel = document.getElementById(`${prefix}-mat-sektor`);
+        if (sektorSel) {
+            sektorSel.innerHTML = '<option value="">-- Pilih Sektor --</option>';
+            Object.keys(matHierarchy).forEach(sek => {
+                sektorSel.innerHTML += `<option value="${sek}">${sek}</option>`;
+            });
+        }
+    });
+}
+
+function updateAdminDropdowns(prefix, level) {
+    const sektorVal = document.getElementById(`${prefix}-mat-sektor`)?.value;
+    const katSel = document.getElementById(`${prefix}-mat-kategori`);
+    const tipeContainer = document.getElementById(`${prefix}-mat-tipe-container`);
+    const spesContainer = document.getElementById(`${prefix}-mat-spesifikasi-container`);
+    
+    if (level === 'sektor') {
+        const oldKat = katSel ? katSel.value : '';
+        if (katSel) katSel.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+        if (sektorVal && matHierarchy[sektorVal]) {
+            Object.keys(matHierarchy[sektorVal]).forEach(kat => {
+                if (katSel) katSel.innerHTML += `<option value="${kat}">${kat}</option>`;
+            });
+            if (katSel && Object.keys(matHierarchy[sektorVal]).includes(oldKat)) {
+                katSel.value = oldKat;
+            }
+        }
+        level = 'kategori'; // cascade downwards
+    }
+
+    const kategoriVal = katSel ? katSel.value : '';
+
+    if (level === 'kategori') {
+        const oldTipes = tipeContainer ? Array.from(tipeContainer.querySelectorAll('input:checked')).map(cb => cb.value) : [];
+        if (tipeContainer) tipeContainer.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Pilih Sektor & Kategori...</span>';
+        if (spesContainer) spesContainer.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Pilih Tipe terlebih dahulu...</span>';
+        
+        let tipes = new Set();
+        if (sektorVal && matHierarchy[sektorVal]) {
+            if (kategoriVal && matHierarchy[sektorVal][kategoriVal]) {
+                Object.keys(matHierarchy[sektorVal][kategoriVal]).forEach(t => tipes.add(t));
+            } else {
+                Object.keys(matHierarchy[sektorVal]).forEach(k => {
+                    Object.keys(matHierarchy[sektorVal][k]).forEach(t => tipes.add(t));
+                });
+            }
+        }
+        
+        const row = tipeContainer ? tipeContainer.parentElement.parentElement : null;
+        if (tipes.size > 0 && tipeContainer) {
+            if (row) row.style.display = 'grid';
+            tipeContainer.innerHTML = '';
+            Array.from(tipes).forEach(t => {
+                tipeContainer.innerHTML += `
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding: 4px 0;">
+                        <input type="checkbox" value="${t}" class="${prefix}-mat-tipe-checkbox" style="cursor:pointer; accent-color: var(--primary);" onchange="updateAdminDropdowns('${prefix}', 'tipe')">
+                        <span style="font-size:13px; color:var(--text-primary);">${t}</span>
+                    </label>
+                `;
+            });
+            
+            const cbList = tipeContainer.querySelectorAll(`.${prefix}-mat-tipe-checkbox`);
+            let anyChecked = false;
+            cbList.forEach(cb => {
+                if (oldTipes.includes(cb.value)) {
+                    cb.checked = true;
+                    anyChecked = true;
+                }
+            });
+            if (anyChecked) updateAdminDropdowns(prefix, 'tipe');
+        } else {
+            if (row) row.style.display = 'none';
+        }
+    } else if (level === 'tipe') {
+        const checkedTipes = tipeContainer ? Array.from(tipeContainer.querySelectorAll('input:checked')).map(cb => cb.value) : [];
+        const oldSpes = spesContainer ? Array.from(spesContainer.querySelectorAll('input:checked')).map(cb => cb.value) : [];
+        if (spesContainer) spesContainer.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Pilih Tipe terlebih dahulu...</span>';
+        
+        if (sektorVal && checkedTipes.length > 0) {
+            let spes = new Set();
+            checkedTipes.forEach(tipeVal => {
+                if (kategoriVal && matHierarchy[sektorVal][kategoriVal] && matHierarchy[sektorVal][kategoriVal][tipeVal]) {
+                    matHierarchy[sektorVal][kategoriVal][tipeVal].forEach(s => spes.add(s));
+                } else {
+                    Object.keys(matHierarchy[sektorVal]).forEach(k => {
+                        if (matHierarchy[sektorVal][k][tipeVal]) {
+                            matHierarchy[sektorVal][k][tipeVal].forEach(s => spes.add(s));
+                        }
+                    });
+                }
+            });
+            
+            if (spes.size > 0 && spesContainer) {
+                spesContainer.innerHTML = '';
+                Array.from(spes).forEach(s => {
+                    spesContainer.innerHTML += `
+                        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding: 4px 0;">
+                            <input type="checkbox" value="${s}" class="${prefix}-mat-spes-checkbox" style="cursor:pointer; accent-color: var(--primary);">
+                            <span style="font-size:13px; color:var(--text-primary);">${s}</span>
+                        </label>
+                    `;
+                });
+                
+                const cbList = spesContainer.querySelectorAll(`.${prefix}-mat-spes-checkbox`);
+                cbList.forEach(cb => {
+                    if (oldSpes.includes(cb.value)) cb.checked = true;
+                });
+            }
+        }
+    }
+}
+
 async function loadMatCategories() {
   try {
     const res = await fetchBackend('/api/categories?type=material');
     window.matCategories = res;
-
-    const checkboxHtml = res.length > 0
-      ? res.map(c => `
-        <label style="display:flex; align-items:center; gap:8px; cursor:pointer; padding: 4px 0;">
-          <input type="checkbox" value="${c.id}" class="mat-cat-checkbox" style="cursor:pointer; accent-color: var(--primary);">
-          <span style="font-size:13px; color:var(--text-primary);">${c.name}</span>
-        </label>
-      `).join('')
-      : '<span style="color:var(--text-muted); font-size:13px;">Belum ada kategori</span>';
-      
-    const catContainer1 = document.getElementById('mat-modul-cat-container');
-    const catContainer2 = document.getElementById('edit-mat-modul-cat-container');
-    if (catContainer1) catContainer1.innerHTML = checkboxHtml;
-    if (catContainer2) catContainer2.innerHTML = checkboxHtml.replace(/mat-cat-checkbox/g, 'edit-mat-cat-checkbox');
+    initAdminDropdowns();
 
     // Render dynamic dropdown items using data-attributes (avoids quote escaping issues)
     const ddItems = document.getElementById('mat-cat-dd-items');
@@ -136,15 +262,71 @@ async function editMaterial(id) {
     if (counter) counter.textContent = desc.length + '/2000';
   }
   
-  const catContainer = document.getElementById('edit-mat-modul-cat-container');
-  if (catContainer) {
-    const checkboxes = catContainer.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(cb => cb.checked = false);
+  const spesContainer = document.getElementById('edit-mat-spesifikasi-container');
+  const tipeContainer = document.getElementById('edit-mat-tipe-container');
+  const katSel = document.getElementById('edit-mat-kategori');
+  const sektorSel = document.getElementById('edit-mat-sektor');
+  
+  if (spesContainer && tipeContainer && katSel && sektorSel) {
+    spesContainer.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Pilih Tipe terlebih dahulu...</span>';
+    tipeContainer.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Pilih Sektor & Kategori...</span>';
+    katSel.value = ''; sektorSel.value = '';
+    
     if (m.categories && m.categories.length > 0) {
-      const selectedIds = m.categories.map(c => c.id);
-      checkboxes.forEach(cb => {
-        if (selectedIds.includes(cb.value)) cb.checked = true;
-      });
+      const selectedNames = m.categories.map(c => c.name.toLowerCase());
+      
+      let foundSektor = '', foundKat = '', foundTipes = new Set(), foundSpes = new Set();
+      
+      // Attempt to identify Category from hierarchy
+      for (const sek of Object.keys(matHierarchy)) {
+          for (const kat of Object.keys(matHierarchy[sek])) {
+              if (selectedNames.includes(kat.toLowerCase())) {
+                  foundKat = kat;
+                  foundSektor = sek;
+              }
+          }
+      }
+      
+      // Search for Spesifikasi and infer Sektor & Tipe
+      for (const sek of Object.keys(matHierarchy)) {
+        for (const kat of Object.keys(matHierarchy[sek])) {
+          for (const tip of Object.keys(matHierarchy[sek][kat])) {
+            if (selectedNames.includes(tip.toLowerCase())) {
+                foundSektor = sek;
+                foundTipes.add(tip);
+            }
+            for (const sp of matHierarchy[sek][kat][tip]) {
+              if (selectedNames.includes(sp.toLowerCase())) {
+                foundSektor = sek;
+                foundTipes.add(tip);
+                foundSpes.add(sp);
+              }
+            }
+          }
+        }
+      }
+      
+      if (foundSektor) {
+          sektorSel.value = foundSektor;
+          updateAdminDropdowns('edit', 'sektor');
+      }
+      if (foundKat) {
+          katSel.value = foundKat;
+          updateAdminDropdowns('edit', 'kategori');
+      }
+      if (foundTipes.size > 0) {
+          const cbList = tipeContainer.querySelectorAll('.edit-mat-tipe-checkbox');
+          cbList.forEach(cb => {
+              if (Array.from(foundTipes).includes(cb.value)) cb.checked = true;
+          });
+          updateAdminDropdowns('edit', 'tipe');
+      }
+      if (foundSpes.size > 0) {
+          const cbList = spesContainer.querySelectorAll('.edit-mat-spes-checkbox');
+          cbList.forEach(cb => {
+              if (Array.from(foundSpes).includes(cb.value)) cb.checked = true;
+          });
+      }
     }
   }
 
@@ -389,11 +571,32 @@ async function processMaterialSubmission(isEditing) {
     ? document.getElementById(`${prefix}mat-modul-desc`).value.trim()
     : '';
   
-  const catContainer = document.getElementById(`${prefix}mat-modul-cat-container`);
+  const prefix2 = isEditing ? 'edit' : 'add';
   const selectedCategories = [];
-  if (catContainer) {
-    const checked = catContainer.querySelectorAll('input[type="checkbox"]:checked');
-    checked.forEach(cb => selectedCategories.push(cb.value));
+  
+  const katVal = document.getElementById(`${prefix2}-mat-kategori`)?.value;
+  
+  if (katVal) {
+      const catObj = window.matCategories.find(c => c.name.toLowerCase() === katVal.toLowerCase());
+      if (catObj) selectedCategories.push(catObj.id);
+  }
+  
+  const tipeContainer = document.getElementById(`${prefix2}-mat-tipe-container`);
+  if (tipeContainer) {
+      const checked = tipeContainer.querySelectorAll('input:checked');
+      checked.forEach(cb => {
+          const catObj = window.matCategories.find(c => c.name.toLowerCase() === cb.value.toLowerCase());
+          if (catObj) selectedCategories.push(catObj.id);
+      });
+  }
+
+  const spesContainer = document.getElementById(`${prefix2}-mat-spesifikasi-container`);
+  if (spesContainer) {
+      const checked = spesContainer.querySelectorAll('input:checked');
+      checked.forEach(cb => {
+          const catObj = window.matCategories.find(c => c.name.toLowerCase() === cb.value.toLowerCase());
+          if (catObj) selectedCategories.push(catObj.id);
+      });
   }
 
   const imageInput = document.getElementById(`${prefix}mat-modul-image`);
@@ -577,10 +780,23 @@ function resetMaterialForm() {
   if (document.getElementById('mat-modul-desc'))
     document.getElementById('mat-modul-desc').value = '';
     
-  const catContainer = document.getElementById('mat-modul-cat-container');
-  if (catContainer) {
-    const checkboxes = catContainer.querySelectorAll('input[type="checkbox"]');
-    checkboxes.forEach(cb => cb.checked = false);
+  const spesContainer = document.getElementById('add-mat-spesifikasi-container');
+  const tipeContainer = document.getElementById('add-mat-tipe-container');
+  const katSel = document.getElementById('add-mat-kategori');
+  const sektorSel = document.getElementById('add-mat-sektor');
+  if (spesContainer) spesContainer.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Pilih Tipe terlebih dahulu...</span>';
+  if (tipeContainer) {
+      tipeContainer.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Pilih Sektor & Kategori...</span>';
+      if (tipeContainer.parentElement && tipeContainer.parentElement.parentElement) {
+          tipeContainer.parentElement.parentElement.style.display = 'grid';
+      }
+  }
+  if (katSel) {
+      katSel.innerHTML = '<option value="">-- Pilih Kategori --</option>';
+      katSel.value = '';
+  }
+  if (sektorSel) {
+      sektorSel.value = '';
   }
 
   const imgInput = document.getElementById('mat-modul-image');

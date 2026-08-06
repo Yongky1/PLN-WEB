@@ -948,12 +948,12 @@ async function processKonstruksiSubmission(isEditing) {
       variants.push({ 
         name, 
         file,
-        cam_pos_x: cx && cx.value ? parseFloat(cx.value) : undefined,
-        cam_pos_y: cy && cy.value ? parseFloat(cy.value) : undefined,
-        cam_pos_z: cz && cz.value ? parseFloat(cz.value) : undefined,
-        target_x: tx && tx.value ? parseFloat(tx.value) : undefined,
-        target_y: ty && ty.value ? parseFloat(ty.value) : undefined,
-        target_z: tz && tz.value ? parseFloat(tz.value) : undefined,
+        cam_pos_x: cx && cx.value ? parseFloat(cx.value.replace(',', '.')) : undefined,
+        cam_pos_y: cy && cy.value ? parseFloat(cy.value.replace(',', '.')) : undefined,
+        cam_pos_z: cz && cz.value ? parseFloat(cz.value.replace(',', '.')) : undefined,
+        target_x: tx && tx.value ? parseFloat(tx.value.replace(',', '.')) : undefined,
+        target_y: ty && ty.value ? parseFloat(ty.value.replace(',', '.')) : undefined,
+        target_z: tz && tz.value ? parseFloat(tz.value.replace(',', '.')) : undefined,
         animation: anim && anim.checked ? 'orbit' : 'none'
       });
     }

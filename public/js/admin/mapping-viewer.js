@@ -240,7 +240,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
         try {
           const modData = JSON.parse(moduleDataEl.textContent);
           const title = (modData.title || '').toLowerCase();
-          if (title.includes('tiang') || title.includes('skutr')) {
+          if (title.includes('skutr')) {
             currentModel.rotation.x = -Math.PI / 2;
           }
         } catch(e) {}
@@ -249,7 +249,7 @@ import { DRACOLoader } from '/scripts/three/jsm/loaders/DRACOLoader.js';
       const box = new THREE.Box3().setFromObject(currentModel);
       const size = box.getSize(new THREE.Vector3());
       const center = box.getCenter(new THREE.Vector3());
-      const scale = 2.5 / Math.max(size.x, size.y, size.z);
+      const scale = 5 / Math.max(size.x, size.y, size.z);
 
       currentModel.scale.setScalar(scale);
       currentModel.position.sub(center.multiplyScalar(scale));
