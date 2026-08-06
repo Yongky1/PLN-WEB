@@ -7,18 +7,34 @@
     <%- include('../partials/dynamic-bg') %>
     <%- include('../partials/navbar') %>
 
-<div class="jl-container px-6 md:px-12" style="padding-top: 120px; min-height: 80vh;">
-  <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-[var(--color-text-primary)] bg-contrast-text">Jadwal Instruktur</h1>
-    <% if (sessionUser && sessionUser.role === 'UPDL') { %>
-      <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
-        Tambah Jadwal
-      </button>
-    <% } %>
-  </div>
+    <main style="padding-top:120px; padding-bottom:64px; min-height:100vh;" class="relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <!-- Header -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8 mb-10 pb-8 relative">
+                <div class="gsap-reveal bg-contrast-text">
+                    <div class="mb-2">
+                        <span class="text-sm font-semibold tracking-widest text-[var(--color-primary)] uppercase">Pembelajaran · PLN</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight text-[var(--color-text-primary)]">
+                        Jadwal Instruktur
+                    </h1>
+                </div>
 
-  <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden shadow-sm">
+                <% if (sessionUser && sessionUser.role === 'UPDL') { %>
+                  <div class="flex items-center gap-3 flex-shrink-0">
+                    <button onclick="openAddModal()" class="px-5 py-2.5 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors shadow-sm flex items-center gap-2">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"></path></svg>
+                      Tambah Jadwal
+                    </button>
+                  </div>
+                <% } %>
+            </div>
+        </div>
+
+        <div class="w-full bg-[var(--color-bg-main)] relative z-10" style="min-height: 100vh; padding-bottom: 64px;">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+
+              <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden shadow-sm">
     <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>
@@ -67,7 +83,9 @@
       </table>
     </div>
   </div>
-</div>
+            </div>
+        </div>
+    </main>
 
 <% if (sessionUser && sessionUser.role === 'UPDL') { %>
   <!-- Modal Tambah/Edit Jadwal -->

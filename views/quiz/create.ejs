@@ -145,7 +145,34 @@
     .fab:hover { transform: scale(1.1); }
     .fab-save { background: #10b981; font-size: 16px; font-weight: 600; width: auto; padding: 0 25px; border-radius: 30px; }
 
-    .essay-hint { color: var(--color-text-secondary); font-size: 0.9rem; margin-top: 10px; }
+    .q-image-preview-item {
+      position: relative;
+      display: inline-block;
+    }
+    .q-image-preview-item img {
+      max-width: 150px;
+      max-height: 150px;
+      border-radius: 8px;
+      object-fit: cover;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+    .q-image-preview-item .q-image-remove {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: var(--color-danger);
+      color: white;
+      border: none;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 14px;
+      line-height: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
   </style>
 </head>
 <body>
@@ -197,11 +224,24 @@
       card.innerHTML = `
         <div class="q-row">
           <input type="text" class="q-input q-text" placeholder="Pertanyaan Soal" required>
+          <label class="q-image-upload-label" style="cursor: pointer; background: var(--color-bg-main); padding: 15px; border-radius: 8px; margin-left: 10px; border: 1px solid var(--color-border); display: flex; align-items: center;" title="Tambahkan Gambar">
+            📷
+            <input type="file" id="img-upload-${id}" accept="image/png, image/jpeg, image/webp" style="display: none;" onchange="uploadQuestionImage(${id})">
+          </label>
           <select class="q-type-select" onchange="changeType(${id}, this.value)">
             <option value="PG">Pilihan Ganda</option>
             <option value="CHECKBOX">Kotak Centang</option>
             <option value="ESSAY">Jawaban Singkat (Essay)</option>
           </select>
+          <select class="q-time-limit" style="padding:15px; border-radius:8px; background:var(--color-bg-main); border:1px solid var(--color-border); color:var(--color-text-primary); margin-left:10px;">
+            <option value="10">10 Detik</option>
+            <option value="20" selected>20 Detik</option>
+            <option value="30">30 Detik</option>
+            <option value="45">45 Detik</option>
+            <option value="60">1 Menit</option>
+          </select>
+        </div>
+        <div class="q-image-container" id="img-container-${id}" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
         </div>
         <div class="q-options" id="opts-${id}">
           <!-- Options injected here -->
@@ -242,19 +282,83 @@
 
     function addOption(qId, type) {
       const optsDiv = document.getElementById(`opts-${qId}`);
+      const addBtn = optsDiv.querySelector('.add-opt-btn');
+      
+      const optRow = document.createElement('div');
+      optRow.className = 'opt-row';
       const inputType = type === 'PG' ? 'radio' : 'checkbox';
       const name = type === 'PG' ? `correct-${qId}` : `correct-${qId}[]`;
       
-      const row = document.createElement('div');
-      row.className = 'opt-row';
-      row.innerHTML = `
-        <input type="${inputType}" name="${name}" class="opt-correct-chk">
-        <input type="text" class="opt-input opt-val" placeholder="Opsi Jawaban">
-        <button class="opt-remove" onclick="this.parentElement.remove()">×</button>
+      optRow.innerHTML = `
+        <input type="${inputType}" name="${name}" class="opt-correct">
+        <input type="text" class="opt-input opt-text" placeholder="Opsi Jawaban">
+        <button type="button" class="btn-remove-opt" onclick="this.parentElement.remove()">×</button>
       `;
       
-      // Insert before the add button
-      optsDiv.insertBefore(row, optsDiv.lastElementChild);
+      optsDiv.insertBefore(optRow, addBtn);
+    }
+
+    async function uploadQuestionImage(qId) {
+      const fileInput = document.getElementById(`img-upload-${qId}`);
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const token = localStorage.getItem('token');
+        const backendUrl = window.location.protocol + '//' + window.location.hostname + ':4000';
+        const res = await axios.post(`${backendUrl}/api/upload-image`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        const publicUrl = res.data.publicUrl;
+        
+        // Save to dataset array
+        const card = document.getElementById(`q-${qId}`);
+        let urls = JSON.parse(card.dataset.imageUrls || '[]');
+        urls.push(publicUrl);
+        card.dataset.imageUrls = JSON.stringify(urls);
+
+        // Render previews
+        renderImagePreviews(qId);
+
+      } catch (err) {
+        console.error(err);
+        alert(err.response?.data?.error || 'Gagal mengunggah gambar');
+      }
+      
+      // Reset input so same file can be uploaded again if needed
+      fileInput.value = '';
+    }
+
+    function renderImagePreviews(qId) {
+      const card = document.getElementById(`q-${qId}`);
+      const container = document.getElementById(`img-container-${qId}`);
+      const urls = JSON.parse(card.dataset.imageUrls || '[]');
+      
+      container.innerHTML = '';
+      urls.forEach((url, idx) => {
+        const item = document.createElement('div');
+        item.className = 'q-image-preview-item';
+        item.innerHTML = `
+          <img src="${window.location.protocol}//${window.location.hostname}:4000${url}">
+          <button type="button" class="q-image-remove" onclick="removeQuestionImage(${qId}, ${idx})">×</button>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function removeQuestionImage(qId, index) {
+      const card = document.getElementById(`q-${qId}`);
+      let urls = JSON.parse(card.dataset.imageUrls || '[]');
+      urls.splice(index, 1);
+      card.dataset.imageUrls = JSON.stringify(urls);
+      renderImagePreviews(qId);
     }
 
     document.getElementById('addQuestionBtn').addEventListener('click', createQuestionCard);
@@ -266,27 +370,39 @@
       const cards = document.querySelectorAll('.q-card');
       if (cards.length === 0) return alert('Tambahkan minimal 1 soal!');
 
-      for (const card of cards) {
+      let hasError = false;
+      document.querySelectorAll('.q-card').forEach(card => {
+        if (hasError) return;
         const text = card.querySelector('.q-text').value;
         const type = card.querySelector('.q-type-select').value;
+        const timeLimit = parseInt(card.querySelector('.q-time-limit').value) || 20;
+        const imageUrls = JSON.parse(card.dataset.imageUrls || '[]');
         const options = [];
 
         if (type === 'PG' || type === 'CHECKBOX') {
           const optRows = card.querySelectorAll('.opt-row');
           optRows.forEach(row => {
-            const val = row.querySelector('.opt-val').value;
-            const isCorrect = row.querySelector('.opt-correct-chk').checked;
+            const val = row.querySelector('.opt-text').value;
+            const isCorrect = row.querySelector('.opt-correct').checked;
             if (val.trim()) options.push({ text: val, is_correct: isCorrect });
           });
-          if (options.length === 0) return alert('Semua opsi tidak boleh kosong!');
-          if (!options.some(o => o.is_correct)) return alert('Pilih minimal 1 jawaban benar untuk setiap soal PG/Centang!');
+          if (options.length === 0) {
+            hasError = true;
+            return alert('Semua opsi tidak boleh kosong!');
+          }
+          if (!options.some(o => o.is_correct)) {
+            hasError = true;
+            return alert('Pilih minimal 1 jawaban benar untuk setiap soal PG/Centang!');
+          }
         } else {
           const val = card.querySelector('.correct-essay').value;
           if (val.trim()) options.push({ text: val, is_correct: true });
         }
 
-        questions.push({ type, text, options });
-      }
+        questions.push({ type, text, images: imageUrls, time_limit: timeLimit, options });
+      });
+      
+      if (hasError) return;
 
       try {
         const res = await fetch('/api/quiz', {

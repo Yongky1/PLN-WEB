@@ -8,16 +8,18 @@
 
   // Build pembelajaran sub-items based on role
   let pembelajaranSubs = [];
-  if (_isUPDL) {
+  if (_isUPDL || _role === 'admin') {
     pembelajaranSubs = [
-      { href: '/pembelajaran/katalog', label: 'Katalog Instruktur' },
-      { href: '/pembelajaran/jadwal', label: 'Jadwal Instruktur' },
+      { href: '/admin/katalog-instruktur', label: 'Katalog Instruktur' },
+      { href: '/admin/jadwal-instruktur', label: 'Jadwal Instruktur' },
+      { href: '/quiz/data', label: 'Data Kuis' },
     ];
   } else if (_isInstruktur) {
     pembelajaranSubs = [
       { href: '/pembelajaran/katalog', label: 'Katalog Instruktur' },
       { href: '/pembelajaran/jadwal', label: 'Jadwal Instruktur' },
       { href: '/quiz', label: 'Quiz' },
+      { href: '/quiz/data', label: 'Data Kuis' },
     ];
   }
 
