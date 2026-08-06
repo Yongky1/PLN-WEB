@@ -2,7 +2,7 @@ const express = require('express');
 const { invalidateCache } = require('../utils/cache');
 
 const router = express.Router();
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:4000';
 
 const proxyAuthHeader = (req) => ({ Authorization: `Bearer ${req.cookies.auth_token}` });
 
@@ -14,8 +14,8 @@ const requireCookie = (req, res) => {
   return true;
 };
 
-// Login
 router.post('/api/login', async (req, res) => {
+  console.log('API LOGIN PROXY HIT!', req.body);
   try {
     const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
       method: 'POST',

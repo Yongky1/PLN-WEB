@@ -1,4 +1,4 @@
-const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:4000';
+const BACKEND_URL = process.env.BACKEND_URL || 'http://127.0.0.1:4000';
 
 // Verifikasi token ke backend — bukan hanya cek keberadaan cookie
 const authGuard = async (req, res, next) => {

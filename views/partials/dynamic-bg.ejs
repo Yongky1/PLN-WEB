@@ -55,7 +55,7 @@
       // Jika hanya ada 1 background, tampilkan statis
       if (backgrounds.length === 1) {
         const img = document.createElement('img');
-        img.src = `<%= process.env.BACKEND_URL || 'http://localhost:4000' %>${backgrounds[0].file}`;
+        img.src = `${window.location.protocol}//${window.location.hostname}:4000${backgrounds[0].file}`;
         img.className = 'dynamic-bg-slide active';
         container.appendChild(img);
         return;
@@ -65,7 +65,7 @@
       const slides = [];
       backgrounds.forEach((bg, index) => {
         const img = document.createElement('img');
-        img.src = `<%= process.env.BACKEND_URL || 'http://localhost:4000' %>${bg.file}`;
+        img.src = `${window.location.protocol}//${window.location.hostname}:4000${bg.file}`;
         img.className = 'dynamic-bg-slide';
         if (index === 0) img.classList.add('active');
         container.appendChild(img);

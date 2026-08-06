@@ -7,14 +7,20 @@
     <%- include('../partials/dynamic-bg') %>
     <%- include('../partials/navbar') %>
 
-<main class="relative" style="padding-top: 120px; min-height: 100vh;">
-  <div class="jl-container px-6 md:px-12 mb-8 relative">
-    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-      <div class="gsap-reveal bg-contrast-text">
-        <h1 class="text-3xl font-bold text-gray-800">Katalog Instruktur</h1>
-      </div>
+    <main style="padding-top:120px; padding-bottom:64px; min-height:100vh;" class="relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 relative">
+            <!-- Header -->
+            <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+                <div class="gsap-reveal bg-contrast-text">
+                    <div class="mb-2">
+                        <span class="text-sm font-semibold tracking-widest text-[var(--color-primary)] uppercase">Pembelajaran · PLN</span>
+                    </div>
+                    <h1 class="text-4xl md:text-5xl font-extrabold brand-font mb-3 tracking-tight leading-tight text-[var(--color-text-primary)]">
+                        Katalog Instruktur
+                    </h1>
+                </div>
       
-      <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
+      <div class="flex flex-col sm:flex-row gap-3 w-full lg:w-auto">
         <div class="relative w-full sm:w-64 lg:w-80">
           <input type="text" id="searchInput" onkeyup="searchTable()" class="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all shadow-sm text-gray-800" placeholder="Cari nama, NIP, keahlian...">
           <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
@@ -32,9 +38,9 @@
     </div>
   </div>
 
-  <div class="w-full bg-white relative z-10" style="min-height: 100vh; padding-bottom: 64px;">
-    <div class="jl-container px-6 md:px-12 pt-8">
-      <div class="bg-white rounded-xl border border-gray-200 overflow-hidden shadow-md">
+  <div class="w-full bg-[var(--color-bg-main)] relative z-10" style="min-height: 100vh; padding-bottom: 64px;">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+      <div class="bg-[var(--color-surface)] rounded-xl border border-[var(--color-border)] overflow-hidden shadow-sm">
         <div class="overflow-x-auto">
       <table class="w-full text-left border-collapse">
         <thead>

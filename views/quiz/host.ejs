@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    body {
+      background: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      overflow: hidden; /* Prevent scrolling during live presentation */
+    }
+    .host-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .top-bar {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      z-index: 10;
+    }
+    .quiz-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+    .pin-box {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 30px;
+      border-radius: 30px;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      overflow-y: auto;
+    }
+    
+    /* Lobby State */
+    #lobbyScreen { display: flex; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; }
+    .lobby-title { font-size: 3rem; font-weight: 800; margin-bottom: 20px; color: var(--color-text-primary); }
+    .participants-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 30px;
+      max-width: 1000px;
+    }
+    .participant-badge {
+      background: white;
+      padding: 10px 20px;
+      border-radius: 20px;
+      font-weight: 600;
+      font-size: 1.2rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      animation: popIn 0.3s ease-out;
+    }
+    
+    /* Question State */
+    #questionScreen { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; }
+    .q-timer { font-size: 2.5rem; font-weight: 900; color: #ef4444; margin-bottom: 5px; }
+    .q-image-display { max-width: 400px; max-height: 140px; border-radius: 8px; margin-bottom: 10px; display: none; box-shadow: 0 5px 15px rgba(0,0,0,0.1); object-fit: contain; }
+    .q-text-large { font-size: 1.5rem; font-weight: 800; color: var(--color-text-primary); margin-bottom: 10px; max-width: 800px; }
+    
+    /* Leaderboard State */
+    #leaderboardScreen { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; justify-content: center; }
+    .leaderboard-title { font-size: 3rem; font-weight: 800; margin-bottom: 30px; color: var(--color-primary); }
+    .leaderboard-list {
+      width: 100%;
+      max-width: 600px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+    .leaderboard-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 20px 30px;
+      border-bottom: 1px solid #eee;
+      font-size: 1.5rem;
+      font-weight: 700;
+    }
+    .leaderboard-item:nth-child(1) { background: #fef3c7; color: #d97706; }
+    .leaderboard-item:nth-child(2) { background: #f3f4f6; color: #4b5563; }
+    .leaderboard-item:nth-child(3) { background: #ffedd5; color: #c2410c; }
+    
+    .btn-action {
+      padding: 10px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      background: var(--color-primary);
+      color: white;
+      transition: transform 0.2s;
+      margin-top: 10px;
+    }
+    .btn-action:hover { transform: scale(1.05); }
+
+    @keyframes popIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="host-container">
+    <div class="top-bar">
+      <div class="quiz-title"><%= quiz.title %></div>
+      <div class="pin-box">PIN: <%= quiz.code %></div>
+      <div id="playerCount" style="font-weight: bold; font-size: 1.2rem;">0 Pemain</div>
+    </div>
+    
+    <div class="main-area">
+      
+      <!-- LOBBY -->
+      <div id="lobbyScreen">
+        <div class="lobby-title">Menunggu Peserta...</div>
+        <p style="font-size: 1.2rem; color: #666;">Minta peserta untuk masuk dan masukkan PIN di atas.</p>
+        <div class="participants-grid" id="participantsGrid"></div>
+        <button class="btn-action" id="btnStartQuiz" style="display: none;" onclick="startQuiz()">Mulai Kuis</button>
+      </div>
+
+      <!-- QUESTION -->
+      <div id="questionScreen" style="position: relative;">
+        <div id="qIndicator" style="position: absolute; top: 0; left: 0; font-size: 1.8rem; font-weight: 800; color: var(--color-primary);"></div>
+        <div class="q-timer" id="qTimer">20</div>
+        <div id="qImagesContainer" style="display: flex; gap: 15px; flex-wrap: wrap; justify-content: center; margin-bottom: 20px;"></div>
+        <div id="qTypeBadge" style="background: rgba(19, 104, 206, 0.1); color: #1368ce; padding: 4px 12px; border-radius: 20px; font-weight: 800; font-size: 1rem; margin-bottom: 5px; display: inline-block;"></div>
+        <div class="q-text-large" id="qText">Siap-siap...</div>
+        <div id="qOptionsContainer" style="display: none; grid-template-columns: 1fr 1fr; gap: 8px; width: 100%; max-width: 800px; margin-bottom: 10px;"></div>
+        <div id="hostCorrectAnswer" style="display: none; background: #10b981; color: white; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 1.2rem; margin-bottom: 10px;"></div>
+        <div style="font-size: 1.5rem; color: #666;" id="qStatus">Waktu berjalan...</div>
+        
+        <button class="btn-action" id="btnNextScreen" style="display: none;" onclick="nextScreen()">Lanjut ke Papan Peringkat</button>
+        <button id="btnSkipTimer" onclick="skipTimer()" style="position: absolute; bottom: 30px; right: 30px; background: white; border: 2px solid #ccc; border-radius: 50%; width: 50px; height: 50px; font-size: 1.5rem; cursor: pointer; display: none; align-items: center; justify-content: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 100;" title="Selesaikan Soal Langsung">⏭️</button>
+      </div>
+
+      <!-- LEADERBOARD -->
+      <div id="leaderboardScreen" style="position: relative;">
+        <div id="lbIndicator" style="position: absolute; top: 0; left: 0; font-size: 1.8rem; font-weight: 800; color: var(--color-primary);"></div>
+        <div class="leaderboard-title">Papan Peringkat Sementara</div>
+        <div class="leaderboard-list" id="leaderboardList"></div>
+        <button class="btn-action" id="btnNextQuestion" onclick="nextQuestion()">Soal Berikutnya</button>
+        <button class="btn-action" id="btnReveal" style="display: none;" onclick="revealNext()">Selanjutnya ➡️</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const backendUrl = window.location.protocol + '//' + window.location.hostname + ':4000';
+    const socket = io(backendUrl);
+    const quizCode = '<%= quiz.code %>';
+    
+    let timerInterval = null;
+    let currentQuestionTime = 20;
+
+    socket.on('connect', () => {
+      socket.emit('host-join', { code: quizCode });
+    });
+
+    socket.on('update-participants', (participants) => {
+      document.getElementById('playerCount').innerText = `${participants.length} Pemain`;
+      const grid = document.getElementById('participantsGrid');
+      grid.innerHTML = '';
+      participants.forEach(p => {
+        const div = document.createElement('div');
+        div.className = 'participant-badge';
+        div.innerText = p;
+        grid.appendChild(div);
+      });
+
+      if (participants.length > 0) {
+        document.getElementById('btnStartQuiz').style.display = 'block';
+      }
+    });
+
+    function startQuiz() {
+      socket.emit('host-start-quiz', { code: quizCode });
+    }
+
+    let currentHostQuestion = null;
+    let currentQuestionIndex = 0;
+    let totalQuestionsHost = 0;
+
+    function showHostCorrectAnswer() {
+      const hostCorrectAnswer = document.getElementById('hostCorrectAnswer');
+      if (!currentHostQuestion || !currentHostQuestion.options) return;
+      
+      if (currentHostQuestion.type === 'PG' || currentHostQuestion.type === 'CHECKBOX') {
+         const optionDivs = document.querySelectorAll('.host-option-btn');
+         optionDivs.forEach(div => {
+             const isCorrect = div.getAttribute('data-is-correct') === 'true';
+             if (isCorrect) {
+                 div.style.border = '4px solid #fff';
+                 div.style.boxShadow = '0 0 15px rgba(0,0,0,0.4)';
+                 div.style.transform = 'scale(1.02)';
+             } else {
+                 div.style.opacity = '0.3';
+                 div.style.filter = 'grayscale(100%)';
+             }
+         });
+      } else {
+         const correctOpts = currentHostQuestion.options.filter(o => o.is_correct);
+         if (correctOpts.length > 0) {
+             hostCorrectAnswer.innerText = 'Jawaban Benar: ' + correctOpts[0].text;
+             hostCorrectAnswer.style.display = 'block';
+         }
+      }
+    }
+
+    socket.on('new-question', (data) => {
+      document.getElementById('lobbyScreen').style.display = 'none';
+      document.getElementById('leaderboardScreen').style.display = 'none';
+      document.getElementById('questionScreen').style.display = 'flex';
+      document.getElementById('btnNextScreen').style.display = 'none';
+      document.getElementById('btnSkipTimer').style.display = 'flex';
+      document.getElementById('hostCorrectAnswer').style.display = 'none';
+      
+      const { questionIndex, totalQuestions, question } = data;
+      currentHostQuestion = question;
+      currentQuestionIndex = questionIndex;
+      totalQuestionsHost = totalQuestions;
+      
+      document.getElementById('qIndicator').innerText = `Soal ${questionIndex + 1}/${totalQuestions}`;
+      document.getElementById('qText').innerText = question.text;
+      
+      let typeText = '📝 Essay';
+      if (question.type === 'PG') typeText = '💡 Pilihan Ganda (Pilih 1 Jawaban)';
+      if (question.type === 'CHECKBOX') typeText = '✅ Multiple Choice (Bisa pilih > 1 Jawaban)';
+      document.getElementById('qTypeBadge').innerText = typeText;
+      
+      const qImagesContainer = document.getElementById('qImagesContainer');
+      qImagesContainer.innerHTML = '';
+      if (question.images && question.images.length > 0) {
+        question.images.forEach(imgUrl => {
+          const img = document.createElement('img');
+          img.className = 'q-image-display';
+          img.src = backendUrl + imgUrl;
+          img.style.display = 'block';
+          qImagesContainer.appendChild(img);
+        });
+      }
+
+      const qOptionsContainer = document.getElementById('qOptionsContainer');
+      qOptionsContainer.innerHTML = '';
+      if (question.type === 'PG' || question.type === 'CHECKBOX') {
+        qOptionsContainer.style.display = 'grid';
+        const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#8e44ad', '#16a085', '#d35400', '#e84393'];
+        const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'];
+        question.options.forEach((opt, idx) => {
+          const div = document.createElement('div');
+          div.className = 'host-option-btn';
+          div.setAttribute('data-is-correct', opt.is_correct);
+          div.style.padding = '10px 20px';
+          div.style.fontSize = '1.1rem';
+          div.style.fontWeight = 'bold';
+          div.style.color = 'white';
+          div.style.borderRadius = '8px';
+          div.style.textAlign = 'left';
+          div.style.background = colors[idx % colors.length];
+          div.style.transition = 'all 0.3s ease';
+          div.innerText = `${letters[idx]}. ${opt.text}`;
+          qOptionsContainer.appendChild(div);
+        });
+      } else {
+        qOptionsContainer.style.display = 'none';
+      }
+
+      document.getElementById('qStatus').innerText = 'Menunggu jawaban...';
+      
+      currentQuestionTime = question.time_limit || 20;
+      document.getElementById('qTimer').innerText = currentQuestionTime;
+      
+      clearInterval(timerInterval);
+      timerInterval = setInterval(() => {
+        currentQuestionTime--;
+        document.getElementById('qTimer').innerText = currentQuestionTime;
+        if (currentQuestionTime <= 0) {
+          clearInterval(timerInterval);
+          document.getElementById('qStatus').innerText = 'Waktu Habis!';
+          document.getElementById('btnNextScreen').style.display = 'block';
+          document.getElementById('btnSkipTimer').style.display = 'none';
+          showHostCorrectAnswer();
+        }
+      }, 1000);
+    });
+
+    socket.on('all-players-answered', () => {
+      skipTimer();
+    });
+
+    function skipTimer() {
+      if (currentQuestionTime > 0) {
+        currentQuestionTime = 0;
+        document.getElementById('qTimer').innerText = 0;
+        clearInterval(timerInterval);
+        document.getElementById('qStatus').innerText = 'Waktu Habis!';
+        document.getElementById('btnNextScreen').style.display = 'block';
+        document.getElementById('btnSkipTimer').style.display = 'none';
+        showHostCorrectAnswer();
+        socket.emit('host-skip-timer', { code: quizCode });
+      }
+    }
+
+    function nextScreen() {
+      socket.emit('host-show-leaderboard', { code: quizCode });
+    }
+
+    function animateValue(obj, start, end, duration, suffix = '') {
+      let startTimestamp = null;
+      const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        // easing function: ease-out
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        obj.innerHTML = Math.floor(easeProgress * (end - start) + start) + suffix;
+        if (progress < 1) {
+          window.requestAnimationFrame(step);
+        } else {
+          obj.innerHTML = end + suffix;
+        }
+      };
+      window.requestAnimationFrame(step);
+    }
+
+    let previousScores = {};
+
+    socket.on('show-leaderboard', (leaderboard) => {
+      document.getElementById('questionScreen').style.display = 'none';
+      document.getElementById('leaderboardScreen').style.display = 'flex';
+      
+      const titleEl = document.querySelector('.leaderboard-title');
+      if (titleEl) {
+         titleEl.innerText = 'Papan Peringkat Sementara';
+      }
+      
+      const lbIndicator = document.getElementById('lbIndicator');
+      if (lbIndicator) {
+         lbIndicator.innerText = `Soal ${currentQuestionIndex + 1}/${totalQuestionsHost}`;
+      }
+      
+      const list = document.getElementById('leaderboardList');
+      list.innerHTML = '';
+      
+      const top5 = leaderboard.slice(0, 5);
+      
+      // Calculate old order based on previous scores
+      const oldOrder = [...top5].sort((a, b) => {
+         const sA = previousScores[a.name] || 0;
+         const sB = previousScores[b.name] || 0;
+         return sB - sA;
+      });
+
+      oldOrder.forEach((p, i) => {
+        const item = document.createElement('div');
+        item.className = 'leaderboard-item';
+        item.dataset.name = p.name;
+        item.style.position = 'relative';
+        item.style.zIndex = '5';
+        
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'lb-name';
+        
+        const startScore = previousScores[p.name] || 0;
+        const scoreSpan = document.createElement('span');
+        scoreSpan.innerText = startScore;
+        
+        item.appendChild(nameSpan);
+        item.appendChild(scoreSpan);
+        list.appendChild(item);
+        
+        animateValue(scoreSpan, startScore, p.score, 2000);
+        previousScores[p.name] = p.score;
+      });
+
+      const updateRanks = () => {
+         Array.from(list.children).forEach((child, index) => {
+             const nameSpan = child.querySelector('.lb-name');
+             nameSpan.innerText = `${index + 1}. ${child.dataset.name}`;
+         });
+      };
+      updateRanks();
+
+      // Trigger position swap animation after scores tick up
+      setTimeout(() => {
+          const elements = Array.from(list.children);
+          const firstRects = elements.map(el => el.getBoundingClientRect());
+          
+          // Re-append in new order
+          top5.forEach(p => {
+             const el = elements.find(e => e.dataset.name === p.name);
+             if (el) list.appendChild(el);
+          });
+          
+          updateRanks();
+          
+          // FLIP Animation
+          elements.forEach((el, i) => {
+             const lastRect = el.getBoundingClientRect();
+             const firstRect = firstRects[i];
+             const deltaY = firstRect.top - lastRect.top;
+             
+             el.style.transition = 'none';
+             el.style.transform = `translateY(${deltaY}px)`;
+             
+             requestAnimationFrame(() => {
+                 el.style.transition = 'transform 1s ease-in-out';
+                 el.style.transform = 'translateY(0)';
+             });
+          });
+      }, 2100);
+    });
+
+    function nextQuestion() {
+      socket.emit('host-next-question', { code: quizCode });
+    }
+
+    let finalLeaderboard = [];
+    let revealStep = 0;
+    
+    function revealNext() {
+      const list = document.getElementById('leaderboardList');
+      const title = document.querySelector('.leaderboard-title');
+      
+      if (revealStep === 0) {
+        if (finalLeaderboard.length >= 3) {
+           const p = finalLeaderboard[2];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 1.8rem; padding: 25px 40px; background:#cd7f32; color:white; animation: popIn 0.5s;"><span>🥉 3. ${p.name}</span><span id="scoreVal3">0</span></div>`;
+           title.innerText = 'Juara 3...';
+           animateValue(document.getElementById('scoreVal3'), 0, p.score, 2000);
+           previousScores[p.name] = p.score;
+        } else {
+           revealStep++; revealNext(); return;
+        }
+      } else if (revealStep === 1) {
+        if (finalLeaderboard.length >= 2) {
+           const p = finalLeaderboard[1];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.2rem; padding: 30px 50px; background:#c0c0c0; color:black; animation: popIn 0.5s;"><span>🥈 2. ${p.name}</span><span id="scoreVal2">0</span></div>`;
+           title.innerText = 'Juara 2...';
+           animateValue(document.getElementById('scoreVal2'), 0, p.score, 2000);
+           previousScores[p.name] = p.score;
+        } else {
+           revealStep++; revealNext(); return;
+        }
+      } else if (revealStep === 2) {
+        if (finalLeaderboard.length >= 1) {
+           const p = finalLeaderboard[0];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.8rem; padding: 40px 60px; background:#ffd700; color:black; animation: popIn 0.5s;"><span>🥇 1. ${p.name}</span><span id="scoreVal1">0</span></div>`;
+           title.innerText = 'Juara 1...';
+           animateValue(document.getElementById('scoreVal1'), 0, p.score, 2000);
+           previousScores[p.name] = p.score;
+        } else {
+           revealStep++; revealNext(); return;
+        }
+      } else {
+        title.innerText = '🏆 Hasil Akhir Semua Peserta:';
+        list.innerHTML = '';
+        finalLeaderboard.forEach((p, i) => {
+          const item = document.createElement('div');
+          item.className = 'leaderboard-item';
+          
+          const nameSpan = document.createElement('span');
+          nameSpan.innerText = `${i+1}. ${p.name}`;
+          
+          const scoreSpan = document.createElement('span');
+          scoreSpan.innerText = '0';
+          
+          item.appendChild(nameSpan);
+          item.appendChild(scoreSpan);
+          
+          animateValue(scoreSpan, 0, p.score, 2000);
+          previousScores[p.name] = p.score;
+          
+          if (i === 0) { item.style.background = '#ffd700'; item.style.color = 'black'; }
+          else if (i === 1) { item.style.background = '#c0c0c0'; item.style.color = 'black'; }
+          else if (i === 2) { item.style.background = '#cd7f32'; item.style.color = 'white'; }
+          
+          item.style.animation = `popIn 0.5s ${i * 0.1}s forwards`;
+          item.style.opacity = '0';
+          list.appendChild(item);
+        });
+        document.getElementById('btnReveal').style.display = 'none';
+      }
+      revealStep++;
+    }
+
+    socket.on('quiz-finished', (leaderboard) => {
+      document.getElementById('questionScreen').style.display = 'none';
+      document.getElementById('leaderboardScreen').style.display = 'flex';
+      document.querySelector('.leaderboard-title').innerText = '🏆 Kuis Selesai! Mari kita lihat pemenangnya...';
+      document.getElementById('btnNextQuestion').style.display = 'none';
+      
+      finalLeaderboard = leaderboard;
+      revealStep = 0;
+      document.getElementById('leaderboardList').innerHTML = ''; 
+      
+      document.getElementById('btnReveal').style.display = 'block';
+    });
+  </script>
+</body>
+</html>

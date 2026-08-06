@@ -305,7 +305,7 @@
 
                 async function fetchListrikPedia() {
                     try {
-                        const base = 'http://localhost:4000'; // Default backend URL
+                        const base = window.location.protocol + '//' + window.location.hostname + ':4000'; // Default backend URL
                         const res = await fetch(`${base}/api/listrikpedia`);
                         if (!res.ok) throw new Error('Failed to fetch');
                         allData = await res.json();
