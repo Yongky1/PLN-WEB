@@ -336,10 +336,15 @@
                 </div>
 
                 <div class="mv-grid">
-                    <% module.materials.forEach(function(row) { %>
+                    <% module.materials.forEach(function(row, index) { %>
                     <% const m = row.material || {}; %>
                     <div class="mat-card mv-card" data-id="<%= m.id %>" data-type="material">
                         <div class="mv-card-img">
+                            <div style="position:absolute;top:8px;left:8px;z-index:20;">
+                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/95 shadow-sm border border-[var(--color-border)] text-[10px] font-bold text-[var(--color-text-secondary)]">
+                                    <%= index + 1 %>
+                                </span>
+                            </div>
                             <% 
                                let displayImg = m.image;
                                if (!displayImg && m.assets && m.assets.length > 0) {
@@ -407,10 +412,15 @@
                 </div>
 
                 <div class="mv-grid">
-                    <% module.tools.forEach(function(row) { %>
+                    <% module.tools.forEach(function(row, index) { %>
                     <% const t = row.tool || {}; %>
                     <div class="mat-card mv-card" data-id="<%= t.id %>" data-type="tool">
                         <div class="mv-card-img">
+                            <div style="position:absolute;top:8px;left:8px;z-index:20;">
+                                <span class="inline-flex items-center justify-center w-6 h-6 rounded-full bg-white/95 shadow-sm border border-[var(--color-border)] text-[10px] font-bold text-[var(--color-text-secondary)]">
+                                    <%= index + 1 %>
+                                </span>
+                            </div>
                             <% if (t.image) { %>
                                 <img src="<%= t.image %>" alt="<%= t.name %>">
                             <% } else { %>
