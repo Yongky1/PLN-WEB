@@ -591,8 +591,8 @@
 </div>
 
 <script>
-  const __AM_MATERIALS__ = <%- JSON.stringify(materials || []) %>;
-  const __AM_TOOLS__     = <%- JSON.stringify(tools     || []) %>;
+  const __AM_MATERIALS__ = <%- JSON.stringify(typeof materials !== 'undefined' ? materials : []) %>;
+  const __AM_TOOLS__     = <%- JSON.stringify(typeof tools !== 'undefined' ? tools : []) %>;
 
   const AMQV_IDS = {
     overlay:        'amqv-overlay',
