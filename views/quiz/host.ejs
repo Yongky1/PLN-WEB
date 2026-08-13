@@ -116,6 +116,23 @@
       0% { transform: scale(0); opacity: 0; }
       100% { transform: scale(1); opacity: 1; }
     }
+    @keyframes anim-bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+    @keyframes anim-pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+    }
+    @keyframes anim-shake {
+      0% { transform: rotate(0deg); }
+      25% { transform: rotate(-15deg) scale(1.2); }
+      50% { transform: rotate(15deg) scale(1.2); }
+      75% { transform: rotate(-15deg) scale(1.2); }
+      100% { transform: rotate(0deg); }
+    }
+    .emoji-anim { display: inline-block; }
   </style>
 </head>
 <body>
@@ -153,9 +170,19 @@
 
       <!-- LEADERBOARD -->
       <div id="leaderboardScreen" style="position: relative;">
+        <!-- Curtain removed -->
+        
         <div id="lbIndicator" style="position: absolute; top: 0; left: 0; font-size: 1.8rem; font-weight: 800; color: var(--color-primary);"></div>
         <div class="leaderboard-title">Papan Peringkat Sementara</div>
         <div class="leaderboard-list" id="leaderboardList"></div>
+        <div id="bottom3Prompt" style="display: none; flex-direction: column; align-items: center; gap: 15px; margin-top: 20px;">
+          <div style="font-size: 1.5rem; font-weight: bold; color: var(--color-text-primary);">Tampilkan 3 Peringkat Terbawah?</div>
+          <div style="display: flex; gap: 15px;">
+            <button class="btn-action" style="background: #ef4444;" onclick="startBottom3Reveal()">Ya, Tampilkan 😈</button>
+            <button class="btn-action" style="background: #9ca3af;" onclick="skipBottom3Reveal()">Langsung ke Pemenang 😇</button>
+          </div>
+        </div>
+
         <button class="btn-action" id="btnNextQuestion" onclick="nextQuestion()">Soal Berikutnya</button>
         <button class="btn-action" id="btnReveal" style="display: none;" onclick="revealNext()">Selanjutnya ➡️</button>
       </div>
@@ -201,23 +228,12 @@
     let totalQuestionsHost = 0;
 
     function showHostCorrectAnswer() {
+      socket.emit('host-request-tally', { code: quizCode });
+      
       const hostCorrectAnswer = document.getElementById('hostCorrectAnswer');
       if (!currentHostQuestion || !currentHostQuestion.options) return;
       
-      if (currentHostQuestion.type === 'PG' || currentHostQuestion.type === 'CHECKBOX') {
-         const optionDivs = document.querySelectorAll('.host-option-btn');
-         optionDivs.forEach(div => {
-             const isCorrect = div.getAttribute('data-is-correct') === 'true';
-             if (isCorrect) {
-                 div.style.border = '4px solid #fff';
-                 div.style.boxShadow = '0 0 15px rgba(0,0,0,0.4)';
-                 div.style.transform = 'scale(1.02)';
-             } else {
-                 div.style.opacity = '0.3';
-                 div.style.filter = 'grayscale(100%)';
-             }
-         });
-      } else {
+      if (currentHostQuestion.type !== 'PG' && currentHostQuestion.type !== 'CHECKBOX') {
          const correctOpts = currentHostQuestion.options.filter(o => o.is_correct);
          if (correctOpts.length > 0) {
              hostCorrectAnswer.innerText = 'Jawaban Benar: ' + correctOpts[0].text;
@@ -225,6 +241,50 @@
          }
       }
     }
+
+    socket.on('answer-tally', (data) => {
+       const tallies = data.tallies || {};
+       
+       if (currentHostQuestion && (currentHostQuestion.type === 'PG' || currentHostQuestion.type === 'CHECKBOX')) {
+          const optionDivs = document.querySelectorAll('.host-option-btn');
+          const colors = ['#e21b3c', '#1368ce', '#d89e00', '#26890c', '#8e44ad', '#16a085', '#d35400', '#e84393'];
+          
+          optionDivs.forEach((div, idx) => {
+              const isCorrect = div.getAttribute('data-is-correct') === 'true';
+              const origText = div.getAttribute('data-orig-text') || div.innerText;
+              const count = tallies[idx] || 0;
+              let percentage = 0;
+              if (data.totalAnswers > 0) {
+                  percentage = Math.round((count / data.totalAnswers) * 100);
+                  if (percentage > 100) percentage = 100;
+              }
+              
+              const baseColor = colors[idx % colors.length];
+              const boxColor = isCorrect ? '#10b981' : '#ef4444';
+              
+              div.style.display = 'flex';
+              div.style.justifyContent = 'space-between';
+              div.style.alignItems = 'center';
+              div.style.background = baseColor;
+              div.style.color = 'white';
+              div.style.textShadow = 'none';
+              
+              if (isCorrect) {
+                  div.style.border = '4px solid #fff';
+                  div.style.boxShadow = '0 0 15px rgba(0,0,0,0.4)';
+                  div.style.transform = 'scale(1.02)';
+                  div.style.opacity = '1';
+              } else {
+                  div.style.border = 'none';
+                  div.style.opacity = '0.5';
+              }
+              
+              const iconHTML = isCorrect ? '<span style="margin-right: 6px; font-size: 1.1em;">✔</span>' : '<span style="margin-right: 6px; font-size: 1.1em;">✖</span>';
+              
+              div.innerHTML = `<span>${origText}</span><span style="background: ${boxColor}; padding: 6px 14px; border-radius: 6px; font-weight: bold; color: white; min-width: 80px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2); margin-left: 10px; display: inline-flex; justify-content: center; align-items: center;">${iconHTML}${percentage}%</span>`;
+          });
+       }
+    });
 
     socket.on('new-question', (data) => {
       document.getElementById('lobbyScreen').style.display = 'none';
@@ -269,6 +329,7 @@
           const div = document.createElement('div');
           div.className = 'host-option-btn';
           div.setAttribute('data-is-correct', opt.is_correct);
+          div.setAttribute('data-orig-text', `${letters[idx]}. ${opt.text}`);
           div.style.padding = '10px 20px';
           div.style.fontSize = '1.1rem';
           div.style.fontWeight = 'bold';
@@ -435,42 +496,140 @@
 
     let finalLeaderboard = [];
     let revealStep = 0;
+    let bottom3Revealed = false;
     
+    function startBottom3Reveal() {
+      document.getElementById('bottom3Prompt').style.display = 'none';
+      document.getElementById('btnReveal').style.display = 'block';
+      bottom3Revealed = true;
+      revealStep = 1;
+      revealNext();
+    }
+
+    function skipBottom3Reveal() {
+      document.getElementById('bottom3Prompt').style.display = 'none';
+      document.getElementById('btnReveal').style.display = 'block';
+      bottom3Revealed = false;
+      revealStep = 4;
+      revealNext();
+    }
+
     function revealNext() {
       const list = document.getElementById('leaderboardList');
       const title = document.querySelector('.leaderboard-title');
       
       if (revealStep === 0) {
-        if (finalLeaderboard.length >= 3) {
-           const p = finalLeaderboard[2];
-           list.innerHTML = `<div class="leaderboard-item" style="font-size: 1.8rem; padding: 25px 40px; background:#cd7f32; color:white; animation: popIn 0.5s;"><span>🥉 3. ${p.name}</span><span id="scoreVal3">0</span></div>`;
-           title.innerText = 'Juara 3...';
-           animateValue(document.getElementById('scoreVal3'), 0, p.score, 2000);
-           previousScores[p.name] = p.score;
+        const len = finalLeaderboard.length;
+        if (len > 3) {
+          title.innerText = '🏆 Kuis Selesai!';
+          list.innerHTML = '';
+          document.getElementById('btnReveal').style.display = 'none';
+          document.getElementById('bottom3Prompt').style.display = 'flex';
+          return;
         } else {
-           revealStep++; revealNext(); return;
+          bottom3Revealed = false;
+          revealStep = 4;
+          revealNext();
+          return;
         }
       } else if (revealStep === 1) {
-        if (finalLeaderboard.length >= 2) {
-           const p = finalLeaderboard[1];
-           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.2rem; padding: 30px 50px; background:#c0c0c0; color:black; animation: popIn 0.5s;"><span>🥈 2. ${p.name}</span><span id="scoreVal2">0</span></div>`;
-           title.innerText = 'Juara 2...';
-           animateValue(document.getElementById('scoreVal2'), 0, p.score, 2000);
+        const len = finalLeaderboard.length;
+        const idx = len - 3;
+        if (idx >= 3) {
+           const p = finalLeaderboard[idx];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 1.8rem; padding: 25px 40px; background:#fca5a5; color:black; animation: popIn 0.5s; display: flex; justify-content: space-between; align-items: center;"><div><span style="font-size: 1.5em; font-weight: bold;">${p.name}</span><div style="font-size: 1rem; color: #b91c1c; margin-top: 5px;">(Jangan Menyerah)</div></div><span id="scoreValB3">0</span></div>`;
+           title.innerText = '3 Peringkat Terbawah...';
+           animateValue(document.getElementById('scoreValB3'), 0, p.score, 2000);
            previousScores[p.name] = p.score;
+           shootEmojiRain(['🔥'], 1500, 20);
         } else {
            revealStep++; revealNext(); return;
         }
       } else if (revealStep === 2) {
-        if (finalLeaderboard.length >= 1) {
-           const p = finalLeaderboard[0];
-           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.8rem; padding: 40px 60px; background:#ffd700; color:black; animation: popIn 0.5s;"><span>🥇 1. ${p.name}</span><span id="scoreVal1">0</span></div>`;
-           title.innerText = 'Juara 1...';
-           animateValue(document.getElementById('scoreVal1'), 0, p.score, 2000);
+        const len = finalLeaderboard.length;
+        const idx = len - 2;
+        if (idx >= 3) {
+           const p = finalLeaderboard[idx];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.2rem; padding: 30px 50px; background:#f87171; color:white; animation: popIn 0.5s; display: flex; justify-content: space-between; align-items: center;"><div><span style="font-size: 1.5em; font-weight: bold;">${p.name}</span><div style="font-size: 1.2rem; color: #fee2e2; margin-top: 5px;">(Siap Comeback)</div></div><span id="scoreValB2">0</span></div>`;
+           title.innerText = '2 Peringkat Terbawah...';
+           animateValue(document.getElementById('scoreValB2'), 0, p.score, 2000);
            previousScores[p.name] = p.score;
+           shootEmojiRain(['💪'], 2500, 40);
         } else {
            revealStep++; revealNext(); return;
         }
-      } else {
+      } else if (revealStep === 3) {
+        const len = finalLeaderboard.length;
+        const idx = len - 1;
+        if (idx >= 3) {
+           const p = finalLeaderboard[idx];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.8rem; padding: 40px 60px; background:#ef4444; color:white; animation: popIn 0.5s; display: flex; justify-content: space-between; align-items: center;"><div><span style="font-size: 1.5em; font-weight: bold;">${p.name}</span><div style="font-size: 1.5rem; color: #fecaca; margin-top: 5px;">(Juru Kunci)</div></div><span id="scoreValB1">0</span></div>`;
+           title.innerText = 'Juru Kunci...';
+           animateValue(document.getElementById('scoreValB1'), 0, p.score, 2000);
+           previousScores[p.name] = p.score;
+           shootEmojiRain(['🔥', '💪'], 4000, 80);
+        } else {
+           revealStep++; revealNext(); return;
+        }
+      } else if (revealStep === 4) {
+        title.innerText = 'Berikut adalah pemenang dari quiz ini...';
+        list.innerHTML = '';
+      } else if (revealStep === 5) {
+
+        if (finalLeaderboard.length >= 3) {
+           const p = finalLeaderboard[2];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 1.8rem; padding: 25px 40px; background:#cd7f32; color:white; animation: popIn 0.5s;"><span style="font-size: 1.5em; font-weight: bold;">🥉 ${p.name}</span><span id="scoreVal3">0</span></div>`;
+           title.innerText = 'Juara 3...';
+           animateValue(document.getElementById('scoreVal3'), 0, p.score, 2000);
+           previousScores[p.name] = p.score;
+           shootFireworks(1000, 20);
+        } else {
+           revealStep++; revealNext(); return;
+        }
+      } else if (revealStep === 6) {
+        if (finalLeaderboard.length < 2) {
+           revealStep++; revealNext(); return;
+        }
+        title.innerText = 'Siapakah Juara 2? 🥈';
+        list.innerHTML = '';
+      } else if (revealStep === 7) {
+
+        if (finalLeaderboard.length >= 2) {
+           const p = finalLeaderboard[1];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.2rem; padding: 30px 50px; background:#c0c0c0; color:black; animation: popIn 0.5s;"><span style="font-size: 1.5em; font-weight: bold;">🥈 ${p.name}</span><span id="scoreVal2">0</span></div>`;
+           title.innerText = 'Juara 2...';
+           animateValue(document.getElementById('scoreVal2'), 0, p.score, 2000);
+           previousScores[p.name] = p.score;
+           shootFireworks(2000, 40);
+        } else {
+           revealStep++; revealNext(); return;
+        }
+      } else if (revealStep === 8) {
+        if (finalLeaderboard.length < 1) {
+           revealStep++; revealNext(); return;
+        }
+        title.innerText = 'Dan Juaranya adalah... 🏆';
+        list.innerHTML = '';
+      } else if (revealStep === 9) {
+
+        if (finalLeaderboard.length >= 1) {
+           const p = finalLeaderboard[0];
+           list.innerHTML = `<div class="leaderboard-item" style="font-size: 2.8rem; padding: 40px 60px; background:#ffd700; color:black; animation: popIn 0.5s;"><span style="font-size: 1.5em; font-weight: bold;">🥇 ${p.name}</span><span id="scoreVal1">0</span></div>`;
+           title.innerText = 'Juara 1...';
+           animateValue(document.getElementById('scoreVal1'), 0, p.score, 2000);
+           previousScores[p.name] = p.score;
+           shootFireworks(3500, 80);
+           if (typeof confetti !== 'undefined') {
+             confetti({ particleCount: 150, spread: 180, origin: { y: 0.1 } });
+           }
+        } else {
+           revealStep++; revealNext(); return;
+        }
+      } else if (revealStep === 10) {
+        title.innerText = 'Berikut hasil akhir semua peserta...';
+        list.innerHTML = '';
+      } else if (revealStep === 11) {
+
         title.innerText = '🏆 Hasil Akhir Semua Peserta:';
         list.innerHTML = '';
         finalLeaderboard.forEach((p, i) => {
@@ -478,7 +637,48 @@
           item.className = 'leaderboard-item';
           
           const nameSpan = document.createElement('span');
-          nameSpan.innerText = `${i+1}. ${p.name}`;
+          
+          // Check if player is in the bottom 3, and NOT in the top 3
+          const isBottom3 = (i >= finalLeaderboard.length - 3) && (i >= 3);
+          
+          if (isBottom3 && !bottom3Revealed) {
+            nameSpan.innerHTML = `${i+1}. `;
+            const hiddenSpan = document.createElement('span');
+            hiddenSpan.style.cursor = 'pointer';
+            hiddenSpan.style.background = 'rgba(0,0,0,0.05)';
+            hiddenSpan.style.padding = '4px 12px';
+            hiddenSpan.style.borderRadius = '20px';
+            hiddenSpan.style.display = 'inline-flex';
+            hiddenSpan.style.alignItems = 'center';
+            hiddenSpan.style.gap = '8px';
+            hiddenSpan.style.color = '#666';
+            hiddenSpan.style.fontSize = '1.1rem';
+            hiddenSpan.style.transition = 'all 0.2s';
+            hiddenSpan.title = 'Klik untuk melihat nama';
+            
+            hiddenSpan.onmouseover = function() { this.style.background = 'rgba(0,0,0,0.1)'; };
+            hiddenSpan.onmouseout = function() { this.style.background = 'rgba(0,0,0,0.05)'; };
+
+            const eyeSlashSvg = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"></path><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"></path><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"></path><line x1="2" y1="2" x2="22" y2="22"></line></svg>';
+
+            hiddenSpan.innerHTML = `${eyeSlashSvg} <i>Hidden</i>`;
+            
+            hiddenSpan.onclick = function() {
+              this.innerText = p.name;
+              this.style.background = 'transparent';
+              this.style.padding = '0';
+              this.style.color = 'inherit';
+              this.style.fontSize = 'inherit';
+              this.style.display = 'inline';
+              this.onmouseover = null;
+              this.onmouseout = null;
+              this.onclick = null;
+            };
+            
+            nameSpan.appendChild(hiddenSpan);
+          } else {
+            nameSpan.innerText = `${i+1}. ${p.name}`;
+          }
           
           const scoreSpan = document.createElement('span');
           scoreSpan.innerText = '0';
@@ -497,6 +697,14 @@
           item.style.opacity = '0';
           list.appendChild(item);
         });
+      } else if (revealStep === 12) {
+        title.innerText = 'Terima kasih sudah berpartisipasi! 🎉';
+        list.innerHTML = `
+          <div style="display: flex; flex-direction: column; align-items: center; padding: 40px; text-align: center;">
+            <p style="font-size: 1.5rem; color: #666; margin-bottom: 30px;">Kuis telah selesai. Semoga ilmu yang didapat bermanfaat.</p>
+            <button class="btn-action" style="padding: 15px 40px; font-size: 1.5rem; background: var(--color-primary);" onclick="window.location.href='/quiz'">Kembali ke Halaman Pembelajaran</button>
+          </div>
+        `;
         document.getElementById('btnReveal').style.display = 'none';
       }
       revealStep++;
@@ -505,15 +713,64 @@
     socket.on('quiz-finished', (leaderboard) => {
       document.getElementById('questionScreen').style.display = 'none';
       document.getElementById('leaderboardScreen').style.display = 'flex';
-      document.querySelector('.leaderboard-title').innerText = '🏆 Kuis Selesai! Mari kita lihat pemenangnya...';
       document.getElementById('btnNextQuestion').style.display = 'none';
       
       finalLeaderboard = leaderboard;
       revealStep = 0;
       document.getElementById('leaderboardList').innerHTML = ''; 
-      
-      document.getElementById('btnReveal').style.display = 'block';
+      revealNext();
     });
+    function shootEmojiRain(emojis, duration, intensity) {
+      var animationEnd = Date.now() + duration;
+      
+      var interval = setInterval(function() {
+        if (Date.now() > animationEnd) {
+          return clearInterval(interval);
+        }
+        
+        // Limit DOM elements to avoid lag, but keep it very festive
+        var spawnCount = Math.ceil(intensity / 8); 
+        
+        for(let i=0; i<spawnCount; i++) {
+          const emoji = emojis[Math.floor(Math.random() * emojis.length)];
+          const el = document.createElement('div');
+          el.innerText = emoji;
+          el.style.position = 'fixed';
+          el.style.left = (Math.random() * 100) + 'vw';
+          el.style.top = '-100px';
+          // Make emojis smaller than before
+          el.style.fontSize = (Math.random() * 1 + 2) + 'rem'; 
+          el.style.zIndex = '9999';
+          el.style.pointerEvents = 'none';
+          // Fall straight down without spinning
+          el.style.transition = 'transform 2.5s linear';
+          document.body.appendChild(el);
+          
+          setTimeout(() => {
+            el.style.transform = 'translateY(120vh)';
+          }, 30);
+          
+          setTimeout(() => {
+            el.remove();
+          }, 2600);
+        }
+      }, 150);
+    }
+    
+    function shootFireworks(duration, particleCount) {
+      if (typeof confetti === 'undefined') return;
+      var animationEnd = Date.now() + duration;
+      var defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
+      var interval = setInterval(function() {
+        var timeLeft = animationEnd - Date.now();
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2 + 0.1, y: Math.random() - 0.2 } }));
+        confetti(Object.assign({}, defaults, { particleCount, origin: { x: Math.random() * 0.2 + 0.7, y: Math.random() - 0.2 } }));
+      }, 250);
+    }
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </body>
 </html>

@@ -194,6 +194,17 @@
       </div>
     </div>
 
+    <!-- Waiting Screen -->
+    <div id="waitingScreen" style="display: none; flex-direction: column; align-items: center; width: 100%;">
+      <div class="hourglass" style="margin-bottom: 20px; color: var(--color-primary);">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M6 2v6h.01L6 8.01 10 12l-4 4 .01.01H6V22h12v-5.99h-.01L18 16l-4-4 4-3.99-.01-.01H18V2H6zm10 14.5V20H8v-3.5l4-4 4 4zm-4-5l-4-4V4h8v3.5l-4 4z"/>
+        </svg>
+      </div>
+      <p style="font-size: 1.5rem; font-weight: bold; margin-bottom: 10px; color: var(--color-text-primary);">Jawaban Terkirim!</p>
+      <p style="font-size: 1.2rem; color: var(--color-text-secondary);">Menunggu peserta lain...</p>
+    </div>
+
     <!-- Feedback -->
     <div id="feedbackScreen">
       <div class="feedback-icon" id="fbIcon"></div>
@@ -240,6 +251,16 @@
     let hasAnswered = false;
     let totalQuestionsCount = 1;
     let selectedCheckboxIndices = new Set();
+    let storedIsCorrect = false;
+    let storedPoints = 0;
+    let storedIsPartial = false;
+
+    function showWaitingScreen() {
+      document.getElementById('questionScreen').style.display = 'none';
+      document.getElementById('waitingScreen').style.display = 'flex';
+      document.body.style.background = '#f3f4f6';
+      document.body.style.color = '#333';
+    }
 
     function joinQuiz() {
       const name = document.getElementById('playerName').value.trim();
@@ -297,6 +318,7 @@
       socket.on('new-question', (data) => {
       document.getElementById('lobbyScreen').style.display = 'none';
       document.getElementById('feedbackScreen').style.display = 'none';
+      document.getElementById('waitingScreen').style.display = 'none';
       document.getElementById('questionScreen').style.display = 'flex';
       document.body.style.background = '#f3f4f6';
       document.body.style.color = '#333';
@@ -348,7 +370,7 @@
           const btn = document.createElement('button');
           btn.className = 'opt-btn';
           btn.innerText = letters[idx];
-          btn.onclick = () => submitAnswer(opt.id, opt.is_correct);
+          btn.onclick = () => submitAnswer(opt.id, opt.is_correct, idx);
           grid.appendChild(btn);
         });
       } else if (currentQuestion.type === 'CHECKBOX') {
@@ -380,10 +402,14 @@
       clearInterval(timerInterval);
       timerInterval = setInterval(() => {
         timeLeft--;
-        document.getElementById('qTimer').innerText = timeLeft;
+        if (document.getElementById('questionScreen').style.display !== 'none') {
+           document.getElementById('qTimer').innerText = timeLeft;
+        }
         if (timeLeft <= 0) {
           clearInterval(timerInterval);
-          if (!hasAnswered) {
+          if (hasAnswered) {
+            showFeedback(storedIsCorrect, storedPoints, storedIsPartial);
+          } else {
             showFeedback(false, 0); // Time's up
           }
         }
@@ -391,9 +417,11 @@
     });
 
     socket.on('timer-skipped', () => {
-      if (!hasAnswered) {
-        timeLeft = 0;
-        clearInterval(timerInterval);
+      timeLeft = 0;
+      clearInterval(timerInterval);
+      if (hasAnswered) {
+        showFeedback(storedIsCorrect, storedPoints, storedIsPartial);
+      } else {
         showFeedback(false, 0); // Time's up
       }
     });
@@ -409,10 +437,9 @@
     });
   } // end setupSocketListeners
 
-  function submitAnswer(optId, isCorrect) {
+  function submitAnswer(optId, isCorrect, optIdx) {
       if (hasAnswered || timeLeft <= 0) return;
       hasAnswered = true;
-      clearInterval(timerInterval);
       
       let points = 0;
       if (isCorrect) {
@@ -421,14 +448,16 @@
         points = Math.round(maxPoints);
       }
       
-      showFeedback(isCorrect, points);
-      socket.emit('player-score-update', { code: quizCode, points, questionIndex });
+      storedIsCorrect = isCorrect;
+      storedPoints = points;
+      storedIsPartial = false;
+      showWaitingScreen();
+      socket.emit('player-score-update', { code: quizCode, points, questionIndex, chosenOptionIndices: typeof optIdx !== 'undefined' ? [optIdx] : [] });
     }
 
     function submitCheckbox() {
       if (hasAnswered || timeLeft <= 0) return;
       hasAnswered = true;
-      clearInterval(timerInterval);
       
       const correctIndices = currentQuestion.options
         .map((opt, idx) => opt.is_correct ? idx : -1)
@@ -467,14 +496,16 @@
         points = Math.round(maxPoints * fraction);
       }
       
-      showFeedback(isCorrect, points, isPartial);
-      socket.emit('player-score-update', { code: quizCode, points, questionIndex });
+      storedIsCorrect = isCorrect;
+      storedPoints = points;
+      storedIsPartial = isPartial;
+      showWaitingScreen();
+      socket.emit('player-score-update', { code: quizCode, points, questionIndex, chosenOptionIndices: Array.from(selectedCheckboxIndices) });
     }
 
     function submitEssay() {
       if (hasAnswered || timeLeft <= 0) return;
       hasAnswered = true;
-      clearInterval(timerInterval);
       
       const answer = document.getElementById('essayInput').value.toLowerCase();
       // Since it's essay, we check if it contains the first option's text as keyword
@@ -491,12 +522,16 @@
         points = Math.round(maxPoints);
       }
       
-      showFeedback(isCorrect, points);
-      socket.emit('player-score-update', { code: quizCode, points, questionIndex });
+      storedIsCorrect = isCorrect;
+      storedPoints = points;
+      storedIsPartial = false;
+      showWaitingScreen();
+      socket.emit('player-score-update', { code: quizCode, points, questionIndex, chosenOptionIndices: [] });
     }
 
     function showFeedback(isCorrect, points, isPartial = false) {
       document.getElementById('questionScreen').style.display = 'none';
+      document.getElementById('waitingScreen').style.display = 'none';
       const fb = document.getElementById('feedbackScreen');
       fb.style.display = 'flex';
       

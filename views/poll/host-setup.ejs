@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    .setup-hero {
+      padding-top: 150px;
+      padding-bottom: 80px;
+      display: flex;
+      justify-content: center;
+      background: var(--color-bg-main);
+      min-height: 100vh;
+    }
+    .setup-card {
+      background: var(--color-bg-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      padding: 40px;
+      width: 100%;
+      max-width: 600px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: var(--color-text-primary);
+    }
+    .form-control {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--color-border);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 8px;
+      background: var(--color-primary);
+      color: #fff;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    .btn-primary:hover {
+      background: var(--color-primary-dark);
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+
+  <div class="setup-hero">
+    <div class="setup-card">
+      <h2 style="margin-bottom: 30px; font-weight: 800; color: var(--color-text-primary); text-align: center;">Buat Sesi Jajak Pendapat</h2>
+      
+      <form id="pollSetupForm">
+        <div class="form-group">
+          <label class="form-label">Judul/Pertanyaan Topik</label>
+          <input type="text" id="pollTitle" class="form-control" placeholder="Contoh: Apa harapan Anda di pelatihan ini?" required>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Waktu Countdown (Detik)</label>
+          <input type="number" id="pollTime" class="form-control" value="60" min="10" max="300" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Buat & Masuk Ruang Tunggu</button>
+      </form>
+    </div>
+  </div>
+
+  <%- include('../partials/footer') %>
+
+  <script>
+    document.getElementById('pollSetupForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const title = encodeURIComponent(document.getElementById('pollTitle').value.trim());
+      const time = document.getElementById('pollTime').value;
+      const code = Math.random().toString(36).substring(2, 8).toUpperCase();
+      
+      window.location.href = `/poll/host/${code}?title=${title}&time=${time}`;
+    });
+  </script>
+</body>
+</html>

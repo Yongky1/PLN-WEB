@@ -13,6 +13,7 @@
       { href: '/admin/katalog-instruktur', label: 'Katalog Instruktur' },
       { href: '/admin/jadwal-instruktur', label: 'Jadwal Instruktur' },
       { href: '/quiz/data', label: 'Data Kuis' },
+      { href: '/poll', label: 'Jajak Pendapat' },
     ];
   } else if (_isInstruktur) {
     pembelajaranSubs = [
@@ -20,8 +21,14 @@
       { href: '/pembelajaran/jadwal', label: 'Jadwal Instruktur' },
       { href: '/quiz', label: 'Quiz' },
       { href: '/quiz/data', label: 'Data Kuis' },
+      { href: '/poll', label: 'Jajak Pendapat' },
     ];
   }
+  
+  const pesertaSubs = [
+    { href: '/quiz', label: 'Quiz' },
+    { href: '/poll', label: 'Jajak Pendapat' }
+  ];
 
   const navItems = [
     { href: '/', label: 'Beranda', key: 'home', desc: 'Halaman utama platform' },
@@ -30,11 +37,11 @@
     { href: '/material', label: 'Material', key: 'material', desc: 'Database material kelistrikan' },
     // Pembelajaran: if Peserta/guest → direct link to quiz; otherwise dropdown built via subs
     {
-      href: _isPeserta ? '/quiz' : '#',
+      href: '#',
       label: 'Pembelajaran',
       key: 'pembelajaran',
       desc: 'Pembelajaran & Kuis interaktif',
-      subs: _isPeserta ? [] : pembelajaranSubs
+      subs: _isPeserta ? pesertaSubs : pembelajaranSubs
     }
   ];
 
