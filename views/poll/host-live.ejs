@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    body {
+      background: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      overflow: hidden;
+    }
+    .host-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+    .top-bar {
+      background: white;
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      z-index: 10;
+    }
+    .poll-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--color-text-primary);
+    }
+    .pin-box {
+      background: var(--color-primary);
+      color: white;
+      padding: 10px 30px;
+      border-radius: 30px;
+      font-size: 1.5rem;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    /* Lobby State */
+    #lobbyScreen { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; }
+    .lobby-title { font-size: 3rem; font-weight: 800; margin-bottom: 20px; color: var(--color-text-primary); }
+    .btn-action {
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 30px;
+      border: none;
+      cursor: pointer;
+      background: var(--color-primary);
+      color: white;
+      transition: transform 0.2s;
+      margin-top: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+    .btn-action:hover { transform: scale(1.05); }
+    .btn-danger { background: #ef4444; }
+
+    /* Live State */
+    #liveScreen { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; position: relative;}
+    .countdown-timer { font-size: 6rem; font-weight: 900; color: var(--color-primary); margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,0.1); }
+    .live-title { font-size: 2.5rem; font-weight: 800; margin-bottom: 20px; color: var(--color-text-primary); }
+
+    /* Results State */
+    #resultsScreen { display: none; flex-direction: column; align-items: center; justify-content: center; width: 100%; height: 100%; position: relative; }
+    #wordCloudContainer { width: 100%; height: 70vh; position: relative; display: flex; align-items: center; justify-content: center; }
+    
+    .scatter-word {
+      position: absolute;
+      font-weight: bold;
+      animation: popIn 0.5s ease-out forwards;
+      opacity: 0;
+      transform: scale(0);
+      text-align: center;
+      text-shadow: 1px 1px 3px rgba(0,0,0,0.1);
+    }
+
+    @keyframes popIn {
+      0% { transform: scale(0) translate(-50%, -50%); opacity: 0; }
+      100% { transform: scale(1) translate(-50%, -50%); opacity: 1; }
+    }
+    @keyframes bubbleIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="host-container">
+
+    <div class="top-bar">
+      <div class="poll-title"><%= pollTitle %></div>
+      <div class="pin-box">PIN: <%= code %></div>
+      <div id="playerCount" style="font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; gap: 8px;">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        <span id="pCountText">0 Peserta</span>
+      </div>
+    </div>
+    
+    <div class="main-area">
+      <!-- LOBBY -->
+      <div id="lobbyScreen">
+        <div class="lobby-title">Menunggu Peserta...</div>
+        <p style="font-size: 1.2rem; color: #666; max-width: 600px; line-height: 1.5;">Peserta silakan bergabung dengan memasukkan PIN di atas. Anda dapat mengirimkan maksimal 3 kata untuk sesi ini.</p>
+        <button class="btn-action" id="btnStartSession" onclick="startSession()" style="display: none;">Mulai Sesi</button>
+      </div>
+
+      <!-- LIVE COUNTDOWN -->
+      <div id="liveScreen">
+        <div class="countdown-timer" id="countdownTimer" style="position: absolute; top: 20px; right: 30px; font-size: 4rem; margin: 0; z-index: 10;"><%= pollTime %></div>
+        <div class="live-title"><%= pollTitle %></div>
+        
+        <div id="liveAnswersContainer" style="position: relative; width: 100%; height: 60vh; overflow: hidden; margin-top: 10px;">
+           <p id="waitingText" style="font-size: 1.5rem; color: #666; width: 100%; text-align: center; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);">Menunggu peserta mengirimkan jawaban...</p>
+        </div>
+        <button class="btn-action btn-danger" onclick="endSession()" style="margin-top: 20px; z-index: 10;">Akhiri Sesi & Lihat Hasil</button>
+      </div>
+
+      <!-- RESULTS -->
+      <div id="resultsScreen">
+        <div class="live-title"><%= pollTitle %></div>
+        <div id="wordCloudContainer">
+          <!-- Canvas for > 10 participants wordcloud -->
+          <canvas id="wcCanvas" style="display: none;"></canvas>
+          <!-- Div for <= 10 participants scatter -->
+          <div id="scatterContainer" style="width: 100%; height: 100%; position: absolute; top:0; left:0;"></div>
+        </div>
+        <button class="btn-action" onclick="window.location.href='/poll'">Selesai</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <!-- Load WordCloud2.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/wordcloud2.js/1.2.2/wordcloud2.min.js"></script>
+  <script>
+    const backendUrl = window.location.protocol + '//' + window.location.hostname + ':4000';
+    const socket = io(backendUrl);
+    const pollCode = '<%= code %>';
+    const pollTime = <%= pollTime %>;
+    
+    let timerInterval = null;
+    let currentTime = pollTime;
+    let participantsCount = 0;
+
+    socket.on('connect', () => {
+      // Create poll in backend
+      socket.emit('poll-host-create', { code: pollCode, title: '<%= pollTitle %>', time: pollTime });
+    });
+
+    socket.on('poll-player-joined', (count) => {
+      participantsCount = count;
+      document.getElementById('pCountText').innerText = `${count} Peserta`;
+      if (count > 0) {
+        document.getElementById('btnStartSession').style.display = 'block';
+      }
+    });
+
+    const liveWordCounts = {};
+    const liveWordElements = {};
+    const wcColors = ['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd', '#8c564b', '#e377c2', '#111827', '#2C5C88', '#D48E00', '#06D6A0'];
+    const measureCtx = document.createElement('canvas').getContext('2d');
+
+    function updateDynamicCloud() {
+      const container = document.getElementById('liveAnswersContainer');
+      const cw = container.clientWidth;
+      const ch = container.clientHeight;
+      
+      const words = [];
+      for (const key in liveWordCounts) {
+        words.push({
+          text: liveWordCounts[key].text,
+          count: liveWordCounts[key].count,
+          key: key,
+          isVertical: liveWordCounts[key].isVertical
+        });
+      }
+      
+      // Urutkan berdasarkan frekuensi terbanyak
+      words.sort((a, b) => b.count - a.count);
+      
+      const placed = [];
+      
+      words.forEach((wordObj, i) => {
+        let fontSize = 24 + (wordObj.count * 12);
+        if (i === 0) fontSize *= 1.5; // Kata paling populer diperbesar
+        
+        measureCtx.font = `bold ${fontSize}px Impact, "Arial Black", sans-serif`;
+        const textWidth = measureCtx.measureText(wordObj.text).width;
+        const textHeight = fontSize * 1.1; // Perkiraan tinggi box teks
+        
+        const isVert = wordObj.isVertical;
+        const w = isVert ? textHeight : textWidth;
+        const h = isVert ? textWidth : textHeight;
+        
+        let angle = 0;
+        let radius = 0;
+        let x = 0;
+        let y = 0;
+        let collision = true;
+        
+        // Algoritma Spiral Archimedean untuk mencari ruang kosong
+        while (collision && radius < 2000) {
+          x = radius * Math.cos(angle);
+          y = radius * Math.sin(angle) * 0.6; // Pipihkan sedikit ke oval
+          
+          const bbox = { left: x - w/2, right: x + w/2, top: y - h/2, bottom: y + h/2 };
+          collision = false;
+          
+          for (let p of placed) {
+            // Cek tabrakan AABB dengan padding 8px
+            if (!(p.left > bbox.right + 8 || p.right < bbox.left - 8 || p.top > bbox.bottom + 8 || p.bottom < bbox.top - 8)) {
+              collision = true;
+              break;
+            }
+          }
+          
+          angle += 0.5;
+          radius += 2;
+        }
+        
+        placed.push({ left: x - w/2, right: x + w/2, top: y - h/2, bottom: y + h/2 });
+        
+        let el = liveWordElements[wordObj.key];
+        if (!el) {
+          el = document.createElement('div');
+          el.innerText = wordObj.text;
+          el.style.position = 'absolute';
+          el.style.left = '50%';
+          el.style.top = '50%';
+          el.style.color = wcColors[Math.floor(Math.random() * wcColors.length)];
+          el.style.fontFamily = 'Impact, "Arial Black", sans-serif';
+          el.style.whiteSpace = 'nowrap';
+          el.style.transformOrigin = 'center center';
+          el.style.transform = `translate(-50%, -50%) scale(0) rotate(${isVert ? '-90deg' : '0deg'})`;
+          el.style.opacity = '0';
+          el.style.transition = 'all 2s cubic-bezier(0.25, 1, 0.5, 1)'; // Animasi pergeseran 2 detik!
+          el.style.zIndex = words.length - i; // Kata besar di atas
+          
+          container.appendChild(el);
+          liveWordElements[wordObj.key] = el;
+          
+          void el.offsetWidth; // Force reflow
+        }
+        
+        el.style.fontSize = `${fontSize}px`;
+        el.style.transform = `translate(calc(-50% + ${x}px), calc(-50% + ${y}px)) scale(1) rotate(${isVert ? '-90deg' : '0deg'})`;
+        el.style.opacity = '1';
+        el.style.zIndex = words.length - i;
+      });
+    }
+
+    socket.on('poll-live-update', (data) => {
+      if (data.newWords && data.newWords.length > 0) {
+        const waitingText = document.getElementById('waitingText');
+        if (waitingText) waitingText.style.display = 'none';
+        
+        data.newWords.forEach(word => {
+          const cleanWord = word.trim();
+          if (!cleanWord) return;
+          const wordKey = cleanWord.toLowerCase();
+          
+          if (liveWordCounts[wordKey]) {
+            liveWordCounts[wordKey].count++;
+          } else {
+            const isFirst = Object.keys(liveWordCounts).length === 0;
+            liveWordCounts[wordKey] = { 
+              text: cleanWord, 
+              count: 1,
+              isVertical: isFirst ? false : (Math.random() > 0.5) // 50% chance vertical
+            };
+          }
+        });
+        
+        updateDynamicCloud();
+      }
+    });
+
+    function startSession() {
+      socket.emit('poll-start', { code: pollCode });
+      document.getElementById('lobbyScreen').style.display = 'none';
+      document.getElementById('liveScreen').style.display = 'flex';
+      
+      currentTime = pollTime;
+      document.getElementById('countdownTimer').innerText = currentTime;
+      
+      timerInterval = setInterval(() => {
+        currentTime--;
+        document.getElementById('countdownTimer').innerText = currentTime;
+        if (currentTime <= 0) {
+          endSession();
+        }
+      }, 1000);
+    }
+
+    function endSession() {
+      clearInterval(timerInterval);
+      socket.emit('poll-end', { code: pollCode });
+    }
+
+    socket.on('poll-results', (data) => {
+      // data.words is an array of strings
+      document.getElementById('liveScreen').style.display = 'none';
+      document.getElementById('resultsScreen').style.display = 'flex';
+      
+      renderResults(data.words, data.participantsCount);
+    });
+
+    function renderResults(words, pCount) {
+      // Aggregate frequencies (case-insensitive but preserve original case)
+      const wordCounts = {};
+      const wordOriginals = {};
+      words.forEach(w => {
+        const original = w.trim();
+        const wordKey = original.toLowerCase();
+        if(wordKey) {
+          wordCounts[wordKey] = (wordCounts[wordKey] || 0) + 1;
+          if (!wordOriginals[wordKey]) {
+            wordOriginals[wordKey] = original;
+          }
+        }
+      });
+      
+      const list = Object.keys(wordCounts).map(wordKey => [wordOriginals[wordKey], wordCounts[wordKey]]);
+      
+      if (pCount <= 10) {
+        // Mode <= 10 peserta: WordCloud Petir PLN
+        renderLightningWordCloud(list);
+      } else {
+        // Mode > 10 peserta: Standard WordCloud (terpusat)
+        renderNormalWordCloud(list);
+      }
+    }
+
+    window.simulateDemo = function(count, mode) {
+      const demoWords = [];
+      const vocabulary = [
+        'Integritas', 'Profesional', 'Sinergi', 'Pelayanan', 'Unggul', 'Amanah', 'Kompeten', 'Harmonis', 'Loyal', 'Adaptif', 'Kolaboratif',
+        'Kelistrikan', 'Energi', 'Terbarukan', 'Inovasi', 'Teknologi', 'Digitalisasi', 'Transformasi', 'Masa Depan', 'Berkelanjutan',
+        'Kinerja', 'Produktivitas', 'Keselamatan', 'Fokus', 'Tanggung Jawab', 'Komitmen', 'Dedikasi', 'Semangat'
+      ];
+      
+      // Generate simulasi jawaban
+      for (let i = 0; i < count; i++) {
+        const numWords = Math.floor(Math.random() * 2) + 1; // 1-2 kata per frase
+        const phraseWords = [];
+        for (let j = 0; j < numWords; j++) {
+          phraseWords.push(vocabulary[Math.floor(Math.random() * vocabulary.length)]);
+        }
+        // Buat beberapa kata lebih sering muncul agar ada variasi ukuran
+        if (Math.random() > 0.7) demoWords.push('Integritas PLN');
+        if (Math.random() > 0.8) demoWords.push('Energi Terbarukan');
+        
+        demoWords.push(phraseWords.join(' '));
+      }
+      
+      document.getElementById('pCount').innerText = count + ' Peserta (Demo)';
+      
+      const wordCounts = {};
+      const wordOriginals = {};
+      demoWords.forEach(w => {
+        const original = w.trim();
+        const wordKey = original.toLowerCase();
+        if(wordKey) {
+          wordCounts[wordKey] = (wordCounts[wordKey] || 0) + 1;
+          if (!wordOriginals[wordKey]) wordOriginals[wordKey] = original;
+        }
+      });
+      const list = Object.keys(wordCounts).map(wordKey => [wordOriginals[wordKey], wordCounts[wordKey]]);
+      
+      if (mode === 'petir') {
+        renderLightningWordCloud(list);
+      } else {
+        renderNormalWordCloud(list);
+      }
+    };
+
+    function renderNormalWordCloud(list) {
+      document.getElementById('scatterContainer').style.display = 'none';
+      const canvas = document.getElementById('wcCanvas');
+      canvas.style.display = 'block';
+      
+      const container = document.getElementById('wordCloudContainer');
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      
+      // Urutkan berdasarkan bobot terbesar
+      const displayList = list.map(item => [item[0], item[1] * (0.5 + Math.random() * 1.5)]).sort((a, b) => b[1] - a[1]);
+      
+      // Paksa kata pertama menjadi 2x lebih besar agar selalu terlihat menonjol sebagai pusat
+      if (displayList.length > 0) displayList[0][1] *= 2;
+      const maxFreq = displayList.length > 0 ? displayList[0][1] : 1;
+      
+      const largestWord = displayList.slice(0, 1);
+      const remainingWords = displayList.slice(1);
+      
+      const baseOptions = {
+        gridSize: 2, // Perkecil grid agar kata-kata saling berdempetan (tighter packing)
+        minSize: 4,
+        weightFactor: function (size) {
+          return (size / maxFreq) * 50 + 15;
+        },
+        fontFamily: 'Impact, \"Arial Black\", sans-serif',
+        color: 'random-dark',
+        backgroundColor: 'transparent',
+        shape: 'circle',
+        shrinkToFit: true
+      };
+      
+      // 1. Gambar kata pusat (selalu horizontal)
+      WordCloud(canvas, Object.assign({}, baseOptions, {
+        list: largestWord,
+        rotateRatio: 0,
+        clearCanvas: true
+      }));
+      
+      // 2. Gambar sisa kata (vertikal / horizontal) mengelilinginya
+      const onStop = function() {
+        canvas.removeEventListener('wordcloudstop', onStop);
+        if (remainingWords.length > 0) {
+          const waitTime = Math.max(10, Math.floor(3500 / remainingWords.length));
+          WordCloud(canvas, Object.assign({}, baseOptions, {
+            list: remainingWords,
+            rotateRatio: 1,
+            minRotation: -Math.PI / 2,
+            maxRotation: 0,
+            rotationSteps: 2,
+            clearCanvas: false,
+            wait: waitTime
+          }));
+        }
+      };
+      canvas.addEventListener('wordcloudstop', onStop);
+    }
+
+    function renderLightningWordCloud(list) {
+      document.getElementById('scatterContainer').style.display = 'none';
+      const canvas = document.getElementById('wcCanvas');
+      canvas.style.display = 'block';
+      
+      const container = document.getElementById('wordCloudContainer');
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#f3f4f6'; 
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      
+      const cx = canvas.width / 2;
+      const cy = canvas.height / 2;
+      // Gunakan skala X dan Y secara terpisah agar petir membentang luas di seluruh layar
+      const scaleY = canvas.height / 2;
+      const scaleX = canvas.width / 4;
+      
+      // Menggambar petir PLN super besar dan gemuk agar 100% muat banyak kata
+      ctx.moveTo(cx + 1 * scaleX, cy - 0.9 * scaleY);    // Top Right
+      ctx.lineTo(cx - 0.5 * scaleX, cy - 0.9 * scaleY);  // Top Left
+      ctx.lineTo(cx - 1.5 * scaleX, cy - 0.2 * scaleY);  // Mid Left Outer
+      ctx.lineTo(cx - 0.5 * scaleX, cy - 0.2 * scaleY);  // Mid Left Inner
+      ctx.lineTo(cx - 0.75 * scaleX, cy + 0.9 * scaleY); // Bottom Point
+      ctx.lineTo(cx + 1.75 * scaleX, cy + 0 * scaleY);   // Mid Right Outer
+      ctx.lineTo(cx + 0.75 * scaleX, cy + 0 * scaleY);   // Mid Right Inner
+      ctx.closePath();
+      ctx.fill();
+      
+      ctx.globalCompositeOperation = 'source-over';
+      
+      // Urutkan berdasarkan bobot terbesar
+      const displayList = list.map(item => [item[0], item[1] * (0.5 + Math.random() * 1.5)]).sort((a, b) => b[1] - a[1]);
+      
+      // Paksa kata pertama menjadi 2x lebih besar agar selalu terlihat menonjol sebagai pusat
+      if (displayList.length > 0) displayList[0][1] *= 2;
+      const maxFreq = displayList.length > 0 ? displayList[0][1] : 1;
+      
+      const largestWord = displayList.slice(0, 1);
+      const remainingWords = displayList.slice(1);
+      
+      const numWords = displayList.length;
+      let maxFontSize = 45;
+      let minFontSize = 10;
+      
+      // Skala dinamis: semakin banyak kata, semakin kecil font agar tidak ada yang terbuang
+      if (numWords > 30) { maxFontSize = 35; minFontSize = 8; }
+      if (numWords > 80) { maxFontSize = 25; minFontSize = 6; }
+      if (numWords > 150) { maxFontSize = 18; minFontSize = 4; }
+      if (numWords > 300) { maxFontSize = 12; minFontSize = 2; }
+      
+      const baseOptions = {
+        gridSize: 2, // Selalu gunakan grid terkecil untuk mencegah ruang kosong
+        minSize: 2,
+        weightFactor: function (size) {
+          return (size / maxFreq) * (maxFontSize - minFontSize) + minFontSize; 
+        },
+        fontFamily: 'Impact, \"Arial Black\", sans-serif',
+        color: 'random-dark',
+        backgroundColor: 'transparent',
+        shrinkToFit: true
+      };
+      
+      // 1. Gambar kata pusat di tengah secara horizontal
+      WordCloud(canvas, Object.assign({}, baseOptions, {
+        list: largestWord,
+        rotateRatio: 0,
+        clearCanvas: false 
+      }));
+      
+      // 2. Gambar sisanya mengelilingi kata pusat
+      const onMaskStop = function() {
+        canvas.removeEventListener('wordcloudstop', onMaskStop);
+        if (remainingWords.length > 0) {
+          const waitTime = Math.max(10, Math.floor(3500 / remainingWords.length));
+          WordCloud(canvas, Object.assign({}, baseOptions, {
+            list: remainingWords,
+            rotateRatio: 1, // Pastikan rotasi dipilih dari langkah di bawah
+            minRotation: -Math.PI / 2, // Hanya Vertikal (-90)
+            maxRotation: 0,            // atau Horizontal (0)
+            rotationSteps: 2,
+            clearCanvas: false, // Harus false agar tidak menghapus area petir
+            wait: waitTime
+          }));
+        }
+      };
+      canvas.addEventListener('wordcloudstop', onMaskStop);
+    }
+  </script>
+</body>
+</html>

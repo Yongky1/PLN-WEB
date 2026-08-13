@@ -3,18 +3,18 @@
 <head>
   <%- include('../partials/head') %>
   <style>
-    .quiz-hero {
+    .join-hero {
       padding-top: 150px;
       padding-bottom: 80px;
       text-align: center;
-      background: transparent;
+      background: var(--color-bg-main);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
     }
-    .quiz-card {
+    .join-card {
       background: var(--color-bg-surface);
       border: 1px solid var(--color-border);
       border-radius: 20px;
@@ -24,13 +24,13 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.05);
       transition: all 0.3s ease;
     }
-    .quiz-title {
+    .join-title {
       font-size: 2rem;
       font-weight: 700;
       color: var(--color-text-primary);
       margin-bottom: 20px;
     }
-    .quiz-input {
+    .join-input {
       width: 100%;
       padding: 15px 20px;
       font-size: 1.1rem;
@@ -43,7 +43,7 @@
       letter-spacing: 2px;
       text-transform: uppercase;
     }
-    .quiz-btn {
+    .btn-primary {
       width: 100%;
       padding: 15px;
       font-size: 1.1rem;
@@ -51,73 +51,40 @@
       border: none;
       border-radius: 12px;
       cursor: pointer;
-      transition: all 0.3s;
-    }
-    .btn-primary {
       background: var(--color-primary);
       color: #fff;
+      transition: all 0.3s;
     }
     .btn-primary:hover {
       background: var(--color-primary-dark);
     }
-    .btn-outline {
-      background: transparent;
-      border: 2px solid var(--color-primary);
-      color: var(--color-primary);
-      margin-top: 15px;
-    }
-    .btn-outline:hover {
-      background: var(--color-primary);
-      color: #fff;
-    }
-    .divider {
-      margin: 30px 0;
-      display: flex;
-      align-items: center;
-      color: var(--color-text-secondary);
-      font-size: 0.9rem;
-    }
-    .divider::before, .divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: var(--color-border);
-      margin: 0 15px;
-    }
   </style>
 </head>
 <body>
-  <%- include('../partials/dynamic-bg') %>
   <%- include('../partials/navbar') %>
 
-  <section class="quiz-hero">
-    <div class="quiz-card">
-      <h1 class="quiz-title">QUIZ</h1>
+  <section class="join-hero">
+    <div class="join-card">
+      <h1 class="join-title">JOIN JAJAK PENDAPAT</h1>
       <p style="color: var(--color-text-secondary); margin-bottom: 30px;">
-        Masukkan kode unik untuk bergabung ke dalam kuis yang sudah dibuat.
+        Masukkan kode PIN untuk bergabung. Anda akan tergabung secara anonim.
       </p>
 
-      <form id="joinQuizForm">
-        <input type="text" id="quizCode" class="quiz-input" placeholder="KODE KUIS" required maxlength="6">
-        <button type="submit" class="quiz-btn btn-primary">Join Quiz</button>
+      <form id="joinPollForm">
+        <input type="text" id="pollCode" class="join-input" placeholder="KODE PIN" required maxlength="6">
+        <button type="submit" class="btn-primary">Masuk Ruang Tunggu</button>
       </form>
-
-      <div class="divider">ATAU</div>
-
-      <a href="/quiz/create">
-        <button class="quiz-btn btn-outline">Buat Quiz Baru</button>
-      </a>
     </div>
   </section>
 
   <%- include('../partials/footer') %>
 
   <script>
-    document.getElementById('joinQuizForm').addEventListener('submit', (e) => {
+    document.getElementById('joinPollForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const code = document.getElementById('quizCode').value.trim().toUpperCase();
+      const code = document.getElementById('pollCode').value.trim().toUpperCase();
       if (code) {
-        window.location.href = `/quiz/take/${code}`;
+        window.location.href = `/poll/take/${code}`;
       }
     });
   </script>

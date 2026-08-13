@@ -3,7 +3,7 @@
 <head>
   <%- include('../partials/head') %>
   <style>
-    .quiz-hero {
+    .poll-hero {
       padding-top: 150px;
       padding-bottom: 80px;
       text-align: center;
@@ -14,7 +14,7 @@
       align-items: center;
       justify-content: center;
     }
-    .quiz-card {
+    .poll-card {
       background: var(--color-bg-surface);
       border: 1px solid var(--color-border);
       border-radius: 20px;
@@ -24,26 +24,13 @@
       box-shadow: 0 10px 30px rgba(0,0,0,0.05);
       transition: all 0.3s ease;
     }
-    .quiz-title {
+    .poll-title {
       font-size: 2rem;
       font-weight: 700;
       color: var(--color-text-primary);
       margin-bottom: 20px;
     }
-    .quiz-input {
-      width: 100%;
-      padding: 15px 20px;
-      font-size: 1.1rem;
-      border: 1px solid var(--color-border);
-      border-radius: 12px;
-      background: var(--color-bg-main);
-      color: var(--color-text-primary);
-      margin-bottom: 20px;
-      text-align: center;
-      letter-spacing: 2px;
-      text-transform: uppercase;
-    }
-    .quiz-btn {
+    .poll-btn {
       width: 100%;
       padding: 15px;
       font-size: 1.1rem;
@@ -52,6 +39,10 @@
       border-radius: 12px;
       cursor: pointer;
       transition: all 0.3s;
+      margin-bottom: 15px;
+      display: block;
+      text-decoration: none;
+      text-align: center;
     }
     .btn-primary {
       background: var(--color-primary);
@@ -64,14 +55,13 @@
       background: transparent;
       border: 2px solid var(--color-primary);
       color: var(--color-primary);
-      margin-top: 15px;
     }
     .btn-outline:hover {
       background: var(--color-primary);
       color: #fff;
     }
     .divider {
-      margin: 30px 0;
+      margin: 20px 0;
       display: flex;
       align-items: center;
       color: var(--color-text-secondary);
@@ -90,36 +80,25 @@
   <%- include('../partials/dynamic-bg') %>
   <%- include('../partials/navbar') %>
 
-  <section class="quiz-hero">
-    <div class="quiz-card">
-      <h1 class="quiz-title">QUIZ</h1>
+  <section class="poll-hero">
+    <div class="poll-card">
+      <h1 class="poll-title">JAJAK PENDAPAT</h1>
       <p style="color: var(--color-text-secondary); margin-bottom: 30px;">
-        Masukkan kode unik untuk bergabung ke dalam kuis yang sudah dibuat.
+        Silakan pilih peran Anda dalam Jajak Pendapat ini.
       </p>
 
-      <form id="joinQuizForm">
-        <input type="text" id="quizCode" class="quiz-input" placeholder="KODE KUIS" required maxlength="6">
-        <button type="submit" class="quiz-btn btn-primary">Join Quiz</button>
-      </form>
+      <a href="/poll/join" class="poll-btn btn-primary">Join</a>
 
-      <div class="divider">ATAU</div>
-
-      <a href="/quiz/create">
-        <button class="quiz-btn btn-outline">Buat Quiz Baru</button>
-      </a>
+      <% 
+        const _roleStr = (typeof userRole !== 'undefined' && userRole) ? String(userRole).trim().toLowerCase() : '';
+        if (_roleStr === 'admin' || _roleStr === 'instruktur' || _roleStr === 'updl') { 
+      %>
+        <div class="divider">ATAU</div>
+        <a href="/poll/create" class="poll-btn btn-outline">Host</a>
+      <% } %>
     </div>
   </section>
 
   <%- include('../partials/footer') %>
-
-  <script>
-    document.getElementById('joinQuizForm').addEventListener('submit', (e) => {
-      e.preventDefault();
-      const code = document.getElementById('quizCode').value.trim().toUpperCase();
-      if (code) {
-        window.location.href = `/quiz/take/${code}`;
-      }
-    });
-  </script>
 </body>
 </html>

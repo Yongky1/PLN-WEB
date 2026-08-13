@@ -91,6 +91,7 @@ app.use('/', pagesRouter);
 app.use('/', proxyRouter);
 app.use('/', sessionRouter);
 app.use('/quiz', require('./routes/quiz'));
+app.use('/poll', require('./routes/poll'));
 app.use('/pembelajaran', require('./routes/pembelajaran'));
 app.use('/admin', authGuard, adminRouter);
 

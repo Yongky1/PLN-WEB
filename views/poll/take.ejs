@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    body {
+      background: #f3f4f6;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+    }
+    .take-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .card {
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      width: 100%;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .title {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--color-text-primary);
+      margin-bottom: 20px;
+    }
+    .status-text {
+      font-size: 1.2rem;
+      color: #666;
+      margin-bottom: 20px;
+    }
+    .word-input {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.1rem;
+      border: 1px solid var(--color-border);
+      border-radius: 12px;
+      margin-bottom: 15px;
+      text-align: center;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      background: var(--color-primary);
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-submit:hover { transform: scale(1.02); }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+    
+    /* Screen states */
+    #waitingScreen, #inputScreen, #doneScreen { display: none; }
+  </style>
+</head>
+<body>
+  <div class="take-container">
+    <!-- WAITING FOR HOST -->
+    <div class="card" id="waitingScreen">
+      <div class="title">Menunggu Host...</div>
+      <div class="status-text">Sesi jajak pendapat akan segera dimulai. Siapkan 1-3 kata terbaik Anda!</div>
+      <div style="font-size: 4rem;">⏳</div>
+    </div>
+
+    <!-- INPUT WORDS -->
+    <div class="card" id="inputScreen">
+      <div class="title" id="pollTitleDisplay">Topik Jajak Pendapat</div>
+      <div class="status-text">Masukkan maksimal 3 kata yang terlintas di pikiran Anda.</div>
+      
+      <form id="wordsForm">
+        <input type="text" id="wordInput" class="word-input" placeholder="Masukkan 1-3 kata (pisahkan dengan spasi)" required>
+        <div id="wordError" style="color: #ef4444; font-size: 0.95rem; margin-bottom: 15px; display: none;">Maksimal hanya 3 kata yang diizinkan!</div>
+        <button type="submit" class="btn-submit" id="btnSubmit">Kirim Jawaban</button>
+      </form>
+    </div>
+
+    <!-- DONE WAITING FOR RESULTS -->
+    <div class="card" id="doneScreen">
+      <div class="title">Jawaban Terkirim!</div>
+      <div class="status-text">Terima kasih atas partisipasi Anda. Silakan lihat layar Host untuk melihat hasilnya.</div>
+      <div style="font-size: 4rem;">✅</div>
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const backendUrl = window.location.protocol + '//' + window.location.hostname + ':4000';
+    const socket = io(backendUrl);
+    const pollCode = '<%= code %>';
+
+    socket.on('connect', () => {
+      socket.emit('poll-player-join', { code: pollCode });
+      document.getElementById('waitingScreen').style.display = 'block';
+    });
+
+    socket.on('poll-join-error', (msg) => {
+      alert(msg);
+      window.location.href = '/poll/join';
+    });
+
+    socket.on('poll-started', (data) => {
+      document.getElementById('waitingScreen').style.display = 'none';
+      document.getElementById('inputScreen').style.display = 'block';
+      if (data.title) {
+        document.getElementById('pollTitleDisplay').innerText = decodeURIComponent(data.title);
+      }
+    });
+
+    document.getElementById('wordsForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const inputText = document.getElementById('wordInput').value.trim();
+      
+      const words = inputText.split(/[\s,]+/).filter(w => w.length > 0);
+      
+      if (words.length > 3) {
+        document.getElementById('wordError').style.display = 'block';
+        return;
+      }
+      
+      document.getElementById('wordError').style.display = 'none';
+      
+      if (words.length > 0) {
+        const phrase = words.join(' '); // Gabungkan kata menjadi 1 kalimat
+        socket.emit('poll-submit-answer', { code: pollCode, words: [phrase] });
+        document.getElementById('inputScreen').style.display = 'none';
+        document.getElementById('doneScreen').style.display = 'block';
+      }
+    });
+
+    socket.on('poll-results-shown', () => {
+      // Just visually update or redirect if we want, but "lihat layar Host" is fine.
+    });
+  </script>
+</body>
+</html>

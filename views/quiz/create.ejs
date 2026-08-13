@@ -233,13 +233,16 @@
             <option value="CHECKBOX">Kotak Centang</option>
             <option value="ESSAY">Jawaban Singkat (Essay)</option>
           </select>
-          <select class="q-time-limit" style="padding:15px; border-radius:8px; background:var(--color-bg-main); border:1px solid var(--color-border); color:var(--color-text-primary); margin-left:10px;">
-            <option value="10">10 Detik</option>
-            <option value="20" selected>20 Detik</option>
-            <option value="30">30 Detik</option>
-            <option value="45">45 Detik</option>
-            <option value="60">1 Menit</option>
-          </select>
+          <div style="display:flex; flex-direction:column; gap:6px; margin-left:15px; justify-content:center;">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input type="number" class="q-time-m" style="padding:6px 8px; border-radius:6px; background:var(--color-bg-main); border:1px solid var(--color-border); color:var(--color-text-primary); width: 60px; text-align:center; font-size:13px;" placeholder="0" min="0">
+              <span style="color:var(--color-text-secondary); font-size:12px; font-weight:600; width:35px;">Menit</span>
+            </div>
+            <div style="display:flex; align-items:center; gap:6px;">
+              <input type="number" class="q-time-s" style="padding:6px 8px; border-radius:6px; background:var(--color-bg-main); border:1px solid var(--color-border); color:var(--color-text-primary); width: 60px; text-align:center; font-size:13px;" placeholder="20" value="20" min="0">
+              <span style="color:var(--color-text-secondary); font-size:12px; font-weight:600; width:35px;">Detik</span>
+            </div>
+          </div>
         </div>
         <div class="q-image-container" id="img-container-${id}" style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
         </div>
@@ -375,7 +378,9 @@
         if (hasError) return;
         const text = card.querySelector('.q-text').value;
         const type = card.querySelector('.q-type-select').value;
-        const timeLimit = parseInt(card.querySelector('.q-time-limit').value) || 20;
+        const m = parseInt(card.querySelector('.q-time-m').value) || 0;
+        const s = parseInt(card.querySelector('.q-time-s').value) || 0;
+        const timeLimit = (m * 60) + s || 20;
         const imageUrls = JSON.parse(card.dataset.imageUrls || '[]');
         const options = [];
 
