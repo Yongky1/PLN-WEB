@@ -1,23 +1,86 @@
-<!-- ═══ HERO — JALA Landing ═══ -->
-<section id="hero">
-  <div class="gradient-overlay"></div>
-  <div class="content">
-    <div class="hero-text-wrapper">
-      <h1 class="bg-contrast-text">
-        Visualisasi kelistrikan.<br />
-        <span class="text-highlight">Dalam dimensi 3D.</span>
-      </h1>
-      <div class="ctas">
-        <a href="/tools" class="code-box" title="Lihat Katalog Peralatan">
-          <span class="prompt">&gt;</span>
-          <code id="typewriter-text"></code><span class="cursor">_</span>
-        </a>
-        <a href="/ModulKonstruksi" class="cta-btn">Mulai Belajar <span class="arrow">&rarr;</span></a>
-      </div>
+<!-- ═══ HERO — SPLIT PANELS (GLASSMORPHISM) ═══ -->
+<section id="hero" style="position: relative; overflow: hidden; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh;">
+  
+
+  <div class="hero-title-wrapper">
+    <div class="bg-contrast-text" style="margin-bottom: 2rem;">
+      <h1 class="hero-main-title" style="text-shadow: none;">Visualisasi Kelistrikan <br>Dalam Dimensi 3D</h1>
+      
+      <p class="hero-description" style="color: inherit; max-width: 700px; margin: 1.5rem auto 0; font-size: 1.1rem;">
+        Jelajahi rantai ketenagalistrikan dari pembangkit hingga rumah pelanggan lewat visualisasi 3D interaktif, modul pembelajaran, dan simulasi konstruksi yang dirancang untuk insan PLN.
+      </p>
+    </div>
+
+    <div class="hero-buttons">
+      <a href="/tools" class="hero-btn-primary">
+        Eksplorasi Peralatan
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-left: 6px;"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </a>
+      <a href="/material" class="hero-btn-secondary">
+        Pelajari Material
+      </a>
     </div>
   </div>
-  <div class="scroll-indicator">
+
+  <div class="split-hero-container">
+    
+    <!-- PANEL 1: PEMBANGKIT -->
+    <div class="split-panel">
+      <div class="split-glow-bottom blue-glow"></div>
+      <div class="split-content">
+        <div class="split-header">
+          <span class="split-number">01</span>
+          <div class="split-line-glow blue-line"></div>
+        </div>
+        <h2 class="split-title">PEMBANGKIT</h2>
+        <h3 class="split-subtitle">Sumber Energi Nusantara</h3>
+        <p class="split-desc">Eksplorasi aset turbin, generator, dan sistem pembangkit listrik mutakhir PLN dalam tampilan 3D interaktif yang efisien dan andal.</p>
+        <a href="/ModulKonstruksi" class="split-cta">
+          Simulasi Konstruksi 
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- PANEL 2: TRANSMISI -->
+    <div class="split-panel">
+      <div class="split-glow-bottom teal-glow"></div>
+      <div class="split-content">
+        <div class="split-header">
+          <span class="split-number">02</span>
+          <div class="split-line-glow teal-line"></div>
+        </div>
+        <h2 class="split-title">TRANSMISI</h2>
+        <h3 class="split-subtitle">Tulang Punggung Kelistrikan</h3>
+        <p class="split-desc">Pelajari komponen SUTET, gardu induk, dan infrastruktur jaringan kapasitas tinggi penghubung listrik jarak jauh nusantara.</p>
+        <a href="/ModulKonstruksi" class="split-cta">
+          Simulasi Konstruksi 
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+    <!-- PANEL 3: DISTRIBUSI -->
+    <div class="split-panel">
+      <div class="split-glow-bottom white-glow"></div>
+      <div class="split-content">
+        <div class="split-header">
+          <span class="split-number">03</span>
+          <div class="split-line-glow white-line"></div>
+        </div>
+        <h2 class="split-title">DISTRIBUSI</h2>
+        <h3 class="split-subtitle">Menjangkau Hingga Ujung</h3>
+        <p class="split-desc">Kenali struktur jaringan tegangan menengah (JTM), trafo tiang, hingga penyaluran akhir energi listrik cerdas ke rumah pelanggan.</p>
+        <a href="/ModulKonstruksi" class="split-cta">
+          Simulasi Konstruksi 
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </a>
+      </div>
+    </div>
+
+  </div>
+  
+  <div class="scroll-indicator" style="z-index: 10;">
     <div class="scroll-line"></div>
   </div>
 </section>
-

@@ -58,30 +58,7 @@
     </style>
   </div>
 
-  <!-- Importmap untuk Three.js (sama seperti halaman 3D lain) -->
-  <script type="importmap">
-  {
-    "imports": {
-      "three": "/scripts/three/three.module.js",
-      "three/addons/": "/scripts/three/jsm/"
-    }
-  }
-  </script>
 
-  <!-- Scroll 3D Background (model GLB di-scrub oleh scroll) -->
-  <div id="scroll-video-container">
-    <!-- Gradient placeholder (tampil saat model loading / fallback bila WebGL gagal) -->
-    <div class="video-placeholder"></div>
-    <div class="ambient-mesh"></div>
-    <canvas id="hero-3d-canvas"></canvas>
-    <div class="overlay"></div>
-  </div>
-
-  <!-- Particles -->
-  <canvas id="particles-canvas"></canvas>
-
-  <!-- Fixed Cards Overlay -->
-  <%- include('partials/categories') %>
 
   <!-- Navigation -->
   <%- include('partials/navbar') %>
@@ -91,14 +68,6 @@
     <!-- Section 1: Hero -->
     <%- include('partials/hero') %>
 
-    <!-- Spacer for scroll video -->
-    <div style="height:150vh;"></div>
-
-    <!-- Cards Trigger Zone -->
-    <%- include('partials/intro') %>
-
-    <!-- Spacer -->
-    <div style="height:100vh;"></div>
 
     <!-- Section 3: Brand Reveal -->
     <%- include('partials/showcase') %>
@@ -111,8 +80,6 @@
   <script src="/js/landing.js"></script>
   <!-- Hero Typewriter -->
   <script src="/js/hero-interactions.js"></script>
-  <!-- Hero 3D scroll engine (model GLB) -->
-  <script type="module" src="/js/hero-3d.js"></script>
 </body>
 
 </html>
