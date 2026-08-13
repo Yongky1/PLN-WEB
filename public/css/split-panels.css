@@ -6,8 +6,7 @@
 .hero-title-wrapper {
     position: relative;
     text-align: center;
-    margin-top: 10vh;
-    margin-bottom: 2vh;
+    margin-bottom: 2rem;
     padding: 0 1rem;
 }
 
@@ -34,7 +33,7 @@
 
 .hero-main-title {
     font-family: 'Inter', sans-serif;
-    font-size: 3.8rem;
+    font-size: clamp(2.2rem, 5vw, 3.8rem);
     font-weight: 900;
     color: #ffffff;
     line-height: 1.15;
@@ -120,7 +119,8 @@
 .split-hero-container {
     display: flex;
     gap: 1.5rem;
-    height: 70vh;
+    min-height: 480px;
+    height: auto;
     width: 100%;
     max-width: 1200px;
     margin: 0 auto;
@@ -129,7 +129,8 @@
     z-index: 10;
     position: relative;
     /* Posisikan di atas hero background */
-    margin-top: 2vh;
+    margin-top: 1rem;
+    margin-bottom: 3rem;
 }
 
 .split-panel {
