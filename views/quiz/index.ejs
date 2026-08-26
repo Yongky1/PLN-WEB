@@ -102,11 +102,15 @@
         <button type="submit" class="quiz-btn btn-primary">Join Quiz</button>
       </form>
 
+      <% 
+        const _roleStr = (typeof userRole !== 'undefined' && userRole) ? String(userRole).trim().toLowerCase() : '';
+        if (_roleStr === 'admin' || _roleStr === 'instruktur' || _roleStr === 'updl') { 
+      %>
       <div class="divider">ATAU</div>
-
       <a href="/quiz/create">
         <button class="quiz-btn btn-outline">Buat Quiz Baru</button>
       </a>
+      <% } %>
     </div>
   </section>
 

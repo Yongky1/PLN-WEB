@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authGuard, instrukturOnly } = require('../middleware/auth');
 
 // Landing Page (Choose Create or Join)
 router.get('/', (req, res) => {
@@ -7,7 +8,7 @@ router.get('/', (req, res) => {
 });
 
 // Create Poll Page (Host Setup)
-router.get('/create', (req, res) => {
+router.get('/create', authGuard, instrukturOnly, (req, res) => {
   res.render('poll/host-setup', { title: 'Create Jajak Pendapat', currentPage: 'pembelajaran' });
 });
 
@@ -24,7 +25,7 @@ router.get('/take/:code', (req, res) => {
 });
 
 // Host Live Dashboard (Host view after creating)
-router.get('/host/:code', (req, res) => {
+router.get('/host/:code', authGuard, instrukturOnly, (req, res) => {
   const { code } = req.params;
   const { title, time } = req.query;
   res.render('poll/host-live', { 

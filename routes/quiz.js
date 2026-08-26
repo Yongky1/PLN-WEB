@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const { authGuard, instrukturOnly } = require('../middleware/auth');
 
 const API_URL = process.env.API_URL || 'http://localhost:4000/api';
 
@@ -26,7 +27,7 @@ router.get('/data', async (req, res) => {
 });
 
 // Create Quiz Page
-router.get('/create', (req, res) => {
+router.get('/create', authGuard, instrukturOnly, (req, res) => {
   res.render('quiz/create', { title: 'Create Quiz - JALA', currentPage: 'quiz' });
 });
 
@@ -55,7 +56,7 @@ router.get('/take/:code', async (req, res) => {
 });
 
 // Host Quiz Page (Live Dashboard)
-router.get('/host/:code', async (req, res) => {
+router.get('/host/:code', authGuard, instrukturOnly, async (req, res) => {
   try {
     const { code } = req.params;
     const response = await fetch(`${API_URL}/quiz/${code}`);

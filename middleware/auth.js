@@ -30,4 +30,11 @@ const authGuard = async (req, res, next) => {
   }
 };
 
-module.exports = { authGuard };
+const instrukturOnly = (req, res, next) => {
+  if (req.user && (req.user.role === 'Instruktur' || req.user.role === 'Admin' || req.user.role === 'UPDL')) {
+    return next();
+  }
+  return res.redirect('/403');
+};
+
+module.exports = { authGuard, instrukturOnly };
