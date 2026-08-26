@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    body { background: #f3f4f6; }
+    .join-container {
+      max-width: 400px;
+      margin: 100px auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    .join-title {
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: var(--color-primary);
+      margin-bottom: 25px;
+    }
+    .form-input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 1.2rem;
+      margin-bottom: 15px;
+      text-align: center;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--color-primary);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="join-container">
+    <h1 class="join-title">JOIN GAME</h1>
+    <form action="/box/take" method="GET" id="joinForm">
+      <input type="text" id="pinInput" class="form-input" placeholder="Masukkan PIN Game" required autocomplete="off" maxlength="6">
+      <input type="text" id="nameInput" name="name" class="form-input" placeholder="Nama Anda" required autocomplete="off">
+      <button type="submit" class="btn-submit">Masuk</button>
+    </form>
+  </div>
+
+  <script>
+    document.getElementById('joinForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const pin = document.getElementById('pinInput').value.trim();
+      const name = document.getElementById('nameInput').value.trim();
+      if(pin && name) {
+        window.location.href = `/box/take/${pin}?name=${encodeURIComponent(name)}`;
+      }
+    });
+  </script>
+</body>
+</html>

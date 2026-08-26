@@ -1,0 +1,97 @@
+<div class="bg-white rounded-2xl p-6 shadow-sm mb-8">
+  <div class="flex justify-between items-center mb-4">
+    <h3 class="text-lg font-bold text-gray-800">Bank Soal Whats In The Box</h3>
+  </div>
+
+  <div class="overflow-x-auto">
+    <table class="w-full text-left border-collapse">
+      <thead>
+        <tr class="border-b bg-gray-50 text-gray-600">
+          <th class="py-3 px-4 rounded-tl-lg font-semibold">Judul Game</th>
+          <th class="py-3 px-4 font-semibold">Jumlah Kata</th>
+          <th class="py-3 px-4 font-semibold">Dibuat Pada</th>
+          <th class="py-3 px-4 rounded-tr-lg font-semibold w-24">Aksi</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% if (presets && presets.length > 0) { %>
+          <% presets.forEach(p => { %>
+            <tr class="border-b hover:bg-gray-50 transition-colors">
+              <td class="py-3 px-4 text-gray-800 font-medium"><%= p.title %></td>
+              <td class="py-3 px-4 text-gray-600"><%= p.data ? p.data.length : 0 %> Kata</td>
+              <td class="py-3 px-4 text-gray-500 text-sm">
+                <%= new Date(p.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }) %>
+              </td>
+              <td class="py-3 px-4 flex gap-2">
+                <button onclick="startGame('<%= p.id %>')" class="text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100 p-2 rounded-lg transition-colors" title="Mulai Game">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </button>
+                <button onclick="deletePreset('<%= p.id %>')" class="text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors" title="Hapus Game">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
+              </td>
+            </tr>
+          <% }) %>
+        <% } else { %>
+          <tr>
+            <td colspan="4" class="py-6 px-4 text-center text-gray-500">
+              Belum ada data bank soal.
+            </td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+const presetsData = <%- JSON.stringify(presets || []) %>;
+
+function startGame(id) {
+  const preset = presetsData.find(p => p.id === id);
+  if (!preset) return alert('Preset tidak ditemukan');
+  
+  if (!preset.data || preset.data.length === 0) {
+    return alert('Preset ini belum memiliki kata apapun.');
+  }
+
+  // Generate random PIN
+  const pin = Math.floor(100000 + Math.random() * 900000).toString();
+  
+  // Save data temporarily to localStorage
+  localStorage.setItem(`box_game_${pin}`, JSON.stringify(preset.data));
+
+  // Redirect to host live dashboard
+  window.location.href = `/box/host/${pin}?localData=true`;
+}
+
+async function deletePreset(id) {
+  if (!confirm('Apakah Anda yakin ingin menghapus preset game ini?')) return;
+  
+  try {
+    const res = await fetch(`<%= process.env.API_URL || 'http://localhost:4000' %>/api/box/presets/${id}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': 'Bearer ' + getCookie('auth_token')
+      }
+    });
+    
+    if (res.ok) {
+      alert('Preset berhasil dihapus.');
+      window.location.reload();
+    } else {
+      alert('Gagal menghapus preset.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Terjadi kesalahan.');
+  }
+}
+
+function getCookie(name) {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) return parts.pop().split(';').shift();
+  return null;
+}
+</script>
