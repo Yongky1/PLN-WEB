@@ -21,23 +21,32 @@ function renderAdmin(res, page, title, subtitle, extraData = {}, currentUser = n
   const layoutPath = path.join(viewsDir, 'layout.ejs');
   const bodyPath = path.join(viewsDir, `${page}.ejs`);
 
+  const templateData = {
+    ...res.app.locals,
+    ...res.locals,
+    ...extraData,
+    currentUser,
+  };
+
   // Render body dulu, lalu inject ke layout
-  ejs.renderFile(bodyPath, { ...extraData, currentUser }, (errBody, bodyHtml) => {
+  ejs.renderFile(bodyPath, templateData, (errBody, bodyHtml) => {
     if (errBody) {
       console.error(`[Admin] Error rendering ${page}.ejs:`, errBody);
       return res.status(500).send('Error rendering page');
     }
+    
+    const layoutData = {
+      ...templateData,
+      page,
+      title,
+      subtitle,
+      body: bodyHtml,
+      scripts: '',
+    };
+
     ejs.renderFile(
       layoutPath,
-      {
-        page,
-        title,
-        subtitle,
-        body: bodyHtml,
-        scripts: '',
-        currentUser,
-        ...extraData,
-      },
+      layoutData,
       (errLayout, html) => {
         if (errLayout) {
           console.error('[Admin] Error rendering layout.ejs:', errLayout);
