@@ -292,8 +292,11 @@ router.all('/api/*', async (req, res) => {
   }
 
   try {
+    console.log(`[API Proxy] Forwarding ${req.method} ${targetUrl}...`);
     const response = await fetch(targetUrl, fetchOptions);
     const responseContentType = response.headers.get('content-type') || '';
+    
+    console.log(`[API Proxy] Response from ${targetUrl}: ${response.status}`);
 
     if (response.ok && ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
       const path = req.path;

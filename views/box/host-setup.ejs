@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    body { background: #f0f8ff; } /* White-blue background */
+    .setup-container {
+      max-width: 800px;
+      margin: 60px auto;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    }
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+    .form-label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+    .form-input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: var(--color-primary);
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: var(--color-primary);
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 20px;
+      transition: all 0.2s;
+    }
+    .btn-submit:hover {
+      background: #004b8a;
+    }
+    .btn-secondary {
+      width: 100%;
+      padding: 15px;
+      background: #10b981;
+      color: white;
+      font-size: 1rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: all 0.2s;
+    }
+    .btn-secondary:hover {
+      background: #059669;
+    }
+    
+    .word-card {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      position: relative;
+    }
+    .clue-row {
+      background: white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 10px;
+    }
+    .clue-images-container {
+      display: flex;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .clue-img-preview {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid #e2e8f0;
+      position: relative;
+    }
+    .clue-img-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    .btn-remove-img {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 20px;
+      height: 20px;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    /* Bank Soal Modal */
+    #bankSoalModal {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-content {
+      background: white;
+      width: 90%;
+      max-width: 600px;
+      border-radius: 15px;
+      padding: 30px;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+  </style>
+</head>
+<body>
+  <%- include('../partials/navbar') %>
+  
+  <div class="setup-container">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+      <h2 style="font-weight: 800; color: var(--color-primary); margin: 0;">Set Up Game</h2>
+      <button type="button" onclick="openBankSoal()" style="background: white; color: var(--color-primary); border: 2px solid var(--color-primary); padding: 8px 16px; border-radius: 8px; font-weight: bold; cursor: pointer;">Pilih dari Bank Soal</button>
+    </div>
+
+    <form id="setupForm">
+      
+      <div class="form-group" style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 20px; margin-bottom: 25px;">
+        <label class="form-label" for="gameName" style="color: var(--color-primary); font-size: 1.1rem; margin-bottom: 10px;">Nama Game (Disimpan ke Bank Soal)</label>
+        <input type="text" id="gameName" class="form-input" placeholder="Contoh: Kuis Peralatan Gardu Induk" />
+      </div>
+      
+      <div id="wordsContainer">
+        <!-- Word Cards will be injected here -->
+      </div>
+      
+      <button type="button" onclick="addWordCard()" style="background:none; border:2px dashed #94a3b8; color: #475569; padding:15px; border-radius:10px; cursor:pointer; width: 100%; font-weight: bold; margin-bottom: 20px;">+ Tambah Kata Baru</button>
+
+      <button type="submit" class="btn-submit">Buat Room Sekarang</button>
+    </form>
+  </div>
+
+  <!-- Modal Bank Soal -->
+  <div id="bankSoalModal">
+    <div class="modal-content">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="font-weight: bold; font-size: 1.2rem;">Bank Soal</h3>
+        <button onclick="closeBankSoal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+      <div id="bankSoalList">
+        <p style="text-align: center; color: #666;">Memuat data...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = '<%= process.env.API_URL || "http://localhost:4000" %>/api';
+    const serverAuthToken = '<%= typeof authToken !== "undefined" ? authToken : "" %>';
+    
+    // State
+    let wordsData = [];
+    
+    // Auth token helper
+    function getAuthToken() {
+      if (serverAuthToken) return serverAuthToken;
+      const match = document.cookie.match(new RegExp('(^| )auth_token=([^;]+)'));
+      if (match) return match[2];
+      return '';
+    }
+
+    // Initialize with one word
+    document.addEventListener('DOMContentLoaded', () => {
+      addWordCard();
+    });
+
+    function addWordCard(wordData = null) {
+      const wordObj = wordData || {
+        id: Date.now().toString(),
+        word: '',
+        timeBetweenClues: 10,
+        clues: [ { text: '', images: [] }, { text: '', images: [] }, { text: '', images: [] } ]
+      };
+      
+      if (!wordData) {
+        wordsData.push(wordObj);
+      }
+      renderWords();
+    }
+
+    function removeWordCard(wordId) {
+      if (wordsData.length <= 1) {
+        alert('Minimal harus ada 1 kata.');
+        return;
+      }
+      wordsData = wordsData.filter(w => w.id !== wordId);
+      renderWords();
+    }
+
+    function addClue(wordId) {
+      const word = wordsData.find(w => w.id === wordId);
+      if (word && word.clues.length < 10) {
+        word.clues.push({ text: '', images: [] });
+        renderWords();
+      } else {
+        alert('Maksimal 10 clue.');
+      }
+    }
+
+    function removeClue(wordId, clueIndex) {
+      const word = wordsData.find(w => w.id === wordId);
+      if (word && word.clues.length > 3) {
+        word.clues.splice(clueIndex, 1);
+        renderWords();
+      } else {
+        alert('Minimal 3 clue.');
+      }
+    }
+
+    async function handleImageUpload(wordId, clueIndex, fileInput) {
+      const file = fileInput.files[0];
+      if (!file) return;
+
+      const word = wordsData.find(w => w.id === wordId);
+      const clue = word.clues[clueIndex];
+      
+      if (clue.images.length >= 3) {
+        alert('Maksimal 3 gambar per clue.');
+        fileInput.value = '';
+        return;
+      }
+
+      // Upload file
+      const formData = new FormData();
+      formData.append('file', file);
+      
+      try {
+        fileInput.disabled = true;
+        const res = await fetch(`${API_URL}/upload-image`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${getAuthToken()}`
+          },
+          body: formData
+        });
+        
+        if (!res.ok) throw new Error('Upload gagal');
+        
+        const data = await res.json();
+        // data.url contains the uploaded image URL
+        clue.images.push(data.url);
+        renderWords();
+      } catch (err) {
+        console.error(err);
+        alert('Gagal mengunggah gambar. Pastikan Anda sudah login.');
+      } finally {
+        fileInput.disabled = false;
+        fileInput.value = '';
+      }
+    }
+
+    function removeImage(wordId, clueIndex, imgIndex) {
+      const word = wordsData.find(w => w.id === wordId);
+      const clue = word.clues[clueIndex];
+      clue.images.splice(imgIndex, 1);
+      renderWords();
+    }
+
+    // Sync input values to state
+    function updateWordInput(wordId, field, value) {
+      const word = wordsData.find(w => w.id === wordId);
+      if (word) word[field] = value;
+    }
+
+    function updateClueInput(wordId, clueIndex, value) {
+      const word = wordsData.find(w => w.id === wordId);
+      if (word) word.clues[clueIndex].text = value;
+    }
+
+    function renderWords() {
+      const container = document.getElementById('wordsContainer');
+      container.innerHTML = '';
+      
+      wordsData.forEach((w, wIndex) => {
+        const card = document.createElement('div');
+        card.className = 'word-card';
+        
+        // Card Header
+        let html = `
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+            <h3 style="margin:0; font-weight:bold;">Kata #${wIndex + 1}</h3>
+            ${wordsData.length > 1 ? `<button type="button" onclick="removeWordCard('${w.id}')" style="color:#ef4444; background:none; border:none; cursor:pointer; font-weight:bold;">Hapus Kata</button>` : ''}
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Kata yang Ditebak</label>
+            <input type="text" class="form-input" value="${w.word}" oninput="updateWordInput('${w.id}', 'word', this.value)" required placeholder="Contoh: TRAFO" autocomplete="off" style="text-transform: uppercase;">
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Waktu antar clue (detik)</label>
+            <input type="number" class="form-input" value="${w.timeBetweenClues}" oninput="updateWordInput('${w.id}', 'timeBetweenClues', this.value)" required min="5" max="60">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Daftar Clue</label>
+            <div class="clue-list">
+        `;
+        
+        // Clues
+        w.clues.forEach((c, cIndex) => {
+          let placeholder = `Clue ${cIndex + 1}`;
+          if (cIndex === 0) placeholder += ' (paling sulit)';
+          if (cIndex === w.clues.length - 1) placeholder += ' (paling mudah)';
+
+          let imagesHtml = '';
+          c.images.forEach((imgUrl, imgIndex) => {
+            // resolve absolute URL for preview if relative
+            let fullUrl = imgUrl.startsWith('http') ? imgUrl : `${API_URL.replace('/api', '')}${imgUrl}`;
+            imagesHtml += `
+              <div class="clue-img-wrapper">
+                <img src="${fullUrl}" class="clue-img-preview" alt="clue image">
+                <button type="button" class="btn-remove-img" onclick="removeImage('${w.id}', ${cIndex}, ${imgIndex})">&times;</button>
+              </div>
+            `;
+          });
+
+          html += `
+            <div class="clue-row">
+              <div style="display:flex; gap:10px;">
+                <input type="text" class="form-input" value="${c.text}" oninput="updateClueInput('${w.id}', ${cIndex}, this.value)" placeholder="${placeholder}">
+                ${w.clues.length > 3 ? `<button type="button" onclick="removeClue('${w.id}', ${cIndex})" style="background:#ef4444; color:white; border:none; border-radius:8px; padding:0 15px; cursor:pointer;">&times;</button>` : ''}
+              </div>
+              
+              <div style="margin-top: 10px;">
+                <label style="font-size:0.85rem; color:#64748b; font-weight:600; cursor:pointer; background:#f1f5f9; padding:5px 10px; border-radius:5px;">
+                  + Tambah Gambar (Max 3)
+                  <input type="file" style="display:none;" accept="image/*" onchange="handleImageUpload('${w.id}', ${cIndex}, this)">
+                </label>
+              </div>
+              
+              <div class="clue-images-container">
+                ${imagesHtml}
+              </div>
+            </div>
+          `;
+        });
+        
+        html += `
+            </div>
+            ${w.clues.length < 10 ? `<button type="button" onclick="addClue('${w.id}')" style="background:none; border:1px dashed #cbd5e1; padding:8px 15px; border-radius:5px; cursor:pointer; width:100%; color:#475569;">+ Tambah Clue</button>` : ''}
+          </div>
+        `;
+        
+        card.innerHTML = html;
+        container.appendChild(card);
+      });
+    }
+
+    // --- BANK SOAL LOGIC ---
+    const bankModal = document.getElementById('bankSoalModal');
+    
+    async function openBankSoal() {
+      bankModal.style.display = 'flex';
+      const listContainer = document.getElementById('bankSoalList');
+      listContainer.innerHTML = '<p style="text-align:center; color:#666;">Memuat data...</p>';
+      
+      try {
+        const res = await fetch(`/api/box/presets`);
+        const presets = await res.json();
+        
+        if (presets.length === 0) {
+          listContainer.innerHTML = '<p style="text-align:center; color:#666;">Bank soal kosong.</p>';
+          return;
+        }
+
+        let html = '';
+        presets.forEach(p => {
+          html += `
+            <div style="border: 1px solid #e2e8f0; border-radius: 8px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <h4 style="margin: 0; font-weight: bold; color: #1e293b;">${p.title}</h4>
+                <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #64748b;">${p.data.length} Kata</p>
+              </div>
+              <button onclick='loadPreset(${JSON.stringify(p.data).replace(/'/g, "&#39;")})' style="background: var(--color-primary); color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; font-weight: bold;">Gunakan</button>
+            </div>
+          `;
+        });
+        listContainer.innerHTML = html;
+        
+      } catch (err) {
+        console.error(err);
+        listContainer.innerHTML = '<p style="text-align:center; color:#ef4444;">Gagal memuat bank soal.</p>';
+      }
+    }
+
+    function closeBankSoal() {
+      bankModal.style.display = 'none';
+    }
+
+    function loadPreset(data) {
+      if (!Array.isArray(data)) return;
+      // Re-assign IDs for state
+      wordsData = data.map(w => ({
+        ...w,
+        id: Date.now().toString() + Math.random().toString(36).substr(2, 5)
+      }));
+      renderWords();
+      closeBankSoal();
+    }
+
+    // --- FORM SUBMIT (START GAME) ---
+    document.getElementById('setupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      // Validation
+      for (let w of wordsData) {
+        if (!w.word.trim()) return alert('Pastikan semua kata sudah diisi.');
+        for (let c of w.clues) {
+          if (!c.text.trim() && c.images.length === 0) {
+            return alert('Clue tidak boleh kosong (harus ada teks atau gambar).');
+          }
+        }
+      }
+
+      // Auto-save to Bank Soal
+      const gameNameInput = document.getElementById('gameName').value.trim();
+      const defaultTitle = gameNameInput ? gameNameInput : `Box Game - ${new Date().toLocaleString('id-ID')}`;
+      try {
+        const response = await fetch(`/api/box/presets`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'same-origin',
+          body: JSON.stringify({
+            title: defaultTitle,
+            data: wordsData
+          })
+        });
+        
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({}));
+          alert('Gagal auto-save ke bank soal: ' + (errData.error || response.statusText));
+          return; // Stop execution, don't redirect so user can see error
+        }
+      } catch (err) {
+        console.error('Gagal auto-save ke bank soal:', err);
+        alert('Gagal request auto-save: ' + err.message);
+        return;
+      }
+
+      // Generate random PIN
+      const pin = Math.floor(100000 + Math.random() * 900000).toString();
+      
+      // Save data temporarily to localStorage since URL params is too small for array of objects w/ images
+      localStorage.setItem(`box_game_${pin}`, JSON.stringify(wordsData));
+
+      // Redirect to host live dashboard
+      window.location.href = `/box/host/${pin}?localData=true`;
+    });
+  </script>
+</body>
+</html>

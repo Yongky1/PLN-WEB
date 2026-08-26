@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Fredoka:wght@400;600;700&display=swap');
+    
+    body {
+      background: radial-gradient(circle at center, #e0f2fe 0%, #bae6fd 100%);
+      font-family: 'Fredoka', 'Inter', sans-serif;
+      margin: 0;
+      overflow: hidden;
+      color: #0f172a;
+    }
+    
+    .host-container {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: relative;
+    }
+    
+    /* Playful Game Accent Background */
+    .game-bg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background-image: 
+        radial-gradient(#38bdf8 2px, transparent 2px),
+        radial-gradient(#38bdf8 2px, transparent 2px);
+      background-size: 60px 60px;
+      background-position: 0 0, 30px 30px;
+      opacity: 0.2;
+    }
+    .game-shapes {
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; overflow: hidden; z-index: 0; opacity: 0.1;
+    }
+    .game-shapes::before {
+      content: '⚡'; position: absolute; font-size: 150px; top: 10%; left: 5%; transform: rotate(-15deg);
+    }
+    .game-shapes::after {
+      content: '💡'; position: absolute; font-size: 120px; bottom: 15%; right: 5%; transform: rotate(20deg);
+    }
+
+    .top-bar {
+      padding: 15px 30px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 2px solid #bae6fd;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+    
+    .pin-box {
+      background: #0284c7;
+      color: white;
+      padding: 10px 30px;
+      border-radius: 12px;
+      font-size: 1.8rem;
+      font-weight: 900;
+      letter-spacing: 4px;
+      font-family: 'Orbitron', sans-serif;
+      box-shadow: 0 4px 15px rgba(2, 132, 199, 0.4);
+      border: 2px solid #38bdf8;
+    }
+
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* Buttons */
+    .btn-action {
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 12px;
+      border: none;
+      cursor: pointer;
+      background: #38bdf8;
+      color: white;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      font-family: 'Fredoka', sans-serif;
+      text-transform: uppercase;
+      box-shadow: 0 6px 0 #0284c7;
+      margin: 0 10px;
+    }
+    .btn-action:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #0284c7;
+    }
+    .btn-action:active {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #0284c7;
+    }
+    .btn-danger {
+      background: #f43f5e;
+      box-shadow: 0 6px 0 #be123c;
+    }
+    .btn-danger:hover {
+      box-shadow: 0 8px 0 #be123c;
+    }
+    .btn-danger:active {
+      box-shadow: 0 2px 0 #be123c;
+    }
+    .btn-warning {
+      background: #f59e0b;
+      box-shadow: 0 6px 0 #b45309;
+    }
+    .btn-warning:hover {
+      box-shadow: 0 8px 0 #b45309;
+    }
+    .btn-warning:active {
+      box-shadow: 0 2px 0 #b45309;
+    }
+    
+    /* Box Styles */
+    .box-wrapper {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      perspective: 1200px;
+      margin: 10px auto;
+      transform: scale(0.8);
+      transition: transform 0.5s;
+    }
+    
+    .box-angle {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+      transform: rotateX(-20deg) rotateY(-35deg);
+    }
+    
+    .cardboard-box {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      transform-style: preserve-3d;
+    }
+
+    .box-face {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      background-color: #f59e0b; /* Bright playful orange/yellow box */
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.83-54.627 54.627-.83-.83L54.627 0zM29.172 0l.828.828-29.172 29.172-.828-.828L29.172 0zM60 25.373l-.828.828-25.373-25.373.828-.828L60 25.373z' fill='%23d97706' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+      border: 16px solid #b45309;
+      box-sizing: border-box;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transform-style: preserve-3d;
+      box-shadow: inset 0 0 40px rgba(180, 83, 9, 0.6);
+    }
+    
+    .box-front  { transform: translateZ(150px); }
+    .box-back   { transform: rotateY(180deg) translateZ(150px); }
+    .box-left   { transform: rotateY(-90deg) translateZ(150px); }
+    .box-right  { transform: rotateY(90deg) translateZ(150px); }
+    .box-bottom { transform: rotateX(-90deg) translateZ(150px); }
+
+    /* 3D Rim to give thickness to the cardboard walls */
+    .box-front::before,
+    .box-back::before,
+    .box-left::before,
+    .box-right::before {
+      content: '';
+      position: absolute;
+      top: -16px;
+      left: -16px;
+      width: calc(100% + 32px);
+      height: 16px;
+      background-color: #92400e;
+      transform-origin: top;
+      transform: rotateX(-90deg);
+    }
+
+    .box-hinge {
+      position: absolute;
+      width: 300px;
+      height: 300px;
+      transform: translateZ(-150px);
+      transform-style: preserve-3d;
+    }
+    
+    .box-top { 
+      transform: rotateX(90deg); 
+      transform-origin: top center; 
+      transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1); 
+    }
+    
+    .box-top::before {
+      content: '';
+      position: absolute;
+      inset: -16px;
+      background-color: #f59e0b;
+      background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M54.627 0l.83.83-54.627 54.627-.83-.83L54.627 0zM29.172 0l.828.828-29.172 29.172-.828-.828L29.172 0zM60 25.373l-.828.828-25.373-25.373.828-.828L60 25.373z' fill='%23d97706' fill-opacity='0.2' fill-rule='evenodd'/%3E%3C/svg%3E");
+      border: 16px solid #b45309;
+      box-sizing: border-box;
+      box-shadow: inset 0 0 40px rgba(180, 83, 9, 0.6);
+      transform: translateZ(-16px);
+    }
+
+    .box-face::after {
+      content: '?';
+      position: absolute;
+      font-size: 150px;
+      color: white;
+      font-family: 'Fredoka', sans-serif;
+      font-weight: 900;
+      text-shadow: 0 5px 0 #b45309;
+    }
+
+    /* Lid Edges to seal the gap between Z=0 and Z=-16 */
+    .lid-edge {
+      position: absolute;
+      background-color: #92400e;
+      transform-style: preserve-3d;
+    }
+    .lid-front {
+      width: calc(100% + 32px);
+      height: 16px;
+      bottom: -16px;
+      left: -16px;
+      transform-origin: bottom;
+      transform: rotateX(90deg);
+    }
+    .lid-back {
+      width: calc(100% + 32px);
+      height: 16px;
+      top: -16px;
+      left: -16px;
+      transform-origin: top;
+      transform: rotateX(-90deg);
+    }
+    .lid-left {
+      width: 16px;
+      height: calc(100% + 32px);
+      top: -16px;
+      left: -16px;
+      transform-origin: left;
+      transform: rotateY(90deg);
+    }
+    .lid-right {
+      width: 16px;
+      height: calc(100% + 32px);
+      top: -16px;
+      right: -16px;
+      transform-origin: right;
+      transform: rotateY(-90deg);
+    }
+
+    /* Shake Animation */
+    @keyframes shake {
+      0%, 100% { transform: translateX(0) rotate(0); }
+      20% { transform: translateX(-10px) rotate(-5deg); }
+      40% { transform: translateX(10px) rotate(5deg); }
+      60% { transform: translateX(-10px) rotate(-5deg); }
+      80% { transform: translateX(10px) rotate(5deg); }
+    }
+    .shaking .cardboard-box {
+      animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both;
+    }
+
+    /* Box Open States */
+    .box-open-slight .box-top { transform: rotateX(110deg); }
+    .box-open-wide .box-top { transform: rotateX(220deg); }
+
+    /* Clue Display */
+    .clue-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 20px;
+      min-height: 100px;
+    }
+    .clue-text {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #0369a1;
+      text-align: center;
+      background: white;
+      padding: 15px 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(2,132,199,0.15);
+      border: 3px solid #7dd3fc;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clue-images {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .clue-images img {
+      height: 120px;
+      border-radius: 12px;
+      border: 4px solid white;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      object-fit: cover;
+    }
+
+    .clue-visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Answer Particles */
+    .wrong-answer {
+      position: absolute;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #f43f5e;
+      background: white;
+      padding: 10px 20px;
+      border-radius: 15px;
+      border: 2px solid #fda4af;
+      box-shadow: 0 5px 15px rgba(244,63,94,0.3);
+      z-index: 20;
+      pointer-events: none;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    .correct-answer-reveal {
+      position: absolute;
+      bottom: 150px; 
+      left: 50%;
+      transform: translate(-50%, 100px) scale(0);
+      font-size: 4rem;
+      font-weight: 900;
+      color: white;
+      background: linear-gradient(135deg, #10b981, #059669);
+      padding: 20px 40px;
+      border-radius: 20px;
+      border: 4px solid white;
+      box-shadow: 0 10px 30px rgba(16,185,129,0.5);
+      transform-origin: bottom center;
+      white-space: nowrap;
+      transform-style: preserve-3d;
+    }
+    
+    .correct-answer-reveal::after {
+      content: '';
+      position: absolute;
+      top: 90%;
+      left: 50%;
+      transform: translateX(-50%) translateZ(-1px);
+      width: 60px;
+      height: 300px;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 300' preserveAspectRatio='none'%3E%3Cpath d='M50,0 Q100,20 50,40 Q0,60 50,80 Q100,100 50,120 Q0,140 50,160 Q100,180 50,200 Q0,220 50,240 Q100,260 50,280 Q0,300 50,300' fill='none' stroke='%23ef4444' stroke-width='16' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-size: 100% 100%;
+      background-repeat: no-repeat;
+      z-index: -1;
+    }
+    
+    .correct-answer-reveal.show {
+      animation: jackPop 1.5s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    }
+
+    @keyframes jackPop {
+      0% { transform: translate(-50%, 100px) scale(0); }
+      60% { transform: translate(-50%, -200px) scale(1.2) rotate(5deg); }
+      80% { transform: translate(-50%, -180px) scale(1) rotate(-3deg); }
+      100% { transform: translate(-50%, -190px) scale(1) rotate(0deg); }
+    }
+
+    /* Leaderboard Styles */
+    .lb-container {
+      width: 90%;
+      max-width: 700px;
+      background: white;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      border: 4px solid #bae6fd;
+      position: relative;
+    }
+    .lb-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 15px 20px;
+      border-radius: 12px;
+      margin-bottom: 10px;
+      background: #f8fafc;
+      font-size: 1.5rem;
+      font-weight: 600;
+      border: 2px solid #e2e8f0;
+      opacity: 0;
+      transform: translateX(-50px);
+      transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .lb-row.revealed {
+      opacity: 1;
+      transform: translateX(0);
+    }
+    
+    .lb-row.top1 { background: #fef08a; border-color: #fde047; color: #854d0e; font-size: 2rem; transform: scale(1.05); z-index: 3;}
+    .lb-row.top2 { background: #e2e8f0; border-color: #cbd5e1; color: #475569; font-size: 1.8rem; transform: scale(1.02); z-index: 2;}
+    .lb-row.top3 { background: #ffedd5; border-color: #fdba74; color: #9a3412; font-size: 1.6rem; transform: scale(1.01); z-index: 1;}
+    .lb-row.bottom { background: #fee2e2; border-color: #fca5a5; color: #991b1b; }
+
+    /* Screens */
+    #lobbyScreen, #liveScreen, #wordResultScreen, #promptBottom3Screen, #bottom3Screen, #top3Screen, #fullLeaderboardScreen {
+      display: none; width: 100%; height: 100%; flex-direction: column; align-items: center; justify-content: center;
+    }
+    
+    /* Progress */
+    #wordProgress {
+      position: absolute;
+      top: 20px; right: 30px;
+      font-size: 1.5rem; font-weight: bold; color: #0284c7;
+      background: white; padding: 10px 20px; border-radius: 20px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="game-bg"></div>
+  <div class="game-shapes"></div>
+
+  <div class="host-container">
+    <div class="top-bar">
+      <div style="font-size: 1.8rem; color: #0284c7; font-weight: bold;">📦 WHATS IN THE BOX</div>
+      <div class="pin-box">PIN: <%= code %></div>
+      <div id="playerCount" style="font-size: 1.2rem; font-weight: bold; color: #0f172a; background: #f1f5f9; padding: 10px 20px; border-radius: 12px;">0 Peserta</div>
+    </div>
+    
+    <div class="main-area">
+      <!-- LOBBY -->
+      <div id="lobbyScreen" style="display: flex;">
+        <h1 style="font-size: 4rem; margin-bottom: 30px; color: #0284c7; text-shadow: 0 4px 0 #bae6fd;">MENUNGGU PESERTA</h1>
+        <div id="participantList" style="display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 40px; justify-content: center; max-width: 80%;"></div>
+        <button class="btn-action" id="btnStart" style="display: none; font-size: 1.5rem;" onclick="startGame()">Mulai Game</button>
+      </div>
+
+      <!-- LIVE SCREEN -->
+      <div id="liveScreen">
+        <div id="wordProgress">Kata 1 dari X</div>
+        
+        <!-- Timer -->
+        <div id="countdownTimer" style="display: none; position: absolute; top: 20px; left: 30px; background: white; padding: 15px 25px; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); border: 3px solid #38bdf8;">
+          <div style="font-size: 0.9rem; color: #64748b; font-weight: bold;">Waktu Clue</div>
+          <div id="countdownText" style="font-size: 2.5rem; font-weight: 900; color: #0284c7; text-align: center;">--</div>
+        </div>
+
+        <div class="clue-container">
+          <div class="clue-text" id="clueText">Bersiap...</div>
+          <div class="clue-images" id="clueImages"></div>
+        </div>
+        
+        <div class="box-wrapper" id="boxWrapper">
+          <div class="box-angle">
+            <div class="cardboard-box" id="cardboardBox">
+              <div class="box-face box-front"></div>
+              <div class="box-face box-back"></div>
+              <div class="box-face box-left"></div>
+              <div class="box-face box-right"></div>
+              <div class="box-face box-bottom"></div>
+              <div class="box-hinge">
+                <div class="box-face box-top">
+                  <div class="lid-edge lid-front"></div>
+                  <div class="lid-edge lid-back"></div>
+                  <div class="lid-edge lid-left"></div>
+                  <div class="lid-edge lid-right"></div>
+                </div>
+              </div>
+            </div>
+            <div id="correctAnswerReveal" class="correct-answer-reveal"></div>
+          </div>
+        </div>
+
+        <div style="margin-top: 30px; display: flex; gap: 20px; z-index: 20;">
+          <button class="btn-action btn-warning" id="btnNextClue" onclick="nextClue()">Next Clue</button>
+          <button class="btn-action btn-danger" id="btnEndWord" onclick="endWord()">Buka Box!</button>
+        </div>
+      </div>
+
+      <!-- WORD RESULT SCREEN -->
+      <div id="wordResultScreen">
+        <h1 style="font-size: 3rem; margin-bottom: 20px; color: #0369a1;">Papan Skor Sementara</h1>
+        <div class="lb-container" id="wordLeaderboardList" style="margin-bottom: 30px; max-height: 50vh; overflow-y: auto;">
+          <!-- Items injected -->
+        </div>
+        <button class="btn-action" id="btnNextWord" style="display: none;" onclick="startNextWord()">Lanjut Kata Berikutnya</button>
+        <button class="btn-action btn-danger" id="btnFinishGame" style="display: none;" onclick="triggerEndGame()">Akhiri Permainan</button>
+      </div>
+
+      <!-- PROMPT BOTTOM 3 -->
+      <div id="promptBottom3Screen">
+        <h1 style="font-size: 4rem; margin-bottom: 20px; color: #0284c7;">PERMAINAN SELESAI</h1>
+        <p style="font-size: 1.5rem; margin-bottom: 40px; color: #475569; font-weight: 600;">Pilih mode pengungkapan juara:</p>
+        <div style="display: flex; gap: 20px;">
+          <button class="btn-action btn-danger" style="padding: 20px 40px;" onclick="goToBottom3()">Tampilkan Bottom 3</button>
+          <button class="btn-action btn-warning" style="padding: 20px 40px;" onclick="goToTop3()">Langsung Top 3</button>
+        </div>
+      </div>
+
+      <!-- BOTTOM 3 SCREEN (Manual Reveal) -->
+      <div id="bottom3Screen">
+        <h1 style="font-size: 3rem; margin-bottom: 30px; color: #e11d48;">Peserta Terbawah</h1>
+        <div class="lb-container" id="bot3Container" style="margin-bottom: 30px; min-height: 250px;">
+          <!-- Empty containers for reveal -->
+        </div>
+        <div style="display: flex; gap: 20px;">
+          <button class="btn-action btn-danger" id="btnRevealBot" onclick="revealNextBot()">Reveal</button>
+          <button class="btn-action btn-warning" id="btnToTop3" style="display: none;" onclick="goToTop3()">Lihat Top 3 Utama</button>
+        </div>
+      </div>
+
+      <!-- TOP 3 SCREEN (Manual Reveal) -->
+      <div id="top3Screen">
+        <h1 style="font-size: 4rem; margin-bottom: 30px; color: #f59e0b; text-shadow: 0 4px 0 #b45309;">🏆 TOP 3 🏆</h1>
+        <div class="lb-container" id="top3Container" style="margin-bottom: 30px; min-height: 350px; background: transparent; border: none; box-shadow: none; display: flex; flex-direction: column; justify-content: center; gap: 20px;">
+          <!-- Will hold 3, 2, 1 slots -->
+        </div>
+        <div style="display: flex; gap: 20px;">
+          <button class="btn-action btn-warning" id="btnRevealTop" onclick="revealNextTop()">Reveal Juara</button>
+          <button class="btn-action" id="btnToFullLB" style="display: none;" onclick="goToFullLeaderboard()">Lihat Papan Skor Lengkap</button>
+        </div>
+      </div>
+
+      <!-- FULL LEADERBOARD -->
+      <div id="fullLeaderboardScreen">
+        <h1 style="font-size: 3rem; margin-bottom: 20px; color: #0369a1;">Hasil Akhir Semua Peserta</h1>
+        <div class="lb-container" id="fullLeaderboardList" style="margin-bottom: 30px; max-height: 55vh; overflow-y: auto;">
+        </div>
+        <button class="btn-action" onclick="window.location.href='/listrikpedia'">Selesai & Keluar</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const API_URL = '<%= process.env.API_URL || "http://localhost:4000" %>';
+    const socket = io(API_URL);
+    
+    const urlParams = new URLSearchParams(window.location.search);
+    const boxCode = '<%= code %>';
+    const useLocalData = urlParams.get('localData') === 'true';
+    
+    let items = [];
+    if (useLocalData) {
+      const stored = localStorage.getItem(`box_game_${boxCode}`);
+      if (stored) {
+        items = JSON.parse(stored);
+      } else {
+        alert('Data game tidak ditemukan. Kembali ke pengaturan.');
+        window.location.href = '/box/create';
+      }
+    } else {
+      // Fallback for old way (single word)
+      const word = urlParams.get('word');
+      const time = parseInt(urlParams.get('timeBetweenClues') || '10');
+      const cl = urlParams.getAll('clues');
+      if (word && cl.length > 0) {
+        items = [{
+          word: word,
+          timeBetweenClues: time,
+          clues: cl.map(c => ({ text: c, images: [] }))
+        }];
+      }
+    }
+
+    let participantsCount = 0;
+    let countdownInterval;
+    let currentItemIndex = 0;
+    let currentClueIndex = -1;
+    let finalLeaderboard = [];
+    
+    // Bottom3 / Top3 state
+    let bot3Queue = [];
+    let top3Queue = [];
+
+    // --- SOCKET LOGIC ---
+    socket.on('connect', () => {
+      socket.emit('box-host-create', { code: boxCode, items: items });
+    });
+
+    socket.on('box-player-joined', (names) => {
+      participantsCount = names.length;
+      document.getElementById('playerCount').innerText = `${participantsCount} Peserta`;
+      
+      const list = document.getElementById('participantList');
+      list.innerHTML = '';
+      names.forEach(name => {
+        const el = document.createElement('div');
+        el.style.background = 'white';
+        el.style.color = '#0369a1';
+        el.style.padding = '8px 20px';
+        el.style.borderRadius = '20px';
+        el.style.fontWeight = 'bold';
+        el.style.boxShadow = '0 4px 10px rgba(0,0,0,0.05)';
+        el.innerText = name;
+        list.appendChild(el);
+      });
+      
+      if (participantsCount > 0) {
+        document.getElementById('btnStart').style.display = 'block';
+      }
+    });
+
+    function startGame() {
+      socket.emit('box-start', { code: boxCode });
+      document.getElementById('lobbyScreen').style.display = 'none';
+      document.getElementById('liveScreen').style.display = 'flex';
+      updateProgressUI();
+      setTimeout(() => { nextClue(); }, 1500);
+    }
+
+    function startNextWord() {
+      document.getElementById('wordResultScreen').style.display = 'none';
+      document.getElementById('liveScreen').style.display = 'flex';
+      
+      // Reset UI
+      document.getElementById('clueText').classList.remove('clue-visible');
+      document.getElementById('clueImages').classList.remove('clue-visible');
+      document.getElementById('cardboardBox').className = 'cardboard-box'; // reset open states
+      document.getElementById('correctAnswerReveal').classList.remove('show');
+      
+      socket.emit('box-next-word', { code: boxCode });
+    }
+
+    socket.on('box-word-started', (data) => {
+      currentItemIndex = data.wordIndex;
+      currentClueIndex = -1;
+      updateProgressUI();
+      
+      document.getElementById('btnNextClue').style.display = 'block';
+      document.getElementById('btnEndWord').style.display = 'block';
+      
+      setTimeout(() => { nextClue(); }, 1500);
+    });
+
+    function updateProgressUI() {
+      document.getElementById('wordProgress').innerText = `Kata ${currentItemIndex + 1} dari ${items.length}`;
+    }
+
+    function nextClue() {
+      socket.emit('box-next-clue', { code: boxCode });
+    }
+
+    socket.on('box-clue-revealed', (data) => {
+      currentClueIndex = data.clueIndex;
+      const clueObj = data.clue;
+      
+      const txtEl = document.getElementById('clueText');
+      const imgEl = document.getElementById('clueImages');
+      
+      txtEl.classList.remove('clue-visible');
+      imgEl.classList.remove('clue-visible');
+      
+      setTimeout(() => {
+        if (clueObj.text) {
+          txtEl.innerText = `Clue ${data.clueIndex + 1}: ${clueObj.text}`;
+          txtEl.classList.add('clue-visible');
+        } else {
+          txtEl.innerText = `Clue ${data.clueIndex + 1} (Gambar)`;
+          txtEl.classList.add('clue-visible');
+        }
+        
+        imgEl.innerHTML = '';
+        if (clueObj.images && clueObj.images.length > 0) {
+          clueObj.images.forEach(imgUrl => {
+            const fullUrl = imgUrl.startsWith('http') ? imgUrl : `${API_URL.replace('/api', '')}${imgUrl}`;
+            const img = document.createElement('img');
+            img.src = fullUrl;
+            imgEl.appendChild(img);
+          });
+          imgEl.classList.add('clue-visible');
+        }
+      }, 300); // small delay for animation
+      
+      const currentItem = items[currentItemIndex];
+      if (data.clueIndex >= currentItem.clues.length - 1) {
+        document.getElementById('btnNextClue').style.display = 'none';
+      }
+      
+      startTimer(currentItem.timeBetweenClues);
+    });
+
+    function startTimer(duration) {
+      let timeLeft = parseInt(duration);
+      document.getElementById('countdownText').innerText = timeLeft;
+      document.getElementById('countdownTimer').style.display = 'block';
+      
+      clearInterval(countdownInterval);
+      countdownInterval = setInterval(() => {
+        timeLeft--;
+        if(timeLeft < 0) timeLeft = 0;
+        document.getElementById('countdownText').innerText = timeLeft;
+        
+        if (timeLeft === 0) {
+          clearInterval(countdownInterval);
+          const currentItem = items[currentItemIndex];
+          if (currentClueIndex < currentItem.clues.length - 1) {
+            nextClue();
+          }
+        }
+      }, 1000);
+    }
+
+    socket.on('box-player-answered', (data) => {
+      const box = document.getElementById('boxWrapper');
+      box.classList.remove('shaking');
+      void box.offsetWidth; 
+      box.classList.add('shaking');
+    });
+
+    function endWord() {
+      clearInterval(countdownInterval);
+      document.getElementById('countdownTimer').style.display = 'none';
+      document.getElementById('btnNextClue').style.display = 'none';
+      document.getElementById('btnEndWord').style.display = 'none';
+      socket.emit('box-end-word', { code: boxCode });
+    }
+
+    socket.on('box-word-results', (data) => {
+      document.getElementById('cardboardBox').classList.add('box-open-slight');
+      
+      let delay = 0;
+      data.wrongAnswers.forEach(wa => {
+        setTimeout(() => { animateWrongAnswer(wa); }, delay);
+        delay += 300;
+      });
+      
+      setTimeout(() => {
+        document.getElementById('cardboardBox').classList.remove('box-open-slight');
+        document.getElementById('cardboardBox').classList.add('box-open-wide');
+        
+        setTimeout(() => {
+          const pop = document.getElementById('correctAnswerReveal');
+          pop.innerText = data.correctWord;
+          pop.classList.add('show');
+          
+          setTimeout(() => {
+            showWordLeaderboard(data.leaderboard, data.isLastWord);
+          }, 3500);
+          
+        }, 600); 
+      }, delay + 800); 
+    });
+
+    function showWordLeaderboard(leaderboard, isLastWord) {
+      document.getElementById('liveScreen').style.display = 'none';
+      document.getElementById('wordResultScreen').style.display = 'flex';
+      
+      const listContainer = document.getElementById('wordLeaderboardList');
+      listContainer.innerHTML = '';
+      
+      if (leaderboard.length === 0) {
+        listContainer.innerHTML = '<div style="text-align:center; padding: 20px;">Tidak ada yang menjawab.</div>';
+      } else {
+        leaderboard.forEach((p, idx) => {
+          const row = document.createElement('div');
+          row.className = 'lb-row revealed';
+          row.innerHTML = `
+            <div style="display:flex; flex-direction:column;">
+              <span style="font-weight:bold; color:#0f172a;">#${idx+1} ${p.name}</span>
+              <span style="font-size:0.9rem; color:#64748b;">Jawaban: ${p.answer || '-'}</span>
+            </div>
+            <span style="color:#0284c7;">+${p.points}</span>
+          `;
+          listContainer.appendChild(row);
+        });
+      }
+
+      if (isLastWord) {
+        document.getElementById('btnNextWord').style.display = 'none';
+        document.getElementById('btnFinishGame').style.display = 'block';
+      } else {
+        document.getElementById('btnNextWord').style.display = 'block';
+        document.getElementById('btnFinishGame').style.display = 'none';
+      }
+    }
+
+    function animateWrongAnswer(text) {
+      const el = document.createElement('div');
+      el.className = 'wrong-answer';
+      el.innerText = text;
+      document.body.appendChild(el);
+      
+      const startX = window.innerWidth / 2;
+      const startY = window.innerHeight / 2;
+      
+      el.style.left = startX + 'px';
+      el.style.top = startY + 'px';
+      
+      const angle = (Math.random() - 0.5) * Math.PI; 
+      const vX = Math.sin(angle) * 8; 
+      let vY = -12 - Math.random() * 8; 
+      let x = startX;
+      let y = startY;
+      const gravity = 0.6;
+      
+      function fall() {
+        vY += gravity;
+        x += vX;
+        y += vY;
+        el.style.left = x + 'px';
+        el.style.top = y + 'px';
+        
+        if (y < window.innerHeight + 100) {
+          requestAnimationFrame(fall);
+        } else {
+          el.remove();
+        }
+      }
+      fall();
+    }
+
+    function triggerEndGame() {
+      socket.emit('box-end-game', { code: boxCode });
+    }
+
+    socket.on('box-final-results', (data) => {
+      finalLeaderboard = data.leaderboard;
+      document.getElementById('wordResultScreen').style.display = 'none';
+      document.getElementById('promptBottom3Screen').style.display = 'flex';
+    });
+
+    // --- REVEAL MECHANICS ---
+    function goToBottom3() {
+      document.getElementById('promptBottom3Screen').style.display = 'none';
+      document.getElementById('bottom3Screen').style.display = 'flex';
+      
+      // setup queue: we want to reveal bottom 3.
+      // lb is sorted high to low.
+      const bot3 = finalLeaderboard.length > 3 ? finalLeaderboard.slice(-3) : [];
+      if (bot3.length === 0) {
+        document.getElementById('bot3Container').innerHTML = '<h3 style="text-align:center; color:#64748b;">Tidak ada Bottom 3. Semua masuk Top!</h3>';
+        document.getElementById('btnRevealBot').style.display = 'none';
+        document.getElementById('btnToTop3').style.display = 'block';
+        return;
+      }
+      
+      // bot3 is highest to lowest among the bottom. We want to reveal highest first, ending with worst.
+      bot3Queue = [...bot3]; 
+      // Add empty slots
+      const container = document.getElementById('bot3Container');
+      container.innerHTML = '';
+      bot3Queue.forEach((_, i) => {
+        const slot = document.createElement('div');
+        slot.id = `botSlot-${i}`;
+        slot.className = 'lb-row';
+        slot.style.justifyContent = 'center';
+        slot.innerHTML = '<span style="color:#cbd5e1;">???</span>';
+        container.appendChild(slot);
+      });
+    }
+
+    function revealNextBot() {
+      if (bot3Queue.length === 0) return;
+      const p = bot3Queue.shift(); // take worst
+      const indexRevealed = 3 - bot3Queue.length - 1; // 0, 1, 2
+      
+      // find real rank
+      const rank = finalLeaderboard.findIndex(x => x.name === p.name) + 1;
+      
+      const slot = document.getElementById(`botSlot-${indexRevealed}`);
+      slot.className = 'lb-row bottom revealed';
+      slot.style.justifyContent = 'space-between';
+      slot.innerHTML = `
+        <span>#${rank} ${p.name}</span>
+        <span>${p.points} pts</span>
+      `;
+      
+      if (bot3Queue.length === 0) {
+        document.getElementById('btnRevealBot').style.display = 'none';
+        document.getElementById('btnToTop3').style.display = 'block';
+      }
+    }
+
+    function goToTop3() {
+      document.getElementById('promptBottom3Screen').style.display = 'none';
+      document.getElementById('bottom3Screen').style.display = 'none';
+      document.getElementById('top3Screen').style.display = 'flex';
+      
+      const top3 = finalLeaderboard.slice(0, 3);
+      // Reveal order: #3, then #2, then #1
+      top3Queue = [...top3].reverse();
+      
+      const container = document.getElementById('top3Container');
+      container.innerHTML = '';
+      // We want to display #1 at top, #2 middle, #3 bottom.
+      // So let's build the slots in fixed order: rank 1, rank 2, rank 3
+      [1, 2, 3].forEach(rank => {
+        if (rank > top3.length) return;
+        const slot = document.createElement('div');
+        slot.id = `topSlot-${rank}`;
+        slot.className = 'lb-row';
+        slot.style.justifyContent = 'center';
+        slot.style.height = rank === 1 ? '100px' : (rank === 2 ? '80px' : '70px');
+        slot.innerHTML = `<span style="color:#cbd5e1; font-size:2rem;">Rank ${rank} ???</span>`;
+        container.appendChild(slot);
+      });
+    }
+
+    function revealNextTop() {
+      if (top3Queue.length === 0) return;
+      const p = top3Queue.shift(); // pops #3, then #2, then #1
+      // rank is based on original index in top3
+      const rank = top3Queue.length + 1; // if 2 left, rank is 3.
+      
+      const slot = document.getElementById(`topSlot-${rank}`);
+      slot.className = `lb-row top${rank} revealed`;
+      slot.style.justifyContent = 'space-between';
+      
+      const medal = rank === 1 ? '🏆' : (rank === 2 ? '🥈' : '🥉');
+      
+      slot.innerHTML = `
+        <span style="display:flex; align-items:center; gap:10px;">
+          <span style="font-size:2.5rem;">${medal}</span>
+          <span>${p.name}</span>
+        </span>
+        <span>${p.points} pts</span>
+      `;
+      
+      if (top3Queue.length === 0) {
+        document.getElementById('btnRevealTop').style.display = 'none';
+        document.getElementById('btnToFullLB').style.display = 'block';
+        
+        // Throw confetti for #1
+        createConfetti();
+      }
+    }
+
+    function createConfetti() {
+      for(let i=0; i<100; i++) {
+        const conf = document.createElement('div');
+        conf.style.position = 'absolute';
+        conf.style.width = '10px';
+        conf.style.height = '10px';
+        conf.style.backgroundColor = ['#f43f5e', '#3b82f6', '#10b981', '#f59e0b', '#a855f7'][Math.floor(Math.random()*5)];
+        conf.style.left = '50%';
+        conf.style.top = '10%';
+        conf.style.zIndex = '100';
+        document.body.appendChild(conf);
+        
+        const angle = Math.random() * Math.PI * 2;
+        const velocity = 10 + Math.random() * 20;
+        let vX = Math.cos(angle) * velocity;
+        let vY = Math.sin(angle) * velocity - 15;
+        let x = window.innerWidth / 2;
+        let y = window.innerHeight * 0.1;
+        
+        function fall() {
+          vY += 0.5; // gravity
+          x += vX;
+          y += vY;
+          conf.style.left = x + 'px';
+          conf.style.top = y + 'px';
+          conf.style.transform = `rotate(${vX*10}deg)`;
+          
+          if(y < window.innerHeight) {
+            requestAnimationFrame(fall);
+          } else {
+            conf.remove();
+          }
+        }
+        fall();
+      }
+    }
+
+    function goToFullLeaderboard() {
+      document.getElementById('top3Screen').style.display = 'none';
+      document.getElementById('fullLeaderboardScreen').style.display = 'flex';
+      
+      const container = document.getElementById('fullLeaderboardList');
+      container.innerHTML = '';
+      
+      finalLeaderboard.forEach((p, idx) => {
+        const row = document.createElement('div');
+        row.className = 'lb-row revealed';
+        row.innerHTML = `
+          <span>#${idx+1} ${p.name}</span>
+          <span style="color:#0284c7;">${p.points} pts</span>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+  </script>
+</body>
+</html>

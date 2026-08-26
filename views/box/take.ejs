@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+  <%- include('../partials/head') %>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Fredoka:wght@400;600;700&display=swap');
+    body {
+      background: radial-gradient(circle at center, #e0f2fe 0%, #bae6fd 100%);
+      font-family: 'Fredoka', 'Inter', sans-serif;
+      margin: 0;
+      color: #0f172a;
+      min-height: 100vh;
+      position: relative;
+    }
+    .game-bg {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      background-image: 
+        radial-gradient(#38bdf8 2px, transparent 2px),
+        radial-gradient(#38bdf8 2px, transparent 2px);
+      background-size: 60px 60px;
+      background-position: 0 0, 30px 30px;
+      opacity: 0.2;
+    }
+    .take-container {
+      max-width: 500px;
+      margin: 60px auto;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      border: 4px solid #bae6fd;
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      position: relative;
+      z-index: 10;
+    }
+    .status-text {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #0284c7;
+      margin-bottom: 20px;
+      font-family: 'Fredoka', sans-serif;
+    }
+    .clue-display {
+      margin-bottom: 20px;
+      display: none;
+    }
+    .clue-text-box {
+      font-size: 1.2rem;
+      color: #0369a1;
+      font-weight: bold;
+      padding: 15px;
+      background: #e0f2fe;
+      border: 2px solid #7dd3fc;
+      border-radius: 12px;
+      margin-bottom: 15px;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.1);
+    }
+    .clue-images-box {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+    }
+    .clue-images-box img {
+      max-width: 100%;
+      height: 120px;
+      border-radius: 12px;
+      border: 3px solid #38bdf8;
+      object-fit: cover;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .form-input {
+      width: 100%;
+      padding: 15px;
+      background: white;
+      border: 3px solid #bae6fd;
+      color: #0f172a;
+      border-radius: 12px;
+      font-size: 1.5rem;
+      text-align: center;
+      text-transform: uppercase;
+      margin-bottom: 15px;
+      display: none;
+      box-sizing: border-box;
+      font-weight: bold;
+    }
+    .form-input:focus {
+      outline: none;
+      border-color: #38bdf8;
+      box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+    }
+    .form-input::placeholder {
+      color: #94a3b8;
+      font-weight: normal;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 15px;
+      background: #38bdf8;
+      color: white;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      display: none;
+      font-family: 'Fredoka', sans-serif;
+      text-transform: uppercase;
+      transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-sizing: border-box;
+      box-shadow: 0 6px 0 #0284c7;
+    }
+    .btn-submit:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 0 #0284c7;
+    }
+    .btn-submit:active:not(:disabled) {
+      transform: translateY(4px);
+      box-shadow: 0 2px 0 #0284c7;
+    }
+    .btn-submit:disabled {
+      background: #e2e8f0;
+      color: #94a3b8;
+      cursor: not-allowed;
+      border: none;
+      box-shadow: none;
+      transform: none;
+    }
+  </style>
+</head>
+<body style="margin:0;">
+  <div class="game-bg"></div>
+  <div class="take-container">
+    <div id="statusText" class="status-text">Menghubungkan...</div>
+    
+    <div id="clueDisplay" class="clue-display">
+      <div id="clueTextBox" class="clue-text-box" style="display:none;"></div>
+      <div id="clueImagesBox" class="clue-images-box"></div>
+    </div>
+    
+    <input type="text" id="answerInput" class="form-input" placeholder="Jawaban Anda" autocomplete="off">
+    <button id="btnSubmit" class="btn-submit" onclick="submitAnswer()">Kirim Jawaban</button>
+  </div>
+
+  <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+  <script>
+    const API_URL = '<%= process.env.API_URL || "http://localhost:4000" %>';
+    const socket = io(API_URL);
+    const boxCode = '<%= code %>';
+    const participantName = '<%= participantName %>';
+
+    const statusText = document.getElementById('statusText');
+    const clueDisplay = document.getElementById('clueDisplay');
+    const clueTextBox = document.getElementById('clueTextBox');
+    const clueImagesBox = document.getElementById('clueImagesBox');
+    const answerInput = document.getElementById('answerInput');
+    const btnSubmit = document.getElementById('btnSubmit');
+
+    let hasAnswered = false;
+
+    socket.on('connect', () => {
+      socket.emit('box-player-join', { code: boxCode, name: participantName });
+      statusText.innerText = 'Menunggu Host memulai permainan...';
+    });
+
+    socket.on('box-join-error', (msg) => {
+      statusText.innerText = msg;
+      statusText.style.color = '#ef4444';
+    });
+
+    socket.on('box-started', () => {
+      // Game started or Next Word started
+      hasAnswered = false;
+      statusText.innerText = 'Permainan Dimulai! Bersiaplah...';
+      statusText.style.color = '#0284c7';
+      
+      // Reset UI
+      clueDisplay.style.display = 'none';
+      clueTextBox.style.display = 'none';
+      clueImagesBox.innerHTML = '';
+      
+      answerInput.value = '';
+      answerInput.disabled = false;
+      answerInput.style.display = 'none';
+      
+      btnSubmit.disabled = false;
+      btnSubmit.style.display = 'none';
+      btnSubmit.innerText = 'Kirim Jawaban';
+    });
+
+    socket.on('box-clue-revealed', (data) => {
+      clueDisplay.style.display = 'block';
+      const clueObj = data.clue;
+      
+      if (clueObj.text) {
+        clueTextBox.innerText = `Clue ${data.clueIndex + 1}: ${clueObj.text}`;
+        clueTextBox.style.display = 'block';
+      } else {
+        clueTextBox.style.display = 'none';
+      }
+      
+      clueImagesBox.innerHTML = '';
+      if (clueObj.images && clueObj.images.length > 0) {
+        clueObj.images.forEach(imgUrl => {
+          const fullUrl = imgUrl.startsWith('http') ? imgUrl : `${API_URL.replace('/api', '')}${imgUrl}`;
+          const img = document.createElement('img');
+          img.src = fullUrl;
+          clueImagesBox.appendChild(img);
+        });
+      }
+      
+      if (!hasAnswered) {
+        statusText.innerText = 'Masukkan tebakan Anda!';
+        answerInput.style.display = 'block';
+        btnSubmit.style.display = 'block';
+        answerInput.focus();
+      }
+    });
+
+    socket.on('box-ended', () => {
+      statusText.innerText = 'Waktu Habis! Lihat layar utama.';
+      clueDisplay.style.display = 'none';
+      answerInput.style.display = 'none';
+      btnSubmit.style.display = 'none';
+    });
+
+    function submitAnswer() {
+      const answer = answerInput.value.trim();
+      if (!answer || hasAnswered) return;
+
+      socket.emit('box-submit-answer', {
+        code: boxCode,
+        name: participantName,
+        answer: answer
+      });
+
+      hasAnswered = true;
+      answerInput.disabled = true;
+      btnSubmit.disabled = true;
+      btnSubmit.innerText = 'Jawaban Terkirim!';
+      statusText.innerText = 'Menunggu hasil...';
+    }
+
+    answerInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') submitAnswer();
+    });
+  </script>
+</body>
+</html>

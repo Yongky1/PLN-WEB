@@ -315,4 +315,19 @@ router.get('/background', async (req, res) => {
   }
 });
 
+// Bank Soal Whats In The Box
+router.get('/box-presets', updlOnly, async (req, res) => {
+  try {
+    const response = await fetch(`${API_URL}/box/presets`);
+    let presets = [];
+    if (response.ok) {
+      presets = await response.json();
+    }
+    renderAdmin(res, 'box-presets', 'Bank Soal Whats In The Box', 'Kelola daftar preset game Whats In The Box', { presets }, req.user);
+  } catch (err) {
+    console.error('[Admin] Error loading box-presets page:', err);
+    renderAdmin(res, 'box-presets', 'Bank Soal Whats In The Box', 'Kelola daftar preset game Whats In The Box', { presets: [] }, req.user);
+  }
+});
+
 module.exports = router;
